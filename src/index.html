@@ -6,6 +6,7 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.js"></script>
 
    <link rel="stylesheet" href="css/main.css" />
+   <link rel="stylesheet" href="css/popup.css" />
 </head>
 
 <body>
@@ -17,7 +18,7 @@
       <div id="right-side-wrapper">
          <button id="runButton">RUN</button>
          <!-- The Environment Div -->
-         <div id="mainDiagram"></div>
+         <div id="environmentDiv"></div>
          <!-- The Environment Div -->
          <div id="inspector"></div>
       </div>
@@ -26,39 +27,55 @@
       <div id="plot_1"></div>
    </div>
 
+   <!-- Load All Global Variables -->
+   <script src="js/scripts/globals.js"></script>
 
-   <!-- Load Classes -->
+
+   <!-- Load Communitcation Components -->
    <script src="js/classes/communication/message.js"></script>
-   <script src="js/classes/dataComponents/htmlGenerators/HTMLTable.js"></script>
    <script src="js/classes/dataComponents/communication/subscriber.js"></script>
    <script src="js/classes/dataComponents/communication/publisher.js"></script>
-   <script src="js/classes/components/moduleMenu.js"></script>
-   <script src="js/classes/dataComponents/moduleDataTable.js"></script>
+
+   <!-- Load Modules and related Components -->
    <script src="js/classes/modules/module.js"></script>
-   <script src="js/classes/components/environment.js"></script>
+   <script src="js/classes/dataComponents/moduleGenerator.js"></script>
    <script src="js/classes/modules/sourceModules/source.js"></script>
    <script src="js/classes/modules/sourceModules/csvSource.js"></script>
    <script src="js/classes/modules/processorModules/processor.js"></script>
    <script src="js/classes/modules/outputModules/output.js"></script>
+    <!--   <script src="js/classes/dataComponents/htmlGenerators/HTMLTable.js"></script>
+
+
+
+
+   
    <script src="js/classes/components/inspector.js"></script>
-   <script src="js/classes/dataComponents/moduleGenerator.js"></script>
+   
    <script src="js/classes/components/popup.js"></script>
    <script src="js/classes/dataComponents/dataTable.js"></script>
-   <script src="js/classes/dataComponents/csvReader.js"></script>
+   <script src="js/classes/dataComponents/csvReader.js"></script> -->
 
    <!-- Load JS scripts -->
    <script src="js/scripts/eventListeners.js"></script>
-   <script src="js/scripts/globals.js"></script>
+
    <script src="js/scripts/client.js"></script>
    <script src="js/scripts/charts.js"></script>
 
+   <!-- Load Servers -->
+   <script src="js/servers/hub.js"></script>
+
+   <!-- Load Managers -->
+   <script src="js/managers/moduleManager.js"></script>
+   <script src="js/managers/dataManager.js"></script>
+   <script src="js/managers/globalManager.js"></script>
+
+   <!-- Load Application Components -->
+   <script src="js/classes/components/environment.js"></script>
+   <script src="js/classes/components/moduleSelectionMenu.js"></script>
 
    <!-- start Main -->
    <script src="js/scripts/main.js"></script>
 
-   <!-- Load Managers -->
-
-   <script src="js/managers/globalManager.js"></script>
 
 </body>
 

@@ -5,6 +5,7 @@ class Publisher {
     };
 
     publishMessage = msg => {
+        this.printSubscriberList();
         this.subscriberList.forEach(s => {
             s.subscriber.receiveMessage(msg);
         });
@@ -13,5 +14,9 @@ class Publisher {
     subscribe = sub => {
         this.key++;
         this.subscriberList.push({key: this.key, subscriber: sub});
+    }
+
+    printSubscriberList = () => {
+        console.log(this.subscriberList);
     }
 }

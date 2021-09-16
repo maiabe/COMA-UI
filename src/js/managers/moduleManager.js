@@ -1,13 +1,30 @@
-class ModuleDataTable {
+class ModuleManager {
+    #MG;          // Module Generator
+    publisher;    // Message Publisher
+    
     constructor() {
+        this.#MG = new ModuleGenerator();
+        this.publisher = new Publisher();
         this.nameArray = [];
         this.moduleArray = [];
     };
 
+    createNewModule = (name, category) => {
+        const mod = this.#MG.generateNewModule(name, category);
+        this.#addModule(mod);
+        const data = {module: mod, templateExists: this.nameArray.includes(name) ? true: false};
+        const msg = new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', data);
+        this.#sendMessage(msg);
+    }
+
+    #sendMessage = msg => {
+        this.publisher.publishMessage(msg);
+    }
+
     /** Adds a module to the correct Array. 
      * @param module -> The module to add.
     */
-    addModule = module => {
+    #addModule = module => {
         this.moduleArray.push(module);
         if (!this.nameArray.includes(module.getName())) {
             this.nameArray.push(module.getName());
@@ -47,13 +64,6 @@ class ModuleDataTable {
         }
     };
 
-    /** Checks to see if there is a template for this specific type
-     * @param type -> The type of the node identifies which array to check.
-     * @return true if the array is not empty, false if the array is empty.
-     */
-    doesTemplateExist = name => {
-        return this.nameArray.includes(name) ? false : true;
-    };
 
     /** Gets a module from the correct array
      * @param key -> The key of the node.

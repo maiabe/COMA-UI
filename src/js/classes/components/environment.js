@@ -1,29 +1,51 @@
 class Environment {
-    constructor(divName) {
+    // Communication Variables
+    publisher;              // Sends Messages through the HUB
+    subscriber;            // Subscribes only to the HUB
+
+    #divID;     // HTML div for the environment
+    #myDiagram; // The GO JS diagram object
+    #model;     // The Gojs Model
+    #nodeKey;   // Identifies individual Nodes. Keys are unique and icremented each time a node is added.
+
+    constructor(divID) {
         this.publisher = new Publisher();
-        this.MDT = new ModuleDataTable();          // Stores the modules in arrays separated by type.               // Is this the main Environment or staging environment.
-        this.divName = divName;                    // The HTML Div of this environment.
-        this.myDiagram;                            // GOJS diagram.
-        this.startGoJsEnvironment();               // Initialize the GOJS environment
-        this.model = this.createNewModel();        // Create A new GOJS model object.
-        this.load();                               // Load the model and display it to the environemnt in browser.
-        this.nodeKey = 1;                          // Initialize the next node key to 1.
-        this.createEventListeners();
+        this.subscriber = new Subscriber(this.messageHandler);
+        this.#divID = divID;                        // The HTML Div of this environment.
+        this.#myDiagram;                            // GOJS diagram.
+        this.#model;                                // GOJS Model.
+        this.#nodeKey = 1;                          // Initialize the next node key to 1.
     }
 
+    messageHandler = msg => {
+        console.log(typeof(msg));
+    };
+
+    sendMessage = msg => {
+        this.publisher.publishMessage(msg);
+    };
+
+    /** Sets Up the Environment */
+    setUpEnvironment = () => {
+        GM.HUB.publisher.subscribe(this.messageHandler); // Subscribe to the EnvironmentalDataTable
+        this.startGoJsEnvironment();                     // Initialize the GOJS environment
+        this.#model = this.createNewModel();              // Create A new GOJS model object. Arrays are Empty to start.
+        this.#load();                                     // Load the model and display it to the environemnt in browser.
+        this.createEventListeners();                     // Set Up Event Listeners
+    };
+
     createEventListeners = () => {
-        this.myDiagram.addDiagramListener('LinkDrawn', (e) => {
-            this.publisher.publishMessage(
-                {
-                    tag: 'Link Drawn',
-                    data: {
-                        fromNodeKey: e.subject.fromNode.key,
-                        toNodeKey: e.subject.toNode.key
-                    }
-                });
+        this.#myDiagram.addDiagramListener('LinkDrawn', (e) => {
+            const data = {
+                event: 'LinkDrawn',
+                fromNodeKey: e.subject.fromNode.key,
+                toNodeKey: e.subject.toNode.key
+            };
+            this.sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Environment Event', data));
         });
     }
 
+    /** Generates a GOJS model without any nodes. */
     createNewModel = () => {
         const model =
         {
@@ -53,8 +75,8 @@ class Environment {
 
     startGoJsEnvironment = () => {
         const $ = go.GraphObject.make;
-        this.myDiagram =
-            $(go.Diagram, this.divName,
+        this.#myDiagram =
+            $(go.Diagram, this.#divID,
                 {
                     initialContentAlignment: go.Spot.TopLeft,
                     initialAutoScale: go.Diagram.UniformToFill,
@@ -63,7 +85,7 @@ class Environment {
                     "undoManager.isEnabled": true
                 }
             );
-        this.myDiagram.grid.visible = true;
+        this.#myDiagram.grid.visible = true;
     }
 
     makeTemplate = (typename, icon, background, shape, inports, outports) => {
@@ -120,7 +142,7 @@ class Environment {
                     outports)
             )
         );
-        this.myDiagram.nodeTemplateMap.add(typename, node);
+        this.#myDiagram.nodeTemplateMap.add(typename, node);
     }
 
     makePort = (name, leftside) => {
@@ -170,18 +192,18 @@ class Environment {
 
     /** Removes a node from the diagram. */
     removeNode = (nodeKey) => {
-        const node = this.myDiagram.findNodeForKey(nodeKey);
+        const node = this.#myDiagram.findNodeForKey(nodeKey);
         if (node !== null) {
-            this.myDiagram.startTransaction();
-            this.myDiagram.remove(node);
-            let i = this.model.nodeDataArray.forEach((n, index) => {
+            this.#myDiagram.startTransaction();
+            this.#myDiagram.remove(node);
+            let i = this.#model.nodeDataArray.forEach((n, index) => {
                 if (n.key === nodeKey) {
                     return index;
                 }
             });
-            this.model.nodeDataArray.splice(i, 1);
+            this.#model.nodeDataArray.splice(i, 1);
             this.MDT.removeModule(nodeKey, node.data.type);
-            this.myDiagram.commitTransaction("deleted node");
+            this.#myDiagram.commitTransaction("deleted node");
         } else {
             console.log('No Node Found. Cannot Delete.');
         }
@@ -189,27 +211,22 @@ class Environment {
 
     /** Returns the next unique node key and increments the counter. */
     getNextNodeKey = () => {
-        this.nodeKey++;
-        return this.nodeKey - 1;
+        this.#nodeKey++;
+        return this.#nodeKey - 1;
     }
 
-    /** Deploys a new module to the environment
-     * @param mod -> The module to deploy.
-     */
-    deployNewModule = (type, category) => {
-        const mod = MG.generateNewModule(type, category);
+    insertModule = (mod, templateExists) => {
         mod.setKey(this.getNextNodeKey());
-        if (this.MDT.doesTemplateExist(type)) {
+        if (!templateExists) {
             this.createTemplate(mod);
         }
-        this.MDT.addModule(mod); // Add The module to the data table.
-        this.model.nodeDataArray.push({ "key": mod.getKey(), "type": mod.getName(), "name": mod.getType() });
-        this.load();
+        this.#model.nodeDataArray.push({ "key": mod.getKey(), "type": mod.getName(), "name": mod.getType() });
+        this.#load();
     }
 
     /** Loads the model to the HTML browser page. */
-    load = () => {
-        this.myDiagram.model = go.Model.fromJson(this.model);
+    #load = () => {
+        this.#myDiagram.model = go.Model.fromJson(this.#model);
     };
 
     /** Runs the diagram */

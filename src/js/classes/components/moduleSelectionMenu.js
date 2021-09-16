@@ -1,5 +1,7 @@
-class ModuleMenu {
+class ModuleSelectionMenu {
+    publisher;
     constructor() {
+        this.publisher = new Publisher();
         this.menuContainer = document.getElementById('moduleMenu');
         this.sourceSubMenuItems = [
             {icon: 'images/icons/sql-open-file-format.png', text: 'SQL', category: 'Source'},
@@ -115,7 +117,7 @@ class ModuleSubMenu {
     }
 }
 
-class SubMenuCard {
+class SubMenuCard  {
     constructor(data) {
         this.icon = data.icon;
         this.text = data.text;
@@ -141,6 +143,8 @@ class SubMenuCard {
         return this.element;
     };
     clickHandler = () => {
-        ENV.deployNewModule(this.text, this.category);
+        const data = {moduleName: this.text, moduleCategory: this.category};
+        const msg = new Message(MODULE_MANAGER, MODULE_SELECTION_MENU, 'Deploy Module Event', data);
+        GM.MSM.publisher.publishMessage(msg);
     };
 }
