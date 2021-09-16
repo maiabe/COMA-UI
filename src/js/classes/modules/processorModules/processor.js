@@ -1,0 +1,47 @@
+class Processor extends Module {
+    constructor(category, color, shape) {
+        super(category, color, shape);
+    }
+}
+
+class FunctionProcessor extends Processor {
+    constructor(category, color, shape) {
+        super(category, color, shape);
+        this.inPorts = [{ name: 'IN', leftSide: true }];
+        this.outPorts = [{ name: 'OUT', leftSide: false }];
+        this.setName("Function");
+        this.image = 'images/icons/function.png';
+        this.popupContent;
+        this.setPopupContent();
+        this.setupInspectorContent();
+    }
+
+}
+
+class Gaussian extends Processor {
+    constructor(category, color, shape) {
+        super(category, color, shape);
+        this.inPorts = [{ name: 'IN', leftSide: true }];
+        this.outPorts = [{ name: 'OUT', leftSide: false }];
+        this.setName("Gaussian Filter");
+        this.image = 'images/icons/gaussian-function.png';
+        this.popupContent;
+        this.setPopupContent();
+        this.setupInspectorContent();
+    }
+
+}
+
+class Laplacian extends Processor {
+    constructor(category, color, shape) {
+        super(category, color, shape);
+        this.inPorts = [{ name: 'IN', leftSide: true }];
+        this.outPorts = [{ name: 'OUT', leftSide: false }];
+        this.setName("Laplacian Filter");
+        this.image = 'images/icons/filter.png';
+        this.popupContent;
+        this.setPopupContent();
+        this.setupInspectorContent();
+    }
+
+}

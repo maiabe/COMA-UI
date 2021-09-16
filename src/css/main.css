@@ -1,0 +1,281 @@
+@font-face {
+  font-family: 'Sora';
+  src: url('../fonts/Sora-VariableFont_wght.ttf');
+}
+body {
+  width: 100%;
+  border: 0;
+  margin: 0;
+  padding: 0 0 0 0;
+  overflow-x: hidden;
+  font-family: 'Sora', Fallback, sans-serif;
+}
+
+button {
+    padding: 1vw;
+    width: 15vw;
+    font-size: 1em;
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 1.2em;
+    font-weight: 800;
+}
+
+h2 {
+    font-size: 1em;
+    font-weight: 600;
+}
+
+/* Navigation bar runs across the top of the window */
+.nav {
+  height: 10vh;
+  width: 100vw;
+  position: relative;
+}
+
+/* Contains all Data below the nav bar, split into two main sections, left and right */
+#mainWrapper {
+  position: relative;
+  width: 98vw;
+  display: inline-block;
+  left: 1vw;
+  height: 85vh;
+  top: 0;
+}
+
+
+/* Left Side of the Window -- Contains the menu */
+#left-side-wrapper {
+  height: 100%;
+  width: 21%;
+  outline: 1px solid black;
+  float: left;
+  margin-right: 1vw;
+  position: relative;
+}
+
+#moduleMenu {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#moduleMenu > h1 {
+  width: 100%;
+  text-align: center;
+}
+
+#moduleMenu > .menuSegmentWrapper {
+  width: 100%;
+  position: relative;
+
+}
+
+#moduleMenu > .menuSegmentWrapper > .topMenuButton {
+  text-align: center;
+  background-color: #efefef;
+  width: 100%;
+  position: relative;
+  outline: 1px solid black;
+  height: 2.7em;
+  padding-left: 3%;
+  overflow:hidden;
+  cursor: pointer;
+}
+
+#moduleMenu > .menuSegmentWrapper > .topMenuButton > img {
+  width: 12%;
+  height: 80%;
+  position: relative;
+  float: left;
+  top: 12%;
+}
+
+
+#moduleMenu > .menuSegmentWrapper > .topMenuButton > p {
+  float: left;
+  font-size: 1em;
+  color: white;
+  font-weight: 400;
+  width: 70%;
+  text-align: left;
+  height: 100%;
+  margin: 0;
+  top: calc(50% - 0.5em);
+  position: relative;
+  padding-left: 15%;
+}
+
+.subMenuWrapper {
+  width: 100%;
+ overflow: hidden;
+ height: 0px;
+ transition: height 0.2s ease-in;
+}
+
+.menuIconCard {
+  width: 33%;
+  height: 100px;
+  float: left;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background-color 0.3s linear;
+}
+
+.menuIconCard:hover {
+  background-color: #efefef;
+}
+
+.menuIconCard > .iconText {
+  width: 100%;
+  text-align: center;
+  height: 40%;
+  position: relative;
+  font-size: .9em;
+  margin-top: 1vh;
+}
+.menuIconCard > img {
+  width: 50%;
+  height: 50%;
+  position: relative;
+  margin-top: 1vh;
+}
+
+/* End Left Side of the window */
+
+/* Start Right Side of the View Window 
+Contains the main diagram, the plot view, the create module pipeline and sub environment*/
+#right-side-wrapper {
+  height: 100%;
+  width: 76.5%;
+  display: inline-block;
+  position: relative;
+}
+
+/* the run botton is separate from the rest of the css currently */
+#runButton {
+    left: 60%;
+    top: 92%;
+    position: absolute;
+    z-index: 10000;
+    width: 5vw;
+    height: 4vh;
+    padding: 0;
+  }
+
+/* The main diagram hold sthe main Environment */
+#mainDiagram {
+  position: relative;
+  outline: 1px solid black;
+  width: 71.5%;
+  height: 100%;
+  display: inline-block;
+  margin-right: 1vw;
+  text-align: center;
+}
+
+/* This button starts a new Main Environment. */
+#mainDiagram > button {
+    height: 8vh;
+    position: relative;
+    top: calc(50% - 4vh);
+}
+
+/* Inspector is on the far right side of the screen */
+#inspector {
+  width: 26.7%;
+  height: 100%;
+  position: relative;
+  float: right;
+  outline: 1px solid black;
+}
+#inspector > h1 {
+  width: 100%;
+  text-align: center;
+}
+
+
+/* SideBar to the right of the main Environment, shows the Plots */
+.plot_sidebar {
+  width: 30%;
+  height: 60%;
+  outline: 1px solid black;
+  position: relative;
+  vertical-align: top;
+  top: 0;
+  display: inline-block;
+}
+
+#plot_1 {
+  width: 100%;
+  height: 100%;
+}
+
+/* END THE RIGHT SIDE OF THE WINDOW */
+
+/* Module Popup appears when a module icon is selected. It is draggable */
+.popup {
+  position: absolute;
+  height: 75%;
+  width: 30%;
+  background-color: #d3d3d3;
+  opacity: 0.9;
+  z-index: 10000;
+  top: 0;
+  left: 0;
+}
+
+.popup > .popupHeader {
+  height: 10%;
+  width: 100%;
+  position: relative;
+  background-color: blue;
+}
+
+.popupHeader > p {
+  float: left;
+  position: relative;
+  color: white;
+  margin-left: 2vw;
+}
+
+.closePopupIcon {
+  width: 7%;
+  height: 60%;
+  position: relative;
+  float: right;
+  margin-right: 2%;
+  margin-top: 2%;
+}
+
+.closePopupIcon>img{
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border-radius: 50%;
+}
+
+/* Special Areas for the popup */
+#csvDataArea, #tableDataArea {
+  width: 90%;
+  height: 60%;
+  overflow: auto;
+  position: relative;
+  left: 5%;
+  top: 4vh;
+}
+
+.uploadWrapper {
+  width: 90%;
+  padding: 2%;
+  outline: 1px solid black;
+  position: relative;
+  left: 3%;
+  top: 3vh;
+  z-index: 1000;
+}
