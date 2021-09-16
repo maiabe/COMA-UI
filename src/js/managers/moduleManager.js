@@ -10,9 +10,10 @@ class ModuleManager {
     };
 
     createNewModule = (name, category) => {
+        const templateExists = this.nameArray.includes(name) ? true: false;
         const mod = this.#MG.generateNewModule(name, category);
         this.#addModule(mod);
-        const data = {module: mod, templateExists: this.nameArray.includes(name) ? true: false};
+        const data = {module: mod, templateExists: templateExists};
         const msg = new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', data);
         this.#sendMessage(msg);
     }
@@ -36,34 +37,12 @@ class ModuleManager {
      * @param the -> The type of the node.
     */
     removeModule = (key, type) => {
-        switch (type) {
-            case 'Source':
-                this.sourceArray.forEach((e, index) => {
-                    if (e.getKey() === key) {
-                        this.sourceArray.splice(index, 1);
-                    }
-                });
-                break;
-            case 'Output':
-                this.outputArray.forEach((e, index) => {
-                    if (e.getKey() === key) {
-                        this.outputArray.splice(index, 1);
-                    }
-                });
-                break;
-            case 'Processor':
-                this.processorArray.forEach((e, index) => {
-                    if (e.getKey() === key) {
-                        this.processorArray.splice(index, 1);
-                    }
-                });
-                break;
-            default:
-                console.log('Invalid Module Type. Cannot Remove Module.');
-                break;
-        }
+        this.moduleArray.forEach((e, index) => {
+            if (e.getKey() === key) {
+                this.moduleArray.splice(index, 1);
+            }
+        });
     };
-
 
     /** Gets a module from the correct array
      * @param key -> The key of the node.
