@@ -36,7 +36,7 @@ class ModuleManager {
      * @param key -> The key of the node.
      * @param the -> The type of the node.
     */
-    removeModule = (key, type) => {
+    #removeModule = (key, type) => {
         this.moduleArray.forEach((e, index) => {
             if (e.getKey() === key) {
                 this.moduleArray.splice(index, 1);
@@ -68,4 +68,10 @@ class ModuleManager {
             console.log('No Module Matches This key/Type pair.');
         }
     }
+
+    getInspectorContentForModule = key => {
+        console.log(key);
+        console.log(this.getModule(key));
+        return this.getModule(key).getInspectorContent();
+    };
 }

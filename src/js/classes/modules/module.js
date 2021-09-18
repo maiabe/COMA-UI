@@ -21,12 +21,12 @@ class Module {
     get_output = name => { };
     connect_input = () => { };
     connections = () => { };
-    updatePopupContent = () => {};
+    updatePopupContent = () => { };
     updateInspectorContent = () => {
         INS.updateContent(this.key);
     };
 
-    
+
     setupInspectorContent = () => {
         this.inspectorContent.pairs = [];
         this.inspectorContent.pairs.push({ 'Name': this.name });
@@ -45,7 +45,7 @@ class Module {
         this.popupContent.innerHTML = this.getName();
     }
 
-    
+
     getDataFromNode = key => {
         const mod = ENV.MDT.getModule(key);
         const data = mod.getData();
@@ -77,6 +77,9 @@ class Module {
     getImage = () => { return this.image; }
     getColor = () => { return this.color; }
     getKey = () => { return this.key; }
+    getInspectorContent = () => {
+        return this.inspectorContent;
+    };
 
 
 }

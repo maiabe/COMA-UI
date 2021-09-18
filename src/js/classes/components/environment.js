@@ -21,20 +21,20 @@ class Environment {
         console.log(typeof(msg));
     };
 
-    sendMessage = msg => {
+    #sendMessage = msg => {
         this.publisher.publishMessage(msg);
     };
 
     /** Sets Up the Environment */
     setUpEnvironment = () => {
-        GM.HUB.publisher.subscribe(this.messageHandler); // Subscribe to the EnvironmentalDataTable
-        this.startGoJsEnvironment();                     // Initialize the GOJS environment
-        this.#model = this.createNewModel();              // Create A new GOJS model object. Arrays are Empty to start.
+        GM.HUB.publisher.subscribe(this.messageHandler);  // Subscribe to the EnvironmentalDataTable
+        this.#startGoJsEnvironment();                     // Initialize the GOJS environment
+        this.#model = this.#createNewModel();             // Create A new GOJS model object. Arrays are Empty to start.
         this.#load();                                     // Load the model and display it to the environemnt in browser.
-        this.createEventListeners();                     // Set Up Event Listeners
+        this.#createEventListeners();                     // Set Up Event Listeners
     };
 
-    createEventListeners = () => {
+    #createEventListeners = () => {
         this.#myDiagram.addDiagramListener('LinkDrawn', (e) => {
             const data = {
                 event: 'LinkDrawn',
@@ -46,7 +46,7 @@ class Environment {
     }
 
     /** Generates a GOJS model without any nodes. */
-    createNewModel = () => {
+    #createNewModel = () => {
         const model =
         {
             class: "go.GraphLinksModel",
@@ -61,19 +61,19 @@ class Environment {
         return model;
     };
 
-    createTemplate = mod => {
+    #createTemplate = mod => {
         const inports = [];
         const outports = [];
         mod.getInPorts().forEach(obj => {
-            inports.push(this.makePort(obj.name, obj.leftSide));
+            inports.push(this.#makePort(obj.name, obj.leftSide));
         });
         mod.getOutPorts().forEach(obj => {
-            outports.push(this.makePort(obj.name, obj.leftSide));
+            outports.push(this.#makePort(obj.name, obj.leftSide));
         });
-        this.makeTemplate(mod.getName(), mod.getImage(), mod.getColor(), mod.getShape(), inports, outports);
+        this.#makeTemplate(mod.getName(), mod.getImage(), mod.getColor(), mod.getShape(), inports, outports);
     }
 
-    startGoJsEnvironment = () => {
+    #startGoJsEnvironment = () => {
         const $ = go.GraphObject.make;
         this.#myDiagram =
             $(go.Diagram, this.#divID,
@@ -88,11 +88,11 @@ class Environment {
         this.#myDiagram.grid.visible = true;
     }
 
-    makeTemplate = (typename, icon, background, shape, inports, outports) => {
+    #makeTemplate = (typename, icon, background, shape, inports, outports) => {
         const $ = go.GraphObject.make;
         var node = $(go.Node, {
             selectionAdorned: true,  // don't bother with any selection adornment
-            selectionChanged: this.onSelectionChanged
+            selectionChanged: this.#onSelectionChanged
         },
             {
                 doubleClick: (e, node) => {
@@ -145,7 +145,7 @@ class Environment {
         this.#myDiagram.nodeTemplateMap.add(typename, node);
     }
 
-    makePort = (name, leftside) => {
+    #makePort = (name, leftside) => {
         const $ = go.GraphObject.make;
         var port = $(go.Shape, "Rectangle",
             {
@@ -184,14 +184,16 @@ class Environment {
     /** When a node is selected, the data for this module is passed to the Inspector
      * @param node -> The newly selected node. 
      */
-    onSelectionChanged = node => {
-        INS.setCurrentModule(this.MDT.getModule(node.key, node.data.type));
+    #onSelectionChanged = node => {
+        const data = {moduleKey: node.key};
+        const msg = new Message(INSPECTOR, ENVIRONMENT, 'Node Selected Event', data);
+        this.#sendMessage(msg);
     }
 
     /** PUBLIC API */
 
     /** Removes a node from the diagram. */
-    removeNode = (nodeKey) => {
+    #removeNode = (nodeKey) => {
         const node = this.#myDiagram.findNodeForKey(nodeKey);
         if (node !== null) {
             this.#myDiagram.startTransaction();
@@ -210,15 +212,15 @@ class Environment {
     }
 
     /** Returns the next unique node key and increments the counter. */
-    getNextNodeKey = () => {
+    #getNextNodeKey = () => {
         this.#nodeKey++;
         return this.#nodeKey - 1;
     }
 
     insertModule = (mod, templateExists) => {
-        mod.setKey(this.getNextNodeKey());
+        mod.setKey(this.#getNextNodeKey());
         if (!templateExists) {
-            this.createTemplate(mod);
+            this.#createTemplate(mod);
         }
         this.#model.nodeDataArray.push({ "key": mod.getKey(), "type": mod.getName(), "name": mod.getType() });
         this.#load();

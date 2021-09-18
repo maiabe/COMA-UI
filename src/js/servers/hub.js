@@ -21,6 +21,8 @@ class Hub {
             case MODULE_MANAGER:
                 this.#messageForModelManager(msgContents.type, msgContents.data);
                 break;
+            case INSPECTOR:
+                this.#messageForInspector(msgContents.type, msgContents.data);
         }
     };
 
@@ -29,6 +31,7 @@ class Hub {
         GM.DM.publisher.subscribe(this.subscriber);
         GM.MSM.publisher.subscribe(this.subscriber);
         GM.MM.publisher.subscribe(this.subscriber);
+        GM.INS.publisher.subscribe(this.subscriber);
     };
 
     #messageForEnvironment = (type, data) => {
@@ -37,15 +40,26 @@ class Hub {
             case 'New Module Created Event':
                 GM.ENV.insertModule(data.module, data.templateExists);
                 break;
+            case 'Start Environment Event':
+                GM.ENV.setUpEnvironment();
+                break;
         }
     }
 
     #messageForModelManager = (type, data) => {
-        switch(type) {
+        switch (type) {
             case 'Deploy Module Event':
                 GM.MM.createNewModule(data.moduleName, data.moduleCategory);
                 break;
         }
     };
 
+    #messageForInspector = (type, data) => {
+        switch (type) {
+            case 'Node Selected Event':
+                GM.INS.setCurrentModuleKey(data.moduleKey);
+                GM.INS.updateContent(data.moduleKey, GM.MM.getInspectorContentForModule(data.moduleKey));
+                break;
+        }
+    }
 }

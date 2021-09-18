@@ -30,7 +30,6 @@ class ModuleSelectionMenu {
             {text: 'Processor', color: '#d40606', subMenuItems:this.processorSubMenuItems, subMenu: null, buttonIcon: 'images/icons/calculator.png'}, 
             {text: 'Output', color: '#2e77ff', subMenuItems: this.outputSubMenuItems, subMenu: null, buttonIcon: 'images/icons/scatter-graph.png'}];
         this.topMenuButtonArray = [];
-        this.initializeMenu();
     };
 
     initializeMenu = () => {
@@ -54,19 +53,11 @@ class ModuleTopButton {
     };
 
     createButton = (subMenuItems) => {
-        this.wrapperElement = document.createElement('div');
-        this.wrapperElement.classList.add('menuSegmentWrapper');
-        this.buttonElement = document.createElement('div');
-        this.buttonElement.classList.add('topMenuButton');
-        const icon = document.createElement('img');
-        icon.src = this.image;
-        this.buttonElement.append(icon);
-        const paragraph = document.createElement('p');
-        paragraph.innerHTML = this.text;
-        this.buttonElement.append(paragraph);
-        this.buttonElement.style.backgroundColor = this.color;
+        this.wrapperElement = GM.HF.createNewDiv('module-selection-menu-wrapper', 'module-selection-menu-wrapper', ['menuSegmentWrapper'], []);
+        this.buttonElement = GM.HF.createNewDiv('', '', ['topMenuButton'], [{style: 'backgroundColor', value: this.color}]);
+        this.buttonElement.append(GM.HF.createNewIMG('','', this.image, [], [], 'Submenu Icon'));
+        this.buttonElement.append(GM.HF.createNewParagraph('','',[],[], this.text));
         this.wrapperElement.append(this.buttonElement);
-        // Create The sub Menu
         this.subMenu = new ModuleSubMenu(this.text, subMenuItems);
         this.wrapperElement.append(this.subMenu.getWrapperElement());
         this.buttonElement.addEventListener('click', this.subMenu.toggleMenu);
@@ -89,16 +80,13 @@ class ModuleSubMenu {
     }
 
     createSubMenu = () => {
-        this.wrapperElement = document.createElement('div');
-        this.wrapperElement.classList.add('subMenuWrapper');
         this.maxHeight = Math.ceil(this.dataArray.length / 3) * 100 + 'px';
-
+        this.wrapperElement = GM.HF.createNewDiv('msm-submenu-wrapper', 'msm-submenu-wrapper', ['subMenuWrapper'], [`height: ${this.maxHeight}`]);
         this.dataArray.forEach(e => {
             const card = new SubMenuCard(e);
             this.cardArray.push(card);
             this.wrapperElement.append(card.getElement());
         });
-        this.wrapperElement.style.height = `${this.maxHeight}}px`;
     };
 
     toggleMenu = () => {
@@ -107,10 +95,8 @@ class ModuleSubMenu {
         const paddingTop = this.open ? '0%' : '1%';
         const paddingBottom = this.open ? '0%' : '1%';
         this.open = !this.open;
-        this.wrapperElement.style.height = height;
-        this.wrapperElement.style.paddingTop = paddingTop;
-        this.wrapperElement.style.paddingBottom = paddingBottom;
-    };
+        GM.HF.setCustomStyles(this.wrapperElement, [{style: 'height', value: height}, {style: 'paddingTop', value: paddingTop}, {style: 'paddingBottom', value: paddingBottom}]);
+    }
 
     getWrapperElement = () => {
         return this.wrapperElement;

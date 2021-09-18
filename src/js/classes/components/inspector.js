@@ -1,16 +1,25 @@
 class Inspector {
 
+    publisher;                  // Message Publisher
+    subscriber;                 // Message Subscriber
+    #currentModuleKey;          // Key identifying the Highlighted Module
+
     constructor() {
+        // Set Up the communication components.
+        this.publisher = new Publisher();
         this.div = document.getElementById('inspector');
-        this.currentModule;
+        this.#currentModuleKey;
         this.createTitle();
         this.contentArea;
         this.createContentArea();
     }
 
-    setCurrentModule(module) {
-        this.currentModule = module;
-        this.createContent(this.currentModule.inspectorContent);
+    messageHandler = msg => {
+        console.log(msg.readMessage());
+    };
+
+    setCurrentModuleKey(key, content) {
+        this.#currentModuleKey = key;
     }
 
     createTitle = () => {
@@ -53,10 +62,9 @@ class Inspector {
         }   
     }
 
-    updateContent = key => {
-        if (this.currentModule.getKey() === key) {
-            this.createContent(this.currentModule.inspectorContent);
-
+    updateContent = (key, content) => {
+        if (this.#currentModuleKey === key) {
+            this.createContent(content);
         }
     }
 }

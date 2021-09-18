@@ -5,7 +5,6 @@ class Publisher {
     };
 
     publishMessage = msg => {
-        this.printSubscriberList();
         this.subscriberList.forEach(s => {
             s.subscriber.receiveMessage(msg);
         });
