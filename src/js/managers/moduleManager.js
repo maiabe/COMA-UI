@@ -58,20 +58,22 @@ class ModuleManager {
         return mod;
     };
 
-    handleDoubleClick = (event, key, type) => {
-        const mod = this.getModule(key);
-        mod.updatePopupContent();
-        if (mod) {
-            MP.open(event.Xr.clientY - 60, event.Xr.clientX + 60);
-            mod.loadPopupContent();
-        } else {
-            console.log('No Module Matches This key/Type pair.');
-        }
-    }
+    // handleDoubleClick = (event, key, type) => {
+    //     const mod = this.getModule(key);
+    //     mod.updatePopupContent();
+    //     if (mod) {
+    //         MP.open(event.Xr.clientY - 60, event.Xr.clientX + 60);
+    //         mod.loadPopupContent();
+    //     } else {
+    //         console.log('No Module Matches This key/Type pair.');
+    //     }
+    // }
 
     getInspectorContentForModule = key => {
-        console.log(key);
-        console.log(this.getModule(key));
         return this.getModule(key).getInspectorContent();
     };
+
+    getPopupContentForModule = key => {
+        return this.getModule(key).getPopupContent();
+    }
 }

@@ -54,7 +54,6 @@ class Inspector {
             tbody.appendChild(tr);
         });
         this.contentArea.appendChild(table);
-        console.log(con);
         if (con.html) {
             con.html.forEach(e => {
                 this.contentArea.appendChild(e);

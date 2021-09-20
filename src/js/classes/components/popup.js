@@ -1,5 +1,8 @@
 class Popup {
-    constructor(width, height, initialTop, initialLeft, id, startInvisible) {
+    constructor(width, height, initialTop, initialLeft, key, color, content) {
+
+        this.content = content;
+
         // HTML elements
         this.element;
         this.header;
@@ -7,26 +10,24 @@ class Popup {
         this.body;
 
         // ID
-        this.id = id;
+        this.key = key;
 
         // Initial CSS Values
         this.top = initialTop;
         this.left = initialLeft;
         this.width = width;
         this.height = height;
+        this.headerColor = color;
 
         // State Variables
         this.state;
         this.idle = 0;
         this.dragging = 1;
 
-        this.visible = startInvisible;
-
         this.setState(this.idle);
         this.createHTMLElement();
         this.setInitialValues();
         this.setEventListeners();
-        this.toggleVisibility();
 
         // Drag Position Array
         this.mousePositions = [];
@@ -34,48 +35,32 @@ class Popup {
     }
 
     createHTMLElement = () => {
-        this.element = document.createElement('div');
-        this.element.id = this.id;
-        this.element.classList.add('popup');
-
+        this.element = GM.HF.createNewDiv(`popup-${this.key}`, `popup-${this.key}`, ['popup'], []);
         this.createHeader();
-
-        this.body = document.createElement('div');
-        this.body.id = `${this.id}Body`;
-        this.body.classList.add('popupBody');
-
+        this.body = GM.HF.createNewDiv(`popup-body-${this.key}`, `popup-body-${this.key}`, ['popupBody'], []);
         this.element.appendChild(this.header);
         this.element.appendChild(this.body);
+        this.setBodyContent(this.content);
         document.body.appendChild(this.element);
     }
 
     createHeader = () => {
-        this.header = document.createElement('div');
-        this.header.id = `${this.id}Header`;
-        this.header.classList.add('popupHeader');
-        this.headerTitle = document.createElement('p');
-        this.headerTitle.classList.add('popupHeaderTitle');
-        this.setHeaderTitle('This Is A Header Title');
+        this.header = GM.HF.createNewDiv(`popup-header-${this.id}`, `popup-header-${this.id}`, ['popupHeader'], [{style: 'backgroundColor', value: this.headerColor}]);
+        this.headerTitle = GM.HF.createNewParagraph('', '', ['popupHeaderTitle'], [], 'This Is A Popup Header');
         this.header.appendChild(this.headerTitle);
-        const closeIcon = document.createElement('div');
-        closeIcon.classList.add('closePopupIcon');
-        this.header.appendChild(closeIcon);
-        const img = document.createElement('img');
-        img.src = 'images/icons/cancel.png';
+        const closeIcon = GM.HF.createNewDiv('', '', ['closePopupIcon'], []);
+        const img = GM.HF.createNewIMG('', '', 'images/icons/cancel.png', [], [], 'Close Popup Button');
         closeIcon.appendChild(img);
         closeIcon.addEventListener('click', this.close);
-    }
-
-    setHeaderTitle = string => {
-        this.headerTitle.innerHTML = string;
+        this.header.appendChild(closeIcon);
     }
 
     setBodyContent = content => {
-        this.clearBodyContent();
+        this.#clearBodyContent();
         this.body.appendChild(content);
     };
 
-    clearBodyContent = () => {
+    #clearBodyContent = () => {
         this.body.innerHTML = '';
     }
 
@@ -109,6 +94,7 @@ class Popup {
     }
 
     getState = () => { return this.state };
+
     startDrag = () => {
         console.log('start');
         this.setState(this.dragging);
@@ -135,62 +121,8 @@ class Popup {
         }
     }
 
-    toggleVisibility = () => {
-        let display = 'block';
-        if (this.visible) {
-            display = 'none';
-        }
-        this.visible = !this.visible;
-        this.element.style.display = display;
-        this.setState(this.idle);
-    }
-
-
-    open = (top, left) => {
-        this.visible = false;
-
-        if (top && left) {
-            if (typeof(top) == 'string') {
-                console.log(top);
-                this.top = this.convertVHtoPX(top);
-            } else {
-                this.top = top;
-            }
-            if (typeof(left) == 'string') {
-                this.left = this.convertVWtoPX(left);
-            } else {
-                this.left = left;
-            }
-            this.setTop();
-            this.setLeft();
-        }
-
-        this.toggleVisibility();
-    }
-
-    setHeaderColor = color => {
-        this.header.style.backgroundColor = color;
-    }
-
-    convertVHtoPX = vh => {
-        const val = vh.split('vh');
-        const n = parseFloat(val);
-        return window.innerHeight / 100 * n;
-    }
-
-    convertVWtoPX = vw => {
-        const val = vw.split('vw');
-        const n = parseFloat(val);
-        return window.innerWidth / 100 * n;
-    }
-
     close = () => {
-        this.visible = true;
-        this.toggleVisibility();
-        this.clearBodyContent();
-    }
-
-    destroy = () => {
-        delete(this);
+        document.body.removeChild(this.element);
+        GM.PM.destroyPopup(this.key);
     }
 }

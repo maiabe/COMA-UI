@@ -5,7 +5,6 @@ class Csv extends Source {
         this.outPorts = [{ name: 'OUT', leftSide: false }];
         this.setName('CSV File');
         this.image = 'images/icons/csv-file-format-extension.png';
-        this.popupContent;
         this.dataArea;
         this.readFileButton;
         this.deployButton;
@@ -18,23 +17,14 @@ class Csv extends Source {
     }
 
     setPopupContent = () => {
-        this.popupContent = document.createElement('div');
-
-        const uploadWrapper = document.createElement('div');
-        uploadWrapper.classList.add('uploadWrapper');
+        this.popupContent = GM.HF.createNewDiv('','',[],[]);
+        const uploadWrapper =GM.HF.createNewDiv('','',['uploadWrapper'],[]);
         this.popupContent.appendChild(uploadWrapper);
-
-        const upload = document.createElement('input');
-        upload.type = 'file';
-        upload.id = 'upload_csv';
+        const upload = GM.HF.createNewFileInput('upload_csv', 'upload_csv', [], [], 'file', false);
         uploadWrapper.append(upload);
         upload.addEventListener('change', this.handleFiles);
 
-        this.readFileButton = document.createElement('input');
-        this.readFileButton.type = 'button';
-        this.readFileButton.value = 'Read File';
-        this.readFileButton.id = 'read-file-button';
-        this.readFileButton.disabled = true;
+        this.readFileButton = GM.HF.createNewButton('read-file-button', 'read-file-button', [], [], 'button', 'Read File', true);
         uploadWrapper.appendChild(this.readFileButton);
 
         this.readFileButton.addEventListener('click', () => {

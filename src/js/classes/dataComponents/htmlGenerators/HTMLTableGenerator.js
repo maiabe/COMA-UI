@@ -21,10 +21,4 @@ class HTMLTableGenerator {
         });
         return t;
     }
-    setCustomStyles(e, styleList) {
-        console.log(styleList);
-        styleList.forEach(s => {
-            e.style[s.style] = s.value;
-        });
-    }
 }

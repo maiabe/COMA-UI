@@ -90,12 +90,11 @@ class ModuleSubMenu {
     };
 
     toggleMenu = () => {
-        console.log(this.maxHeight);
         const height = this.open ? 0 : this.maxHeight;
         const paddingTop = this.open ? '0%' : '1%';
         const paddingBottom = this.open ? '0%' : '1%';
         this.open = !this.open;
-        GM.HF.setCustomStyles(this.wrapperElement, [{style: 'height', value: height}, {style: 'paddingTop', value: paddingTop}, {style: 'paddingBottom', value: paddingBottom}]);
+        HTMLFactory.setCustomStyles(this.wrapperElement, [{style: 'height', value: height}, {style: 'paddingTop', value: paddingTop}, {style: 'paddingBottom', value: paddingBottom}]);
     }
 
     getWrapperElement = () => {
@@ -114,15 +113,11 @@ class SubMenuCard  {
         this.createCard();
     };
     createCard = () => {
-        this.element = document.createElement('div');
-        this.element.classList.add('menuIconCard');
-        this.image = document.createElement('img');
-        this.image.src = this.icon;
-        this.element.append(this.image);
-        this.textArea = document.createElement('div');
-        this.textArea.classList.add('iconText');
-        this.textArea.innerHTML = this.text;
-        this.element.append(this.textArea);
+        this.element = GM.HF.createNewDiv('','',['menuIconCard'],[]);
+        this.image = GM.HF.createNewIMG('','', this.icon, [], [], 'menu icon');
+        this.element.appendChild(this.image);
+        this.textArea = GM.HF.createNewParagraph('','',['iconText'],[],this.text);
+        this.element.appendChild(this.textArea);
         this.element.addEventListener('click', this.clickHandler);
     };
     getElement = () => {

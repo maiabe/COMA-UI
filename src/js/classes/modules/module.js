@@ -9,6 +9,7 @@ class Module {
         this.name = '';
         this.key = -1;
         this.inspectorContent = {};
+        this.popupContent;
         this.publisher = new Publisher();
     };
 
@@ -80,6 +81,7 @@ class Module {
     getInspectorContent = () => {
         return this.inspectorContent;
     };
-
-
+    getPopupContent = () => {
+        return {color: this.color, content: this.popupContent};
+    }
 }

@@ -96,7 +96,7 @@ class Environment {
         },
             {
                 doubleClick: (e, node) => {
-                    this.MDT.handleDoubleClick(e, node.key, node.data.type);
+                    this.#handleDoubleClick(e, node.key);
                 }
             },
 
@@ -233,4 +233,10 @@ class Environment {
 
     /** Runs the diagram */
     run = () => { };
+    
+    #handleDoubleClick = (event, key) => {
+        const data = {moduleKey: key, x: event.Xr.clientX, y: event.Xr.clientY};
+        const msg = new Message(POPUP_MANAGER, ENVIRONMENT, 'Double Click Event', data);
+        this.#sendMessage(msg);
+    }
 }

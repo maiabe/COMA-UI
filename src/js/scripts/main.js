@@ -6,6 +6,7 @@ const ENVIRONMENT = 3;
 const MODULE_SELECTION_MENU = 4;
 const INSPECTOR = 5;
 const POPUP_MANAGER = 6;
+const POPUP = 7;
 
 // Global Manager Instance
 let GM;

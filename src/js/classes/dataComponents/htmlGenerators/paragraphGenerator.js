@@ -9,13 +9,7 @@ class ParagraphGenerator {
         });
         const t = document.createTextNode(text);
         e.appendChild(t);
-        this.setCustomStyles(e, customStyles)
+        HTMLFactory.setCustomStyles(e, customStyles)
         return e;
-    }
-
-    setCustomStyles(e, styleList) {
-        styleList.forEach(s => {
-            e.style[s.style] = s.value;
-        });
     }
 }

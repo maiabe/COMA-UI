@@ -23,6 +23,10 @@ class Hub {
                 break;
             case INSPECTOR:
                 this.#messageForInspector(msgContents.type, msgContents.data);
+                break;
+            case POPUP_MANAGER:
+                this.#messageForPopupManager(msgContents.type, msgContents.data);
+                break;
         }
     };
 
@@ -62,4 +66,12 @@ class Hub {
                 break;
         }
     }
+
+    #messageForPopupManager = (type, data) => {
+        switch (type) {
+            case 'Double Click Event':
+                GM.PM.createModulePopup(data.moduleKey, GM.MM.getPopupContentForModule(data.moduleKey), data.x, data.y);
+                break;
+        }
+    };
 }

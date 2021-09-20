@@ -7,6 +7,7 @@ class GlobalManager {
     MSM;                // The Module Selection Menu
     INS;                // The Inspector
     HF;                 // The HTML Factory
+    PM;                 // The Popup Manager
 
     constructor() {
         this.HF = new HTMLFactory();
@@ -16,6 +17,7 @@ class GlobalManager {
         this.MSM = new ModuleSelectionMenu();
         this.MM = new ModuleManager();
         this.INS = new Inspector();
+        this.PM = new PopupManager();
     };
 
     startEnvironment = () => {
