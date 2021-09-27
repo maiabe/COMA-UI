@@ -7,6 +7,8 @@ const MODULE_SELECTION_MENU = 4;
 const INSPECTOR = 5;
 const POPUP_MANAGER = 6;
 const POPUP = 7;
+const INPUT_MANAGER = 8;
+const OUTPUT_MANAGER = 9;
 
 // Global Manager Instance
 let GM;

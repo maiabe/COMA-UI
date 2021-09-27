@@ -120,12 +120,18 @@ class SubMenuCard  {
         this.element.appendChild(this.textArea);
         this.element.addEventListener('click', this.clickHandler);
     };
+    
     getElement = () => {
         return this.element;
     };
+
     clickHandler = () => {
         const data = {moduleName: this.text, moduleCategory: this.category};
         const msg = new Message(MODULE_MANAGER, MODULE_SELECTION_MENU, 'Deploy Module Event', data);
+        this.#sendMessage(msg);
+    };
+
+    #sendMessage = msg => {
         GM.MSM.publisher.publishMessage(msg);
     };
 }

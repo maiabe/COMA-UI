@@ -72,11 +72,11 @@ class Popup {
     };
 
     setTop = () => {
-        this.element.style.top = this.top;
+        this.element.style.top = `${this.top}px`;
     }
 
     setLeft = () => {
-        this.element.style.left = this.left;
+        this.element.style.left = `${this.left}px`;
     };
 
     setEventListeners = () => {
@@ -96,7 +96,6 @@ class Popup {
     getState = () => { return this.state };
 
     startDrag = () => {
-        console.log('start');
         this.setState(this.dragging);
         this.mousePositions = [];
     };
@@ -104,6 +103,7 @@ class Popup {
         this.setState(this.idle);
         this.mousePositions = [];
     };
+
     drag = e => {
         if (this.getState() === this.dragging) {
             const pos = { x: e.screenX, y: e.screenY };
@@ -115,6 +115,7 @@ class Popup {
                 const distance = { x: far.x - near.x, y: far.y - near.y };
                 this.top += distance.y;
                 this.left += distance.x;
+                console.log(this.top, this.left);
                 this.setLeft();
                 this.setTop();
             }

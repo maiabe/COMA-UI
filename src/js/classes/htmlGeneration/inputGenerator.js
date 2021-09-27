@@ -1,5 +1,6 @@
 class InputGenerator {
     constructor(){};
+    
     generateButton = (id, name, classlist, customStyles, type, value, disabled) => {
         const e = document.createElement('input');
         e.setAttribute('id', id);

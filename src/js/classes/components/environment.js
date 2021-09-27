@@ -212,13 +212,12 @@ class Environment {
     }
 
     /** Returns the next unique node key and increments the counter. */
-    #getNextNodeKey = () => {
+    getNextNodeKey = () => {
         this.#nodeKey++;
         return this.#nodeKey - 1;
     }
 
     insertModule = (mod, templateExists) => {
-        mod.setKey(this.#getNextNodeKey());
         if (!templateExists) {
             this.#createTemplate(mod);
         }
@@ -233,7 +232,7 @@ class Environment {
 
     /** Runs the diagram */
     run = () => { };
-    
+
     #handleDoubleClick = (event, key) => {
         const data = {moduleKey: key, x: event.Xr.clientX, y: event.Xr.clientY};
         const msg = new Message(POPUP_MANAGER, ENVIRONMENT, 'Double Click Event', data);

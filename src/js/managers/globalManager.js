@@ -8,6 +8,8 @@ class GlobalManager {
     INS;                // The Inspector
     HF;                 // The HTML Factory
     PM;                 // The Popup Manager
+    IM;                 // The Input Manager
+    OM;                 // The Output Manager
 
     constructor() {
         this.HF = new HTMLFactory();
@@ -18,6 +20,8 @@ class GlobalManager {
         this.MM = new ModuleManager();
         this.INS = new Inspector();
         this.PM = new PopupManager();
+        this.IM = new InputManager();
+        this.OM = new OutputManager();
     };
 
     startEnvironment = () => {

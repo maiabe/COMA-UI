@@ -40,19 +40,19 @@ class Inspector {
         const table = document.createElement('table');
         const tbody = document.createElement('tbody');
         table.appendChild(tbody);
-
-        con.pairs.forEach(p => {
+        const contentIterator = con[Symbol.iterator]();
+        for (const p of contentIterator) {
             const tr = document.createElement('tr');
             const title = document.createElement('td');
-            const titleText = document.createTextNode(Object.keys(p)[0]);
+            const titleText = document.createTextNode(p[0]);
             title.appendChild(titleText);
             const value = document.createElement('td');
-            const valueText = document.createTextNode(Object.values(p)[0]);
+            const valueText = document.createTextNode(p[1]);
             value.appendChild(valueText);
             tr.appendChild(title);
             tr.appendChild(value);
             tbody.appendChild(tr);
-        });
+        };
         this.contentArea.appendChild(table);
         if (con.html) {
             con.html.forEach(e => {

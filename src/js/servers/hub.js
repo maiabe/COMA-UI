@@ -27,6 +27,12 @@ class Hub {
             case POPUP_MANAGER:
                 this.#messageForPopupManager(msgContents.type, msgContents.data);
                 break;
+            case INPUT_MANAGER:
+                this.#messageForInputManager(msgContents.type, msgContents.data);
+                break;
+            case DATA_MANAGER:
+                this.#messageForDataManager(msgContents.type, msgContents.data);
+                break;
         }
     };
 
@@ -36,10 +42,11 @@ class Hub {
         GM.MSM.publisher.subscribe(this.subscriber);
         GM.MM.publisher.subscribe(this.subscriber);
         GM.INS.publisher.subscribe(this.subscriber);
+        GM.IM.publisher.subscribe(this.subscriber);
     };
 
     #messageForEnvironment = (type, data) => {
-        console.log(type, data);
+        console.log(type);
         switch (type) {
             case 'New Module Created Event':
                 GM.ENV.insertModule(data.module, data.templateExists);
@@ -47,13 +54,21 @@ class Hub {
             case 'Start Environment Event':
                 GM.ENV.setUpEnvironment();
                 break;
+            case 'Request Module Key Event':
+                const key = GM.ENV.getNextNodeKey();
+                console.log(key);
+                data.cb(data.name, data.category, key);
+                break;
         }
     }
 
     #messageForModelManager = (type, data) => {
         switch (type) {
             case 'Deploy Module Event':
-                GM.MM.createNewModule(data.moduleName, data.moduleCategory);
+                GM.MM.deployNewModule(data.moduleName, data.moduleCategory);
+                break;
+            case 'New Data Loaded Event':
+                GM.MM.newDataLoaded(data.moduleKey);
                 break;
         }
     };
@@ -74,4 +89,23 @@ class Hub {
                 break;
         }
     };
+
+    #messageForInputManager = (type, data) => {
+        switch(type) {
+            case 'Read File Event':
+                GM.IM.readFile(data.type, data.source, data.path, data.moduleKey);
+                break;
+        }
+    }
+
+    #messageForDataManager = (type, data) => {
+        switch(type) {
+            case 'New Data Event':
+                GM.DM.addData(data.id, data.val);
+                break;
+            case 'Data Request Event':
+                GM.DM.processDataRequest(data.moduleKey, data.cb);
+                break;
+        }
+    }
 }

@@ -15,6 +15,7 @@
     width: 100%;
     position: relative;
     background-color: blue;
+    cursor: pointer;
   }
   
   .popupHeader > p {

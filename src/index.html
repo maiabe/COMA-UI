@@ -1,4 +1,4 @@
-<html>
+<!DOCTYPE html>
 
 <head>
    <script src="https://cdn.plot.ly/plotly-2.3.1.min.js"></script>
@@ -33,8 +33,8 @@
 
    <!-- Load Communication Components -->
    <script src="js/classes/communication/message.js"></script>
-   <script src="js/classes/dataComponents/communication/subscriber.js"></script>
-   <script src="js/classes/dataComponents/communication/publisher.js"></script>
+   <script src="js/classes/communication/subscriber.js"></script>
+   <script src="js/classes/communication/publisher.js"></script>
 
    <!-- Load Modules and related Components -->
    <script src="js/classes/modules/module.js"></script>
@@ -42,23 +42,24 @@
    <script src="js/classes/modules/sourceModules/csvSource.js"></script>
    <script src="js/classes/modules/processorModules/processor.js"></script>
    <script src="js/classes/modules/outputModules/output.js"></script>
-   <script src="js/classes/dataComponents/moduleGenerator.js"></script>
+   <script src="js/classes/modules/moduleGenerator.js"></script>
    
 
    <!-- Load HTML generation scripts -->
-   <script src="js/classes/dataComponents/htmlGenerators/htmlFactory.js"></script>
-   <script src="js/classes/dataComponents/htmlGenerators/HTMLTableGenerator.js"></script>
-   <script src="js/classes/dataComponents/htmlGenerators/divGenerator.js"></script>
-   <script src="js/classes/dataComponents/htmlGenerators/imgGenerator.js"></script>
-   <script src="js/classes/dataComponents/htmlGenerators/paragraphGenerator.js"></script>
-   <script src="js/classes/dataComponents/htmlGenerators/inputGenerator.js"></script>
+   <script src="js/classes/htmlGeneration/htmlFactory.js"></script>
+   <script src="js/classes/htmlGeneration/HTMLTableGenerator.js"></script>
+   <script src="js/classes/htmlGeneration/divGenerator.js"></script>
+   <script src="js/classes/htmlGeneration/imgGenerator.js"></script>
+   <script src="js/classes/htmlGeneration/paragraphGenerator.js"></script>
+   <script src="js/classes/htmlGeneration/inputGenerator.js"></script>
 
 
    <!-- Load Popup Scripts -->
    <script src="js/classes/components/popup.js"></script>
 
+   <!-- Data Processing Scripts -->
    <script src="js/classes/dataComponents/dataTable.js"></script>
-   <script src="js/classes/dataComponents/csvReader.js"></script> -->
+   <script src="js/classes/dataComponents/csvReader.js"></script>
 
    <!-- Load JS scripts -->
    <script src="js/scripts/eventListeners.js"></script>
@@ -74,6 +75,8 @@
    <script src="js/managers/dataManager.js"></script>
    <script src="js/managers/popupManager.js"></script>
    <script src="js/managers/globalManager.js"></script>
+   <script src="js/managers/inputManager.js"></script>
+   <script src="js/managers/outputManager.js"></script>
 
    <!-- Load Application Components -->
    <script src="js/classes/components/environment.js"></script>

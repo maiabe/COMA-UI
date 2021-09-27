@@ -8,7 +8,7 @@ class Module {
         this.outPorts = [];
         this.name = '';
         this.key = -1;
-        this.inspectorContent = {};
+        this.inspectorContent = new Map();
         this.popupContent;
         this.publisher = new Publisher();
     };
@@ -29,10 +29,13 @@ class Module {
 
 
     setupInspectorContent = () => {
-        this.inspectorContent.pairs = [];
-        this.inspectorContent.pairs.push({ 'Name': this.name });
-        this.inspectorContent.pairs.push({ 'Type': this.type });
-        this.inspectorContent.pairs.push({ 'Module Key': this.key });
+        this.addInspectorContent('Name', this.name);
+        this.addInspectorContent('Type', this.type);
+        this.addInspectorContent('Module Key', this.key);
+    }
+
+    addInspectorContent = (key, value) => {
+        this.inspectorContent.set(key, value);
     }
 
     loadPopupContent = () => {
@@ -58,11 +61,7 @@ class Module {
     setType = type => (this.type = type);
     setKey = key => {
         this.key = key;
-        this.inspectorContent.pairs.forEach(e => {
-            if ('Module Key' in e) {
-                e['Module Key'] = this.key;
-            }
-        });
+        this.inspectorContent.set('Module Key', key);
     };
 
     addIn = () => {

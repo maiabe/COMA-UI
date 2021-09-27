@@ -1,0 +1,3 @@
+class OutputManager {
+    constructor(){};
+}
