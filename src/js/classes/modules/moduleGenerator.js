@@ -1,9 +1,9 @@
 class ModuleGenerator {
     constructor() {
         this.colors = {
-            source: '#1abd1a',
-            processor: '#d60606',
-            output: '#2e77ff'
+            source: sourceColor,
+            processor: processorColor,
+            output: outputColor
         };
 
         this.shapes = {
@@ -49,6 +49,9 @@ class ModuleGenerator {
             case 'Laplacian Filter':
                 mod = new Laplacian(category, this.colors.processor, this.shapes.processor);
                 break;
+            case 'Sum':
+                mod = new Sum(category, this.colors.processor, this.shapes.processor);
+                break;
             case 'Scatter Plot':
                 mod = new ScatterPlot(category, this.colors.output, this.shapes.output);
                 break;
@@ -63,6 +66,9 @@ class ModuleGenerator {
                 break;
             case 'Image':
                 mod = new ImageOutput(category, this.colors.output, this.shapes.output);
+                break;
+            case 'Value':
+                mod = new Value(category, this.colors.output, this.shapes.output);
                 break;
         }
         return mod;

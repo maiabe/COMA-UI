@@ -51,6 +51,15 @@ class ModuleManager {
         return this.moduleMap.get(key);
     };
 
+    /** Gets the actual modules to add to the pipeline */
+    getModulesForPipeline = model => {
+        model.nodes.forEach(n => {
+            const mod = this.getModule(n.key);
+            n.module = mod;
+        });
+        return model;
+    };
+
     getInspectorContentForModule = key => {
         return this.getModule(key).getInspectorContent();
     };

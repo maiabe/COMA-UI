@@ -1,8 +1,14 @@
 /** This represents a source module and extends the module class. */
 class Source extends Module {
-    constructor(category, color, shape) {
+    #location;
+    #command;
+    #params;
+    constructor(category, color, shape, location, command) {
         super(category, color, shape);
         this.data;
+        this.#location = location;
+        this.#command = command;
+        this.#params;
     }
 
     setData = data => {
@@ -12,11 +18,22 @@ class Source extends Module {
     getData = () => {
         return this.data;
     }
+
+    getLocation = () => {
+        return this.#location;
+    }
+
+    getCommand = () => {
+        return this.#command;
+    }
+    getParams = () => {
+        return this.#params;
+    }
 }
 
 class Sql extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape);
+        super(category, color, shape, 'remote', 'querySql');
         this.inPorts = [];
         this.outPorts = [{ name: 'OUT', leftSide: false }];
         this.setName('SQL Query');
@@ -30,7 +47,7 @@ class Sql extends Source {
 
 class Fits extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape);
+        super(category, color, shape, 'remote', 'querySql');
         this.inPorts = [];
         this.outPorts = [{ name: 'OUT', leftSide: false }];
         this.setName('FITS File');
@@ -46,7 +63,7 @@ class Fits extends Source {
 
 class RandomData extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape);
+        super(category, color, shape, 'remote', 'getRandomData');
         this.inPorts = [];
         this.outPorts = [{ name: 'OUT', leftSide: false }];
         this.setName('Random Data');
@@ -60,7 +77,7 @@ class RandomData extends Source {
 
 class Json extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape);
+        super(category, color, shape, 'local', 'processJSONData');
         this.inPorts = [];
         this.outPorts = [{ name: 'OUT', leftSide: false }];
         this.setName('JSON Data');
@@ -74,7 +91,7 @@ class Json extends Source {
 
 class Ephemeris extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape);
+        super(category, color, shape, 'remote', 'querySql');
         this.inPorts = [];
         this.outPorts = [{ name: 'OUT', leftSide: false }];
         this.setName('Ephemeris');
@@ -88,7 +105,7 @@ class Ephemeris extends Source {
 
 class Mjd extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape);
+        super(category, color, shape, 'remote', 'querySql');
         this.inPorts = [];
         this.outPorts = [{ name: 'OUT', leftSide: false }];
         this.setName("MJD");
@@ -101,7 +118,7 @@ class Mjd extends Source {
 
 class CometAll extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape);
+        super(category, color, shape, 'remote', 'querySql');
         this.inPorts = [];
         this.outPorts = [{ name: 'OUT', leftSide: false }];
         this.setName("All Data");

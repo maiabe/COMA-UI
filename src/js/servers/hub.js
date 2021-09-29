@@ -33,9 +33,11 @@ class Hub {
             case DATA_MANAGER:
                 this.#messageForDataManager(msgContents.type, msgContents.data);
                 break;
+            
         }
     };
 
+    /** Hub subscribes */
     subscribe = () => {
         GM.ENV.publisher.subscribe(this.subscriber);
         GM.DM.publisher.subscribe(this.subscriber);
@@ -43,6 +45,7 @@ class Hub {
         GM.MM.publisher.subscribe(this.subscriber);
         GM.INS.publisher.subscribe(this.subscriber);
         GM.IM.publisher.subscribe(this.subscriber);
+        GM.PLM.publisher.subscribe(this.subscriber);
     };
 
     #messageForEnvironment = (type, data) => {
@@ -85,6 +88,7 @@ class Hub {
     #messageForPopupManager = (type, data) => {
         switch (type) {
             case 'Double Click Event':
+                // Module Manager provides the content for the popup.
                 GM.PM.createModulePopup(data.moduleKey, GM.MM.getPopupContentForModule(data.moduleKey), data.x, data.y);
                 break;
         }
@@ -108,4 +112,12 @@ class Hub {
                 break;
         }
     }
+
+    // This function is called when the run button is pressed.
+    // The Pipeline must be validated, jsonified, then sent to the next layer for processing.
+    run = () => {
+        let m = GM.ENV.getModel();
+        m = GM.MM.getModulesForPipeline(m);
+        GM.PLM.validatePipeline(m);
+    };
 }

@@ -1,7 +1,6 @@
 const plotlyPublisher = new Publisher();
 plotData = (data) => {
     data = getRandomType(data);
-    console.log(data);
     Plotly.newPlot(document.getElementById('plot_1'), [data], {
         margin: { t: 40 }
     });
@@ -9,7 +8,6 @@ plotData = (data) => {
 }
 
 plotChart = data => {
-    console.log(data);
     Plotly.newPlot(document.getElementById('plot_1'), [data], {
         margin: { t: 40 }
     });

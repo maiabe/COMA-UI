@@ -41,7 +41,7 @@ class Environment {
                 fromNodeKey: e.subject.fromNode.key,
                 toNodeKey: e.subject.toNode.key
             };
-            this.sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Environment Event', data));
+            this.#sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Environment Event', data));
         });
     }
 
@@ -230,12 +230,21 @@ class Environment {
         this.#myDiagram.model = go.Model.fromJson(this.#model);
     };
 
-    /** Runs the diagram */
-    run = () => { };
-
     #handleDoubleClick = (event, key) => {
         const data = {moduleKey: key, x: event.Xr.clientX, y: event.Xr.clientY};
         const msg = new Message(POPUP_MANAGER, ENVIRONMENT, 'Double Click Event', data);
         this.#sendMessage(msg);
+    }
+
+    printModel = () => {
+        console.log(this.#model.nodeDataArray);
+        console.log(this.#model.linkDataArray);
+    }
+
+    getModel = () => {
+        return {
+            links: this.#model.linkDataArray,
+            nodes: this.#model.nodeDataArray
+        };
     }
 }

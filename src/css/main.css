@@ -1,7 +1,17 @@
+
 @font-face {
   font-family: 'Sora';
   src: url('../fonts/Sora-VariableFont_wght.ttf');
 }
+
+:root {
+  --color-red: #931621;
+  --color-slate-gray: #28464B;
+  --color-ming: #326771;
+  --color-blue: #2C8C99;
+  --color-turquoise: #42D9C8;
+}
+
 body {
   width: 100%;
   border: 0;
@@ -74,9 +84,10 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
     top: 92%;
     position: absolute;
     z-index: 10000;
-    width: 5vw;
-    height: 4vh;
-    padding: 0;
+    width: 6em;
+    height: 2em;
+    font-size: .8em;
+    font-weight: 500;
   }
 
 /* The main diagram hold sthe main Environment */

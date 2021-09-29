@@ -266,41 +266,7 @@ class LineChart extends Output {
     }
 
 }
-class Table extends Output {
-    constructor(category, color, shape) {
-        super(category, color, shape);
-        this.inPorts = [{ name: 'IN', leftSide: true }];
-        this.outPorts = [];
-        this.setName("Table");
-        this.image = 'images/icons/table.png';
-        this.popupContent;
-        this.dataArea;
-        this.setPopupContent();
-        this.setupInspectorContent();
-        this.subscriber = new Subscriber(this.handleMessage);
-        ENV.publisher.subscribe(this.subscriber);
-    }
 
-    setPopupContent = () => {
-        this.popupContent = document.createElement('div');
-        this.dataArea = document.createElement('div');
-        this.dataArea.id = 'tableDataArea';
-        this.popupContent.appendChild(this.dataArea);
-    }
-
-    handleMessage = msg => {
-        switch (msg.tag) {
-            case 'Link Drawn':
-                if (msg.data.toNodeKey === this.key) {
-                    this.setData(this.getDataFromNode(msg.data.fromNodeKey));
-                    this.dataArea.innerHTML = '';
-                    this.dataArea.append(HTG.generateTableFromData(this.getData(), 200))
-                }
-        }
-    };
-
-
-}
 class ImageOutput extends Output {
     constructor(category, color, shape) {
         super(category, color, shape);
@@ -308,6 +274,18 @@ class ImageOutput extends Output {
         this.outPorts = [];
         this.setName("Image");
         this.image = 'images/icons/image.png';
+        this.popupContent;
+        this.setPopupContent();
+        this.setupInspectorContent();
+    }
+}
+class Value extends Output {
+    constructor(category, color, shape) {
+        super(category, color, shape);
+        this.inPorts = [{ name: 'IN', leftSide: true }];
+        this.outPorts = [];
+        this.setName("Value");
+        this.image = 'images/icons/equal.png';
         this.popupContent;
         this.setPopupContent();
         this.setupInspectorContent();

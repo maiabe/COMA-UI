@@ -1,3 +1,14 @@
+:root {
+  --color-red: #931621;
+  --color-dark-liver: #52414C;
+  --color-ebony: #596157;
+  --color-middle-green: #5B8c5a;
+  --color-slate-gray: #28464B;
+  --color-ming: #326771;
+  --color-blue: #2C8C99;
+  --color-turquoise: #42D9C8;
+}
+
 /** This is the css file for the Module Selection Menu */
 #moduleMenu {
     width: 100%;
@@ -30,8 +41,8 @@
   }
   
   #moduleMenu > .menuSegmentWrapper > .topMenuButton > img {
-    width: 12%;
-    height: 80%;
+    width: 2em;
+    height: 2em;
     position: relative;
     float: left;
     top: 12%;
@@ -83,8 +94,8 @@
     margin-top: 1vh;
   }
   .menuIconCard > img {
-    width: 50%;
-    height: 50%;
+    width: 4em;
+    height: 4em;
     position: relative;
     margin-top: 1vh;
   }

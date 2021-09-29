@@ -45,8 +45,8 @@ class Module {
     }
 
     setPopupContent = () => {
-        this.popupContent = document.createElement('div');
-        this.popupContent.innerHTML = this.getName();
+        this.popupContent = GM.HF.createNewDiv('', '', [], []);
+        this.popupContent.appendChild(GM.HF.createNewParagraph('','',[],[], this.getName()));
     }
 
 

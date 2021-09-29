@@ -1,6 +1,6 @@
 class Csv extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape);
+        super(category, color, shape, 'local', 'storeData');
         this.inPorts = [];
         this.outPorts = [{ name: 'OUT', leftSide: false }];
         this.setName('CSV File');
@@ -47,6 +47,10 @@ class Csv extends Source {
     }
     enableReadFileButton = () => {
         this.readFileButton.disabled = false;
-    }
+    };
+
+    updateInspectorForNewData = () => {
+
+    };
 
 }

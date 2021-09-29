@@ -10,6 +10,7 @@ class GlobalManager {
     PM;                 // The Popup Manager
     IM;                 // The Input Manager
     OM;                 // The Output Manager
+    PLM;                // The Pipeline MAnager
 
     constructor() {
         this.HF = new HTMLFactory();
@@ -22,6 +23,7 @@ class GlobalManager {
         this.PM = new PopupManager();
         this.IM = new InputManager();
         this.OM = new OutputManager();
+        this.PLM = new PipelineManager();
     };
 
     startEnvironment = () => {

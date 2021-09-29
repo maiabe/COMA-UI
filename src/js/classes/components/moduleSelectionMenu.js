@@ -16,19 +16,21 @@ class ModuleSelectionMenu {
         this.processorSubMenuItems = [
             {icon: 'images/icons/function.png', text: 'Function', category: 'Processor'},
             {icon: 'images/icons/gaussian-function.png', text: 'Gaussian Filter', category: 'Processor'},
-            {icon: 'images/icons/filter.png', text: 'Laplacian Filter', category: 'Processor'}
+            {icon: 'images/icons/filter.png', text: 'Laplacian Filter', category: 'Processor'},
+            {icon: 'images/icons/sum-sign.png', text: 'Sum', category: 'Processor'},
         ];
         this.outputSubMenuItems = [
             {icon: 'images/icons/scatter-graph.png', text: 'Scatter Plot', category: 'Output'},
             {icon: 'images/icons/bar-chart.png', text: 'Bar Chart', category: 'Output'},
             {icon: 'images/icons/line-chart.png', text: 'Line Chart', category: 'Output'},
             {icon: 'images/icons/table.png', text: 'Table', category: 'Output'},
-            {icon: 'images/icons/image.png', text: 'Image', category: 'Output'}
+            {icon: 'images/icons/image.png', text: 'Image', category: 'Output'},
+            {icon: 'images/icons/equal.png', text: 'Value', category: 'Output'},
         ];
         this.moduleTypes = [
-            {text: 'Source', color: '#1abd1a', subMenuItems: this.sourceSubMenuItems, subMenu: null, buttonIcon: 'images/icons/database-storage.png'}, 
-            {text: 'Processor', color: '#d40606', subMenuItems:this.processorSubMenuItems, subMenu: null, buttonIcon: 'images/icons/calculator.png'}, 
-            {text: 'Output', color: '#2e77ff', subMenuItems: this.outputSubMenuItems, subMenu: null, buttonIcon: 'images/icons/scatter-graph.png'}];
+            {text: 'Source', color: sourceColor, subMenuItems: this.sourceSubMenuItems, subMenu: null, buttonIcon: 'images/icons/database-storage.png'}, 
+            {text: 'Processor', color: processorColor, subMenuItems:this.processorSubMenuItems, subMenu: null, buttonIcon: 'images/icons/calculator.png'}, 
+            {text: 'Output', color: outputColor, subMenuItems: this.outputSubMenuItems, subMenu: null, buttonIcon: 'images/icons/scatter-graph.png'}];
         this.topMenuButtonArray = [];
     };
 

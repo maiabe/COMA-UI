@@ -1,14 +1,13 @@
 /* This class Manages the popup elements in the application. */
 class PopupManager {
     publisher;                  // Publishes Messages
-    #popupList;                 // List of All Popup Objects
+    #popupList;                 // Map of popups
     #popupIndex;                // Strictly increasing value that identifies a popup.
 
     constructor() {
         this.publisher = new Publisher();
-        this.#popupList = [];
-        this.#popupIndex = 0;
-    };
+        this.#popupList = new Map();       // Popups are indexed with a module Key.
+    }; 
 
     /** Publishes a message to all subscribers 
      * @param msg -> the message to send. This is a Message object.
@@ -26,10 +25,9 @@ class PopupManager {
      */
     createModulePopup = (moduleKey, content, x, y) => {
         // Only allow one popup for each module at any given time.
-        if (!this.#doesModulePopupExist(moduleKey)) {
-            const i = this.#getNextIndex();
-            const p = new Popup('25vw', '60vh', 0,0, i, content.color, content.content);
-            this.#popupList.push({type: 'module', key: moduleKey, element: p, index: i});
+        if (!this.#popupList.has(moduleKey)) {
+            const p = new Popup('25vw', '60vh', 0,0, moduleKey, content.color, content.content);
+            this.#popupList.set(moduleKey, {type: 'module', element: p});
         } else {
             console.log('Popup is already open for this module');
         }
@@ -41,31 +39,6 @@ class PopupManager {
      * @param key -> this is the index of the popup in the list. (int)
      */
     destroyPopup = key => {
-        this.#popupList.forEach((p, index) => {
-            if (p.index === key) {
-                this.#popupList.splice(index,1);
-            }
-        });
-    };
-
-    /** Gets a unique identification key for the next popup to create. */
-    #getNextIndex = () => {
-        this.#popupIndex++;
-        return this.#popupIndex;
-    }
-
-    /** Checks to tee if this module already has an open pupup
-     * @return true if it exists, false if it does not exist.
-     */
-    #doesModulePopupExist = key => {
-        let found = false;
-        this.#popupList.forEach(p => {
-            if (p.key === key) {
-                found = true;
-            }
-        });
-        return found;
-    };
-
-    
+        this.#popupList.delete(key);
+    };    
 }

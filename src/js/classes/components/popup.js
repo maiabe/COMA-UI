@@ -115,7 +115,6 @@ class Popup {
                 const distance = { x: far.x - near.x, y: far.y - near.y };
                 this.top += distance.y;
                 this.left += distance.x;
-                console.log(this.top, this.left);
                 this.setLeft();
                 this.setTop();
             }
