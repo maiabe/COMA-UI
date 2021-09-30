@@ -1,12 +1,13 @@
 :root {
-  --color-red: #931621;
+  --color-red: #ac232f;
   --color-dark-liver: #52414C;
   --color-ebony: #596157;
-  --color-middle-green: #5B8c5a;
+  --color-middle-green: #3f743e;
   --color-slate-gray: #28464B;
   --color-ming: #326771;
   --color-blue: #2C8C99;
   --color-turquoise: #42D9C8;
+  --color-dark-blue: #1a3c77;
 }
 
 /** This is the css file for the Module Selection Menu */
@@ -33,11 +34,17 @@
     background-color: #efefef;
     width: 100%;
     position: relative;
-    outline: 1px solid black;
+    /* outline: 1px solid black; */
     height: 2.7em;
     padding-left: 3%;
     overflow:hidden;
     cursor: pointer;
+    opacity: 0.9;
+    transition: opacity 0.2s ease-in;
+  }
+
+  #moduleMenu > .menuSegmentWrapper > .topMenuButton:hover {
+    opacity: 0.6;
   }
   
   #moduleMenu > .menuSegmentWrapper > .topMenuButton > img {
@@ -94,8 +101,8 @@
     margin-top: 1vh;
   }
   .menuIconCard > img {
-    width: 4em;
-    height: 4em;
+    width: 3em;
+    height: 3em;
     position: relative;
     margin-top: 1vh;
   }

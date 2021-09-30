@@ -10,6 +10,10 @@
   --color-ming: #326771;
   --color-blue: #2C8C99;
   --color-turquoise: #42D9C8;
+  --color-middle-green: #5B8c5a;
+  --color-dark-gray: #363434;
+  --color-light-gray: #c9c9c9;
+  --color-very-light-gray: #eeeeee;
 }
 
 body {
@@ -19,6 +23,8 @@ body {
   padding: 0 0 0 0;
   overflow-x: hidden;
   font-family: 'Sora', Fallback, sans-serif;
+  background-color: var(--color-dark-gray);
+  color: var(--color-dark-gray);
 }
 
 button {
@@ -60,10 +66,11 @@ h2 {
 #left-side-wrapper {
   height: 100%;
   width: 21%;
-  outline: 1px solid black;
+  /* outline: 1px solid black; */
   float: left;
   margin-right: 1vw;
   position: relative;
+  background-color: var(--color-very-light-gray);
 }
 
 
@@ -88,6 +95,15 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
     height: 2em;
     font-size: .8em;
     font-weight: 500;
+    border: none;
+    background-color: var(--color-dark-gray);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in;
+  }
+
+  #runButton:hover {
+    background-color: var(--color-light-gray);
   }
 
 /* The main diagram hold sthe main Environment */
@@ -99,6 +115,7 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
   display: inline-block;
   margin-right: 1vw;
   text-align: center;
+  background-color: white;
 }
 
 /* This button starts a new Main Environment. */
@@ -114,7 +131,8 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
   height: 100%;
   position: relative;
   float: right;
-  outline: 1px solid black;
+  background-color: var(--color-very-light-gray);
+  /* outline: 1px solid black; */
 }
 #inspector > h1 {
   width: 100%;
