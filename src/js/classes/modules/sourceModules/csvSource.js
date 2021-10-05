@@ -1,16 +1,11 @@
 class Csv extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'local', 'storeData');
-        this.inPorts = [];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName('CSV File');
-        this.image = 'images/icons/csv-file-format-extension.png';
+        super(category, color, shape, 'local', 'storeData', 'CSV File','images/icons/csv-file-format-extension.png', [], [{ name: 'OUT', leftSide: false }]);
         this.dataArea;
         this.readFileButton;
         this.deployButton;
         this.csvReader = new CsvReader();
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
     setPopupContent = () => {
@@ -28,7 +23,7 @@ class Csv extends Source {
         this.popupContent.appendChild(this.dataArea);
 
         this.readFileButton.addEventListener('click', () => {
-            GM.MM.readFile('csv', 'html', 'upload_csv', this.key);
+            GM.MM.readFile('csv', 'html', 'upload_csv', this.getData('key'));
         });
     }
 
@@ -47,10 +42,6 @@ class Csv extends Source {
     }
     enableReadFileButton = () => {
         this.readFileButton.disabled = false;
-    };
-
-    updateInspectorForNewData = () => {
-
     };
 
 }

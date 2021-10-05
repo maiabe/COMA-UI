@@ -60,7 +60,6 @@ class Hub {
                 break;
             case 'Request Module Key Event':
                 const key = GM.ENV.getNextNodeKey();
-                console.log(key);
                 data.cb(data.name, data.category, key);
                 break;
         }

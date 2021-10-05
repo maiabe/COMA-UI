@@ -1,79 +1,48 @@
 class Processor extends Module {
-    #command;
-    constructor(category, color, shape, command) {
-        super(category, color, shape);
-        this.#command = command;
-    }
-
-    getCommand = () => {
-        return this.#command;
+    constructor(category, color, shape, command, name, image, inports, outports) {
+        super(category, color, shape, command, name, image, inports, outports);
     }
 }
 
 class FunctionProcessor extends Processor {
     constructor(category, color, shape) {
-        super(category, color, shape, 'function');
-        this.inPorts = [{ name: 'IN', leftSide: true }];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName("Function");
-        this.image = 'images/icons/function.png';
+        super(category, color, shape, 'function', 'Function', 'images/icons/function.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
 }
 
 class Gaussian extends Processor {
     constructor(category, color, shape) {
-        super(category, color, shape, 'gaussianFilter');
-        this.inPorts = [{ name: 'IN', leftSide: true }];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName("Gaussian Filter");
-        this.image = 'images/icons/gaussian-function.png';
+        super(category, color, shape, 'gaussianFilter', 'Gaussian Filter', 'images/icons/gaussian-function.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
 }
 
 class Laplacian extends Processor {
     constructor(category, color, shape) {
-        super(category, color, shape, 'laplacianFilter');
-        this.inPorts = [{ name: 'IN', leftSide: true }];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName("Laplacian Filter");
-        this.image = 'images/icons/filter.png';
+        super(category, color, shape, 'laplacianFilter', 'Laplacian Filter', 'images/icons/filter.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
 }
 class Sum extends Processor {
     constructor(category, color, shape) {
-        super(category, color, shape, 'sum');
-        this.inPorts = [{ name: 'IN', leftSide: true }];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName("Sum");
-        this.image = 'images/icons/sum-sign.png';
+        super(category, color, shape, 'sum', 'Sum', 'images/icons/sum-sign.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
 }
 class Subtract extends Processor {
     constructor(category, color, shape) {
-        super(category, color, shape, 'subtract');
-        this.inPorts = [{ name: 'IN', leftSide: true }];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName("Subtract");
-        this.image = 'images/icons/subtraction-symbol.png';
+        super(category, color, shape, 'subtract', 'Subtract', 'images/icons/subtraction-symbol.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
 }

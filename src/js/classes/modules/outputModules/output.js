@@ -1,39 +1,15 @@
 class Output extends Module {
-    constructor(category, color, shape) {
-        super(category, color, shape, 'output');
-        this.data = undefined;
-    }
-
-    setData = (data, type) => {
-        this.data = data;
-        console.log('Output #' + this.getKey() + ' = ' + this.data);
-        if (this.updatePopupText) {
-            this.updatePopupText(this.data);
-        }
-        this.addInspectorContent('Value', this.data)
-        GM.MM.requestInspectorUpdate(this.getKey());
-    }
-
-    getData = () => {
-        return this.data;
-    }
-
-    clearData = () => {
-        this.data = undefined;
+    constructor(category, color, shape, command, name, image, inports, outports) {
+        super(category, color, shape, command, name, image, inports, outports);
     }
 }
 
 class ScatterPlot extends Output {
     constructor(category, color, shape) {
-        super(category, color, shape);
-        this.inPorts = [{ name: 'IN', leftSide: true }];
-        this.outPorts = [];
-        this.setName("Scatter Plot");
-        this.image = 'images/icons/scatter-graph.png';
+        super(category, color, shape, 'output', 'Scatter Plot', 'images/icons/scatter-graph.png', [{ name: 'IN', leftSide: true }], []);
         this.popupContent;
         this.plotDiv;
         this.setPopupContent();
-        this.setupInspectorContent();
         this.subscriber = new Subscriber(this.handleMessage);
         plotlyPublisher.subscribe(this.subscriber);
 
@@ -65,15 +41,10 @@ class ScatterPlot extends Output {
 
 class BarChart extends Output {
     constructor(category, color, shape) {
-        super(category, color, shape);
-        this.inPorts = [{ name: 'IN', leftSide: true }];
-        this.outPorts = [];
-        this.setName("Bar Chart");
-        this.image = 'images/icons/bar-chart.png';
+        super(category, color, shape, 'output', 'Bar Chart', 'images/icons/bar-chart.png', [{ name: 'IN', leftSide: true }], []);
         this.popupContent;
         this.plotDiv;
         this.setPopupContent();
-        this.setupInspectorContent();
         this.subscriber = new Subscriber(this.handleMessage);
         ENV.publisher.subscribe(this.subscriber);
     }
@@ -169,15 +140,10 @@ class BarChart extends Output {
 }
 class LineChart extends Output {
     constructor(category, color, shape) {
-        super(category, color, shape);
-        this.inPorts = [{ name: 'IN', leftSide: true }];
-        this.outPorts = [];
-        this.setName("Line Chart");
-        this.image = 'images/icons/line-chart.png';
+        super(category, color, shape, 'output', 'Line Chart', 'images/icons/line-chart.png', [{ name: 'IN', leftSide: true }], []);
         this.popupContent;
         this.plotDiv;
         this.setPopupContent();
-        this.setupInspectorContent();
         this.subscriber = new Subscriber(this.handleMessage);
         ENV.publisher.subscribe(this.subscriber);
     }
@@ -276,31 +242,21 @@ class LineChart extends Output {
 
 class ImageOutput extends Output {
     constructor(category, color, shape) {
-        super(category, color, shape);
-        this.inPorts = [{ name: 'IN', leftSide: true }];
-        this.outPorts = [];
-        this.setName("Image");
-        this.image = 'images/icons/image.png';
+        super(category, color, shape, 'output', 'Image', 'images/icons/image.png', [{ name: 'IN', leftSide: true }], []);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 }
 class Value extends Output {
     constructor(category, color, shape) {
-        super(category, color, shape);
-        this.inPorts = [{ name: 'IN', leftSide: true }];
-        this.outPorts = [];
-        this.setName("Value");
-        this.image = 'images/icons/equal.png';
+        super(category, color, shape, 'output', 'Value', 'images/icons/equal.png', [{ name: 'IN', leftSide: true }], []);
         this.popupContent;
         this.dataArea;
         this.textArea;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
-    setupInspectorContent = () => {
+    setPopupContent = () => {
         this.popupContent = GM.HF.createNewDiv('', '', [], []);
         const setValueWrapper = GM.HF.createNewDiv('', '', ['setValueWrapper'], []);
         this.popupContent.appendChild(setValueWrapper);

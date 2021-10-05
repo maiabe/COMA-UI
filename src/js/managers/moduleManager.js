@@ -11,9 +11,8 @@ class ModuleManager {
     createNewModule = (name, category, key) => {
         const templateExists = this.moduleMap.has(key);
         const mod = this.#MG.generateNewModule(name, category);
-        mod.setKey(key);
-        console.log(mod);
-        this.#addModule(mod);
+        mod.setData('key', key, key);
+        this.#addModule(mod, key);
         const data = {
             module: mod,
             templateExists: templateExists
@@ -31,8 +30,8 @@ class ModuleManager {
     /** Adds a module to the correct Array. 
      * @param module -> The module to add.
     */
-    #addModule = module => {
-        this.moduleMap.set(module.getKey(), module);
+    #addModule = (module, key) => {
+        this.moduleMap.set(key, module);
     };
 
     /** Removes the Module from the correct Array. 
@@ -99,18 +98,17 @@ class ModuleManager {
      * @param data an object containing a type (ie. 'table') and a data structure (ie. DataTable).
      */
     processNewData = (key, data) => {
-        console.log('type => ' + data.type);
         switch (data.type) {
             case 'table':
                 const mod = this.getModule(key);
-                mod.addInspectorContent('Data Set', true);
-                mod.addInspectorContent('Rows', data.data.getRows());
-                mod.addInspectorContent('Columns', data.data.getColumns());
-                mod.addInspectorContent('Elements', data.data.getNumElements());
-                
+                console.log(mod);
+                mod.addData('Data Set', true, true, 'True', false);
+                mod.addData('Rows', data.data.getRows(), true, data.data.getRows(), false);
+                mod.addData('Columns', data.data.getColumns(), true, data.data.getColumns(), false);
+                mod.addData('Elements', data.data.getNumElements(), true, data.data.getNumElements(), false);
                 break;
             case 'number':
-                this.moduleMap.get(key).setData(data.data, data.type);
+                this.getModule(key).addData('value', data.data, true, data.data, false);
                 break
         }
 

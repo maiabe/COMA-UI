@@ -1,24 +1,26 @@
 class Module {
     #command;
-    dataTable;
+    #dataTable;
 
-    constructor(type, color, shape, command) {
-        this.dataTable;
-        this.type = type;
-        this.image = '';
-        this.color = color;
-        this.shape = shape;
-        this.inPorts = [];
-        this.outPorts = [];
-        this.name = '';
-        this.key = -1;
-        this.inspectorContent = new Map();
-        this.popupContent;
+    constructor(type, color, shape, command, name, imagePath, inports, outports) {
+        this.#dataTable = new Map();
         this.publisher = new Publisher();
-        this.#command = command;
+        this.popupContent;
+        this.setInitialDataValues(type, color, shape, command, name, imagePath, inports, outports);
     };
 
-    
+    setInitialDataValues = (type, color, shape, command, name, imagePath, inports, outports) => {
+        this.addData('type', type, true, type, false);
+        this.addData('image', imagePath, false, '', false);
+        this.addData('color', color, false, '', false);
+        this.addData('shape', shape, false, '', false);
+        this.addData('inports', inports, false, '', false);
+        this.addData('outports', outports, false, '', false);
+        this.addData('name', name, true, name, true);
+        this.addData('key', -1, true, -1, true);
+        this.addData('command', command, false, '', false);
+    };
+
     provides = () => { };
     requires = () => { };
     requirements = () => { };
@@ -38,16 +40,6 @@ class Module {
         return this.#command;
     }
 
-    setupInspectorContent = () => {
-        this.addInspectorContent('Name', {text: this.name, modify: false});
-        this.addInspectorContent('Type', {text: this.type, modify: false});
-        this.addInspectorContent('Module Key', {text: this.key, modify: false});
-    }
-
-    addInspectorContent = (key, value) => {
-        this.inspectorContent.set(key, value);
-    }
-
     loadPopupContent = () => {
         MP.setBodyContent(this.popupContent);
         MP.setHeaderTitle(this.name);
@@ -56,7 +48,7 @@ class Module {
 
     setPopupContent = () => {
         this.popupContent = GM.HF.createNewDiv('', '', [], []);
-        this.popupContent.appendChild(GM.HF.createNewParagraph('', '', [], [], this.getName()));
+        this.popupContent.appendChild(GM.HF.createNewParagraph('', '', [], [], this.getData('name')));
     }
 
 
@@ -66,31 +58,45 @@ class Module {
         return data;
     }
 
+    addData = (key, value, allowInspection, inspectorText, modify) => {
+        const obj = {
+            data: value,
+            inspector: {
+                allowInspection: allowInspection,
+                text: inspectorText,
+                modify: modify
+            }
+        };
+        this.#dataTable.set(key, obj);
+    }
     // GETTERS AND SETTERS
-    setName = name => { this.name = name };
-    setType = type => (this.type = type);
-    setKey = key => {
-        this.key = key;
-        this.inspectorContent.set('Module Key', {text: key, modify: false});
-    };
 
-    addIn = () => {
-    }
-    addOut = () => {
+
+    setData = (key, data, inspectorText) => {
+        const val = this.#dataTable.get(key);
+        val.data = data;
+        val.inspector.text = inspectorText;
     }
 
-    getType = () => { return this.type };
-    getName = () => { return this.name; }
-    getInPorts = () => { return this.inPorts; }
-    getOutPorts = () => { return this.outPorts; }
-    getShape = () => { return this.shape; }
-    getImage = () => { return this.image; }
-    getColor = () => { return this.color; }
-    getKey = () => { return this.key; }
+    getData = key => {
+        return this.#dataTable.get(key).data;
+    }
+
     getInspectorContent = () => {
-        return this.inspectorContent;
+        const insCon = new Map();
+        for (let entry of this.#dataTable) {
+            const key = entry[0];
+            const value = entry[1];
+            if (value.inspector.allowInspection) {
+                insCon.set(key, {text: value.inspector.text, modify: value.inspector.modify});
+            }
+        }
+        return insCon;
     };
+
     getPopupContent = () => {
-        return { color: this.color, content: this.popupContent };
+        return { color: this.getData('color'), content: this.popupContent };
     }
+
+
 }

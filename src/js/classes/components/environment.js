@@ -62,15 +62,16 @@ class Environment {
     };
 
     #createTemplate = mod => {
+        console.log(mod);
         const inports = [];
         const outports = [];
-        mod.getInPorts().forEach(obj => {
+        mod.getData('inports').forEach(obj => {
             inports.push(this.#makePort(obj.name, obj.leftSide));
         });
-        mod.getOutPorts().forEach(obj => {
+        mod.getData('outports').forEach(obj => {
             outports.push(this.#makePort(obj.name, obj.leftSide));
         });
-        this.#makeTemplate(mod.getName(), mod.getImage(), mod.getColor(), mod.getShape(), inports, outports);
+        this.#makeTemplate(mod.getData('name'), mod.getData('image'), mod.getData('color'), mod.getData('shape'), inports, outports);
     }
 
     #startGoJsEnvironment = () => {
@@ -221,13 +222,12 @@ class Environment {
         if (!templateExists) {
             this.#createTemplate(mod);
         }
-        this.#model.nodeDataArray.push({ "key": mod.getKey(), "type": mod.getName(), "name": mod.getType() });
+        this.#model.nodeDataArray.push({ "key": this.#nodeKey - 1, "type": mod.getData('name'), "name": mod.getData('type') });
         this.#load();
     }
 
     /** Loads the model to the HTML browser page. */
     #load = () => {
-        console.log(this.#model);
         this.#myDiagram.model = go.Model.fromJson(this.#model);
     };
 

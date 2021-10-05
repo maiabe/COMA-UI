@@ -1,54 +1,26 @@
 /** This represents a source module and extends the module class. */
 class Source extends Module {
-    #location;
     #params;
-    constructor(category, color, shape, location, command) {
-        super(category, color, shape, command);
-        this.data;
-        this.#location = location;
-        this.#params;
-    }
-
-    setData = data => {
-        this.data = data;
-    }
-
-    getData = () => {
-        return this.data;
-    }
-
-    getLocation = () => {
-        return this.#location;
-    }
-    getParams = () => {
-        return this.#params;
+    constructor(category, color, shape, location, command, name, image, inports, outports) {
+        super(category, color, shape, command, name, image, inports, outports);
+        this.addData('location', location, false, '', false);
     }
 }
 
 class Sql extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'remote', 'querySql');
-        this.inPorts = [];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName('SQL Query');
-        this.image = 'images/icons/sql-open-file-format.png';
+        super(category, color, shape, 'remote', 'querySql', 'SQL Query', 'images/icons/sql-open-file-format.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
 }
 
 class Fits extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'remote', 'querySql');
-        this.inPorts = [];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName('FITS File');
-        this.image = 'images/icons/files.png';
+        super(category, color, shape, 'remote', 'querySql', 'FITS File', 'images/icons/files.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
 }
@@ -57,92 +29,58 @@ class Fits extends Source {
 
 class RandomData extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'remote', 'getRandomData');
-        this.inPorts = [];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName('Random Data');
-        this.image = 'images/icons/data-random-squares.png';
+        super(category, color, shape, 'remote', 'getRandomData', 'Random Data', 'images/icons/data-random-squares.png', [],[{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
 }
 
 class Json extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'local', 'processJSONData');
-        this.inPorts = [];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName('JSON Data');
-        this.image = 'images/icons/json-file.png';
+        super(category, color, shape, 'local', 'processJSONData', 'JSON Data','images/icons/json-file.png',[], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
 }
 
 class Ephemeris extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'remote', 'querySql');
-        this.inPorts = [];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName('Ephemeris');
-        this.image = 'images/icons/axis.png';
+        super(category, color, shape, 'remote', 'querySql', 'Ephemeris', 'images/icons/axis.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 
 }
 
 class Mjd extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'remote', 'querySql');
-        this.inPorts = [];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName("MJD");
-        this.image = 'images/icons/calendar.png';
+        super(category, color, shape, 'remote', 'querySql', 'MJD', 'images/icons/calendar.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
 }
 
 class CometAll extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'remote', 'querySql');
-        this.inPorts = [];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName("All Data");
-        this.image = 'images/icons/truck.png';
+        super(category, color, shape, 'remote', 'querySql', 'All Data','images/icons/truck.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
-        this.setupInspectorContent();
     }
-
-
 }
 
 class NumberSource extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'local', 'storeThisData');
-        this.value = -1;
-        this.inPorts = [];
-        this.outPorts = [{ name: 'OUT', leftSide: false }];
-        this.setName('Number');
-        this.image = 'images/icons/number.png';
+        super(category, color, shape, 'local', 'storeThisData', 'Number', 'images/icons/number.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.textArea;
         this.dataArea;
         this.setPopupContent();
-        this.setupInspectorContent();
-        this.setupPopupContent();
-        this.addInspectorContent('Value', {text: this.value, modify: true});
+        this.addData('value', -1, true, -1, true);
     }
 
-    setupPopupContent = () => {
+    setPopupContent = () => {
         this.popupContent = GM.HF.createNewDiv('', '', [], []);
         const setValueWrapper = GM.HF.createNewDiv('', '', ['setValueWrapper'], []);
         this.popupContent.appendChild(setValueWrapper);
@@ -156,14 +94,14 @@ class NumberSource extends Source {
     };
 
     handleInputChange = e => {
-        this.value = parseFloat(e.srcElement.value);
-        this.textArea.innerHTML = this.value;
-        this.addInspectorContent('Value', {text: this.value, modify: true});
-        GM.MM.requestInspectorUpdate(this.getKey());
+        this.setData('value', e.srcElement.value, e.srcElement.value);
+        GM.MM.requestInspectorUpdate(this.getData('key'));
+        this.updatePopupDataValue();
     }
 
-    getValue = () => {
-        return this.value;
-    }
+    updatePopupDataValue = () => {
+        this.textArea.innerHTML = this.getData('value');
+    };
+
 
 }

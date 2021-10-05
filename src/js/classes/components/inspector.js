@@ -36,6 +36,7 @@ class Inspector {
     }
 
     createContent = con => {
+        console.log(con);
         this.contentArea.innerHTML = '';
         const table = document.createElement('table');
         const tbody = document.createElement('tbody');
@@ -44,7 +45,7 @@ class Inspector {
         for (const p of contentIterator) {
             const tr = document.createElement('tr');
             const title = document.createElement('td');
-            const titleText = document.createTextNode(p[0]);
+            const titleText = document.createTextNode(p[0].toUpperCase());
             title.appendChild(titleText);
             const value = document.createElement('td');
             const valueText = document.createTextNode(p[1].text);
