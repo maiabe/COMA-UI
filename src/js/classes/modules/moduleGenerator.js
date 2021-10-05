@@ -28,6 +28,9 @@ class ModuleGenerator {
             case 'Random':
                 mod = new RandomData(category, this.colors.source, this.shapes.source);
                 break;
+            case 'Number':
+                mod = new NumberSource(category, this.colors.source, this.shapes.source);
+                break;
             case 'JSON':
                 mod = new Json(category, this.colors.source, this.shapes.source);
                 break;
@@ -51,6 +54,9 @@ class ModuleGenerator {
                 break;
             case 'Sum':
                 mod = new Sum(category, this.colors.processor, this.shapes.processor);
+                break;
+            case 'Subtract':
+                mod = new Subtract(category, this.colors.processor, this.shapes.processor);
                 break;
             case 'Scatter Plot':
                 mod = new ScatterPlot(category, this.colors.output, this.shapes.output);

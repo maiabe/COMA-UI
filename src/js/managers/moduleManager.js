@@ -99,6 +99,7 @@ class ModuleManager {
      * @param data an object containing a type (ie. 'table') and a data structure (ie. DataTable).
      */
     processNewData = (key, data) => {
+        console.log('type => ' + data.type);
         switch (data.type) {
             case 'table':
                 const mod = this.getModule(key);
@@ -107,13 +108,29 @@ class ModuleManager {
                 mod.addInspectorContent('Columns', data.data.getColumns());
                 mod.addInspectorContent('Elements', data.data.getNumElements());
                 
-                const messageData = {
-                    moduleKey: key
-                };
-                const msg = new Message(INSPECTOR, MODULE_MANAGER, 'Node Selected Event', messageData);
-                this.#sendMessage(msg);
                 break;
+            case 'number':
+                this.moduleMap.get(key).setData(data.data, data.type);
+                break
         }
+
+        const messageData = {
+            moduleKey: key
+        };
+        const msg = new Message(INSPECTOR, MODULE_MANAGER, 'Node Selected Event', messageData);
+        this.#sendMessage(msg);
+    };
+
+    parseOutputs = outputArray => {
+
+    };
+
+    requestInspectorUpdate = key => {
+        const messageData = {
+            moduleKey: key
+        };
+        const msg = new Message(INSPECTOR, MODULE_MANAGER, 'Node Selected Event', messageData);
+        this.#sendMessage(msg);
     };
 
     #sendMessage = msg => {

@@ -1,13 +1,11 @@
 /** This represents a source module and extends the module class. */
 class Source extends Module {
     #location;
-    #command;
     #params;
     constructor(category, color, shape, location, command) {
-        super(category, color, shape);
+        super(category, color, shape, command);
         this.data;
         this.#location = location;
-        this.#command = command;
         this.#params;
     }
 
@@ -21,10 +19,6 @@ class Source extends Module {
 
     getLocation = () => {
         return this.#location;
-    }
-
-    getCommand = () => {
-        return this.#command;
     }
     getParams = () => {
         return this.#params;
@@ -128,5 +122,48 @@ class CometAll extends Source {
         this.setupInspectorContent();
     }
 
+
+}
+
+class NumberSource extends Source {
+    constructor(category, color, shape) {
+        super(category, color, shape, 'local', 'storeThisData');
+        this.value = -1;
+        this.inPorts = [];
+        this.outPorts = [{ name: 'OUT', leftSide: false }];
+        this.setName('Number');
+        this.image = 'images/icons/number.png';
+        this.popupContent;
+        this.textArea;
+        this.dataArea;
+        this.setPopupContent();
+        this.setupInspectorContent();
+        this.setupPopupContent();
+        this.addInspectorContent('Value', this.value);
+    }
+
+    setupPopupContent = () => {
+        this.popupContent = GM.HF.createNewDiv('', '', [], []);
+        const setValueWrapper = GM.HF.createNewDiv('', '', ['setValueWrapper'], []);
+        this.popupContent.appendChild(setValueWrapper);
+        const valIn = GM.HF.createNewTextInput('value-in', 'value-in', [], [], 'text', false);
+        setValueWrapper.append(valIn);
+        valIn.addEventListener('change', this.handleInputChange);
+        const dataArea = GM.HF.createNewDiv('', '', ['numberDataArea'], []);
+        this.textArea = GM.HF.createNewParagraph('', '', ['popup-text-large'], [], '-1');
+        dataArea.appendChild(this.textArea);
+        this.popupContent.appendChild(dataArea);
+    };
+
+    handleInputChange = e => {
+        this.value = parseFloat(e.srcElement.value);
+        this.textArea.innerHTML = this.value;
+        this.addInspectorContent('Value', this.value);
+        GM.MM.requestInspectorUpdate(this.getKey());
+    }
+
+    getValue = () => {
+        return this.value;
+    }
 
 }

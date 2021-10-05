@@ -1,5 +1,6 @@
 class Module {
-    constructor(type, color, shape) {
+    #command;
+    constructor(type, color, shape, command) {
         this.type = type;
         this.image = '';
         this.color = color;
@@ -11,6 +12,7 @@ class Module {
         this.inspectorContent = new Map();
         this.popupContent;
         this.publisher = new Publisher();
+        this.#command = command;
     };
 
     provides = () => { };
@@ -27,6 +29,10 @@ class Module {
         INS.updateContent(this.key);
     };
 
+
+    getCommand = () => {
+        return this.#command;
+    }
 
     setupInspectorContent = () => {
         this.addInspectorContent('Name', this.name);
@@ -46,7 +52,7 @@ class Module {
 
     setPopupContent = () => {
         this.popupContent = GM.HF.createNewDiv('', '', [], []);
-        this.popupContent.appendChild(GM.HF.createNewParagraph('','',[],[], this.getName()));
+        this.popupContent.appendChild(GM.HF.createNewParagraph('', '', [], [], this.getName()));
     }
 
 
@@ -81,6 +87,6 @@ class Module {
         return this.inspectorContent;
     };
     getPopupContent = () => {
-        return {color: this.color, content: this.popupContent};
+        return { color: this.color, content: this.popupContent };
     }
 }

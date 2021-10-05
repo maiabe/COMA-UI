@@ -64,3 +64,16 @@ class Sum extends Processor {
     }
 
 }
+class Subtract extends Processor {
+    constructor(category, color, shape) {
+        super(category, color, shape, 'subtract');
+        this.inPorts = [{ name: 'IN', leftSide: true }];
+        this.outPorts = [{ name: 'OUT', leftSide: false }];
+        this.setName("Subtract");
+        this.image = 'images/icons/subtraction-symbol.png';
+        this.popupContent;
+        this.setPopupContent();
+        this.setupInspectorContent();
+    }
+
+}

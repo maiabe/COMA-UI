@@ -33,7 +33,7 @@ class Hub {
             case DATA_MANAGER:
                 this.#messageForDataManager(msgContents.type, msgContents.data);
                 break;
-            
+
         }
     };
 
@@ -46,6 +46,7 @@ class Hub {
         GM.INS.publisher.subscribe(this.subscriber);
         GM.IM.publisher.subscribe(this.subscriber);
         GM.PLM.publisher.subscribe(this.subscriber);
+        GM.OM.publisher.subscribe(this.subscriber);
     };
 
     #messageForEnvironment = (type, data) => {
@@ -95,7 +96,7 @@ class Hub {
     };
 
     #messageForInputManager = (type, data) => {
-        switch(type) {
+        switch (type) {
             case 'Read File Event':
                 GM.IM.readFile(data.type, data.source, data.path, data.moduleKey);
                 break;
@@ -103,12 +104,17 @@ class Hub {
     }
 
     #messageForDataManager = (type, data) => {
-        switch(type) {
+        switch (type) {
             case 'New Data Event':
                 GM.DM.addData(data.id, data.val);
                 break;
             case 'Data Request Event':
                 GM.DM.processDataRequest(data.moduleKey, data.cb);
+                break;
+            case 'Pipeline Return Event':
+                data.value.forEach(d => {
+                    GM.DM.addData(d.id, {type: typeof(d.val), data: d.val});
+                });
                 break;
         }
     }

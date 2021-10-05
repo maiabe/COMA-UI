@@ -11,13 +11,15 @@ class ModuleSelectionMenu {
             {icon: 'images/icons/json-file.png', text: 'JSON', category: 'Source'},
             {icon: 'images/icons/axis.png', text: 'Ephemeris', category: 'Source'},
             {icon: 'images/icons/calendar.png', text: 'MJD', category: 'Source'},
-            {icon: 'images/icons/truck.png', text: 'All', category: 'Source'}
+            {icon: 'images/icons/truck.png', text: 'All', category: 'Source'},
+            {icon: 'images/icons/number.png', text: 'Number', category: 'Source'}
         ];
         this.processorSubMenuItems = [
             {icon: 'images/icons/function.png', text: 'Function', category: 'Processor'},
             {icon: 'images/icons/gaussian-function.png', text: 'Gaussian Filter', category: 'Processor'},
             {icon: 'images/icons/filter.png', text: 'Laplacian Filter', category: 'Processor'},
             {icon: 'images/icons/sum-sign.png', text: 'Sum', category: 'Processor'},
+            {icon: 'images/icons/subtraction-symbol.png', text: 'Subtract', category: 'Processor'},
         ];
         this.outputSubMenuItems = [
             {icon: 'images/icons/scatter-graph.png', text: 'Scatter Plot', category: 'Output'},

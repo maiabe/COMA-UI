@@ -152,7 +152,7 @@ class Environment {
                 fill: "gray", stroke: null,
                 desiredSize: new go.Size(12, 12),
                 portId: name,  // declare this object to be a "port"
-                toMaxLinks: 1,  // don't allow more than one link into a port
+                toMaxLinks: 4,  // don't allow more than one link into a port
                 cursor: "pointer"  // show a different cursor to indicate potential link point
             });
 
@@ -227,6 +227,7 @@ class Environment {
 
     /** Loads the model to the HTML browser page. */
     #load = () => {
+        console.log(this.#model);
         this.#myDiagram.model = go.Model.fromJson(this.#model);
     };
 
@@ -243,8 +244,8 @@ class Environment {
 
     getModel = () => {
         return {
-            links: this.#model.linkDataArray,
-            nodes: this.#model.nodeDataArray
+            links: JSON.parse(JSON.stringify(this.#model.linkDataArray)),
+            nodes:  JSON.parse(JSON.stringify(this.#model.nodeDataArray))
         };
     }
 }

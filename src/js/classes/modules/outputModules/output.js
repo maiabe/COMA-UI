@@ -1,10 +1,17 @@
 class Output extends Module {
     constructor(category, color, shape) {
-        super(category, color, shape);
-        this.data;
+        super(category, color, shape, 'output');
+        this.data = undefined;
     }
-    setData = data => {
+
+    setData = (data, type) => {
         this.data = data;
+        console.log('Output #' + this.getKey() + ' = ' + this.data);
+        if (this.updatePopupText) {
+            this.updatePopupText(this.data);
+        }
+        this.addInspectorContent('Value', this.data)
+        GM.MM.requestInspectorUpdate(this.getKey());
     }
 
     getData = () => {
@@ -287,7 +294,25 @@ class Value extends Output {
         this.setName("Value");
         this.image = 'images/icons/equal.png';
         this.popupContent;
+        this.dataArea;
+        this.textArea;
         this.setPopupContent();
         this.setupInspectorContent();
     }
+
+    setupInspectorContent = () => {
+        this.popupContent = GM.HF.createNewDiv('', '', [], []);
+        const setValueWrapper = GM.HF.createNewDiv('', '', ['setValueWrapper'], []);
+        this.popupContent.appendChild(setValueWrapper);
+        const dataArea = GM.HF.createNewDiv('', '', ['numberDataArea'], []);
+        this.textArea = GM.HF.createNewParagraph('', '', ['popup-text-large'], [], this.data);
+        dataArea.appendChild(this.textArea);
+        this.popupContent.appendChild(dataArea);
+    };
+
+    updatePopupText = val => {
+        this.textArea.innerHTML = val;
+    };
+
+    
 }

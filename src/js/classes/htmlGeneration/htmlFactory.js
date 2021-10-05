@@ -99,6 +99,21 @@ class HTMLFactory {
         const b = this.#inputGenerator.generateFileInput(id, name, classlist, customStyles, type, disabled);
         return b;
     }
+    /** Creates a new HTML text input element
+             * @param id -> the id of the element (if not adding id, use empty string '')
+             * @param name -> the name of the element (if not adding name, use empty string '')
+             * @param classlist -> Array of strings, each string is a css classname
+             * @param customStyles -> array of objects in the following format
+             *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
+             *                         value: 'green;}
+             * @param type -> must be 'file' (string)
+             * @param disabled -> boolean (true = disabeled, false = enabeled )
+             * @return the new button
+             */
+    createNewTextInput(id, name, classlist, customStyles, type, disabled) {
+        const ta = this.#inputGenerator.generateFileInput(id, name, classlist, customStyles, type, disabled);
+        return ta;
+    }
 
     /** Takes an array of style objects and applies them to an element
      * @param e -> the html element to be styled.
