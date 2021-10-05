@@ -47,7 +47,7 @@ class Inspector {
             const titleText = document.createTextNode(p[0]);
             title.appendChild(titleText);
             const value = document.createElement('td');
-            const valueText = document.createTextNode(p[1]);
+            const valueText = document.createTextNode(p[1].text);
             value.appendChild(valueText);
             tr.appendChild(title);
             tr.appendChild(value);

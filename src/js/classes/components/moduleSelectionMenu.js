@@ -22,7 +22,7 @@ class ModuleSelectionMenu {
             {icon: 'images/icons/subtraction-symbol.png', text: 'Subtract', category: 'Processor'},
         ];
         this.outputSubMenuItems = [
-            {icon: 'images/icons/scatter-graph.png', text: 'Scatter Plot', category: 'Output'},
+            {icon: 'images/icons/scatter-graph-black.png', text: 'Scatter Plot', category: 'Output'},
             {icon: 'images/icons/bar-chart.png', text: 'Bar Chart', category: 'Output'},
             {icon: 'images/icons/line-chart.png', text: 'Line Chart', category: 'Output'},
             {icon: 'images/icons/table.png', text: 'Table', category: 'Output'},

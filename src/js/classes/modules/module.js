@@ -1,6 +1,9 @@
 class Module {
     #command;
+    dataTable;
+
     constructor(type, color, shape, command) {
+        this.dataTable;
         this.type = type;
         this.image = '';
         this.color = color;
@@ -15,6 +18,7 @@ class Module {
         this.#command = command;
     };
 
+    
     provides = () => { };
     requires = () => { };
     requirements = () => { };
@@ -35,9 +39,9 @@ class Module {
     }
 
     setupInspectorContent = () => {
-        this.addInspectorContent('Name', this.name);
-        this.addInspectorContent('Type', this.type);
-        this.addInspectorContent('Module Key', this.key);
+        this.addInspectorContent('Name', {text: this.name, modify: false});
+        this.addInspectorContent('Type', {text: this.type, modify: false});
+        this.addInspectorContent('Module Key', {text: this.key, modify: false});
     }
 
     addInspectorContent = (key, value) => {
@@ -67,7 +71,7 @@ class Module {
     setType = type => (this.type = type);
     setKey = key => {
         this.key = key;
-        this.inspectorContent.set('Module Key', key);
+        this.inspectorContent.set('Module Key', {text: key, modify: false});
     };
 
     addIn = () => {

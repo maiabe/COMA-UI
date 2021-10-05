@@ -139,7 +139,7 @@ class NumberSource extends Source {
         this.setPopupContent();
         this.setupInspectorContent();
         this.setupPopupContent();
-        this.addInspectorContent('Value', this.value);
+        this.addInspectorContent('Value', {text: this.value, modify: true});
     }
 
     setupPopupContent = () => {
@@ -158,7 +158,7 @@ class NumberSource extends Source {
     handleInputChange = e => {
         this.value = parseFloat(e.srcElement.value);
         this.textArea.innerHTML = this.value;
-        this.addInspectorContent('Value', this.value);
+        this.addInspectorContent('Value', {text: this.value, modify: true});
         GM.MM.requestInspectorUpdate(this.getKey());
     }
 
