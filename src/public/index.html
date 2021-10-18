@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+
+<head>
+   <script src="https://cdn.plot.ly/plotly-2.3.1.min.js"></script>
+   <script src="gojs/release/go.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.js"></script>
+
+   <link rel="stylesheet" href="css/main.css" />
+   <link rel="stylesheet" href="css/popup.css" />
+   <link rel="stylesheet" href="css/moduleSelectionMenu.css" />
+</head>
+
+<body>
+   <div class="nav"></div>
+   <div id="mainWrapper">
+      <div id="left-side-wrapper">
+         <div id="moduleMenu"></div>
+      </div>
+      <div id="right-side-wrapper">
+         <input id="runButton" type='button' value='Run'></button>
+         <!-- The Environment Div -->
+         <div id="environmentDiv"></div>
+         <!-- The Environment Div -->
+         <div id="inspector"></div>
+      </div>
+   </div>
+   <div class="plot_sidebar">
+      <div id="plot_1"></div>
+   </div>
+
+   <!-- Load All Global Variables -->
+   <script src="js/scripts/globals.js"></script>
+
+   <!-- Load Communication Components -->
+   <script src="js/classes/communication/message.js"></script>
+   <script src="js/classes/communication/subscriber.js"></script>
+   <script src="js/classes/communication/publisher.js"></script>
+
+   <!-- Load Modules and related Components -->
+   <script src="js/classes/modules/module.js"></script>
+   <script src="js/classes/modules/sourceModules/source.js"></script>
+   <script src="js/classes/modules/sourceModules/csvSource.js"></script>
+   <script src="js/classes/modules/processorModules/processor.js"></script>
+   <script src="js/classes/modules/outputModules/output.js"></script>
+   <script src="js/classes/modules/outputModules/table.js"></script>
+   <script src="js/classes/modules/moduleGenerator.js"></script>
+   
+
+   <!-- Load HTML generation scripts -->
+   <script src="js/classes/htmlGeneration/htmlFactory.js"></script>
+   <script src="js/classes/htmlGeneration/HTMLTableGenerator.js"></script>
+   <script src="js/classes/htmlGeneration/divGenerator.js"></script>
+   <script src="js/classes/htmlGeneration/imgGenerator.js"></script>
+   <script src="js/classes/htmlGeneration/paragraphGenerator.js"></script>
+   <script src="js/classes/htmlGeneration/inputGenerator.js"></script>
+
+
+   <!-- Load Popup Scripts -->
+   <script src="js/classes/components/popup.js"></script>
+
+   <!-- Data Processing Scripts -->
+   <script src="js/classes/dataComponents/dataTable.js"></script>
+   <script src="js/classes/dataComponents/csvReader.js"></script>
+
+   <!-- Load JS scripts -->
+   <script src="js/scripts/eventListeners.js"></script>
+
+   <!-- <script src="js/scripts/client.js"></script> -->
+   <script src="js/scripts/charts.js"></script>
+
+   <!-- Load Servers -->
+   <script src="js/servers/hub.js"></script>
+
+   <!-- Load Managers -->
+   <script src="js/managers/moduleManager.js"></script>
+   <script src="js/managers/dataManager.js"></script>
+   <script src="js/managers/popupManager.js"></script>
+   <script src="js/managers/globalManager.js"></script>
+   <script src="js/managers/inputManager.js"></script>
+   <script src="js/managers/outputManager.js"></script>
+   <script src="js/managers/pipelineManager.js"></script>
+   <script src="js/managers/workerManager.js"></script>
+
+   <!-- Load Application Components -->
+   <script src="js/classes/components/environment.js"></script>
+   <script src="js/classes/components/moduleSelectionMenu.js"></script>
+   <script src="js/classes/components/inspector.js"></script>
+
+   <!-- start Main -->
+   <script src="js/scripts/main.js"></script>
+
+
+</body>
+
+</html>
