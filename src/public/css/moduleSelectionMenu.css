@@ -35,7 +35,7 @@
     width: 100%;
     position: relative;
     /* outline: 1px solid black; */
-    height: 2.7em;
+    height: 50px;
     padding-left: 3%;
     overflow:hidden;
     cursor: pointer;
@@ -48,37 +48,41 @@
   }
   
   #moduleMenu > .menuSegmentWrapper > .topMenuButton > img {
-    width: 2em;
-    height: 2em;
+    width: 40px;
+    height: 40px;
     position: relative;
     float: left;
-    top: 12%;
+    top: 5px;
   }
   
   
   #moduleMenu > .menuSegmentWrapper > .topMenuButton > p {
     float: left;
-    font-size: 1em;
+    font-size: 18px;
     color: white;
     font-weight: 400;
     width: 60%;
     text-align: left;
     height: 100%;
     margin: 0;
-    top: calc(50% - 0.5em);
+    top: 14px;
     position: relative;
     padding-left: 25%;
   }
   
   .subMenuWrapper {
-    width: 100%;
+   width: 100%;
    overflow: hidden;
    height: 0px;
    transition: height 0.2s ease-in;
+   display: flex;
+   align-items: flex-start;
+   flex-wrap: wrap;
+   align-content: space-between;
   }
   
   .menuIconCard {
-    width: 33%;
+    width: 25%;
     height: 100px;
     float: left;
     position: relative;
@@ -106,3 +110,25 @@
     position: relative;
     margin-top: 1vh;
   }
+
+  
+/* Very small devices */
+@media (max-width: 480px) {
+  
+}
+/* Small Tablets and some phones*/
+@media (max-width: 768px) {
+
+}
+/*1k */
+@media (max-width: 1024px) {
+
+}
+/* 2k */
+@media (max-width: 2048) {
+
+}
+/* 4k Plus */
+@media (min-width: 2049px) {
+
+}

@@ -8,6 +8,7 @@ class Popup {
         this.header;
         this.headerTitle;
         this.body;
+        this.resizeDiv;
 
         // ID
         this.key = key;
@@ -23,6 +24,7 @@ class Popup {
         this.state;
         this.idle = 0;
         this.dragging = 1;
+        this.resizing = 2;
 
         this.setState(this.idle);
         this.createHTMLElement();
@@ -42,6 +44,7 @@ class Popup {
         this.element.appendChild(this.body);
         this.setBodyContent(this.content);
         document.body.appendChild(this.element);
+        this.createResizeDiv();
     }
 
     createHeader = () => {
@@ -55,6 +58,11 @@ class Popup {
         this.header.appendChild(closeIcon);
     }
 
+    createResizeDiv = () => {
+        this.resizeDiv = GM.HF.createNewDiv(`popup-resize-${this.id}`, `popup-resize-${this.id}`, ['popupResize'], []);
+        this.body.appendChild(this.resizeDiv);
+    }
+
     setBodyContent = content => {
         this.#clearBodyContent();
         this.body.appendChild(content);
@@ -65,12 +73,19 @@ class Popup {
     }
 
     setInitialValues = () => {
-        this.element.style.width = this.width;
-        this.element.style.height = this.height;
+        this.setWidth();
+        this.setHeight();
         this.setTop();
         this.setLeft();
     };
 
+    setWidth = () => {
+        this.element.style.width = `${this.width}px`;
+    }
+
+    setHeight = () => {
+        this.element.style.height = `${this.height}px`;
+    }
     setTop = () => {
         this.element.style.top = `${this.top}px`;
     }
@@ -80,11 +95,20 @@ class Popup {
     };
 
     setEventListeners = () => {
+        // Drag And Drop Listeners
         this.header.addEventListener('mousedown', this.startDrag);
         this.header.addEventListener('mouseup', this.endDrag);
         this.header.addEventListener('mouseleave', this.endDrag);
         this.header.addEventListener('mousemove', e => {
             this.drag(e);
+            e.preventDefault();
+        });
+        // Expand and Shrink Listeners
+        this.resizeDiv.addEventListener('mousedown', this.startResize);
+        this.resizeDiv.addEventListener('mouseup', this.endResize);
+        this.resizeDiv.addEventListener('mouseleave', this.endResize);
+        this.resizeDiv.addEventListener('mousemove', e => {
+            this.resize(e);
             e.preventDefault();
         });
     };
@@ -95,6 +119,7 @@ class Popup {
 
     getState = () => { return this.state };
 
+    //  DRAG AND DROP FUNCTIONS
     startDrag = () => {
         this.setState(this.dragging);
         this.mousePositions = [];
@@ -108,15 +133,43 @@ class Popup {
         if (this.getState() === this.dragging) {
             const pos = { x: e.screenX, y: e.screenY };
             this.mousePositions.push(pos);
-            if (this.mousePositions.length > 2) {
+            if (this.mousePositions.length > 1) {
                 const far = this.mousePositions[this.mousePositions.length - 1];
                 const near = this.mousePositions[0];
                 this.mousePositions = [far];
                 const distance = { x: far.x - near.x, y: far.y - near.y };
-                this.top += distance.y;
-                this.left += distance.x;
+                this.top += parseInt(distance.y);
+                this.left += parseInt(distance.x);
                 this.setLeft();
                 this.setTop();
+            }
+        }
+    }
+
+    // RESIZE FUNCTIONS
+    startResize = () => {
+        this.setState(this.resizing);
+        this.mousePositions = [];
+    };
+    endResize = () => {
+        this.setState(this.idle);
+        this.mousePositions = [];
+        GM.PM.resizeEventHandler(this.key);
+    };
+
+    resize = e => {
+        if (this.getState() === this.resizing) {
+            const pos = { x: e.screenX, y: e.screenY };
+            this.mousePositions.push(pos);
+            if (this.mousePositions.length > 1) {
+                const far = this.mousePositions[this.mousePositions.length - 1];
+                const near = this.mousePositions[0];
+                this.mousePositions = [far];
+                const distance = { x: far.x - near.x, y: far.y - near.y };
+                this.height += parseInt(distance.y);
+                this.width += parseInt(distance.x);
+                this.setWidth();
+                this.setHeight();
             }
         }
     }

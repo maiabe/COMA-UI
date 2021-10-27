@@ -84,7 +84,7 @@ class ModuleSubMenu {
     }
 
     createSubMenu = () => {
-        this.maxHeight = Math.ceil(this.dataArray.length / 3) * 100 + 'px';
+        this.maxHeight = Math.ceil(this.dataArray.length / 4) * 100 + 'px';
         this.wrapperElement = GM.HF.createNewDiv('msm-submenu-wrapper', 'msm-submenu-wrapper', ['subMenuWrapper'], [`height: ${this.maxHeight}`]);
         this.dataArray.forEach(e => {
             const card = new SubMenuCard(e);

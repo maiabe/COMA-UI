@@ -37,6 +37,9 @@ class Hub {
             case WORKER_MANAGER:
                 this.#messageForWorkerManager(msgContents.type, msgContents.data);
                 break;
+            case OUTPUT_MANAGER:
+                this.#messageForOutputManager(msgContents.type, msgContents.data);
+                break;
 
         }
     };
@@ -52,6 +55,7 @@ class Hub {
         GM.PLM.publisher.subscribe(this.subscriber);
         GM.OM.publisher.subscribe(this.subscriber);
         GM.WM.publisher.subscribe(this.subscriber);
+        GM.PM.publisher.subscribe(this.subscriber);
     };
 
     #messageForEnvironment = (type, data) => {
@@ -141,6 +145,26 @@ class Hub {
                     GM.ENV.highlightChangedNodes(keyArray);
                 });
                 break;
+        }
+    }
+
+    #messageForOutputManager = (type, data) => {
+        console.log(type);
+        switch (type) {
+            case 'Create New Chart Event':
+                GM.OM.storeChartData(data.moduleKey, data.data, data.type);
+                if (GM.PM.isPopupOpen(data.moduleKey)) {
+                    GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
+                }
+                break;
+            case 'Resize Popup Event':
+                if (GM.OM.popupHasAChart(data.moduleKey)) {
+                    console.log('yup');
+                    GM.OM.drawChart(data.moduleKey, GM.PM.getPopupBodyDiv(data.moduleKey), GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
+                } else {
+                    console.log('oops');
+                }
+                break
         }
     }
 

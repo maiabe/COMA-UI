@@ -127,7 +127,14 @@ class ModuleManager {
                         type = 'table';
                         break;
                 }
-                plotData(data, type, mod.plotDiv);
+                const messageData = {
+                    moduleKey: key,
+                    data: data,
+                    type: type, 
+                    div: mod.plotDiv
+                }
+                const msg = new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Chart Event', messageData);
+                this.#sendMessage(msg);
                 break;
         }
 
