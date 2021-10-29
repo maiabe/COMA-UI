@@ -98,7 +98,7 @@ class Module {
     };
 
     getPopupContent = () => {
-        return { color: this.getData('color'), content: this.popupContent };
+        return { color: this.getData('color'), content: this.popupContent, headerText: this.getData('name') };
     }
     updatePopupData = field => {
         console.log(`Update Popup for ${field} has not been implemented for this module.`);

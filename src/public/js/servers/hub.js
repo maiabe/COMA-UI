@@ -161,10 +161,13 @@ class Hub {
                 if (GM.OM.popupHasAChart(data.moduleKey)) {
                     console.log('yup');
                     GM.OM.drawChart(data.moduleKey, GM.PM.getPopupBodyDiv(data.moduleKey), GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
-                } else {
-                    console.log('oops');
                 }
-                break
+                break;
+            case 'Start Resize Popup Event':
+                if (GM.OM.popupHasAChart(data.moduleKey)) {
+                    GM.PM.clearChart(data.moduleKey);
+                }
+                break;
         }
     }
 

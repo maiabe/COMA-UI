@@ -9,7 +9,27 @@ class ChartBuilder {
                 t: 40,
             },
             width: width,
-            height: height
+            height: height,
+            xaxis: {
+                title: {
+                  text: 'x Axis',
+                  font: {
+                    family: 'Arial, monospace',
+                    size: 18,
+                    color: '#7f7f7f'
+                  }
+                },
+              },
+              yaxis: {
+                title: {
+                  text: 'y Axis',
+                  font: {
+                    family: 'Arial, monospace',
+                    size: 18,
+                    color: '#7f7f7f'
+                  }
+                }
+              }
         });
     }
 

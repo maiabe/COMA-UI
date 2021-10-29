@@ -3,7 +3,7 @@ class PopupManager {
     publisher;                  // Publishes Messages
     #popupList;                 // Map of popups
     #popupIndex;                // Strictly increasing value that identifies a popup.
-
+    
     constructor() {
         this.publisher = new Publisher();
         this.#popupList = new Map();       // Popups are indexed with a module Key.
@@ -34,7 +34,7 @@ class PopupManager {
                     width = 600;
                     height = 800;
                 }
-                const p = new Popup(width, height, 0, 0, moduleKey, content.color, content.content);
+                const p = new Popup(width, height, 0, 0, moduleKey, content.color, content.content, content.headerText);
                 this.#popupList.set(moduleKey, { type: 'module', element: p });
                 const data = { moduleKey: moduleKey };
                 const msg = new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Resize Popup Event', data);
@@ -76,9 +76,21 @@ class PopupManager {
         return undefined;
     }
 
+    clearChart = key => {
+        const body = this.getPopupBodyDiv(key);
+        if (body) {
+            body.querySelector('.plotly').innerHTML = '';
+        }
+    }
+
     resizeEventHandler = key => {
         const data = { moduleKey: key };
         const msg = new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Resize Popup Event', data);
+        this.sendMessage(msg);
+    }
+    startResizeEventHandler = key => {
+        const data = { moduleKey: key };
+        const msg = new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Start Resize Popup Event', data);
         this.sendMessage(msg);
     }
 

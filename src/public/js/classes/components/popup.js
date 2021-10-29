@@ -1,5 +1,5 @@
 class Popup {
-    constructor(width, height, initialTop, initialLeft, key, color, content) {
+    constructor(width, height, initialTop, initialLeft, key, color, content, headerText) {
 
         this.content = content;
 
@@ -27,18 +27,17 @@ class Popup {
         this.resizing = 2;
 
         this.setState(this.idle);
-        this.createHTMLElement();
+        this.createHTMLElement(headerText);
         this.setInitialValues();
         this.setEventListeners();
 
         // Drag Position Array
         this.mousePositions = [];
-
     }
 
-    createHTMLElement = () => {
+    createHTMLElement = headerText => {
         this.element = GM.HF.createNewDiv(`popup-${this.key}`, `popup-${this.key}`, ['popup'], []);
-        this.createHeader();
+        this.createHeader(headerText);
         this.body = GM.HF.createNewDiv(`popup-body-${this.key}`, `popup-body-${this.key}`, ['popupBody'], []);
         this.element.appendChild(this.header);
         this.element.appendChild(this.body);
@@ -47,9 +46,9 @@ class Popup {
         this.createResizeDiv();
     }
 
-    createHeader = () => {
+    createHeader = headerText => {
         this.header = GM.HF.createNewDiv(`popup-header-${this.id}`, `popup-header-${this.id}`, ['popupHeader'], [{style: 'backgroundColor', value: this.headerColor}]);
-        this.headerTitle = GM.HF.createNewParagraph('', '', ['popupHeaderTitle'], [], 'This Is A Popup Header');
+        this.headerTitle = GM.HF.createNewParagraph('', '', ['popupHeaderTitle'], [], headerText);
         this.header.appendChild(this.headerTitle);
         const closeIcon = GM.HF.createNewDiv('', '', ['closePopupIcon'], []);
         const img = GM.HF.createNewIMG('', '', 'images/icons/cancel.png', [], [], 'Close Popup Button');
@@ -111,6 +110,9 @@ class Popup {
             this.resize(e);
             e.preventDefault();
         });
+        this.element.addEventListener('click', () => {
+            this.element.style.zIndex = GM.PM.getNextZIndex();
+        });
     };
 
     setState = state => {
@@ -150,6 +152,7 @@ class Popup {
     startResize = () => {
         this.setState(this.resizing);
         this.mousePositions = [];
+        GM.PM.startResizeEventHandler(this.key);
     };
     endResize = () => {
         this.setState(this.idle);
