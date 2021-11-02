@@ -134,7 +134,7 @@ class Hub {
                 GM.DM.addData(data.id, data.val);
                 break;
             case 'Data Request Event':
-                GM.DM.processDataRequest(data.moduleKey, data.cb);
+                GM.DM.processDataRequest(data.moduleKey, data.callBackFunction);
                 break;
             case 'Pipeline Return Event':
                 const keyArray = [];
@@ -152,8 +152,10 @@ class Hub {
         console.log(type);
         switch (type) {
             case 'Create New Chart Event':
+                console.log(data);
                 GM.OM.storeChartData(data.moduleKey, data.data, data.type);
                 if (GM.PM.isPopupOpen(data.moduleKey)) {
+
                     GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
                 }
                 break;

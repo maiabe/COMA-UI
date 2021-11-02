@@ -32,11 +32,11 @@ const initiatePing = () => {
 const handleReturn = data => {
     switch (data.type) {
         case 'Initial Response':
-            console.log(data.status);
+           // console.log(data.status);
             break;
         case 'Status Check':
-            console.log(data.status);
-            console.log(data.data);
+            //console.log(data.status);
+            //console.log(data.data);
             if (data.status == 'Complete') {
                 clearInterval(intervalId);
                 postMessage({type: 'Processing Complete', clientId: id, data: data.data});

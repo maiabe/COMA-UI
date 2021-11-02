@@ -110,9 +110,6 @@ class Popup {
             this.resize(e);
             e.preventDefault();
         });
-        this.element.addEventListener('click', () => {
-            this.element.style.zIndex = GM.PM.getNextZIndex();
-        });
     };
 
     setState = state => {
