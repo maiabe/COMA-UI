@@ -14,10 +14,6 @@ class Inspector {
         this.createContentArea();
     }
 
-    messageHandler = msg => {
-        console.log(msg.readMessage());
-    };
-
     setCurrentModuleKey(key, content) {
         this.#currentModuleKey = key;
     }

@@ -43,4 +43,27 @@ function init() {
     GM.startEnvironment();
 }
 
+const typeCheck = (variable, type) => (typeof(variable) === type) ? true : false;
+const isNullOrUndefined = variable => (variable == undefined || variable == null) ? true: false;
+
+const validateVariables = (variables, fileName, functionName) => {
+    let foundError = false;
+    variables.forEach(variableInfo => {
+        if (!isNullOrUndefined(variableInfo.value)) {
+            if (!typeCheck(variableInfo.value, variableInfo.expectedType)) {
+                console.log(`ERROR - typecheck. ${variableInfo.name}: ${typeof(variableInfo.value)} - expected ${variableInfo.expectedType} -- ${fileName} -> ${functionName}`);
+                foundError = true;
+            } 
+        } else {
+            foundError = true;
+            console.log(`ERROR: undefined or null variable. ${variableInfo.name}: ${variableInfo.value} -- ${fileName} -> ${functionName}`);
+        }
+    });
+    return foundError;
+}
+
+const varTest = (value, name, expectedType) => {
+    return {value: value, name: name, expectedType: expectedType};
+}
+
 window.addEventListener('DOMContentLoaded', init);

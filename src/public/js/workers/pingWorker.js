@@ -1,9 +1,7 @@
 let id = -1;
 
-onmessage = function (e) {
-    console.log('Message received from main script');
+onmessage = e => {
     var workerResult = 'Result: ' + (e.data);
-    console.log('Posting message back to main script');
     switch (e.data.type) {
         case 'Execute Post':
             postData(url, { type: 'Process Pipeline Request', data: e.data.list, clientId: id}).then(data => {
@@ -17,7 +15,6 @@ onmessage = function (e) {
             postMessage({ type: 'Text Only', data: `Worker ID set to ${id}` });
             break;
     }
-
 }
 
 let intervalId;
@@ -35,8 +32,6 @@ const handleReturn = data => {
            // console.log(data.status);
             break;
         case 'Status Check':
-            //console.log(data.status);
-            //console.log(data.data);
             if (data.status == 'Complete') {
                 clearInterval(intervalId);
                 postMessage({type: 'Processing Complete', clientId: id, data: data.data});
@@ -67,7 +62,7 @@ function getRequest(theUrl) {
 // Example POST method implementation:
 async function postData(url, data) {
     data.clientId = id;
-    console.log(JSON.stringify(data));
+    //console.log(JSON.stringify(data));
     // Default options are marked with *
     const response = await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.

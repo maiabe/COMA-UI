@@ -61,7 +61,7 @@ class Module {
      * @param {boolean} modify true if user can modify this value in the inspector, false if it is read only.
      */
     addData = (key, value, allowInspection, inspectorText, modify) => {
-        if (key && value) {
+        if (key && value != undefined) {
             const obj = {
                 data: value,
                 inspector: {
