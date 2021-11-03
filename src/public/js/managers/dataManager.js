@@ -13,7 +13,7 @@ class DataManager {
      * @param {Message} msg the Message 
      */
     #sendMessage = msg => {
-        if (validateVariables([varTest(msg, 'msg', 'object')], 'DataManager', '#sendMessage')) return false;
+        if (invalidVariables([varTest(msg, 'msg', 'object')], 'DataManager', '#sendMessage')) return false;
         else this.publisher.publishMessage(msg);
     }
 
@@ -23,7 +23,7 @@ class DataManager {
      * @returns the data associated with the key if found.
      */
     getData = key => {
-        if (validateVariables([varTest(key, 'key', 'number')], 'DataManager', 'getData')) return undefined;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'DataManager', 'getData')) return undefined;
         if (this.#dataTable.has(key)) return this.#dataTable.get(key);
         else console.log(`ERROR: No data found for key: ${key}. -- Data Manager -> getData`);
         return undefined;
@@ -35,7 +35,7 @@ class DataManager {
      * @param {object} val the value linked to the key. This is the "data".
      */
     addData = (key, val) => {
-        if (validateVariables([varTest(key, 'key', 'number'), varTest(val, 'val', 'object')], 'DataManager', 'addData')) return;
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(val, 'val', 'object')], 'DataManager', 'addData')) return;
         if (this.#dataTable.has(key)) console.log(`Data Table already has key: ${key} in it. Will Overwrite. -- DataManager -> addData.`);
         this.#dataTable.set(key, val);
         // Notify Module Manager that new data was added to the table.
@@ -48,7 +48,7 @@ class DataManager {
      * @returns true if data exists, false if not.
      */
     hasData = key => {
-        if (validateVariables([varTest(key, 'key', 'number')], 'DataManager', 'hasData')) return false;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'DataManager', 'hasData')) return false;
         else return this.#dataTable.has(key);
     }
     /**
@@ -57,7 +57,7 @@ class DataManager {
      * @returns true if successful, false if not.
      */
     deleteData = key => {
-        if (validateVariables([varTest(key, 'key', 'number')], 'DataManager', 'deleteData')) return false;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'DataManager', 'deleteData')) return false;
         else return this.#dataTable.delete(key);
     }
 
@@ -67,7 +67,7 @@ class DataManager {
      * @param {fn} callbackFunction the function to call and pass data as a parameter.
      */
     processDataRequest = (key, callbackFunction) => {
-        if (validateVariables([varTest(key, 'key', 'number'), varTest(callbackFunction, 'callbackFunction', 'function')], 'DataManager', 'processDataRequest')) return;
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(callbackFunction, 'callbackFunction', 'function')], 'DataManager', 'processDataRequest')) return;
         else callbackFunction(key, this.getData(key));
     }
 }

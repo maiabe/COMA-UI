@@ -48,7 +48,7 @@ function init() {
 const typeCheck = (variable, type) => (typeof(variable) === type) ? true : false;
 const isNullOrUndefined = variable => (variable == undefined || variable == null) ? true: false;
 
-const validateVariables = (variables, fileName, functionName) => {
+const invalidVariables = (variables, fileName, functionName) => {
     let foundError = false;
     variables.forEach(variableInfo => {
         if (!isNullOrUndefined(variableInfo.value)) {

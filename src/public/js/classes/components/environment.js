@@ -19,48 +19,45 @@ class Environment {
         this.publisher.publishMessage(msg);
     };
 
-    /** Sets Up the Environment */
     setUpEnvironment = () => {
-        this.#startGoJsEnvironment();                     // Initialize the GOJS environment
-        this.#model = this.#createNewModel();             // Create A new GOJS model object. Arrays are Empty to start.
-        this.#load();                                     // Load the model and display it to the environemnt in browser.
-        this.#createEventListeners();                     // Set Up Event Listeners
+        this.#startGoJsEnvironment();
+        this.#createNewModel();
+        this.#load();
+        this.#createEventListeners();
     };
 
-    /**
-     * Adds Event listeners to the diagram.
-     */
     #createEventListeners = () => {
-        // Notify the Modle Manager when a link is drawn. Send to and from keys.
         this.#myDiagram.addDiagramListener('LinkDrawn', e => {
             this.#sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Link Drawn Event', { event: 'LinkDrawn', fromNodeKey: e.subject.fromNode.key, toNodeKey: e.subject.toNode.key }));
         });
     }
 
-    /** Generates a GOJS model without any nodes. */
     #createNewModel = () => {
-        return { class: "go.GraphLinksModel", nodeCategoryProperty: "type", linkFromPortIdProperty: "frompid", linkToPortIdProperty: "topid", nodeDataArray: [], linkDataArray: [] }
+        this.#model = { class: "go.GraphLinksModel", nodeCategoryProperty: "type", linkFromPortIdProperty: "frompid", linkToPortIdProperty: "topid", nodeDataArray: [], linkDataArray: [] }
     };
 
     /**
      * Creates a new node template.
-     * @param {Module} mod The module object that will be represented as a node in the graph
+     * @param {object (Module)} module The module object that will be represented as a node in the graph
      */
-    #createTemplate = mod => {
-        if (mod) {
-            // First get the port information.
-            const inports = [];
-            const outports = [];
-            mod.getData('inports').forEach(obj => inports.push(this.#makePort(obj.name, obj.leftSide)));
-            mod.getData('outports').forEach(obj => outports.push(this.#makePort(obj.name, obj.leftSide)));
-            // Pass Data to the templateMaker
-            this.#makeTemplate(mod.getData('name'), mod.getData('image'), mod.getData('color'), mod.getData('shape'), inports, outports);
-        } else console.log(`ERROR: parameter error. module: ${mod}. -- Environment -> createTemplate`);
+    #createTemplate = module => {
+        if (invalidVariables([varTest(module, 'module', 'object')], 'Environment', '#createTemplate')) return;
+        this.#makeTemplate(module.getData('name'), module.getData('image'), module.getData('color'), module.getData('shape'), this.#unpackPortArray(module, 'inports'), this.#unpackPortArray(module, 'outports'));
     }
 
     /**
-     * Creates a new gojs environment
+     * 
+     * @param {object (Module)} module 
+     * @param {string} portType 'inports' or 'outports'
+     * @returns array of ports
      */
+    #unpackPortArray = (module, portType) => {
+        if (invalidVariables([varTest(module, 'module', 'object'), varTest(portType, 'portType', 'string')], 'Environemnt', '#unpackPortArray')) return undefined;
+        const ports = [];
+        module.getData(portType).forEach(obj => ports.push(this.#makePort(obj.name, obj.leftSide)));
+        return ports;
+    }
+
     #startGoJsEnvironment = () => {
         const $ = go.GraphObject.make;
         this.#myDiagram =
@@ -193,9 +190,6 @@ class Environment {
         else console.log(`ERROR: Cannot select undefined node. -- Environment -> onSelectionChanged`);
     }
 
-
-    /** PUBLIC API */
-
     /** Removes a node from the diagram. */
     #removeNode = (nodeKey) => {
         const node = this.#myDiagram.findNodeForKey(nodeKey);
@@ -245,10 +239,9 @@ class Environment {
      * @param {number} key the key of the node that was clicked.
      */
     #handleDoubleClick = (event, key) => {
-        if (event && key != undefined) {
-            this.#myDiagram.findNodeForKey(key).findObject('SHAPE').stroke = 'transparent'; // clear the outline if ther was one. (could be one when data returns from the server.)
-            this.#sendMessage(new Message(POPUP_MANAGER, ENVIRONMENT, 'Double Click Event', { moduleKey: key, x: event.Xr.clientX, y: event.Xr.clientY })); // Open Popup
-        } else console.log(`ERROR: parameter error. event: ${event}, key: ${key}. -- Environment -> #handleDoubleClickEvent`);
+        if (invalidVariables([varTest(event, 'event', 'object'), varTest(key, 'key', 'number')], 'Environment', '#handleDoubleClick')) return false;
+        this.clearHighlightedNode(key);
+        this.#sendMessage(new Message(POPUP_MANAGER, ENVIRONMENT, 'Double Click Event', { moduleKey: key, x: event.Xr.clientX, y: event.Xr.clientY })); // Open Popup
     }
 
     printModel = () => {
@@ -269,33 +262,53 @@ class Environment {
      * @param {number[]} nodeArray an array of keys for the nodes that were changed and need a colored outline
      */
     highlightChangedNodes = nodeArray => {
-        if (nodeArray) nodeArray.forEach(key => this.#myDiagram.findNodeForKey(key).findObject('SHAPE').stroke = 'red');
-        else console.log(`ERROR: parameter error. nodeArray: ${nodeArray}. -- Environment -> highlightChangedNodes`);
+        if (invalidVariables([varTest(nodeArray, 'nodeArray', 'object')], 'Environment', 'highlightChangedNodes')) return;
+        nodeArray.forEach(key => this.#myDiagram.findNodeForKey(key).findObject('SHAPE').stroke = 'red');
     };
+
+    /**
+     * Removes outline around gojs node.
+     * @param {number} key node key.
+     */
+    clearHighlightedNode = key => {
+        if (invalidVariables([varTest(key, 'key', 'number')], 'Environment', 'clearHighlightedNode')) return;
+        this.#myDiagram.findNodeForKey(key).findObject('SHAPE').stroke = 'transparent';
+    }
 
     /**
      * Colors the nodes whos keys are provided based on their type.
      * @param {number[]} nodeArray 
      */
     updatePipelineProgress = nodeArray => {
-        if (nodeArray) {
-            nodeArray.forEach(key => {
-                const node = this.#myDiagram.findNodeForKey(key);
-                let color = 'orange';
-                switch (node.data.name) {
-                    case 'Source':
-                        color = sourceColor;
-                        break;
-                    case 'Processor':
-                        color = processorColor;
-                        break;
-                    case 'Output':
-                        color = outputColor;
-                        break;
-                }
-                this.changeNodeBackgroundColor(node, color);
-            });
-        } else console.log(`ERROR: parameter error. nodeArray: ${nodeArray}. -- Environment -> UpdatePipelineProgress`);
+        if (invalidVariables([varTest(nodeArray, 'nodeArray', 'object')], 'Environment', 'updatePipelinePrograss')) return;
+        nodeArray.forEach(key => {
+            const node = this.#myDiagram.findNodeForKey(key);
+            this.changeNodeBackgroundColor(node, this.#getNodeColor(node.data.name));
+        });
+    }
+
+    /**
+     * @param {string} type 'Source', 'Processor', or 'Output'
+     * @returns the color
+     */
+    #getNodeColor = type => {
+        if (invalidVariables([varTest(type, 'type', 'string')], 'Environment', '#getNodeColor')) return undefined;
+        let color = undefined;
+        switch (type) {
+            case 'Source':
+                color = sourceColor;
+                break;
+            case 'Processor':
+                color = processorColor;
+                break;
+            case 'Output':
+                color = outputColor;
+                break;
+            default:
+                printErrorMessage('unhandled type. Cannot get color.', `type: ${type} -- Environment -> #getnodeColor`);
+                break;
+        }
+        return color;
     }
 
     /**
@@ -303,9 +316,10 @@ class Environment {
      * @param {number[]} nodeArray Array of keys for the nodes to turn gray.
      */
     grayOutPipeline = nodeArray => {
+        if (invalidVariables([varTest(nodeArray, 'nodeArray', 'object')], 'Environment', 'grayOutPipeline')) return;
         nodeArray.forEach(key => {
             if (key != undefined) this.changeNodeBackgroundColor(this.#myDiagram.findNodeForKey(key), 'gray');
-            else console.log(`ERROR: cannot gray out node with key: ${key}`);
+            else printErrorMessage(`undefined variable`, `key: ${key} -- Environment -> grayOutPipeline`);
         });
     }
 
@@ -315,13 +329,10 @@ class Environment {
      * @param {string} color the color to fill with
      */
     changeNodeBackgroundColor = (node, color) => {
-        if (node && color) node.findObject('SHAPE').fill = color;
-        else console.log(`ERROR: parameter error. node: ${node}, color: ${color}. -- Environment -> changeNodeBackgroundColor`);
+        if (invalidVariables([varTest(node, 'node', 'object'), varTest(color, 'color', 'string')], 'Environment', 'changeNodeBackgroundColor')) return;
+        else node.findObject('SHAPE').fill = color;
     }
 
-    /**
-     * Clears the Inspector. (happens when user clicks the background and nodes are deselected.)
-     */
     #clearInspector = () => {
         this.#sendMessage(new Message(INSPECTOR, ENVIRONMENT, 'Clear Inspector Event', {}));
     }

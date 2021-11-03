@@ -16,7 +16,7 @@ class OutputManager {
      * @returns true if successful, false if failure
      */
     storeChartData = (key, data, type) => {
-        if (validateVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
         if (!this.#outputMap.has(key)) {
             this.#outputMap.set(key, { data: data, type: type, outputType: 'plotly' });
             return true;
@@ -32,7 +32,7 @@ class OutputManager {
      * @param {number} height height of the div in pixels. (number only)
      */
     drawChart = (key, div, width, height) => {
-        if (validateVariables([varTest(key, 'key', 'number'), varTest(div, 'div', 'object'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'OutputManager', 'drawChart')) return;
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(div, 'div', 'object'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'OutputManager', 'drawChart')) return;
         if (this.#outputMap.has(key)) this.#chartBuilder.plotData(this.#outputMap.get(key).data, this.#outputMap.get(key).type, div, width, height);
         else console.log(`ERROR: Cannot drawChart, missing data for key: ${key}. -- OutputManager -> drawChart`);
     }
@@ -43,7 +43,7 @@ class OutputManager {
      * @returns true if there is a chart for this module, false if not.
      */
     popupHasAChart = key => {
-        if (validateVariables([varTest(key, 'key', 'number')], 'OutputManager', 'popupHasAChart')) return false;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'OutputManager', 'popupHasAChart')) return false;
         if (this.#outputMap.has(key)) {
             if (this.#outputMap.get(key).outputType === 'plotly') return true;
         }

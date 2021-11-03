@@ -16,10 +16,10 @@ class ModuleManager {
      * @return true if successful, false if not.
      */
     createNewModule = (name, category, key) => {
-        if (validateVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'createNewModule')) return false;
-        const templateExists = this.moduleMap.has(key);
+        if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'createNewModule')) return false;
         const module = this.#MG.generateNewModule(name, category);
         module.setData('key', key, key);
+        const templateExists = this.moduleMap.has(key);
         this.#addModule(module, key);
         this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: templateExists }));
         return true;
@@ -32,7 +32,7 @@ class ModuleManager {
      * @return true if successful, false if failure.
      */
     deployNewModule = (name, category) => {
-        if (validateVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string')], 'ModuleManager', 'deployNewModule')) return false;
+        if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string')], 'ModuleManager', 'deployNewModule')) return false;
         this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Request Module Key Event', { name: name, category: category, cb: this.createNewModule }));
         return true;
     };
@@ -44,7 +44,7 @@ class ModuleManager {
      * @return true if successful add, false if not.
      */
     #addModule = (module, key) => {
-        if (validateVariables([varTest(module, 'module', 'object'), varTest(key, 'key', 'number')], 'ModuleManager', '#addModule')) return false;
+        if (invalidVariables([varTest(module, 'module', 'object'), varTest(key, 'key', 'number')], 'ModuleManager', '#addModule')) return false;
         this.moduleMap.set(key, module);
         return true;
     };
@@ -55,11 +55,11 @@ class ModuleManager {
      * @return true if successful, false if failure.
      */
     #removeModule = key => {
-        if (validateVariables([varTest(key, 'key', 'number')], 'ModuleManager', '#removeModule')) return false;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'ModuleManager', '#removeModule')) return false;
         if (this.moduleMap.has(key)) {
             this.moduleMap.delete(key);
             return true;
-        } else console.log(`ERROR: no module found for key: ${key}`);
+        } else printErrorMessage('no module found for key', `key: ${key} -- ModuleManager - #removeModule`);
         return false;
     };
 
@@ -69,9 +69,9 @@ class ModuleManager {
      * @returns the module if it is found, undefined if not.
      */
     getModule = key => {
-        if (validateVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'getModule')) return undefined;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'getModule')) return undefined;
         if (this.moduleMap.has(key)) return this.moduleMap.get(key);
-        else console.log(`ERROR: No module found for key ${key}. -- ModuleManager - getModule`);
+        else printErrorMessage(`No module found`, `key ${key}. -- ModuleManager - getModule`);
         return undefined;
     };
 
@@ -81,7 +81,7 @@ class ModuleManager {
      * @returns the updated model that includes the module objects. Returns undefined if the model is undefined.
      */
     getModulesForPipeline = model => {
-        if (validateVariables([varTest(model, 'model', 'object')], 'ModuleManager', 'getModulesForPipeline')) return undefined;
+        if (invalidVariables([varTest(model, 'model', 'object')], 'ModuleManager', 'getModulesForPipeline')) return undefined;
         model.nodes.forEach(node => node.module = this.getModule(node.key));
         return model;
     };
@@ -92,13 +92,14 @@ class ModuleManager {
      * @returns the content necessary to populate the inspector for a specific module.
      */
     getInspectorContentForModule = key => {
-        if (validateVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'getInspectorContentForPipeline')) return undefined;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'getInspectorContentForPipeline')) return undefined;
         const module = this.getModule(key);
         if (module) {
             const content = module.getInspectorContent();
-            if (!content) (`ERROR: undefined variable. No Content found for module with ${key}. -- ModuleManager -> getInspectorContentForPipeline`);
+            if (!content) printErrorMessage(`undefined variable. No Content found`, `key: ${key}. -- ModuleManager -> getInspectorContentForPipeline`);
             return content;
-        } else console.log(`ERROR: Module is undefined for key: ${key}. -- ModuleManager -> getInspectorContentForModule`);
+        } else printErrorMessage('module is undefined', `key: ${key} -- ModuleManager -> getInspectorContentForModule`);
+        return undefined;
     };
 
     /**
@@ -107,14 +108,14 @@ class ModuleManager {
      * @returns the content for the popup.
      */
     getPopupContentForModule = key => {
-        if (validateVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'getPopupContentForPipeline')) return undefined;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'getPopupContentForPipeline')) return undefined;
         const module = this.getModule(key);
+        let content = undefined;
         if (module) {
-            const content = module.getPopupContent();
-            if (!content) (`ERROR: undefined variable. No Content found for module with ${key}. -- ModuleManager -> getInspectorContentForPipeline`);
-            return content;
-        } else console.log(`ERROR: Module is undefined for key: ${key}. -- ModuleManager getPopupContentForModule`);
-        return undefined;
+            content = module.getPopupContent();
+            if (!content) printErrorMessage(`undefined variable. No Content found`, `key: ${key}. -- ModuleManager -> getPopupContentForPipeline`);
+        } else printErrorMessage('module is undefined', `key: ${key}. -- ModuleManager -> getPopupContentForModule`);
+        return content;
     }
 
     /**
@@ -125,7 +126,7 @@ class ModuleManager {
      * @param {number} key the module key associated with the file upload.
      */
     readFile = (type, source, path, key) => {
-        if (validateVariables([varTest(type, 'type', 'string'), varTest(source, 'source', 'string'), varTest(path, 'path', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'readFile')) return false;
+        if (invalidVariables([varTest(type, 'type', 'string'), varTest(source, 'source', 'string'), varTest(path, 'path', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'readFile')) return false;
         this.publisher.publishMessage(new Message(INPUT_MANAGER, MODULE_MANAGER, 'Read File Event', { type: type, source: source, path: path, moduleKey: key }));
         return true;
     };
@@ -136,7 +137,7 @@ class ModuleManager {
      * @returns true if successful, false if missing data.
      */
     newDataLoaded = key => {
-        if (validateVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'newDataLoaded')) return false;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'newDataLoaded')) return false;
         // Attach ProcessNewData function as callback. The Hub will call this function and pass the callback to the data manager.
         this.#sendMessage(new Message(DATA_MANAGER, MODULE_MANAGER, 'Data Request Event', { moduleKey: key, callBackFunction: this.processNewData }));
         return true;
@@ -147,7 +148,7 @@ class ModuleManager {
      * @param {object} data an object containing a type (ie. 'table') and a data structure (ie. DataTable).
      */
     processNewData = (key, data) => {
-        if (validateVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object')], 'ModuleManager', 'processNewData')) return;
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object')], 'ModuleManager', 'processNewData')) return;
         const module = this.getModule(key);
         if (module) {
             switch (data.type) {
@@ -163,7 +164,7 @@ class ModuleManager {
             }
             // Notify Hub (Node Selected Event is used to update Inspector Data)
             this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Node Selected Event', { moduleKey: key }));
-        } else console.log(`ERROR: Module was not Found for key ${key}. -- ModuleManager -> ProcessNewData`);
+        } else printErrorMessage(`module undefined`, `key: ${key}. -- ModuleManager -> ProcessNewData`);
     };
 
     /**
@@ -173,10 +174,10 @@ class ModuleManager {
      * @param {number} key The key of the module.
      */
     #processChart = (module, data, key) => {
-        if (validateVariables([varTest(module, 'module', 'object'), varTest(data, 'data', 'object'), varTest(key, 'key', 'number')], 'ModuleManager', '#processChart')) return;
+        if (invalidVariables([varTest(module, 'module', 'object'), varTest(data, 'data', 'object'), varTest(key, 'key', 'number')], 'ModuleManager', '#processChart')) return;
         const type = this.#getChartType(module.getData('name'));
         if (type) this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Chart Event', { moduleKey: key, data: data, type: type, div: module.plotDiv }));
-        else console.log(`ERROR: ChartType was not found for module with key: ${key}.--ModuleManager -> #processChart`);
+        else printErrorMessage(`type undefined`, `key: ${key}.--ModuleManager -> #processChart`);
     };
 
     /**
@@ -185,7 +186,7 @@ class ModuleManager {
      * @returns string that plotly can use to make the chart.
      */
     #getChartType = chartName => {
-        if (validateVariables([varTest(chartName, 'chartName', 'string')], 'ModuleManager', '#getChartType')) return undefined;
+        if (invalidVariables([varTest(chartName, 'chartName', 'string')], 'ModuleManager', '#getChartType')) return undefined;
         switch (chartName) {
             case 'Bar Chart':
                 return 'bar';
@@ -206,7 +207,7 @@ class ModuleManager {
      * @param {object} data contains the number to process
      */
     #processNumber = (module, data) => {
-        if (validateVariables([varTest(module, 'module', 'object'), varTest(data, 'data', 'object')], 'ModuleManager', '#processNumber')) return;
+        if (invalidVariables([varTest(module, 'module', 'object'), varTest(data, 'data', 'object')], 'ModuleManager', '#processNumber')) return;
         module.addData('value', data.data, true, data.data, false);
         module.updatePopupText(data.data);
     }
@@ -217,7 +218,7 @@ class ModuleManager {
      * @param {object} data the data to build the table from.
      */
     #processTable = (module, data) => {
-        if (validateVariables([varTest(module, 'module', 'object'), varTest(data, 'data', 'object')], 'ModuleManager', '#processTable')) return;
+        if (invalidVariables([varTest(module, 'module', 'object'), varTest(data, 'data', 'object')], 'ModuleManager', '#processTable')) return;
         // Updates the module data table for data access and the inspector.
         module.addData('Data Set', true, true, 'True', false);
         module.addData('Rows', data.data.getRows(), true, data.data.getRows(), false);
@@ -233,21 +234,13 @@ class ModuleManager {
      * @returns true if successful, false if failure;
      */
     updateModuleDataTable = (key, field, value) => {
-        if (value == undefined || value == null) {
-            console.log(`ERROR: undefined varaible. value: ${value}. -- ModuleManager -> updateModuleDataTable`);
-            return false;
-        }
-        if (validateVariables([varTest(key, 'key', 'number'), varTest(field, 'field', 'string')], 'ModuleManager', 'updateModuleDataTable')) return false;
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(field, 'field', 'string'), varTest(value, 'value', 'object')], 'ModuleManager', 'updateModuleDataTable')) return false;
         if (this.moduleMap.has(key)) {
             if (parseFloat(value)) value = parseFloat(value); // Check to see if the value is a string and should be converted to a number.
-            try {
-                this.moduleMap.get(key).setDataValue(field, value).updatePopupData(field);
-            } catch (e) {
-                return false;
-            } finally {
-                return true;
-            }
-        } else console.log(`ERROR: no module found for key: ${key} --ModuleManager -> updateModuleDataTable`);
+            this.moduleMap.get(key).setDataValue(field, value).updatePopupData(field);
+            return true;
+        } else printErrorMessage(`module undefined`, `key: ${key} --ModuleManager -> updateModuleDataTable`);
+        return false;
     };
 
     /**
@@ -255,7 +248,7 @@ class ModuleManager {
      * @param {number} key the key of the module that has the correct inspector data.
      */
     requestInspectorUpdate = key => {
-        if (validateVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'requestInspectorUpdate')) return;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'requestInspectorUpdate')) return;
         // Node Selected Event will load data for this node into the inspector.
         this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Node Selected Event', { moduleKey: key }));
     };
@@ -265,7 +258,7 @@ class ModuleManager {
      * @param {Message} msg the message object to send.
      */
     #sendMessage = msg => {
-        if (validateVariables([varTest(msg, 'msg', 'object')], 'ModuleManager', '#sendMessage')) return;
-            this.publisher.publishMessage(msg);
+        if (invalidVariables([varTest(msg, 'msg', 'object')], 'ModuleManager', '#sendMessage')) return;
+        this.publisher.publishMessage(msg);
     };
 }

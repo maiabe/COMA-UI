@@ -24,7 +24,7 @@ class WorkerManager {
      * @returns the id of the worker if successful
      */
     addWorkerToDataTable = worker => {
-        if (validateVariables([varTest(worker, 'worker', 'object')], 'WorkerManager', 'addWorkerToDataTable')) return -1;
+        if (invalidVariables([varTest(worker, 'worker', 'object')], 'WorkerManager', 'addWorkerToDataTable')) return -1;
         let workerId = this.getNextIndex();
         this.#workers.set(workerId, { id: workerId, worker: worker, stopWorkerFunction: undefined, handleReturnFunction: undefined });
         return workerId;
@@ -36,7 +36,7 @@ class WorkerManager {
      * @returns this (workerManager) for chaining
      */
     notifyWorkerOfId = id => {
-        if (validateVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'notifyWorkerOfId')) return undefined;
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'notifyWorkerOfId')) return undefined;
         if (this.#workers.has(id)) this.#workers.get(id).worker.postMessage({ type: 'Set Worker Id', id: id });
         return this;
     };
@@ -47,7 +47,7 @@ class WorkerManager {
      * @returns this (workerManager)for chaining
      */
     setStopWorkerFunction = id => {
-        if (validateVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'setStopWorkerFunction')) return undefined;
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'setStopWorkerFunction')) return undefined;
         if (this.#workers.has(id)) this.#workers.get(id).stopWorkerFunction = this.stopWorker;
         return this;
     };
@@ -58,7 +58,7 @@ class WorkerManager {
      * @returns this (WorkerManager) for chaining
      */
     setHandleReturnFunction = id => {
-        if (validateVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'setHandleReturnFunction')) return undefined;
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'setHandleReturnFunction')) return undefined;
         if (this.#workers.has(id)) this.#workers.get(id).handleReturnFunction = this.handleReturn;
         return this;
     };
@@ -69,7 +69,7 @@ class WorkerManager {
      * @returns this (workerManager) for chaining
      */
     setWorkerMessageHandler = id => {
-        if (validateVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'setWorkerMessageHandler')) return undefined;
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'setWorkerMessageHandler')) return undefined;
         if (this.#workers.has(id)) {
             const workerObject = this.#workers.get(id);
             workerObject.worker.onmessage = event => {
@@ -99,7 +99,7 @@ class WorkerManager {
      * @returns true if successful
      */
     sendPipelineToServer = (id, pipelineArray) => {
-        if (validateVariables([varTest(id, 'id', 'number'), varTest(pipelineArray, 'pipelineArray', 'object')], 'WorkerManager', 'sendPipelineToServer')) return false;
+        if (invalidVariables([varTest(id, 'id', 'number'), varTest(pipelineArray, 'pipelineArray', 'object')], 'WorkerManager', 'sendPipelineToServer')) return false;
         if (this.#workers.has(id)) this.#workers.get(id).worker.postMessage({ type: 'Execute Post', list: pipelineArray });
         return true;
     }
@@ -109,7 +109,7 @@ class WorkerManager {
      * @param {number} id the id of the process to stop.
      */
     stopWorker = id => {
-        if (validateVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'stopWorker')) return false;
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'stopWorker')) return false;
         if (id >= 0) {
             if (this.#workers.has(id)) this.#workers.get(id).worker.terminate();
             else console.log(`ERROR: cannot delete worker, no worker found for key: ${key}. -- WorkerManager -> stop Worker`);
@@ -122,7 +122,7 @@ class WorkerManager {
      * @returns true if successful
      */
     removeWorkerFromDataTable = id => {
-        if (validateVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'removeWorkerFromDataTable')) return false;
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'removeWorkerFromDataTable')) return false;
         if (id >= 0) {
             if (this.#workers.has(id)) this.#workers.delete(id);
             else console.log(`ERROR: cannot delete worker, no worker found for key: ${key}. -- WorkerManager -> stop Worker`);
@@ -147,7 +147,7 @@ class WorkerManager {
      * @param {string} event either 'complete' (all nodes finished processing) or 'incomplete' only partial pipeline processed. 
      */
     handleReturn = (results, event) => {
-        if (validateVariables([varTest(results, 'results', 'object'), varTest(event, 'event', 'string')], 'WorkerManager', 'handleReturn')) retur;
+        if (invalidVariables([varTest(results, 'results', 'object'), varTest(event, 'event', 'string')], 'WorkerManager', 'handleReturn')) retur;
         let msg;
         switch (event) {
             case 'complete':

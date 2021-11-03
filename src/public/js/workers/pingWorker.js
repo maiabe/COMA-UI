@@ -23,7 +23,7 @@ const initiatePing = () => {
         postData(url, { type: 'Check Pipeline Status', clientId: id }).then(data => {
             handleReturn(data);
         });
-    }, 500);
+    }, 1000);
 }
 
 const handleReturn = data => {
