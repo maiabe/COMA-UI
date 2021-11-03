@@ -38,6 +38,8 @@ const outputColor = blue;
 // Global Manager Instance
 let GM;
 
+const debug = true;
+
 function init() {
     GM = new GlobalManager();
     GM.startEnvironment();
@@ -51,15 +53,19 @@ const validateVariables = (variables, fileName, functionName) => {
     variables.forEach(variableInfo => {
         if (!isNullOrUndefined(variableInfo.value)) {
             if (!typeCheck(variableInfo.value, variableInfo.expectedType)) {
-                console.log(`ERROR - typecheck. ${variableInfo.name}: ${typeof(variableInfo.value)} - expected ${variableInfo.expectedType} -- ${fileName} -> ${functionName}`);
+                printErrorMessage('typecheck', `${variableInfo.name}: ${typeof(variableInfo.value)} - expected ${variableInfo.expectedType} -- ${fileName} -> ${functionName}`);
                 foundError = true;
             } 
         } else {
             foundError = true;
-            console.log(`ERROR: undefined or null variable. ${variableInfo.name}: ${variableInfo.value} -- ${fileName} -> ${functionName}`);
+            printErrorMessage('undefined or null variable', `${variableInfo.name}: ${variableInfo.value} -- ${fileName} -> ${functionName}`)
         }
     });
     return foundError;
+}
+
+const printErrorMessage = (type, msg) => {
+    if (debug) console.log(`ERROR: ${type} <> ${msg}`);
 }
 
 const varTest = (value, name, expectedType) => {

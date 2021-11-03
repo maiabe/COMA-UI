@@ -13,7 +13,7 @@ class PipelineManager {
         let valid = true;
         // TODO: Create validation function.
         if (valid) this.sendRequest(this.buildPipeJSON(pipeLine)).sendPipelineKeys(pipeLine);
-        else console.log(`ERROR: invalid Pipeline. -- Pipeline Manager - validatePipeline`);
+        else printErrorMessage('invalid pipeline', `-- Pipeline Manager - validatePipeline`);
     }
 
     /**
@@ -25,11 +25,8 @@ class PipelineManager {
     buildPipeJSON = pipeLine => {
         if (validateVariables([varTest(pipeLine, 'pipeLine', 'object')], 'PipelineManager', 'buildPipeJSON')) return;
         const nodeArray = [];
-        if (pipeLine.nodes.length > 0) {
-            pipeLine.nodes.forEach(node => {
-                nodeArray.push(this.createNodeRepresentation(node, pipeLine));
-            });
-        } else console.log(`ERROR: pipeLine Node array is length 0. -- Pipeline Manager -> buildPipeJSON`);
+        if (pipeLine.nodes.length > 0) pipeLine.nodes.forEach(node => nodeArray.push(this.createNodeRepresentation(node, pipeLine)));
+        else printErrorMessage('empty array', 'pipeLine Node array is length 0. -- Pipeline Manager -> buildPipeJSON');
         return nodeArray;
     };
 
@@ -95,7 +92,7 @@ class PipelineManager {
         if (validateVariables([varTest(pipelineArray, 'pipelineArray', 'object')], 'PipelineManager', 'sendRequest')) undefined;
         if (pipelineArray.length > 0) {
             this.#sendMessage(new Message(WORKER_MANAGER, PIPELINE_MANAGER, 'Transmit Pipeline Event', { value: pipelineArray }));
-        } else console.log(`ERROR: Will not transmit a pipeline of length: ${pipelineArray.length}. -- Pipeline Manager -> sendRequest`);
+        } else printErrorMessage('invalid pipeline length', `length: ${pipelineArray.length}. -- Pipeline Manager -> sendRequest`);
         return this;
     };
 
