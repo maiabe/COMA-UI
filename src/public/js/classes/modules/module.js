@@ -32,7 +32,6 @@ class Module {
             this.addData('key', -1, true, -1, false);
             this.addData('command', command, false, '', false);
         } else console.log(`ERROR: Missing Parameter. type: ${type}, imagePath: ${imagePath}, color: ${color}, shape: ${shape}, command: ${command}, name: ${name}, inports: ${inports}, outports: ${outports}. -- Module -> setInitialDataValues`);
-
     };
 
     /** Gets the command associated with this module */
@@ -45,11 +44,8 @@ class Module {
 
     /** Sets the popup content associated with this module. This is the generic function and will likely be overriden in the child classes. */
     setPopupContent = () => {
-        // Use the HTML factory to create the div and the text.
-        if (GM.HF) {
-            this.popupContent = GM.HF.createNewDiv('', '', [], []);
-            this.popupContent.appendChild(GM.HF.createNewParagraph('', '', [], [], this.getData('name')));
-        } else console.log(`ERROR: HTML Factory is undefined. -- Module -> setPopupContent`);
+        this.popupContent = GM.HF.createNewDiv('', '', [], []);
+        this.popupContent.appendChild(GM.HF.createNewParagraph('', '', [], [], this.getData('name')));
     }
 
     /**
@@ -61,18 +57,8 @@ class Module {
      * @param {boolean} modify true if user can modify this value in the inspector, false if it is read only.
      */
     addData = (key, value, allowInspection, inspectorText, modify) => {
-        if (key && value != undefined) {
-            const obj = {
-                data: value,
-                inspector: {
-                    allowInspection: allowInspection,
-                    text: inspectorText,
-                    modify: modify,
-                    modifyType: 'text input'
-                }
-            };
-            this.#dataTable.set(key, obj);
-        } else console.log(`ERROR: key: ${key}, value: ${value}. -- Module -> addData`);
+        if (invalidVariables([varTest(key, 'key', 'string'), varTest(value, 'value', 'any'), varTest(allowInspection, 'allowInspection', 'boolean'), varTest(inspectorText, 'inspectorText', 'any'), varTest(modify, 'modify', 'boolean')], 'Module', 'addData')) return;
+        else this.#dataTable.set(key, { data: value, inspector: { allowInspection: allowInspection, text: inspectorText, modify: modify, modifyType: 'text input' } });
     }
 
     /**
@@ -82,13 +68,12 @@ class Module {
      * @param {string} inspectorText inspector text to update for this value.
      */
     setData = (key, data, inspectorText) => {
-        if (key != undefined && key !== '') {
-            if (this.#dataTable.has(key)) {
-                const val = this.#dataTable.get(key);
-                val.data = data;
-                val.inspector.text = inspectorText;
-            } else console.log(`ERROR: No data found for the key: ${key}. -- Module -> setData`);
-        } else console.log(`ERROR: key: ${key}. -- Module -> setData`);
+        if (invalidVariables([varTest(key, 'key', 'string'), varTest(data, 'data', 'any'), varTest(inspectorText, 'inspectorText', 'any')], 'Module', 'setData')) return;
+        if (this.#dataTable.has(key)) {
+            const val = this.#dataTable.get(key);
+            val.data = data;
+            val.inspector.text = inspectorText.toString();
+        } else printErrorMessage(`No data found for the key`, `key: ${key}. -- Module -> setData`);
     }
 
     /**
@@ -98,13 +83,11 @@ class Module {
      * @returns this module.
      */
     setDataValue = (key, data) => {
-        if (key != undefined && key !== '') {
-            const val = this.#dataTable.get(key);
-            val.data = data;
-            if (val.inspector.allowInspection) val.inspector.text = data; // Update inspector text if necessary
-            return this;
-        } else console.log(`ERROR: key: ${key}. -- Module -> setDataValue`);
-        return undefined;
+        if (invalidVariables([varTest(key, 'key', 'string'), varTest(data, 'data', 'any')], 'Module', 'setDataValue')) return undefined;
+        const val = this.#dataTable.get(key);
+        val.data = data;
+        if (val.inspector.allowInspection) val.inspector.text = data.toString(); // Update inspector text if necessary
+        return this;
     }
 
     /**

@@ -234,7 +234,7 @@ class ModuleManager {
      * @returns true if successful, false if failure;
      */
     updateModuleDataTable = (key, field, value) => {
-        if (invalidVariables([varTest(key, 'key', 'number'), varTest(field, 'field', 'string'), varTest(value, 'value', 'object')], 'ModuleManager', 'updateModuleDataTable')) return false;
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(field, 'field', 'string')], 'ModuleManager', 'updateModuleDataTable')) return false;
         if (this.moduleMap.has(key)) {
             if (parseFloat(value)) value = parseFloat(value); // Check to see if the value is a string and should be converted to a number.
             this.moduleMap.get(key).setDataValue(field, value).updatePopupData(field);

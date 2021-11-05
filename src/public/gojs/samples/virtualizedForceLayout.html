@@ -411,7 +411,7 @@
     }
     go.Diagram.inherit(VirtualizedForceDirectedNetwork, go.ForceDirectedNetwork);
 
-    VirtualizedForceDirectedNetwork.prototype.addData = function(model) {
+    VirtualizedForceDirectedNetwork.prototype.invalidVariables = function(model) {
       if (model instanceof go.GraphLinksModel) {
         var dataVertexMap = new go.Map();
         // create a vertex for each node data

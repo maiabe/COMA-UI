@@ -66,27 +66,26 @@ class Hub {
     #messageForEnvironment = (type, data) => {
         switch (type) {
             case 'New Module Created Event':
-                if (data.module && data.templateExists != undefined) GM.ENV.insertModule(data.module, data.templateExists);
-                else console.log(`ERROR: parameter error. module: ${data.module}, templateExists: ${data.templateExists}. -- HUB -> #messageForEnvironment (new module created event)`);
+                if (invalidVariables([varTest(data.module, 'module', 'object'), varTest(data.templateExists, 'templateExists', 'boolean')], 'HUB', '#messageForEnvironment (New Module Created Event)')) return;
+                else GM.ENV.insertModule(data.module, data.templateExists);
                 break;
             case 'Start Environment Event':
                 GM.ENV.setUpEnvironment();
                 break;
             case 'Request Module Key Event':
-                if (data.cb != undefined && data.name && data.category) data.cb(data.name, data.category, GM.ENV.getNextNodeKey());
-                else console.log(`ERROR: parameter error. callback: ${data.cb}, name: ${data.name}, category: ${data.category} -- HUB -> #messageForEnvironment (request module key event)`);
+                if (invalidVariables([varTest(data.cb, 'cb', 'function'), varTest(data.name, 'name', 'string'), varTest(data.category, 'category', 'string')], 'HUB', '#messageForEnvironment (Request Module Key Event')) return;
+                else data.cb(data.name, data.category, GM.ENV.getNextNodeKey());
                 break;
             case 'Partial Pipeline Return Event':
-                if (data.value != undefined) GM.ENV.updatePipelineProgress(data.value);
-                else console.log(`ERROR: parameter error. value: ${data.value}. -- HUB -> #messageForEnvironment (partial pipeline return event)`);
+                if (invalidVariables([varTest(data.value, 'value', 'object')], 'HUB', '#messageForEnvironment (Partial Pipeline Return Event')) return;
+                else GM.ENV.updatePipelineProgress(data.value);
                 break;
             case 'Gray Out Pipeline Event':
-                if (data.value != undefined) GM.ENV.grayOutPipeline(data.value);
-                else console.log(`ERROR: parameter error. value: ${data.value}. -- HUB -> #messageForEnvironment (gray out return event)`);
+                if (invalidVariables([varTest(data.value, 'value', 'object')], 'HUB', '#messageForEnvironment (Gray Out Pipeline Event')) return;
+                else GM.ENV.grayOutPipeline(data.value);
                 break;
             default:
-                console.log(`ERROR: Unhandled event ${type}. -- HUB -> #messageForEnvironment`);
-                console.log(data);
+                printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForEnvironment`);
                 break;
         }
     }
@@ -99,23 +98,22 @@ class Hub {
     #messageForModuleManager = (type, data) => {
         switch (type) {
             case 'Deploy Module Event':
-                if (data.moduleName && data.moduleCategory) GM.MM.deployNewModule(data.moduleName, data.moduleCategory);
-                else console.log(`ERROR: parameter error. name: ${data.moduleName}, category: ${data.moduleCategory}. -- HUB -> #messageForModuleManager (Deploy Module Event)`);
+                if (invalidVariables([varTest(data.moduleName, 'moduleName', 'string'), varTest(data.moduleCategory, 'category', 'string')], 'HUB', '#messageForModuleManager (Deploy Module Event)')) return;
+                else GM.MM.deployNewModule(data.moduleName, data.moduleCategory);
                 break;
             case 'New Data Loaded Event':
-                if (data.moduleKey != undefined) GM.MM.newDataLoaded(data.moduleKey);
-                else console.log(`ERROR: Parameter Error. key: ${data.moduleKey}. -- HUB -> #mesageForModuleManager (New Data Loaded Event)`);
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#mesageForModuleManager (New Data Loaded Event)')) return;
+                else GM.MM.newDataLoaded(data.moduleKey);
                 break;
             case 'Value Change Event':
-                if (data.moduleKey != undefined && data.field && data.newValue != undefined) GM.MM.updateModuleDataTable(data.moduleKey, data.field, data.newValue);
-                else console.log(`ERROR: parameter error. key ${data.moduleKey}, field: ${data.field}, newValue: ${data.newValue}. -- HUB -> #messageForModuleManager (Value change event)`);
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.field, 'field', 'string')], 'HUB', '#messageForModuleManager (Value change event)')) return;
+                else GM.MM.updateModuleDataTable(data.moduleKey, data.field, data.newValue);
                 break;
-            case 'Link Drawn Event': 
+            case 'Link Drawn Event':
                 // TODO: Handle Link Drawn Event.
                 break;
             default:
-                console.log(`ERROR: Unhandled event ${type}. -- HUB -> #messageForModelManager`);
-                console.log(data);
+                printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForModuleManager`);
                 break;
         }
     };
@@ -128,18 +126,15 @@ class Hub {
     #messageForInspector = (type, data) => {
         switch (type) {
             case 'Node Selected Event':
-                if (data.moduleKey != undefined) {
-                    // When user selects a node, the inspector must be updated to show data for that module.
-                    GM.INS.setCurrentModuleKey(data.moduleKey);
-                    GM.INS.updateContent(data.moduleKey, GM.MM.getInspectorContentForModule(data.moduleKey));
-                } else console.log(`ERROR: Parameter error. key: ${data.moduleKey}. -- HUB -> #messageForInspector (Node Selected Event.)`);
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInspector (Node Selected Event.)')) return;
+                GM.INS.setCurrentModuleKey(data.moduleKey);
+                GM.INS.updateContent(data.moduleKey, GM.MM.getInspectorContentForModule(data.moduleKey));
                 break;
             case 'Clear Inspector Event':
                 GM.INS.clearInspector(true);
                 break;
             default:
-                console.log(`ERROR: Unhandled event ${type}. -- HUB -> #messageForInspector`);
-                console.log(data);
+                printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForInspector`);
                 break;
         }
     }
@@ -152,13 +147,11 @@ class Hub {
     #messageForPopupManager = (type, data) => {
         switch (type) {
             case 'Double Click Event':
-                // Module Manager provides the content for the popup.
-                if (data.moduleKey != undefined && data.x != undefined && data.y != undefined) GM.PM.createModulePopup(data.moduleKey, GM.MM.getPopupContentForModule(data.moduleKey), data.x, data.y);
-                else console.log(`ERROR: Parameter Error. key: ${data.moduleKey}, x: ${data.x}, y: ${data.y}. -- HUB -> #messageForPopupManager (double click event)`);
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.x, 'x', 'number'), varTest(data.y, 'y', 'number')], 'HUB', '#messageForPopupManager (double click event)'));
+                else GM.PM.createModulePopup(data.moduleKey, GM.MM.getPopupContentForModule(data.moduleKey), data.x, data.y);
                 break;
             default:
-                console.log(`ERROR: Unhandled event ${type}. -- HUB -> #messageForPopupManager`);
-                console.log(data);
+                printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForPopupManager`);
                 break;
         }
     };
@@ -171,12 +164,11 @@ class Hub {
     #messageForInputManager = (type, data) => {
         switch (type) {
             case 'Read File Event':
-                if (data.type && data.source && data.path && data.moduleKey != undefined) GM.IM.readFile(data.type, data.source, data.path, data.moduleKey);
-                else console.log(`ERROR: parameter Error. type: ${data.type}, source: ${data.source}, path: ${data.path}, key: ${data.moduleKey}. HUB -> #messageForInputManager (Read File Event)`);
+                if (invalidVariables([varTest(data.type, 'type', 'string'), varTest(data.source, 'source', 'string'), varTest(data.path, 'path', 'string'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Read File Event)')) return;
+                else GM.IM.readFile(data.type, data.source, data.path, data.moduleKey);
                 break;
             default:
-                console.log(`ERROR: Unhandled event ${type}. -- HUB -> #messageForInputManager`);
-                console.log(data);
+                printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForInputManager`);
                 break;
         }
     }
@@ -189,19 +181,16 @@ class Hub {
     #messageForWorkerManager = (type, data) => {
         switch (type) {
             case 'Transmit Pipeline Event':
-                if (data.value != undefined) {
-                    const worker = GM.WM.startWorker(data.value);
-                    const workerIndex = GM.WM.addWorkerToDataTable(worker);
-                    GM.WM.notifyWorkerOfId(workerIndex)
+                const worker = GM.WM.startWorker();
+                const workerIndex = GM.WM.addWorkerToDataTable(worker);
+                GM.WM.notifyWorkerOfId(workerIndex)
                     .setStopWorkerFunction(workerIndex)
                     .setHandleReturnFunction(workerIndex)
                     .setWorkerMessageHandler(workerIndex)
                     .sendPipelineToServer(workerIndex, data.value);
-                } else console.log(`ERROR: parameter error. value: ${data.value}. -- HUB -> #mesasgeForWorkerManager (Transmit pipeline event)`);
                 break;
             default:
-                console.log(`ERROR: Unhandled event ${type}. -- HUB -> #messageForWorkerManager`);
-                console.log(data);
+                printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForWorkerManager`);
                 break;
         }
     }
@@ -214,12 +203,12 @@ class Hub {
     #messageForDataManager = (type, data) => {
         switch (type) {
             case 'New Data Event':
-                if (data.id !== undefined && data.val != undefined) GM.DM.addData(data.id, data.val);
-                else console.log(`ERROR: parameter error. id: ${data.id}, value: ${data.val}. -- HUB -> #messageForDataManager. (new data event)`);
+                if (invalidVariables([varTest(data.id, 'id', 'number'), varTest(data.val, 'val', 'object')], 'HUB', ' #messageForDataManager. (new data event)')) return;
+                else GM.DM.addData(data.id, data.val);
                 break;
             case 'Data Request Event':
-                if (data.moduleKey && data.callBackFunction) GM.DM.processDataRequest(data.moduleKey, data.callBackFunction);
-                else console.log(`ERROR: parameter error. key: ${data.moduleKey}, callback: ${data.callBackFunction}. -- HUB -> #messageForDataManager. (data request event)`);
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.callBackFunction, 'callbackFunction', 'function')], 'HUB', '#messageForDataManager. (data request event)')) return;
+                else GM.DM.processDataRequest(data.moduleKey, data.callBackFunction);
                 break;
             case 'Pipeline Return Event':
                 const keyArray = [];
@@ -228,13 +217,12 @@ class Hub {
                         // Data Is Pushed to the data manager. Then the datamanager sends a new data loaded event. to the module manager
                         GM.DM.addData(dataObject.id, { type: typeof (dataObject.val), data: dataObject.val });
                         keyArray.push(dataObject.id);
-                    } else console.log(`ERROR: Parameter Error. id: ${dataObject.id}, value: ${dataObject.val}`);
+                    } else printErrorMessage(`Parameter Error.`, `id: ${dataObject.id}, value: ${dataObject.val} -- HUB -> Pipeline Return Event`);
                     GM.ENV.highlightChangedNodes(keyArray);
                 });
                 break;
             default:
-                console.log(`ERROR: Unhandled event ${type}. -- HUB -> #messageForDataManager`);
-                console.log(data);
+                printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForDataManager`);
                 break;
         }
     }
@@ -247,28 +235,24 @@ class Hub {
     #messageForOutputManager = (type, data) => {
         switch (type) {
             case 'Create New Chart Event':
-                if (data.moduleKey != undefined && data.data != undefined && data.type && data.div) {
-                    // If successfully able to store chart data, then draw a chart if the popup is open.
-                    if (GM.OM.storeChartData(data.moduleKey, data.data, data.type)) {
-                        if (GM.PM.isPopupOpen(data.moduleKey)) GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
-                    }
-                } else console.log(`ERROR: Parameter missing. key: ${data.moduleKey}, data: ${data.data}, type: ${data.type}, $div: ${data.div}. -- HUB -> (Create New Chart Event)`);
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.data, 'data', 'object'), varTest(data.type, 'type', 'string'), varTest(data.div, 'div', 'object')], 'HUB', '#messageForOutputManager (Create New Chart Event)')) return;
+                // If successfully able to store chart data, then draw a chart if the popup is open.
+                if (GM.OM.storeChartData(data.moduleKey, data.data, data.type)) {
+                    if (GM.PM.isPopupOpen(data.moduleKey)) GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
+                }
                 break;
             case 'Resize Popup Event':  // This fires when a popup has finished resizing.
                 // If there is a chart in the popup window, redraw it when resizing is finished.
-                if (data.moduleKey != undefined) {
-                    if (GM.OM.popupHasAChart(data.moduleKey)) GM.OM.drawChart(data.moduleKey, GM.PM.getPopupBodyDiv(data.moduleKey), GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
-                } else console.log(`ERROR: key: ${data.moduleKey}. -- HUB -> messageForOutputManager (resize popup event).`);
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForOutputManager (Resize Popup Event)')) return;
+                if (GM.OM.popupHasAChart(data.moduleKey)) GM.OM.drawChart(data.moduleKey, GM.PM.getPopupBodyDiv(data.moduleKey), GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
                 break;
             case 'Start Resize Popup Event':
                 // If there is a chart in the popup window, clear it while resizing.
-                if (data.moduleKey != undefined) {
-                    if (GM.OM.popupHasAChart(data.moduleKey)) GM.PM.clearChart(data.moduleKey);
-                } else console.log(`ERROR: key: ${data.moduleKey}. -- HUB -> messageForOutputManager (start resize popup event).`);
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForOutputManager (Start Resize Popup Event)')) return;
+                if (GM.OM.popupHasAChart(data.moduleKey)) GM.PM.clearChart(data.moduleKey);
                 break;
             default:
-                console.log(`ERROR: Unhandled event ${type}. -- HUB -> #messageForOutputManager`);
-                console.log(data);
+                printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForOutputManager`);
                 break;
         }
     }
