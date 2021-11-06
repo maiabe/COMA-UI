@@ -1,4 +1,4 @@
-class HTMLTableGenerator {
+export class HTMLTableGenerator {
     constructor () {
     }
 

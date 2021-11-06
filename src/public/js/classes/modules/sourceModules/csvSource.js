@@ -1,6 +1,9 @@
-class Csv extends Source {
+import { Source } from "./source.js";
+import { GM } from '../../../scripts/main.js';
+import { CsvReader } from "../../dataComponents/dataProcessors.js";
+export class Csv extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'local', 'storeData', 'CSV File','images/icons/csv-file-format-extension.png', [], [{ name: 'OUT', leftSide: false }]);
+        super(category, color, shape, 'local', 'storeData', 'CSV File', 'images/icons/csv-file-format-extension.png', [], [{ name: 'OUT', leftSide: false }]);
         this.dataArea;
         this.readFileButton;
         this.deployButton;
@@ -19,7 +22,7 @@ class Csv extends Source {
         this.readFileButton = GM.HF.createNewButton('read-file-button', 'read-file-button', [], [], 'button', 'Read File', true);
         uploadWrapper.appendChild(this.readFileButton);
 
-        this.dataArea = GM.HF.createNewDiv('csvDataArea','csvDataArea', [], []);
+        this.dataArea = GM.HF.createNewDiv('csvDataArea', 'csvDataArea', [], []);
         this.popupContent.appendChild(this.dataArea);
 
         this.readFileButton.addEventListener('click', () => {

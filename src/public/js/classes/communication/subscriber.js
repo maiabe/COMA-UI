@@ -1,4 +1,4 @@
-class Subscriber {
+export class Subscriber {
     constructor(msgHandler){
         this.messageHandler = msgHandler;
         this.publisher;

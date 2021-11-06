@@ -1,9 +1,12 @@
-class Table extends Output {
+import { Output } from "./output.js";
+import { GM } from '../../../scripts/main.js';
+
+export class Table extends Output {
 
     #dataArea;    // Popup section that can display data.
 
     constructor(category, color, shape) {
-        super(category, color, shape, 'output', 'Table', 'images/icons/table.png',  [{ name: 'IN', leftSide: true }], []);
+        super(category, color, shape, 'output', 'Table', 'images/icons/table.png', [{ name: 'IN', leftSide: true }], []);
         this.popupContent;
         this.plotDiv;
         this.setPopupContent();

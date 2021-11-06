@@ -1,4 +1,8 @@
-class Module {
+import {Publisher, Message} from '../communication/communication.js';
+import { invalidVariables, varTest } from '../../scripts/errorHandlers.js';
+import {GM} from '../../scripts/main.js';
+
+export class Module {
     #command;
     #dataTable;
 

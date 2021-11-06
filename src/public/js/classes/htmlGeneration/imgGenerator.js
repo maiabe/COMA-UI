@@ -1,4 +1,5 @@
-class ImgGenerator {
+import { HTMLFactory } from "./htmlFactory.js";
+export class ImgGenerator {
     constructor(){};
     generateNewIMG = (id, name, src, classlist, customStyles, alt) => {
         const e = document.createElement('img');

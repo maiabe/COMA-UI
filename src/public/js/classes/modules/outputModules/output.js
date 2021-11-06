@@ -1,10 +1,12 @@
-class Output extends Module {
+import { Module } from "../module.js";
+import {GM} from '../../../scripts/main.js';
+export class Output extends Module {
     constructor(category, color, shape, command, name, image, inports, outports) {
         super(category, color, shape, command, name, image, inports, outports);
     }
 }
 
-class ScatterPlot extends Output {
+export class ScatterPlot extends Output {
     constructor(category, color, shape) {
         super(category, color, shape, 'output', 'Scatter Plot', 'images/icons/scatter-graph.png', [{ name: 'IN', leftSide: true }], []);
         this.popupContent;
@@ -20,7 +22,7 @@ class ScatterPlot extends Output {
     }
 }
 
-class BarChart extends Output {
+export class BarChart extends Output {
     constructor(category, color, shape) {
         super(category, color, shape, 'output', 'Bar Chart', 'images/icons/bar-chart.png', [{ name: 'IN', leftSide: true }], []);
         this.popupContent;
@@ -35,7 +37,7 @@ class BarChart extends Output {
     }
 }
 
-class LineChart extends Output {
+export class LineChart extends Output {
     constructor(category, color, shape) {
         super(category, color, shape, 'output', 'Line Chart', 'images/icons/line-chart.png', [{ name: 'IN', leftSide: true }], []);
         this.popupContent;
@@ -50,14 +52,14 @@ class LineChart extends Output {
     }
 }
 
-class ImageOutput extends Output {
+export class ImageOutput extends Output {
     constructor(category, color, shape) {
         super(category, color, shape, 'output', 'Image', 'images/icons/image.png', [{ name: 'IN', leftSide: true }], []);
         this.popupContent;
         this.setPopupContent();
     }
 }
-class Value extends Output {
+export class Value extends Output {
     constructor(category, color, shape) {
         super(category, color, shape, 'output', 'Value', 'images/icons/equal.png', [{ name: 'IN', leftSide: true }], []);
         this.popupContent;

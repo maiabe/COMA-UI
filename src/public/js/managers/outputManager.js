@@ -1,4 +1,7 @@
-class OutputManager {
+import {Publisher, Message} from '../classes/communication/communication.js';
+import { ChartBuilder } from '../classes/dataComponents/dataProcessors.js';
+import { invalidVariables, varTest, printErrorMessage } from '../scripts/errorHandlers.js';
+export class OutputManager {
     publisher;
     #outputMap;
     #chartBuilder;

@@ -1,4 +1,8 @@
-class Environment {
+import {Publisher, Message} from '../communication/communication.js';
+import { invalidVariables, varTest, printErrorMessage } from '../../scripts/errorHandlers.js';
+import { ENVIRONMENT, MODULE_MANAGER, POPUP_MANAGER, INSPECTOR } from '../../scripts/constants.js';
+import { sourceColor, outputColor, processorColor } from '../../scripts/colors.js';
+export default class Environment {
     // Communication Variables
     publisher;              // Sends Messages through the HUB
 

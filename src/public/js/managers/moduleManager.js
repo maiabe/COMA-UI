@@ -1,4 +1,9 @@
-class ModuleManager {
+import { ModuleGenerator } from '../classes/modules/moduleGenerator.js';
+import { Message, Publisher } from '../classes/communication/communication.js';
+import { invalidVariables, printErrorMessage, varTest } from '../scripts/errorHandlers.js';
+import { ENVIRONMENT, MODULE_MANAGER, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR } from '../scripts/constants.js';
+
+export class ModuleManager {
     #MG;          // Module Generator
     publisher;    // Message Publisher
 

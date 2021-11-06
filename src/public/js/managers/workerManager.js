@@ -1,4 +1,7 @@
-class WorkerManager {
+import {Message, Publisher} from '../classes/communication/communication.js';
+import { invalidVariables, varTest, printErrorMessage } from '../scripts/errorHandlers.js';
+import { ENVIRONMENT, DATA_MANAGER, WORKER_MANAGER } from '../scripts/constants.js';
+export class WorkerManager {
     #workers;
     publisher;
     #index;

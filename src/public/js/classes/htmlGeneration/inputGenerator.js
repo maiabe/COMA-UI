@@ -1,4 +1,5 @@
-class InputGenerator {
+import { HTMLFactory } from "./htmlFactory.js";
+export class InputGenerator {
     constructor(){};
     
     generateButton = (id, name, classlist, customStyles, type, value, disabled) => {

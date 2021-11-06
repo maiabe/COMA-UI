@@ -1,5 +1,10 @@
+import {Message, Publisher} from '../classes/communication/communication.js';
+import { invalidVariables, varTest, printErrorMessage } from '../scripts/errorHandlers.js';
+import Popup from '../classes/components/popup.js';
+import { OUTPUT_MANAGER, POPUP_MANAGER } from '../scripts/constants.js';
+
 /* This class Manages the popup elements in the application. */
-class PopupManager {
+export class PopupManager {
     publisher;                  // Publishes Messages
     #popupList;                 // Map of popups
     #popupIndex;                // Strictly increasing value that identifies a popup.

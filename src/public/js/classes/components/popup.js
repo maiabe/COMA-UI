@@ -1,4 +1,6 @@
-class Popup {
+import { GM } from '../../scripts/main.js';
+
+export default class Popup {
     constructor(width, height, initialTop, initialLeft, key, color, content, headerText) {
 
         this.content = content;
@@ -47,7 +49,7 @@ class Popup {
     }
 
     createHeader = headerText => {
-        this.header = GM.HF.createNewDiv(`popup-header-${this.id}`, `popup-header-${this.id}`, ['popupHeader'], [{style: 'backgroundColor', value: this.headerColor}]);
+        this.header = GM.HF.createNewDiv(`popup-header-${this.id}`, `popup-header-${this.id}`, ['popupHeader'], [{ style: 'backgroundColor', value: this.headerColor }]);
         this.headerTitle = GM.HF.createNewParagraph('', '', ['popupHeaderTitle'], [], headerText);
         this.header.appendChild(this.headerTitle);
         const closeIcon = GM.HF.createNewDiv('', '', ['closePopupIcon'], []);

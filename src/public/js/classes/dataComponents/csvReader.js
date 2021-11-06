@@ -1,4 +1,4 @@
-class CsvReader {
+export class CsvReader {
     constructor() {};
     readFile = (file, cb, processId) => {
         new Response(file).text().then(content => {

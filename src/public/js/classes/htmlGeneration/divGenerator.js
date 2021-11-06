@@ -1,4 +1,5 @@
-class DivGenerator {
+import { HTMLFactory } from "./htmlFactory.js";
+export class DivGenerator {
     constructor () {
     };
 

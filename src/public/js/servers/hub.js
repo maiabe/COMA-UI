@@ -1,9 +1,14 @@
+import {Publisher, Subscriber} from "../classes/communication/communication.js";
+import {GM} from '../scripts/main.js';
+import {ENVIRONMENT, MODULE_MANAGER, INSPECTOR, POPUP_MANAGER, INPUT_MANAGER, DATA_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER} from '../scripts/constants.js';
+import { invalidVariables, printErrorMessage, varTest } from "../scripts/errorHandlers.js";
 /* Envionment Data Table is the central communication hub of the application. All Messages
 are routed through this singleton class. */
-class Hub {
+export default class Hub {
 
     publisher;  // publisher. Emits messages to subscribers.
     subscriber; // subscriber variable
+    GM;
 
     constructor() {
         this.publisher = new Publisher();
@@ -45,7 +50,7 @@ class Hub {
     };
 
     /** Hub subscribes */
-    subscribe = () => {
+    subscribe = (globalManager) => {
         GM.ENV.publisher.subscribe(this.subscriber);
         GM.DM.publisher.subscribe(this.subscriber);
         GM.MSM.publisher.subscribe(this.subscriber);

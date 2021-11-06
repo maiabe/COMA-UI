@@ -1,4 +1,7 @@
-class DataManager {
+import { Publisher, Message } from "../classes/communication/communication.js";
+import { invalidVariables, varTest, printErrorMessage } from '../scripts/errorHandlers.js';
+import { MODULE_MANAGER, DATA_MANAGER } from "../scripts/constants.js";
+export class DataManager {
 
     publisher;
     #dataTable;                // Map that stores the data. Keys are the unique keys of the nodes.
@@ -64,7 +67,7 @@ class DataManager {
     /**
      * Data requests come with a key and a callback. All Data is returned as a parameter to this callback function.
      * @param {number} key the key to find the data.
-     * @param {fn} callbackFunction the function to call and pass data as a parameter.
+     * @param {function} callbackFunction the function to call and pass data as a parameter.
      */
     processDataRequest = (key, callbackFunction) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(callbackFunction, 'callbackFunction', 'function')], 'DataManager', 'processDataRequest')) return;

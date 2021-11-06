@@ -1,4 +1,4 @@
-class DataTable {
+export class DataTable {
 
     #data;                // 2D array of data
     

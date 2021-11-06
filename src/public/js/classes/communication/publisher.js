@@ -1,4 +1,4 @@
-class Publisher {
+export class Publisher {
     constructor() {
         this.key = 0;
         this.subscriberList = [];

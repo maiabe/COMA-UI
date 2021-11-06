@@ -1,4 +1,7 @@
-class PipelineManager {
+import {Message, Publisher} from '../classes/communication/communication.js';
+import { invalidVariables, varTest, printErrorMessage } from '../scripts/errorHandlers.js';
+import { WORKER_MANAGER, PIPELINE_MANAGER, ENVIRONMENT } from '../scripts/constants.js';
+export class PipelineManager {
     publisher;
     constructor() {
         this.publisher = new Publisher();

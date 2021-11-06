@@ -1,4 +1,4 @@
-class ChartBuilder {
+export class ChartBuilder {
     constructor() { };
 
     plotData = (data, type, pdiv, width, height) => {

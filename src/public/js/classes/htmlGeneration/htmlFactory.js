@@ -1,5 +1,6 @@
+import { DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator } from "./htmlgeneration.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
-class HTMLFactory {
+export class HTMLFactory {
 
     /* These modules build the specific HTML elements. Do not call them directly, but only through this HTML
     factory class */

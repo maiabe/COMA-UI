@@ -1,4 +1,10 @@
-class InputManager {
+import { Message, Publisher } from '../classes/communication/communication.js';
+import { CsvReader } from '../classes/dataComponents/dataProcessors.js';
+import { invalidVariables, varTest, printErrorMessage } from '../scripts/errorHandlers.js';
+import { DataTable } from '../classes/dataComponents/dataProcessors.js';
+import { DATA_MANAGER, INPUT_MANAGER } from '../scripts/constants.js';
+
+export class InputManager {
 
     publisher;                      // Publishes messages to the hub
     #csvReader;
@@ -34,7 +40,7 @@ class InputManager {
 
     fileReaderCB = (table, processId) => {
         if (table) {
-            const dt = new DataTable
+            const dt = new DataTable();
             const data = {
                 val: {
                     type: 'table',

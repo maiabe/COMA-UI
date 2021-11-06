@@ -1,5 +1,7 @@
+import { Module } from "../module.js";
+import { GM } from '../../../scripts/main.js';
 /** This represents a source module and extends the module class. */
-class Source extends Module {
+export class Source extends Module {
     #params;
     constructor(category, color, shape, location, command, name, image, inports, outports) {
         super(category, color, shape, command, name, image, inports, outports);
@@ -7,7 +9,7 @@ class Source extends Module {
     }
 }
 
-class Sql extends Source {
+export class Sql extends Source {
     constructor(category, color, shape) {
         super(category, color, shape, 'remote', 'querySql', 'SQL Query', 'images/icons/sql-open-file-format.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
@@ -16,7 +18,7 @@ class Sql extends Source {
 
 }
 
-class Fits extends Source {
+export class Fits extends Source {
     constructor(category, color, shape) {
         super(category, color, shape, 'remote', 'querySql', 'FITS File', 'images/icons/files.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
@@ -25,25 +27,25 @@ class Fits extends Source {
 }
 
 
-class RandomData extends Source {
+export class RandomData extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'remote', 'getRandomData', 'Random Data', 'images/icons/data-random-squares.png', [],[{ name: 'OUT', leftSide: false }]);
+        super(category, color, shape, 'remote', 'getRandomData', 'Random Data', 'images/icons/data-random-squares.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
     }
 
 }
 
-class Json extends Source {
+export class Json extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'local', 'processJSONData', 'JSON Data','images/icons/json-file.png',[], [{ name: 'OUT', leftSide: false }]);
+        super(category, color, shape, 'local', 'processJSONData', 'JSON Data', 'images/icons/json-file.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
     }
 
 }
 
-class Ephemeris extends Source {
+export class Ephemeris extends Source {
     constructor(category, color, shape) {
         super(category, color, shape, 'remote', 'querySql', 'Ephemeris', 'images/icons/axis.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
@@ -52,7 +54,7 @@ class Ephemeris extends Source {
 
 }
 
-class Mjd extends Source {
+export class Mjd extends Source {
     constructor(category, color, shape) {
         super(category, color, shape, 'remote', 'querySql', 'MJD', 'images/icons/calendar.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
@@ -60,15 +62,15 @@ class Mjd extends Source {
     }
 }
 
-class CometAll extends Source {
+export class CometAll extends Source {
     constructor(category, color, shape) {
-        super(category, color, shape, 'remote', 'querySql', 'All Data','images/icons/truck.png', [], [{ name: 'OUT', leftSide: false }]);
+        super(category, color, shape, 'remote', 'querySql', 'All Data', 'images/icons/truck.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;
         this.setPopupContent();
     }
 }
 
-class NumberSource extends Source {
+export class NumberSource extends Source {
     constructor(category, color, shape) {
         super(category, color, shape, 'local', 'storeThisData', 'Number', 'images/icons/number.png', [], [{ name: 'OUT', leftSide: false }]);
         this.popupContent;

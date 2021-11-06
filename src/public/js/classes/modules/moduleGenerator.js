@@ -1,4 +1,6 @@
-class ModuleGenerator {
+import { sourceColor, outputColor, processorColor } from "../../scripts/colors.js";
+import {Sql, Fits, Csv, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table} from '../modules/modules.js';
+export class ModuleGenerator {
     constructor() {
         this.colors = {
             source: sourceColor,

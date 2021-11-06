@@ -1,4 +1,8 @@
-class Inspector {
+import { Message, Publisher } from '../communication/communication.js';
+import { GM } from '../../scripts/main.js';
+import { INSPECTOR, MODULE_MANAGER } from '../../scripts/constants.js';
+
+export default class Inspector {
 
     publisher;                  // Message Publisher
     subscriber;                 // Message Subscriber
@@ -77,7 +81,7 @@ class Inspector {
                 const e = GM.HF.createNewTextInput(`${this.#currentModuleKey}_${text}_text`, `${this.#currentModuleKey}_${text}_text`, [], [], 'text', false);
                 e.value = text;
                 e.addEventListener('change', () => {
-                    const data = {moduleKey: this.#currentModuleKey, newValue: e.value, field: field};
+                    const data = { moduleKey: this.#currentModuleKey, newValue: e.value, field: field };
                     const msg = new Message(MODULE_MANAGER, INSPECTOR, 'Value Change Event', data);
                     this.#sendMessage(msg);
                 });

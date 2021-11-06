@@ -4,6 +4,7 @@ const express = require('express');
 // Define Express App
 const app = express();
 app.use(express.static('./public'));
+app.use('/echarts', express.static(__dirname + './node_modules/echarts'));
 
 const PORT = process.env.PORT || 8080;
 

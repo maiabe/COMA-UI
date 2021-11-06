@@ -1,4 +1,5 @@
-class ParagraphGenerator {
+import { HTMLFactory } from "./htmlFactory.js";
+export class ParagraphGenerator {
     constructor() {};
     generateNewParagraph = (id, name, classlist, customStyles, text) => {
         const e = document.createElement('p');
