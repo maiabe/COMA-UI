@@ -53,7 +53,7 @@ export class PopupManager {
      * @returns true if is open, false if not.
      */
     isPopupOpen = key => {
-        if (invalidVariables([varText(key, 'key', 'number')], 'PopupManager', 'isPopupOpen')) return false;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'PopupManager', 'isPopupOpen')) return false;
         if (this.#popupList.has(key)) return true;
         return false;
     }
@@ -63,7 +63,7 @@ export class PopupManager {
      * @return the width in pixels (number only) or -1 if no popup found.
      */
     getPopupWidth = key => {
-        if (invalidVariables([varText(key, 'key', 'number')], 'PopupManager', 'getPopupWidth')) return -1;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'PopupManager', 'getPopupWidth')) return -1;
         if (this.#popupList.has(key)) return this.#popupList.get(key).element.width;
         else return -1;
     }
@@ -73,7 +73,7 @@ export class PopupManager {
      * @return the height in pixels (number only) or -1 if no popup found.
      */
     getPopupHeight = key => {
-        if (invalidVariables([varText(key, 'key', 'number')], 'PopupManager', 'getPopupHeight')) return -1;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'PopupManager', 'getPopupHeight')) return -1;
         if (this.#popupList.has(key)) return this.#popupList.get(key).element.height - 50;
         else return -1;
     }
