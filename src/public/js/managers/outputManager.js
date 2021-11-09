@@ -23,7 +23,7 @@ export class OutputManager {
     storeChartData = (key, data, div, type) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
         if (!this.#outputMap.has(key)) {
-            this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark'});
+            this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark' });
             return true;
         } else console.log(`ERROR: chart data already exists for key ${key}. -- Output Manager -> storeChartData`);
         return false;
@@ -39,11 +39,8 @@ export class OutputManager {
      */
     drawChart = (key, div, width, height) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(div, 'div', 'object'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'OutputManager', 'drawChart')) return;
-        if (this.#outputMap.has(key)) {
-            const chart = this.#chartBuilder.plotData(this.#outputMap.get(key).data, this.#outputMap.get(key).type, div, width, height, this.#outputMap.get(key).framework, this.#outputMap.get(key).theme);
-            this.#activeChartMap.set(key, { chartObject: chart });
-        }
-        else console.log(`ERROR: Cannot drawChart, missing data for key: ${key}. -- OutputManager -> drawChart`);
+        if (this.#outputMap.has(key)) this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(this.#outputMap.get(key).data, this.#outputMap.get(key).type, div, width, height, this.#outputMap.get(key).framework, this.#outputMap.get(key).theme) });
+        else printErrorMessage(`Missing Data.`, `key: ${key} - OutputManager -> drawChart`);
     }
 
     /**
@@ -54,7 +51,7 @@ export class OutputManager {
     removeChart = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'OutputManager', 'removeChart')) return false;
         if (this.#activeChartMap.has(key)) {
-            try { this.#activeChartMap.get(key).chartObject.dispose();}
+            try { this.#activeChartMap.get(key).chartObject.dispose(); }
             catch (error) { console.log(error); }
             this.#activeChartMap.delete(key);
             return true;
@@ -86,26 +83,31 @@ export class OutputManager {
     }
 
     /**
-     * 
      * @param {number} key 
      * @param {number} width 
      * @param {number} height 
-     * @returns 
+     * @returns true if successful, false if not
      */
     resizeChart = (key, width, height) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'Output Mangaer', 'resizeChart')) return false;
         if (this.popupHasActiveChart(key)) {
-            if (this.#getActiveChartFramework(key) === 'echart') this.#chartBuilder.resizeEchart(this.#activeChartMap.get(key).chartObject, width, height);
-            else if (this.#getActiveChartFramework(key) === 'plotly') {
+            if (this.#thisIsAnEchart(key)) this.#chartBuilder.resizeEchart(this.#activeChartMap.get(key).chartObject, width, height);
+            else if (this.#thisIsAPlotlyChart(key)) {
                 const chart = this.#outputMap.get(key);
                 this.#chartBuilder.plotData(chart.data, chart.type, chart.div, width, height, chart.framework);
             }
         } else if (this.#outputMap.has(key)) {
-            const chart = this.#outputMap.get(key);
-            if (chart.outputType === 'chart') this.drawChart(key, chart.div, width, height, chart.framework);
-            return true;
+            const outputObject = this.#outputMap.get(key);
+            if (this.#thisIsAChart(outputObject)) {
+                this.drawChart(key, outputObject.div, width, height, outputObject.framework);
+            }
         } else return false;
+        return true;
     }
+
+    #thisIsAnEchart = key => this.#getActiveChartFramework(key) === 'echart';
+    #thisIsAPlotlyChart = key => this.#getActiveChartFramework(key) === 'plotly';
+    #thisIsAChart = outputObject => outputObject.outputType === 'chart';
 
     /**
      * Gets the correct framework string for the type of chart requested.
@@ -114,7 +116,7 @@ export class OutputManager {
      */
     #getFramework = type => {
         if (invalidVariables([varTest(type, 'type', 'string')], 'Output Manager', 'getFramework')) return undefined;
-        switch (type){
+        switch (type) {
             case 'line':
             case 'bar':
             case 'scatter':
