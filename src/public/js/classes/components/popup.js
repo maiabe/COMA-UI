@@ -61,7 +61,7 @@ export default class Popup {
 
     createResizeDiv = () => {
         this.resizeDiv = GM.HF.createNewDiv(`popup-resize-${this.id}`, `popup-resize-${this.id}`, ['popupResize'], []);
-        this.body.appendChild(this.resizeDiv);
+        this.element.appendChild(this.resizeDiv);
     }
 
     setBodyContent = content => {
@@ -97,21 +97,27 @@ export default class Popup {
 
     setEventListeners = () => {
         // Drag And Drop Listeners
-        this.header.addEventListener('mousedown', this.startDrag);
-        this.header.addEventListener('mouseup', this.endDrag);
-        this.header.addEventListener('mouseleave', this.endDrag);
-        this.header.addEventListener('mousemove', e => {
+        this.header.addEventListener('mousedown', () => {
+            this.startDrag();
+            this.moveToFront()
+        });
+
+        document.addEventListener('mouseup', this.endDrag);
+        document.addEventListener('mousemove', e => {
             this.drag(e);
             e.preventDefault();
         });
         // Expand and Shrink Listeners
         this.resizeDiv.addEventListener('mousedown', this.startResize);
-        this.resizeDiv.addEventListener('mouseup', this.endResize);
-        this.resizeDiv.addEventListener('mouseleave', this.endResize);
-        this.resizeDiv.addEventListener('mousemove', e => {
+        document.addEventListener('mouseup', this.endResize);
+        document.addEventListener('mousemove', e => {
             this.resize(e);
             e.preventDefault();
         });
+
+        // Move To Front Event Listeners
+        this.body.addEventListener('mousedown', this.moveToFront);
+        this.element.addEventListener('mousedown', this.moveToFront);
     };
 
     setState = state => {
@@ -126,8 +132,10 @@ export default class Popup {
         this.mousePositions = [];
     };
     endDrag = () => {
-        this.setState(this.idle);
-        this.mousePositions = [];
+        if (this.getState() === this.dragging) {
+            this.setState(this.idle);
+            this.mousePositions = [];
+        }
     };
 
     drag = e => {
@@ -135,17 +143,35 @@ export default class Popup {
             const pos = { x: e.screenX, y: e.screenY };
             this.mousePositions.push(pos);
             if (this.mousePositions.length > 1) {
-                const far = this.mousePositions[this.mousePositions.length - 1];
-                const near = this.mousePositions[0];
-                this.mousePositions = [far];
-                const distance = { x: far.x - near.x, y: far.y - near.y };
-                this.top += parseInt(distance.y);
-                this.left += parseInt(distance.x);
+                const distance = this.#calculateDistanceTraveled(this.mousePositions[0], this.mousePositions[this.mousePositions.length - 1]);
+                this.#resetMousePositionsArray(this.mousePositions[this.mousePositions.length - 1]);
+                this.#updateTop(distance.y);
+                this.#updateLeft(distance.x);
                 this.setLeft();
                 this.setTop();
             }
         }
     }
+
+    /**
+     * Calculates the distance the mouse has traveled in pixels
+     * @param {object} firstPosition index [0] in the mousePositions array - contains x and y
+     * @param {object} lastPosition  index [array.length-1] in the mousePositions array - contains x and y
+     * @returns {x: xdistance (number), y: ydistance (number)}
+     */
+    #calculateDistanceTraveled = (firstPosition, lastPosition) => { 
+        return { x: lastPosition.x - firstPosition.x, y: lastPosition.y - firstPosition.y }; 
+    };
+
+    /**
+     * When a drag is completed, this function is called to reset the positions array. The last measured position is places in the first index.
+     * @param {number} lastPosition the last captured mouse position
+     */
+    #resetMousePositionsArray = lastPosition => this.mousePositions = [lastPosition];
+
+    #updateTop = yDistanceTraveled => this.top += parseInt(yDistanceTraveled);
+
+    #updateLeft = xDistanceTraveled => this.left += parseInt(xDistanceTraveled);
 
     // RESIZE FUNCTIONS
     startResize = () => {
@@ -153,10 +179,12 @@ export default class Popup {
         this.mousePositions = [];
         GM.PM.startResizeEventHandler(this.key);
     };
+
     endResize = () => {
-        this.setState(this.idle);
-        this.mousePositions = [];
-        GM.PM.resizeEventHandler(this.key);
+        if (this.getState() === this.resizing) {
+            this.setState(this.idle);
+            this.mousePositions = [];
+        }
     };
 
     resize = e => {
@@ -164,17 +192,22 @@ export default class Popup {
             const pos = { x: e.screenX, y: e.screenY };
             this.mousePositions.push(pos);
             if (this.mousePositions.length > 1) {
-                const far = this.mousePositions[this.mousePositions.length - 1];
-                const near = this.mousePositions[0];
-                this.mousePositions = [far];
-                const distance = { x: far.x - near.x, y: far.y - near.y };
-                this.height += parseInt(distance.y);
-                this.width += parseInt(distance.x);
+                const distance = this.#calculateDistanceTraveled(this.mousePositions[0], this.mousePositions[this.mousePositions.length - 1]);
+                this.#resetMousePositionsArray(this.mousePositions[this.mousePositions.length - 1]);
+                this.#updateHeight(distance.y);
+                this.#updateWidth(distance.x);
                 this.setWidth();
                 this.setHeight();
             }
+            GM.PM.resizeEventHandler(this.key);
         }
     }
+
+    #updateWidth = yDistanceTraveled => this.width += parseInt(yDistanceTraveled);
+
+    #updateHeight = xDistanceTraveled => this.height += parseInt(xDistanceTraveled);
+
+    moveToFront = () => this.element.style.zIndex = GM.PM.getNextZIndex();
 
     close = () => {
         document.body.removeChild(this.element);

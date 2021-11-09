@@ -217,6 +217,14 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
   top: 50px;
 }
 
+.plot-dd {
+  position: absolute;
+  width: 140px;
+  height: 20px;
+  left: calc(50% - 70px);
+  top: 52px;
+  z-index: 1;
+}
 /* Very small devices */
 @media (max-width: 480px) {
 }

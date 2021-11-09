@@ -5,7 +5,7 @@
   position: absolute;
   height: 500px;
   width: 400px;
-  background-color: #d3d3d3;
+  background-color: white;
   opacity: 1;
   z-index: 10000;
   top: 0;
@@ -52,10 +52,13 @@
   width: 50px;
   z-index: 10001;
   background-color: #d3d3d3;
+  opacity: 0.2;
+  transition: opacity 0.3s ease-in;
 }
 
 .popupResize:hover {
-  background-color: #919090;
+  background-color: #dfdfdf;
+  opacity: 1;
 }
 
 /* Very small devices */

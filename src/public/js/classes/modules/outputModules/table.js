@@ -5,8 +5,8 @@ export class Table extends Output {
 
     #dataArea;    // Popup section that can display data.
 
-    constructor(category, color, shape) {
-        super(category, color, shape, 'output', 'Table', 'images/icons/table.png', [{ name: 'IN', leftSide: true }], []);
+    constructor(category, color, shape, key) {
+        super(category, color, shape, 'output', 'Table', 'images/icons/table.png', [{ name: 'IN', leftSide: true }], [], key);
         this.popupContent;
         this.plotDiv;
         this.setPopupContent();

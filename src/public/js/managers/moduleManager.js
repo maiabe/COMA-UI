@@ -22,11 +22,9 @@ export class ModuleManager {
      */
     createNewModule = (name, category, key) => {
         if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'createNewModule')) return false;
-        const module = this.#MG.generateNewModule(name, category);
-        module.setData('key', key, key);
-        const templateExists = this.moduleMap.has(key);
+        const module = this.#MG.generateNewModule(name, category, key);
         this.#addModule(module, key);
-        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: templateExists }));
+        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.moduleMap.has(key) }));
         return true;
     }
 
@@ -174,7 +172,7 @@ export class ModuleManager {
 
     /**
      * This function will process data returned from the server. This data needs to be turned into a chart.
-     * @param {Module} module The module associfated with the chart.
+     * @param {Module} module The module associated with the chart.
      * @param {object} data The data to plot.
      * @param {number} key The key of the module.
      */
@@ -256,6 +254,16 @@ export class ModuleManager {
         if (invalidVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'requestInspectorUpdate')) return;
         // Node Selected Event will load data for this node into the inspector.
         this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Node Selected Event', { moduleKey: key }));
+    };
+
+    /**
+     * Sends a message to the Output manager to change the chart theme
+     * @param {number} key 
+     * @returns 
+     */
+    handleEchartThemeChange = (key, theme) => {
+        if (invalidVariables([varTest(key, 'key', 'number')], 'Module Manager', 'handleEchartThemeChange')) return;;
+        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Change EChart Theme Event', {moduleKey: key, theme: theme}));
     };
 
     /**

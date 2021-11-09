@@ -1,6 +1,6 @@
-import {Publisher, Subscriber} from "../classes/communication/communication.js";
-import {GM} from '../scripts/main.js';
-import {ENVIRONMENT, MODULE_MANAGER, INSPECTOR, POPUP_MANAGER, INPUT_MANAGER, DATA_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER} from '../scripts/constants.js';
+import { Publisher, Subscriber } from "../classes/communication/communication.js";
+import { GM } from '../scripts/main.js';
+import { ENVIRONMENT, MODULE_MANAGER, INSPECTOR, POPUP_MANAGER, INPUT_MANAGER, DATA_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER } from '../scripts/constants.js';
 import { invalidVariables, printErrorMessage, varTest } from "../scripts/errorHandlers.js";
 /* Envionment Data Table is the central communication hub of the application. All Messages
 are routed through this singleton class. */
@@ -242,19 +242,29 @@ export default class Hub {
             case 'Create New Chart Event':
                 if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.data, 'data', 'object'), varTest(data.type, 'type', 'string'), varTest(data.div, 'div', 'object')], 'HUB', '#messageForOutputManager (Create New Chart Event)')) return;
                 // If successfully able to store chart data, then draw a chart if the popup is open.
-                if (GM.OM.storeChartData(data.moduleKey, data.data, data.type)) {
+                if (GM.OM.storeChartData(data.moduleKey, data.data, data.div, data.type)) {
                     if (GM.PM.isPopupOpen(data.moduleKey)) GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
                 }
                 break;
             case 'Resize Popup Event':  // This fires when a popup has finished resizing.
                 // If there is a chart in the popup window, redraw it when resizing is finished.
                 if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForOutputManager (Resize Popup Event)')) return;
-                if (GM.OM.popupHasAChart(data.moduleKey)) GM.OM.drawChart(data.moduleKey, GM.PM.getPopupBodyDiv(data.moduleKey), GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
+                if (GM.OM.popupHasAChart(data.moduleKey)) GM.OM.resizeChart(data.moduleKey, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
                 break;
             case 'Start Resize Popup Event':
-                // If there is a chart in the popup window, clear it while resizing.
-                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForOutputManager (Start Resize Popup Event)')) return;
-                if (GM.OM.popupHasAChart(data.moduleKey)) GM.PM.clearChart(data.moduleKey);
+                //if (GM.OM.popupHasActiveChart(data.moduleKey)) 
+                break;
+            case 'Popup Closed Event':
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForOutputManager (Popup Closed Event)')) return;
+                if (GM.OM.popupHasActiveChart(data.moduleKey)) GM.OM.removeChart(data.moduleKey);
+                break;
+            case 'Change EChart Theme Event':
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.theme, 'theme', 'string')], 'HUB', '#messageForOutputManager (Change EChart Theme Event)')) return;
+                if (GM.OM.popupHasAChart(data.moduleKey)) {
+                    if (GM.OM.changeEchartTheme(data.moduleKey, data.theme)) {
+                        if (GM.OM.popupHasActiveChart(data.moduleKey)) GM.OM.redrawEChart(data.moduleKey, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
+                    }
+                }
                 break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForOutputManager`);
@@ -266,7 +276,6 @@ export default class Hub {
     // The Pipeline must be validated, jsonified, then sent to the next layer for processing.
     run = () => {
         let m = GM.ENV.getModel();
-        m = GM.MM.getModulesForPipeline(m);
-        GM.PLM.validatePipeline(m);
+        GM.PLM.validatePipeline( GM.MM.getModulesForPipeline(m));
     };
 }

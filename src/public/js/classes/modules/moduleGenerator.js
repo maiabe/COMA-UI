@@ -19,73 +19,73 @@ export class ModuleGenerator {
      * Generates a new module on demand
      * @param {string} type the type of module (ie. JSON)
      * @param {string} category the category of module (ie. processor, output, source)
+     * @param {number} key
      * @returns the new module if successful, undefined if failure
      */
-    generateNewModule = (type, category) => {
+    generateNewModule = (type, category, key) => {
         let mod = undefined;
-        console.log(category);
         if (type && category) {
             if (type != '' && category != '') {
                 switch (type) {
                     case 'SQL':
-                        mod = new Sql(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Sql(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'FITS':
-                        mod = new Fits(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Fits(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'CSV':
-                        mod = new Csv(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Csv(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Random':
-                        mod = new RandomData(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new RandomData(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Number':
-                        mod = new NumberSource(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new NumberSource(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'JSON':
-                        mod = new Json(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Json(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Ephemeris':
-                        mod = new Ephemeris(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Ephemeris(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'MJD':
-                        mod = new Mjd(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Mjd(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'All':
-                        mod = new CometAll(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new CometAll(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Function':
-                        mod = new FunctionProcessor(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new FunctionProcessor(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Gaussian Filter':
-                        mod = new Gaussian(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Gaussian(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Laplacian Filter':
-                        mod = new Laplacian(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Laplacian(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Sum':
-                        mod = new Sum(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Sum(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Subtract':
-                        mod = new Subtract(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Subtract(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Scatter Plot':
-                        mod = new ScatterPlot(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new ScatterPlot(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Bar Chart':
-                        mod = new BarChart(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new BarChart(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Table':
-                        mod = new Table(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Table(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Line Chart':
-                        mod = new LineChart(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new LineChart(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Image':
-                        mod = new ImageOutput(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new ImageOutput(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Value':
-                        mod = new Value(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()]);
+                        mod = new Value(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                 }
             } else console.log(`ERROR: Parameter Error. type: ${type}, category: ${category}. -- ModuleGenerator -> generate new module`);

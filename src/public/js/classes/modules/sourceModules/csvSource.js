@@ -2,8 +2,8 @@ import { Source } from "./source.js";
 import { GM } from '../../../scripts/main.js';
 import { CsvReader } from "../../dataComponents/dataProcessors.js";
 export class Csv extends Source {
-    constructor(category, color, shape) {
-        super(category, color, shape, 'local', 'storeData', 'CSV File', 'images/icons/csv-file-format-extension.png', [], [{ name: 'OUT', leftSide: false }]);
+    constructor(category, color, shape, key) {
+        super(category, color, shape, 'local', 'storeData', 'CSV File', 'images/icons/csv-file-format-extension.png', [], [{ name: 'OUT', leftSide: false }], key);
         this.dataArea;
         this.readFileButton;
         this.deployButton;

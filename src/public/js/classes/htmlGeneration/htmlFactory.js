@@ -1,4 +1,4 @@
-import { DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator } from "./htmlgeneration.js";
+import { DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, SelectGenerator } from "./htmlgeneration.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
 export class HTMLFactory {
 
@@ -9,6 +9,7 @@ export class HTMLFactory {
     #imgGenerator;            // Class that builds HTML imgs with various features;
     #paragraphGenerator;      // Class that builds HTML p with various features;
     #inputGenerator;          // Class that builds HTML inputs with various features;
+    #selectGenerator;
 
     constructor() {
         this.#tableGenerator = new HTMLTableGenerator();
@@ -16,11 +17,11 @@ export class HTMLFactory {
         this.#imgGenerator = new ImgGenerator();
         this.#paragraphGenerator = new ParagraphGenerator();
         this.#inputGenerator = new InputGenerator();
+        this.#selectGenerator = new SelectGenerator();
     };
 
     createNewTable(dataTable, rowLimit) {
-        const t = this.#tableGenerator.generateTableFromData(dataTable, rowLimit);
-        return t;
+        return this.#tableGenerator.generateTableFromData(dataTable, rowLimit);
     }
 
     /** Creates a new HTML div element
@@ -33,8 +34,7 @@ export class HTMLFactory {
      * @return the new div
      */
     createNewDiv(id, name, classlist, customStyles) {
-        const d = this.#divGenerator.generateSimpleDiv(id, name, classlist, customStyles);
-        return d;
+        return this.#divGenerator.generateSimpleDiv(id, name, classlist, customStyles);
     }
 
     /** Creates a new HTML img element
@@ -49,8 +49,7 @@ export class HTMLFactory {
      * @return the new img
      */
     createNewIMG(id, name, src, classlist, customStyles, alt) {
-        const i = this.#imgGenerator.generateNewIMG(id, name, src, classlist, customStyles, alt);
-        return i;
+        return this.#imgGenerator.generateNewIMG(id, name, src, classlist, customStyles, alt);
     }
 
     /** Creates a new HTML p element
@@ -64,8 +63,7 @@ export class HTMLFactory {
      * @return the new p
      */
     createNewParagraph(id, name, classlist, customStyles, text) {
-        const p = this.#paragraphGenerator.generateNewParagraph(id, name, classlist, customStyles, text);
-        return p;
+        return this.#paragraphGenerator.generateNewParagraph(id, name, classlist, customStyles, text);
     }
 
     /** Creates a new HTML button (input) element
@@ -81,8 +79,7 @@ export class HTMLFactory {
          * @return the new button
          */
     createNewButton(id, name, classlist, customStyles, type, value, disabled) {
-        const b = this.#inputGenerator.generateButton(id, name, classlist, customStyles, type, value, disabled);
-        return b;
+        return this.#inputGenerator.generateButton(id, name, classlist, customStyles, type, value, disabled);
     }
 
     /** Creates a new HTML file input element
@@ -97,8 +94,7 @@ export class HTMLFactory {
          * @return the new button
          */
     createNewFileInput(id, name, classlist, customStyles, type, disabled) {
-        const b = this.#inputGenerator.generateFileInput(id, name, classlist, customStyles, type, disabled);
-        return b;
+        return this.#inputGenerator.generateFileInput(id, name, classlist, customStyles, type, disabled);
     }
     /** Creates a new HTML text input element
              * @param id -> the id of the element (if not adding id, use empty string '')
@@ -112,8 +108,11 @@ export class HTMLFactory {
              * @return the new button
              */
     createNewTextInput(id, name, classlist, customStyles, type, disabled) {
-        const ta = this.#inputGenerator.generateFileInput(id, name, classlist, customStyles, type, disabled);
-        return ta;
+        return this.#inputGenerator.generateFileInput(id, name, classlist, customStyles, type, disabled);
+    }
+
+    createNewSelect(id, name, classlist, customStyles, options, optionText) {
+        return this.#selectGenerator.generateNewSelect(id, name, classlist, customStyles, options, optionText);
     }
 
     /** Takes an array of style objects and applies them to an element

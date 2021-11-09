@@ -6,11 +6,11 @@ export class Module {
     #command;
     #dataTable;
 
-    constructor(type, color, shape, command, name, imagePath, inports, outports) {
+    constructor(type, color, shape, command, name, imagePath, inports, outports, key) {
         this.#dataTable = new Map();
         this.publisher = new Publisher();
         this.popupContent;
-        this.setInitialDataValues(type, color, shape, command, name, imagePath, inports, outports);
+        this.setInitialDataValues(type, color, shape, command, name, imagePath, inports, outports, key);
     };
 
     /**
@@ -23,9 +23,10 @@ export class Module {
      * @param {string} imagePath path to the image displayed by the module
      * @param {array} inports array of inports
      * @param {array} outports array of outports
+     * @param {number} key key of module
      */
-    setInitialDataValues = (type, color, shape, command, name, imagePath, inports, outports) => {
-        if (type && color && shape && command && name && imagePath && inports && outports) {
+    setInitialDataValues = (type, color, shape, command, name, imagePath, inports, outports, key) => {
+        if (type && color && shape && command && name && imagePath && inports && outports && key) {
             this.addData('type', type, true, type, false);
             this.addData('image', imagePath, false, '', false);
             this.addData('color', color, false, '', false);
@@ -33,9 +34,9 @@ export class Module {
             this.addData('inports', inports, false, '', false);
             this.addData('outports', outports, false, '', false);
             this.addData('name', name, true, name, false);
-            this.addData('key', -1, true, -1, false);
+            this.addData('key', key, true, -1, false);
             this.addData('command', command, false, '', false);
-        } else console.log(`ERROR: Missing Parameter. type: ${type}, imagePath: ${imagePath}, color: ${color}, shape: ${shape}, command: ${command}, name: ${name}, inports: ${inports}, outports: ${outports}. -- Module -> setInitialDataValues`);
+        } else console.log(`ERROR: Missing Parameter. type: ${type}, imagePath: ${imagePath}, color: ${color}, shape: ${shape}, command: ${command}, name: ${name}, inports: ${inports}, outports: ${outports}, key: ${key}. -- Module -> setInitialDataValues`);
     };
 
     /** Gets the command associated with this module */
