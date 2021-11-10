@@ -43,8 +43,10 @@ export default class ModuleSelectionMenu {
     };
 
     initializeMenu = () => {
-        this.moduleTypes.forEach(m => {
+        this.moduleTypes.forEach((m, index) => {
             const button = new ModuleTopButton(m);
+            if (index === 0) button.getButtonElement().classList.add('topRoundedCorners');
+            else if (index === this.moduleTypes.length - 1) button.getButtonElement().classList.add('bottomRoundedCorners');
             this.topMenuButtonArray.push(button.getElement());
             this.menuContainer.append(button.getElement());
         });
@@ -73,9 +75,9 @@ class ModuleTopButton {
         this.buttonElement.addEventListener('click', this.subMenu.toggleMenu);
     };
 
-    getElement = () => {
-        return this.wrapperElement;
-    };
+    getElement = () => this.wrapperElement;
+
+    getButtonElement = () => this.buttonElement;
 }
 
 class ModuleSubMenu {

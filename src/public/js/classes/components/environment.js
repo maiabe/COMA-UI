@@ -1,4 +1,4 @@
-import {Publisher, Message} from '../communication/communication.js';
+import { Publisher, Message } from '../communication/communication.js';
 import { invalidVariables, varTest, printErrorMessage } from '../../scripts/errorHandlers.js';
 import { ENVIRONMENT, MODULE_MANAGER, POPUP_MANAGER, INSPECTOR } from '../../scripts/constants.js';
 import { sourceColor, outputColor, processorColor } from '../../scripts/colors.js';
@@ -23,19 +23,25 @@ export default class Environment {
         this.publisher.publishMessage(msg);
     };
 
+    /**
+     * Creats the gojs environment objects.
+     * Creates the New Model
+     * Loads the model into the environment.
+     * Adds interaction event listeners.
+     */
     setUpEnvironment = () => {
         this.#startGoJsEnvironment();
         this.#createNewModel();
         this.#load();
-        this.#createEventListeners();
+        this.#createInteractionEventListeners();
     };
-
-    #createEventListeners = () => {
+ 
+    #createInteractionEventListeners = () => {
         this.#myDiagram.addDiagramListener('LinkDrawn', e => {
             this.#sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Link Drawn Event', { event: 'LinkDrawn', fromNodeKey: e.subject.fromNode.key, toNodeKey: e.subject.toNode.key }));
         });
     }
-
+ 
     #createNewModel = () => {
         this.#model = { class: "go.GraphLinksModel", nodeCategoryProperty: "type", linkFromPortIdProperty: "frompid", linkToPortIdProperty: "topid", nodeDataArray: [], linkDataArray: [] }
     };
@@ -62,19 +68,25 @@ export default class Environment {
         return ports;
     }
 
+    #getGOJSMakeObject = () => go.GraphObject.make;
+
     #startGoJsEnvironment = () => {
-        const $ = go.GraphObject.make;
-        this.#myDiagram =
-            $(go.Diagram, this.#divID,
-                {
-                    initialContentAlignment: go.Spot.TopLeft,
-                    initialAutoScale: go.Diagram.UniformToFill,
-                    layout: $(go.LayeredDigraphLayout,
-                        { direction: 0 }),
-                    "undoManager.isEnabled": true
-                }, { backgroundSingleClicked: this.#clearInspector }  // When a user clicks off a node, wipe the inspector.
-            );
-        this.#myDiagram.grid.visible = true;
+        this.#myDiagram = this.#createNewDiagram(this.#getGOJSMakeObject());
+        this.#setGridVisibility(true);
+    }
+
+    #setGridVisibility = visibility => this.#myDiagram.grid.visible = visibility;
+
+    #createNewDiagram = gojs => {
+        return gojs(go.Diagram, this.#divID,
+            {
+                initialContentAlignment: go.Spot.TopLeft,
+                initialAutoScale: go.Diagram.UniformToFill,
+                layout: gojs(go.LayeredDigraphLayout,
+                    { direction: 0 }),
+                "undoManager.isEnabled": true
+            }, { backgroundSingleClicked: this.#clearInspector }  // When a user clicks off a node, wipe the inspector.
+        );
     }
 
     /**
@@ -87,63 +99,120 @@ export default class Environment {
      * @param {[] of gojs panel objects} outports array of panels. These were created by the makeport function
      */
     #makeTemplate = (typename, icon, background, shape, inports, outports) => {
-        const $ = go.GraphObject.make;
-        var node = $(go.Node,
-            {
-                selectionAdorned: true, // Highlight nodes when clicked
-                selectionChanged: this.#onSelectionChanged // Call function when selected node changes.
-            },
-            { doubleClick: (e, node) => this.#handleDoubleClick(e, node.key) }, // Event Handler for double click event (opens popup)
-            // executed when Part.isSelected has changed"Spot",
-            $(go.Panel, "Auto",
-                { width: 80, height: 80 },
-                $(go.Shape, shape,
-                    {
-                        fill: background, stroke: 'transparent', strokeWidth: 5,
-                        spot1: go.Spot.TopLeft, spot2: go.Spot.BottomRight, name: "SHAPE"
-                    },
-                    // The stroke and fill are bound so that they can be changed dynamically.
-                    new go.Binding('stroke', 'stroke'),
-                    new go.Binding('fill', 'fill'),
-                    // Stroke and fill have animation events.
-                    new go.AnimationTrigger('stroke'),
-                    new go.AnimationTrigger('fill'),
-                ),
-                $(go.Panel, "Table",
-                    $(go.TextBlock, typename,
-                        {
-                            row: 0,
-                            margin: 3,
-                            maxSize: new go.Size(80, NaN),
-                            stroke: "white",
-                            font: "bold 7pt sans-serif"
-                        }),
-                    $(go.Picture, icon,
-                        { row: 1, width: 8, height: 8, scale: 3.0 }),
-                    $(go.TextBlock,
-                        {
-                            row: 2,
-                            margin: 3,
-                            editable: true,
-                            maxSize: new go.Size(80, 40),
-                            stroke: "white",
-                            font: "bold 9pt sans-serif"
-                        },
-                        new go.Binding("text", "name").makeTwoWay())
-                ),
-                $(go.Panel, "Vertical",
-                    {
-                        alignment: new go.Spot(0, 0.5, 0, 0)
-                    },
-                    inports),
-                $(go.Panel, "Vertical",
-                    {
-                        alignment: new go.Spot(1, 0.5, 0, 0)
-                    },
-                    outports)
-            )
-        );
+        const gojs = this.#getGOJSMakeObject();
+        const node = this.#createNewNode(gojs, shape, background, typename, icon, inports, outports);
         this.#myDiagram.nodeTemplateMap.add(typename, node);
+    }
+
+    #createNewNode = (gojs, shape, background, typename, icon, inports, outports) => {
+        return gojs(go.Node, this.#setSelectionAdornedVariables(), this.#setDoubleClickListener(), this.#createNodeBody(gojs, shape, background, typename, icon, inports, outports));
+    };
+
+    #createNodeBody = (gojs, shape, background, typename, icon, inports, outports) => {
+        return gojs(go.Panel,
+            "Auto",
+            this.#setNodeWidthAndHeight(80, 80),
+            this.#createShapeObject(shape, gojs, background),
+            this.#populateNodeBody(gojs, typename, icon),
+            this.#createInports(gojs, inports),
+            this.#createOutports(gojs, outports));
+    }
+
+    #createShapeObject = (shape, gojs, background) => {
+        return gojs(go.Shape,
+            shape,
+            this.#setNodeShapeAttributes(background),
+            this.#createNewGOJSBinding('stroke', 'stroke'),
+            this.#createNewGOJSBinding('fill', 'fill'),
+            this.#createNewAnimationTrigger('stroke'),
+            this.#createNewAnimationTrigger('fill'));
+    };
+    #createNewAnimationTrigger = attribute => new go.AnimationTrigger(attribute);
+    #createNewGOJSBinding = (attribute, identifier) => new go.Binding(attribute, identifier);
+
+    #populateNodeBody = (gojs, typename, icon) => {
+        return gojs(go.Panel,
+            "Table",
+            gojs(go.TextBlock,
+                typename,
+                this.#setNodeTypeAttributes()),
+            gojs(go.Picture,
+                icon,
+                this.#setNodeIconAttributes()),
+            gojs(go.TextBlock,
+                this.#setNodeNameAttributes(),
+                new go.Binding("text", "name").makeTwoWay()));
+    }
+
+    #setNodeWidthAndHeight = (width, height) => {
+        return {
+            width: width,
+            height: height
+        };
+    }
+
+    #setNodeShapeAttributes = background => {
+        return {
+            fill: background,
+            stroke: 'transparent',
+            strokeWidth: 5,
+            spot1: go.Spot.TopLeft,
+            spot2: go.Spot.BottomRight,
+            name: "SHAPE"
+        };
+    }
+
+    #setNodeTypeAttributes = () => {
+        return {
+            row: 0,
+            margin: 3,
+            maxSize: new go.Size(80, NaN),
+            stroke: "white",
+            font: "bold 7pt sans-serif"
+        };
+    }
+
+    #setNodeIconAttributes = () => {
+        return {
+            row: 1,
+            width: 8,
+            height: 8,
+            scale: 3.0
+        };
+    };
+
+    #setNodeNameAttributes = () => {
+        return {
+            row: 2,
+            margin: 3,
+            editable: true,
+            maxSize: new go.Size(80, 40),
+            stroke: "white",
+            font: "bold 9pt sans-serif"
+        };
+    }
+
+    #createInports = (gojs, inports) => gojs(go.Panel, "Vertical", this.#alignInports(), inports);
+
+    #createOutports = (gojs, outports) => gojs(go.Panel, "Vertical", this.#alignOutports(), outports);
+
+    #alignInports = () => {
+        return { alignment: new go.Spot(0, 0.5, 0, 0) };
+    };
+
+    #alignOutports = () => {
+        return { alignment: new go.Spot(1, 0.5, 0, 0) };
+    };
+
+    #setDoubleClickListener = () => {
+        return { doubleClick: (e, node) => this.#handleDoubleClick(e, node.key) };
+    }
+
+    #setSelectionAdornedVariables = () => {
+        return {
+            selectionAdorned: true,
+            selectionChanged: this.#onSelectionChanged
+        };
     }
 
     /**
@@ -153,8 +222,37 @@ export default class Environment {
      * @returns a panel object.
      */
     #makePort = (name, leftside) => {
-        const $ = go.GraphObject.make;
-        var port = $(go.Shape, "Rectangle",
+        const gojs = this.#getGOJSMakeObject();
+        const panel = this.#createPortPanel(gojs);
+        panel.add(this.#setupPort(leftside, this.#createPortObject(gojs, name), this.#createPortLabel(gojs, name), panel));
+        return panel;
+    }
+
+    #setupPort = (leftside, port, label, panel) => {
+        this.#placePortLabel(leftside, label);
+        this.#placePort(leftside, panel);
+        this.#alignPort(leftside, port);
+        this.#setToLinkable(leftside, port);
+        this.#setFromLinkable(leftside, port);
+        return port;
+    }
+
+    #placePortLabel = (leftside, label) => label.margin === leftside ? new go.Margin(1, 1, 0, 0) : new go.Margin(1, 0, 0, 1);
+    #placePort = (leftside, port) => port.toSpot = leftside ? go.Spot.Left : go.Spot.Right;
+    #alignPort = (leftside, port) => port.alignment = leftside ? go.Spot.TopLeft : go.Spot.TopRight;
+    #setToLinkable = (leftside, port) => port.toLinkable = leftside ? true : false;
+    #setFromLinkable = (leftside, port) => port.fromLinkable = leftside ? false : true;
+
+    #createPortPanel = gojs => {
+        return gojs(go.Panel, "Horizontal",
+            { margin: new go.Margin(2, 0) });
+    };
+
+    #createPortLabel = (gojs, name) => {
+        return gojs(go.TextBlock, name, { font: "7pt sans-serif" });
+    }
+    #createPortObject = (gojs, name) => {
+        return gojs(go.Shape, "Rectangle",
             {
                 fill: "gray", stroke: null,
                 desiredSize: new go.Size(12, 12),
@@ -162,28 +260,6 @@ export default class Environment {
                 toMaxLinks: 4,
                 cursor: "pointer"  // show a different cursor to indicate potential link point
             });
-
-        var lab = $(go.TextBlock, name,  // the name of the port
-            { font: "7pt sans-serif" });
-
-        var panel = $(go.Panel, "Horizontal",
-            { margin: new go.Margin(2, 0) });
-
-        // set up the port/panel based on which side of the node it will be on
-        if (leftside) {
-            port.toSpot = go.Spot.Left;
-            port.toLinkable = true;
-            lab.margin = new go.Margin(1, 1, 0, 0);
-            panel.alignment = go.Spot.TopLeft;
-            panel.add(port);
-        } else {
-            port.fromSpot = go.Spot.Right;
-            port.fromLinkable = true;
-            lab.margin = new go.Margin(1, 0, 0, 1);
-            panel.alignment = go.Spot.TopRight;
-            panel.add(port);
-        }
-        return panel;
     }
 
     /** When a node is selected, the data for this module is passed to the Inspector

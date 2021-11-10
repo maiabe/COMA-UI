@@ -22,7 +22,7 @@ body {
   padding: 0 0 0 0;
   overflow-x: hidden;
   font-family: "Sora", Fallback, sans-serif;
-  background-color: var(--color-dark-gray);
+  background-color: rgb(25,25,25);
   color: var(--color-dark-gray);
 }
 
@@ -80,7 +80,6 @@ h2 {
   float: left;
   margin-right: 1vw;
   position: relative;
-  background-color: var(--color-very-light-gray);
 }
 
 /* End Left Side of the window */
@@ -127,6 +126,8 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
   margin-right: 1vw;
   text-align: center;
   background-color: white;
+  border: 0.1px solid transparent;
+  border-radius: 10px 10px 0 0;
 }
 
 /* This button starts a new Main Environment. */
@@ -143,6 +144,8 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
   position: relative;
   float: right;
   background-color: var(--color-very-light-gray);
+  border: 0.1px solid transparent;
+  border-radius: 10px 10px 0 0;
   /* outline: 1px solid black; */
 }
 #inspector > h1 {

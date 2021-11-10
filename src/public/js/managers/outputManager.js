@@ -146,7 +146,6 @@ export class OutputManager {
         if (this.#outputMap.has(key)) {
             if (this.#getActiveChartFramework(key) === 'echart') {
                 this.#outputMap.get(key).theme = theme;
-                console.log(this.#outputMap);
                 return true;
             }
         } else return false;

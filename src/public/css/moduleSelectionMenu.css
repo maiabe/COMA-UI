@@ -1,134 +1,137 @@
 :root {
   --color-red: #ac232f;
-  --color-dark-liver: #52414C;
+  --color-dark-liver: #52414c;
   --color-ebony: #596157;
   --color-middle-green: #3f743e;
-  --color-slate-gray: #28464B;
+  --color-slate-gray: #28464b;
   --color-ming: #326771;
-  --color-blue: #2C8C99;
-  --color-turquoise: #42D9C8;
+  --color-blue: #2c8c99;
+  --color-turquoise: #42d9c8;
   --color-dark-blue: #1a3c77;
+  --color-very-light-gray: #eeeeee;
 }
 
 /** This is the css file for the Module Selection Menu */
 #moduleMenu {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-  #moduleMenu > h1 {
-    width: 100%;
-    text-align: center;
-  }
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
   
-  #moduleMenu > .menuSegmentWrapper {
-    width: 100%;
-    position: relative;
-  
-  }
-  
-  #moduleMenu > .menuSegmentWrapper > .topMenuButton {
-    text-align: center;
-    background-color: #efefef;
-    width: 100%;
-    position: relative;
-    /* outline: 1px solid black; */
-    height: 50px;
-    padding-left: 3%;
-    overflow:hidden;
-    cursor: pointer;
-    opacity: 0.9;
-    transition: opacity 0.2s ease-in;
-  }
+}
 
-  #moduleMenu > .menuSegmentWrapper > .topMenuButton:hover {
-    opacity: 0.6;
-  }
-  
-  #moduleMenu > .menuSegmentWrapper > .topMenuButton > img {
-    width: 40px;
-    height: 40px;
-    position: relative;
-    float: left;
-    top: 5px;
-  }
-  
-  
-  #moduleMenu > .menuSegmentWrapper > .topMenuButton > p {
-    float: left;
-    font-size: 18px;
-    color: white;
-    font-weight: 400;
-    width: 60%;
-    text-align: left;
-    height: 100%;
-    margin: 0;
-    top: 14px;
-    position: relative;
-    padding-left: 25%;
-  }
-  
-  .subMenuWrapper {
-   width: 100%;
-   overflow: hidden;
-   height: 0px;
-   transition: height 0.2s ease-in;
-   display: flex;
-   align-items: flex-start;
-   flex-wrap: wrap;
-   align-content: space-between;
-  }
-  
-  .menuIconCard {
-    width: 25%;
-    height: 100px;
-    float: left;
-    position: relative;
-    text-align: center;
-    overflow: hidden;
-    cursor: pointer;
-    transition: background-color 0.3s linear;
-  }
-  
-  .menuIconCard:hover {
-    background-color: #d4d1d1;
-  }
-  
-  .menuIconCard > .iconText {
-    width: 100%;
-    text-align: center;
-    height: 40%;
-    position: relative;
-    font-size: .9em;
-    margin-top: 1vh;
-  }
-  .menuIconCard > img {
-    width: 3em;
-    height: 3em;
-    position: relative;
-    margin-top: 1vh;
-  }
+#moduleMenu > h1 {
+  width: 100%;
+  text-align: center;
+}
 
-  
+#moduleMenu > .menuSegmentWrapper {
+  width: 100%;
+  position: relative;
+}
+
+#moduleMenu > .menuSegmentWrapper > .topMenuButton {
+  text-align: center;
+  background-color: #efefef;
+  position: relative;
+  /* outline: 1px solid black; */
+  height: 50px;
+  padding-left: 3%;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: opacity 0.2s ease-in;
+}
+
+.bottomRoundedCorners {
+  border-radius: 0 0 10px 10px;
+}
+
+.topRoundedCorners{
+  border-radius: 10px 10px 0 0;
+}
+
+#moduleMenu > .menuSegmentWrapper > .topMenuButton:hover {
+  opacity: 0.6;
+}
+
+#moduleMenu > .menuSegmentWrapper > .topMenuButton > img {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  float: left;
+  top: 5px;
+}
+
+#moduleMenu > .menuSegmentWrapper > .topMenuButton > p {
+  float: left;
+  font-size: 18px;
+  color: white;
+  font-weight: 400;
+  width: 60%;
+  text-align: left;
+  height: 100%;
+  margin: 0;
+  top: 14px;
+  position: relative;
+  padding-left: 25%;
+}
+
+.subMenuWrapper {
+  width: 100%;
+  overflow: hidden;
+  height: 0px;
+  transition: height 0.2s ease-in;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  align-content: space-between;
+  background-color: var(--color-very-light-gray);
+}
+
+.menuIconCard {
+  width: 25%;
+  height: 100px;
+  float: left;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background-color 0.3s linear;
+}
+
+.menuIconCard:hover {
+  background-color: #d4d1d1;
+}
+
+.menuIconCard > .iconText {
+  width: 100%;
+  text-align: center;
+  height: 40%;
+  position: relative;
+  font-size: 0.9em;
+  margin-top: 1vh;
+}
+.menuIconCard > img {
+  width: 3em;
+  height: 3em;
+  position: relative;
+  margin-top: 1vh;
+}
+
 /* Very small devices */
 @media (max-width: 480px) {
-  
 }
 /* Small Tablets and some phones*/
 @media (max-width: 768px) {
-
 }
 /*1k */
 @media (max-width: 1024px) {
-
 }
 /* 2k */
 @media (max-width: 2048) {
-
 }
 /* 4k Plus */
 @media (min-width: 2049px) {
-
 }
