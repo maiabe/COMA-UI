@@ -66,7 +66,7 @@ class ModuleTopButton {
 
     createButton = (subMenuItems) => {
         this.wrapperElement = GM.HF.createNewDiv('module-selection-menu-wrapper', 'module-selection-menu-wrapper', ['menuSegmentWrapper'], []);
-        this.buttonElement = GM.HF.createNewDiv('', '', ['topMenuButton'], [{ style: 'backgroundColor', value: this.color }]);
+        this.buttonElement = GM.HF.createNewDiv(`${this.text}_topMenuButton`, '', ['topMenuButton'], [{ style: 'backgroundColor', value: this.color }]);
         this.buttonElement.append(GM.HF.createNewIMG('', '', this.image, [], [], 'Submenu Icon'));
         this.buttonElement.append(GM.HF.createNewParagraph('', '', [], [], this.text));
         this.wrapperElement.append(this.buttonElement);

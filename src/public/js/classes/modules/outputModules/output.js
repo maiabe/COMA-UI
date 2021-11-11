@@ -20,7 +20,7 @@ export class Output extends Module {
 
 export class ScatterPlot extends Output {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'Scatter Plot', 'images/icons/scatter-graph.png', [{ name: 'IN', leftSide: true }], [], key);
+        super(category, color, shape, 'output', 'Scatter Plot', 'images/icons/scatter-graph-black.png', [{ name: 'IN', leftSide: true }], [], key);
         this.popupContent;
         this.plotDiv;
         this.themeDD;
