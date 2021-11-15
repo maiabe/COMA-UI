@@ -1,17 +1,19 @@
-import { sourceColor, outputColor, processorColor } from "../../scripts/colors.js";
-import {Sql, Fits, Csv, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table} from '../modules/modules.js';
+import { sourceColor, outputColor, processorColor, compositColor } from "../../scripts/colors.js";
+import {Sql, Fits, Csv, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table, Composit} from '../modules/modules.js';
 export class ModuleGenerator {
     constructor() {
         this.colors = {
             source: sourceColor,
             processor: processorColor,
-            output: outputColor
+            output: outputColor,
+            composit: compositColor
         };
 
         this.shapes = {
             source: 'Rectangle',
             processor: 'Circle',
-            output: 'RoundedRectangle'
+            output: 'RoundedRectangle',
+            composit: 'Rectangle'
         }
     }
 
@@ -86,6 +88,9 @@ export class ModuleGenerator {
                         break;
                     case 'Value':
                         mod = new Value(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
+                        break;
+                    case 'Composit':
+                        mod = new Composit(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                 }
             } else console.log(`ERROR: Parameter Error. type: ${type}, category: ${category}. -- ModuleGenerator -> generate new module`);

@@ -21,6 +21,7 @@ export class ModuleManager {
      * @return true if successful, false if not.
      */
     createNewModule = (name, category, key) => {
+        console.log(name, category, key);
         if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'createNewModule')) return false;
         const module = this.#MG.generateNewModule(name, category, key);
         this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.moduleMap.has(key) }));

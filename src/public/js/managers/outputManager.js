@@ -53,7 +53,7 @@ export class OutputManager {
         if (this.#activeChartMap.has(key)) {
             try { this.#activeChartMap.get(key).chartObject.dispose(); }
             catch (error) { console.log(error); }
-            this.#activeChartMap.delete(key);
+            finally {this.#activeChartMap.delete(key);}
             return true;
         } else return false;
     }

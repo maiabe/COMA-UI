@@ -7,7 +7,7 @@ const turquoise = '#42D9C8';
 const darkLiver = '#52414C';
 const ebony = '#596157';
 const middleGreen = '#3f743e';
-
+const yellow = '#a1810e';
 const darkRed = '#ac232f';
 // Viz Pallete
 const darkGreen = '#003f5c';
@@ -22,5 +22,6 @@ const lightOrange = 'ffa600';
 const sourceColor = middleGreen;
 const processorColor = darkRed;
 const outputColor = blue;
+const compositColor = yellow;
 
-export {sourceColor, processorColor, outputColor};
+export {sourceColor, processorColor, outputColor, compositColor};

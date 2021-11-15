@@ -1,4 +1,4 @@
-import { sourceColor, outputColor, processorColor } from '../../scripts/colors.js';
+import { sourceColor, outputColor, processorColor, compositColor } from '../../scripts/colors.js';
 import { Publisher, Message } from '../communication/communication.js';
 import { GM } from '../../scripts/main.js';
 import { HTMLFactory } from '../htmlGeneration/htmlgeneration.js';
@@ -35,7 +35,11 @@ export default class ModuleSelectionMenu {
             { icon: 'images/icons/image.png', text: 'Image', category: 'Output' },
             { icon: 'images/icons/equal.png', text: 'Value', category: 'Output' },
         ];
+        this.compositSubMenuItems = [
+            { icon: 'images/icons/flow-diagram-black.png', text: 'Composit', category: 'Composit'}
+        ]
         this.moduleTypes = [
+            { text: 'Composit', color: compositColor, subMenuItems: this.compositSubMenuItems, subMenu: null, buttonIcon: 'images/icons/flow-diagram-white.png'},
             { text: 'Source', color: sourceColor, subMenuItems: this.sourceSubMenuItems, subMenu: null, buttonIcon: 'images/icons/database-storage.png' },
             { text: 'Processor', color: processorColor, subMenuItems: this.processorSubMenuItems, subMenu: null, buttonIcon: 'images/icons/calculator.png' },
             { text: 'Output', color: outputColor, subMenuItems: this.outputSubMenuItems, subMenu: null, buttonIcon: 'images/icons/scatter-graph.png' }];

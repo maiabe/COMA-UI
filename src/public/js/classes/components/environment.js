@@ -1,7 +1,7 @@
 import { Publisher, Message } from '../communication/communication.js';
 import { invalidVariables, varTest, printErrorMessage } from '../../scripts/errorHandlers.js';
 import { ENVIRONMENT, MODULE_MANAGER, POPUP_MANAGER, INSPECTOR } from '../../scripts/constants.js';
-import { sourceColor, outputColor, processorColor } from '../../scripts/colors.js';
+import { sourceColor, outputColor, processorColor, compositColor } from '../../scripts/colors.js';
 export default class Environment {
     // Communication Variables
     publisher;              // Sends Messages through the HUB
@@ -10,6 +10,7 @@ export default class Environment {
     #myDiagram; // The GO JS diagram object
     #model;     // The Gojs Model
     #nodeKey;   // Identifies individual Nodes. Keys are unique and icremented each time a node is added.
+    #contextMenu;
 
     constructor(divID) {
         this.publisher = new Publisher();
@@ -17,6 +18,7 @@ export default class Environment {
         this.#myDiagram;                            // GOJS diagram.
         this.#model;                                // GOJS Model.
         this.#nodeKey = 1;                          // Initialize the next node key to 1.
+        this.#contextMenu = this.#createContextMenu();
     }
 
     #sendMessage = msg => {
@@ -31,17 +33,18 @@ export default class Environment {
      */
     setUpEnvironment = () => {
         this.#startGoJsEnvironment();
+        this.#defineGroupTemplate(this.#getGOJSMakeObject());
         this.#createNewModel();
         this.#load();
         this.#createInteractionEventListeners();
     };
- 
+
     #createInteractionEventListeners = () => {
         this.#myDiagram.addDiagramListener('LinkDrawn', e => {
             this.#sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Link Drawn Event', { event: 'LinkDrawn', fromNodeKey: e.subject.fromNode.key, toNodeKey: e.subject.toNode.key }));
         });
     }
- 
+
     #createNewModel = () => {
         this.#model = { class: "go.GraphLinksModel", nodeCategoryProperty: "type", linkFromPortIdProperty: "frompid", linkToPortIdProperty: "topid", nodeDataArray: [], linkDataArray: [] }
     };
@@ -53,6 +56,27 @@ export default class Environment {
     #createTemplate = module => {
         if (invalidVariables([varTest(module, 'module', 'object')], 'Environment', '#createTemplate')) return;
         this.#makeTemplate(module.getData('name'), module.getData('image'), module.getData('color'), module.getData('shape'), this.#unpackPortArray(module, 'inports'), this.#unpackPortArray(module, 'outports'));
+    }
+
+    #createContextMenu = () => {
+        const gojs = this.#getGOJSMakeObject();
+        return gojs("ContextMenu",
+            this.#makeButton("Delete",
+                function (e, obj) { e.diagram.commandHandler.deleteSelection(); },
+                function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+            this.#makeButton("Undo",
+                function (e, obj) { e.diagram.commandHandler.undo(); },
+                function (o) { return o.diagram.commandHandler.canUndo(); }),
+            this.#makeButton("Redo",
+                function (e, obj) { e.diagram.commandHandler.redo(); },
+                function (o) { return o.diagram.commandHandler.canRedo(); }),
+            this.#makeButton("Group",
+                function (e, obj) { e.diagram.commandHandler.groupSelection(); },
+                function (o) { return o.diagram.commandHandler.canGroupSelection(); }),
+            this.#makeButton("Ungroup",
+                function (e, obj) { e.diagram.commandHandler.ungroupSelection(); },
+                function (o) { return o.diagram.commandHandler.canUngroupSelection(); })
+        );
     }
 
     /**
@@ -78,16 +102,21 @@ export default class Environment {
     #setGridVisibility = visibility => this.#myDiagram.grid.visible = visibility;
 
     #createNewDiagram = gojs => {
-        return gojs(go.Diagram, this.#divID,
-            {
-                initialContentAlignment: go.Spot.TopLeft,
-                initialAutoScale: go.Diagram.UniformToFill,
-                layout: gojs(go.LayeredDigraphLayout,
-                    { direction: 0 }),
-                "undoManager.isEnabled": true
-            }, { backgroundSingleClicked: this.#clearInspector }  // When a user clicks off a node, wipe the inspector.
-        );
+        return gojs(go.Diagram, this.#divID, this.#setInitialDiagramVariables(gojs), this.#setDiagramInsteractions());
     }
+
+    #setInitialDiagramVariables = gojs => {
+        return {
+            initialContentAlignment: go.Spot.TopLeft,
+            initialAutoScale: go.Diagram.UniformToFill,
+            layout: gojs(go.LayeredDigraphLayout,
+                { direction: 0 }),
+            "commandHandler.archetypeGroupData": { text: "Group", isGroup: true, color: "blue" },
+            "undoManager.isEnabled": true
+        };
+    }
+
+    #setDiagramInsteractions = () => { return { backgroundSingleClicked: this.#clearInspector } };
 
     /**
      * Builds the gojs node template. 
@@ -105,7 +134,17 @@ export default class Environment {
     }
 
     #createNewNode = (gojs, shape, background, typename, icon, inports, outports) => {
-        return gojs(go.Node, this.#setSelectionAdornedVariables(), this.#setDoubleClickListener(), this.#createNodeBody(gojs, shape, background, typename, icon, inports, outports));
+        return gojs(go.Node,
+            this.#setSelectionAdornedVariables(),
+            this.#setDoubleClickListener(),
+            this.#createNodeBody(gojs, shape, background, typename, icon, inports, outports),
+            this.#createMenuAdornment(gojs));
+    };
+
+    #createMenuAdornment = gojs => {
+        return {
+            contextMenu: this.#contextMenu
+        }
     };
 
     #createNodeBody = (gojs, shape, background, typename, icon, inports, outports) => {
@@ -262,6 +301,59 @@ export default class Environment {
             });
     }
 
+    #defineGroupTemplate = gojs => {
+        // Groups consist of a title in the color given by the group node data
+        // above a translucent gray rectangle surrounding the member parts
+        this.#myDiagram.groupTemplate =
+            gojs(go.Group, "Vertical",
+                {
+                    selectionObjectName: "PANEL",  // selection handle goes around shape, not label
+                    ungroupable: true  // enable Ctrl-Shift-G to ungroup a selected Group
+                },
+                gojs(go.TextBlock,
+                    {
+                        //alignment: go.Spot.Right,
+                        font: "bold 19px sans-serif",
+                        isMultiline: false,  // don't allow newlines in text
+                        editable: true  // allow in-place editing by user
+                    },
+                    new go.Binding("text", "text").makeTwoWay(),
+                    new go.Binding("stroke", "color")),
+                gojs(go.Panel, "Auto",
+                    { name: "PANEL" },
+                    gojs(go.Shape, "Rectangle",  // the rectangular shape around the members
+                        {
+                            fill: "rgba(128,128,128,0.2)", stroke: "gray", strokeWidth: 3,
+                            portId: "", cursor: "pointer",  // the Shape is the port, not the whole Node
+                            // allow all kinds of links from and to this port
+                            fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                            toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                        }),
+                    gojs(go.Placeholder, { margin: 10, background: "transparent" })  // represents where the members are
+                ),
+                { // this tooltip Adornment is shared by all groups
+                    // the same context menu Adornment is shared by all groups
+                    toolTip:
+                        gojs("ToolTip",
+                            gojs(go.TextBlock, { margin: 4 },
+                                // bind to tooltip, not to Group.data, to allow access to Group properties
+                                new go.Binding("text", "", this.#groupInfo).ofObject())
+                        ),
+                    contextMenu: this.#contextMenu
+                }
+            );
+    }
+
+    #groupInfo = adornment => {  // takes the tooltip or context menu, not a group node data object
+        var g = adornment.adornedPart;  // get the Group that the tooltip adorns
+        var mems = g.memberParts.count;
+        var links = 0;
+        g.memberParts.each(function (part) {
+            if (part instanceof go.Link) links++;
+        });
+        return "Group " + g.data.key + ": " + g.data.text + "\n" + mems + " members including " + links + " links";
+    }
+
     /** When a node is selected, the data for this module is passed to the Inspector
      * @param node -> The newly selected node. 
      */
@@ -289,6 +381,7 @@ export default class Environment {
         }
     }
 
+
     /** Returns the next unique node key and increments the counter. */
     getNextNodeKey = () => {
         this.#nodeKey++;
@@ -307,6 +400,18 @@ export default class Environment {
             this.#load(); // Reload the graph with the new node.
         } else console.log(`ERROR: parameter error. mod: ${mod}, templateExists: ${templateExists}. -- Environment -> insertModule`);
     }
+
+    // To simplify this code we define a function for creating a context menu button:
+    #makeButton = (text, action, visiblePredicate) => {
+        const gojs = this.#getGOJSMakeObject();
+        return gojs("ContextMenuButton",
+            gojs(go.TextBlock, text),
+            { click: action },
+            // don't bother with binding GraphObject.visible if there's no predicate
+            visiblePredicate ? new go.Binding("visible", "", function (o, e) { return o.diagram ? visiblePredicate(o, e) : false; }).ofObject() : {});
+    }
+
+
 
     /** Loads the model to the HTML browser page. */
     #load = () => {
@@ -383,6 +488,9 @@ export default class Environment {
                 break;
             case 'Output':
                 color = outputColor;
+                break;
+            case 'Composit':
+                color = compositColor;
                 break;
             default:
                 printErrorMessage('unhandled type. Cannot get color.', `type: ${type} -- Environment -> #getnodeColor`);
