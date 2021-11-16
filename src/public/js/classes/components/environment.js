@@ -1,7 +1,8 @@
 import { Publisher, Message } from '../communication/communication.js';
 import { invalidVariables, varTest, printErrorMessage } from '../../scripts/errorHandlers.js';
-import { ENVIRONMENT, MODULE_MANAGER, POPUP_MANAGER, INSPECTOR } from '../../scripts/constants.js';
+import { ENVIRONMENT, MODULE_MANAGER, POPUP_MANAGER, INSPECTOR, compositIcon } from '../../scripts/constants.js';
 import { sourceColor, outputColor, processorColor, compositColor } from '../../scripts/colors.js';
+
 export default class Environment {
     // Communication Variables
     publisher;              // Sends Messages through the HUB
@@ -19,12 +20,20 @@ export default class Environment {
         this.#model;                                // GOJS Model.
         this.#nodeKey = 1;                          // Initialize the next node key to 1.
         this.#contextMenu = this.#createContextMenu();
+        this.#setPrintEventListener();
     }
 
     #sendMessage = msg => {
         this.publisher.publishMessage(msg);
     };
 
+    #setPrintEventListener = () => {
+        document.addEventListener('keydown', e => {
+            if (e.code === 'KeyK') {
+                this.printModel();
+            }
+        });
+    }
     /**
      * Creats the gojs environment objects.
      * Creates the New Model
@@ -111,7 +120,7 @@ export default class Environment {
             initialAutoScale: go.Diagram.UniformToFill,
             layout: gojs(go.LayeredDigraphLayout,
                 { direction: 0 }),
-            "commandHandler.archetypeGroupData": { text: "Group", isGroup: true, color: "blue" },
+            "commandHandler.archetypeGroupData": { text: "Composit", isGroup: true, color: "black", background: compositColor },
             "undoManager.isEnabled": true
         };
     }
@@ -177,7 +186,7 @@ export default class Environment {
                 this.#setNodeTypeAttributes()),
             gojs(go.Picture,
                 icon,
-                this.#setNodeIconAttributes()),
+                this.#setNodeIconAttributes(1, 8, 8, 3.0)),
             gojs(go.TextBlock,
                 this.#setNodeNameAttributes(),
                 new go.Binding("text", "name").makeTwoWay()));
@@ -211,7 +220,7 @@ export default class Environment {
         };
     }
 
-    #setNodeIconAttributes = () => {
+    #setNodeIconAttributes = (row, width, height, scale) => {
         return {
             row: 1,
             width: 8,
@@ -309,28 +318,32 @@ export default class Environment {
                 {
                     selectionObjectName: "PANEL",  // selection handle goes around shape, not label
                     ungroupable: true  // enable Ctrl-Shift-G to ungroup a selected Group
-                },
+                }, gojs("SubGraphExpanderButton", { row: 0, column: 0, margin: 3 }),
                 gojs(go.TextBlock,
                     {
                         //alignment: go.Spot.Right,
-                        font: "bold 19px sans-serif",
+                        font: "bold 16px sans-serif",
                         isMultiline: false,  // don't allow newlines in text
                         editable: true  // allow in-place editing by user
                     },
                     new go.Binding("text", "text").makeTwoWay(),
                     new go.Binding("stroke", "color")),
-                gojs(go.Panel, "Auto",
+                gojs(go.Panel, "Table",
                     { name: "PANEL" },
                     gojs(go.Shape, "Rectangle",  // the rectangular shape around the members
                         {
-                            fill: "rgba(128,128,128,0.2)", stroke: "gray", strokeWidth: 3,
+                            fill: compositColor, stroke: compositColor, strokeWidth: 3, minSize: new go.Size(60, 60), maxSize: new go.Size(70, 70),
                             portId: "", cursor: "pointer",  // the Shape is the port, not the whole Node
                             // allow all kinds of links from and to this port
-                            fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                            toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                            fromLinkable: false, fromLinkableSelfNode: false, fromLinkableDuplicates: false,
+                            toLinkable: false, toLinkableSelfNode: false, toLinkableDuplicates: false
                         }),
-                    gojs(go.Placeholder, { margin: 10, background: "transparent" })  // represents where the members are
-                ),
+                    gojs(go.Picture,
+                        compositIcon,
+                        { width: 40, height: 40 }),
+                    gojs(go.Placeholder, { margin: 10, background: compositColor, padding: 10 },
+                        new go.Binding("padding", "isSubGraphExpanded",
+                            function (exp) { return exp ? 10 : 10; }).ofObject())),
                 { // this tooltip Adornment is shared by all groups
                     // the same context menu Adornment is shared by all groups
                     toolTip:
@@ -344,6 +357,15 @@ export default class Environment {
             );
     }
 
+    // gojs(go.Panel,
+    //     "Table",
+
+    //     gojs(go.Picture,
+    //         icon,
+    //         this.#setNodeIconAttributes()),
+    //     gojs(go.TextBlock,
+    //         this.#setNodeNameAttributes(),
+    // new go.Binding("text", "name").makeTwoWay()))
     #groupInfo = adornment => {  // takes the tooltip or context menu, not a group node data object
         var g = adornment.adornedPart;  // get the Group that the tooltip adorns
         var mems = g.memberParts.count;
