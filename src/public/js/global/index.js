@@ -1,0 +1,1 @@
+export { GlobalManager } from './globalManager.js';

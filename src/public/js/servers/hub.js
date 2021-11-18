@@ -1,7 +1,7 @@
-import { Publisher, Subscriber } from "../classes/communication/communication.js";
-import { GM } from '../scripts/main.js';
-import { ENVIRONMENT, MODULE_MANAGER, INSPECTOR, POPUP_MANAGER, INPUT_MANAGER, DATA_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER } from '../scripts/constants.js';
-import { invalidVariables, printErrorMessage, varTest } from "../scripts/errorHandlers.js";
+import { Publisher, Subscriber } from "../communication/index.js";
+import { GM } from '../main.js';
+import { ENVIRONMENT, MODULE_MANAGER, INSPECTOR, POPUP_MANAGER, INPUT_MANAGER, DATA_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER } from '../sharedVariables/constants.js';
+import { invalidVariables, printErrorMessage, varTest } from "../errorHandling/errorHandlers.js";
 /* Envionment Data Table is the central communication hub of the application. All Messages
 are routed through this singleton class. */
 export default class Hub {

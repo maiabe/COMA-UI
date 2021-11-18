@@ -1,0 +1,2 @@
+export {sourceColor, processorColor, outputColor, compositColor} from './colors.js';
+export {ENVIRONMENT_DATA_TABLE, DATA_MANAGER, MODULE_MANAGER, ENVIRONMENT, MODULE_SELECTION_MENU, INPUT_MANAGER, INSPECTOR, POPUP_MANAGER, POPUP, OUTPUT_MANAGER, PIPELINE_MANAGER, WORKER_MANAGER, compositIcon} from './constants.js';
