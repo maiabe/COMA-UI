@@ -1,4 +1,4 @@
-import {ModuleManager, DataManager, PopupManager, InputManager, OutputManager, PipelineManager, WorkerManager} from '../managers/managers.js';
+import {ModuleManager, DataManager, PopupManager, InputManager, OutputManager, PipelineManager, WorkerManager, InspectorManager} from '../managers/managers.js';
 import { HTMLFactory } from '../classes/htmlGeneration/htmlgeneration.js';
 import Environment from '../classes/components/environment.js';
 import Inspector from '../classes/components/inspector.js';
@@ -33,6 +33,7 @@ export class GlobalManager {
         this.OM = new OutputManager();
         this.PLM = new PipelineManager();
         this.WM = new WorkerManager();
+        this.INS_M = new InspectorManager();
     };
 
     startEnvironment = () => {
