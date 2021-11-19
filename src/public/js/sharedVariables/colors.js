@@ -17,11 +17,15 @@ const lightPurple = '#a05195';
 const pink = '#d45087';
 const salmon = '#f95d61';
 const darkOrange = '#ff7c42';
-const lightOrange = 'ffa600';
 
-const sourceColor = middleGreen;
-const processorColor = darkRed;
-const outputColor = blue;
-const compositColor = yellow;
+const lightGreen = '#316728';
+const lightRed = '#792f24';
+const lightBlue = '#1E4D48';
+const lightOrange = "#7D5130";
+
+const sourceColor = lightGreen;
+const processorColor = lightRed;
+const outputColor = lightBlue;
+const compositColor = lightOrange;
 
 export {sourceColor, processorColor, outputColor, compositColor};

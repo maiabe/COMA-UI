@@ -1,0 +1,49 @@
+/* Inspector is on the far right side of the screen */
+#inspector {
+  width: 26.7%;
+  height: 100%;
+  position: relative;
+  float: right;
+  border: 0.1px solid transparent;
+  border-radius: 10px 10px 0 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* outline: 1px solid black; */
+}
+#inspector > h1 {
+  width: 100%;
+  text-align: center;
+  color: white;
+}
+
+.inspector-header {
+  width: 100%;
+  position: relative;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-around;
+}
+
+.inspector-header-button {
+  height: 40px;
+  width: 100px;
+  background-color: transparent;
+  border-radius: 10px;
+  color: white;
+  border: 1px solid #5b8c5a;
+  transition: background-color 0.2s ease-in;
+}
+
+.inspector-header-button:hover {
+    background-color: #5b8c5a;
+}
+.inspector-card-container {
+    position: relative;
+    top: -80px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}

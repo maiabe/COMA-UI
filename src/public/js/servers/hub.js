@@ -138,6 +138,10 @@ export default class Hub {
             case 'Clear Inspector Event':
                 GM.INS.clearInspector(true);
                 break;
+            case 'Publish Module Inspector Card Event':
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.card, 'card', 'object')], 'HUB', '#messageForInspector (publish Module Card Event')) return;
+                GM.INS.addModuleCard(data.moduleKey, data.card);
+                break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForInspector`);
                 break;

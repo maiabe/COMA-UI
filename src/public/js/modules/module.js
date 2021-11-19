@@ -1,15 +1,18 @@
 import { Publisher, Message } from '../communication/index.js';
 import { invalidVariables, varTest } from '../errorHandling/errorHandlers.js';
 import { GM } from '../main.js';
+import { InspectorCard } from '../components/inspector/inspectorCard.js';
 
 export class Module {
     #command;
     #dataTable;
+    #inspectorCard;
 
     constructor(type, color, shape, command, name, imagePath, inports, outports, key) {
         this.#dataTable = new Map();
         this.publisher = new Publisher();
         this.popupContent;
+        this.#inspectorCard = new InspectorCard(name, color);
         this.setInitialDataValues(type, color, shape, command, name, imagePath, inports, outports, key);
     };
 
@@ -113,15 +116,15 @@ export class Module {
      * @returns the inspector Content if found. Empty Map if not.
      */
     getInspectorContent = () => {
-        const inspectorContent = new Map();
-        for (let entry of this.#dataTable) {
-            const key = entry[0];
-            const value = entry[1];
-            if (value.inspector.allowInspection) {
-                inspectorContent.set(key, { text: value.inspector.text, modify: value.inspector.modify, modifyType: value.inspector.modifyType });
-            }
-        }
-        return inspectorContent;
+        // const inspectorContent = new Map();
+        // for (let entry of this.#dataTable) {
+        //     const key = entry[0];
+        //     const value = entry[1];
+        //     if (value.inspector.allowInspection) {
+        //         inspectorContent.set(key, { text: value.inspector.text, modify: value.inspector.modify, modifyType: value.inspector.modifyType });
+        //     }
+        // }
+        return this.#inspectorCard.getCard();
     };
 
     /**

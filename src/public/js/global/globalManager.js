@@ -43,11 +43,17 @@ export class GlobalManager {
         this.ENV.setUpEnvironment();
         this.MSM.initializeMenu();
         this.#setEventListeners();
+        this.#createInspector();
+        
     };
 
     #setEventListeners = () => {
         document.getElementById('runButton').addEventListener('click', () => {
             this.HUB.run();
         });
+    }
+
+    #createInspector = () => {
+        this.INS.createInspectorDomNode();
     }
 }

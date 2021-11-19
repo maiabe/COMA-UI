@@ -26,6 +26,9 @@ body {
   color: var(--color-dark-gray);
 }
 
+input {
+  cursor: pointer;
+}
 button {
   padding: 1vw;
   width: 15vw;
@@ -56,9 +59,21 @@ h2 {
 }
 /* Navigation bar runs across the top of the window */
 .nav {
-  height: 10vh;
+  height: 80px;
   width: 100vw;
   position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.nav > img {
+  width: 80px;
+  height: 80px;
+}
+
+.nav > h1 {
+  color: var(--color-very-light-gray);
+  font-size: 32px;
 }
 
 /* Contains all Data below the nav bar, split into two main sections, left and right */
@@ -137,21 +152,6 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
   top: calc(50% - 4vh);
 }
 
-/* Inspector is on the far right side of the screen */
-#inspector {
-  width: 26.7%;
-  height: 100%;
-  position: relative;
-  float: right;
-  background-color: var(--color-very-light-gray);
-  border: 0.1px solid transparent;
-  border-radius: 10px 10px 0 0;
-  /* outline: 1px solid black; */
-}
-#inspector > h1 {
-  width: 100%;
-  text-align: center;
-}
 
 /* SideBar to the right of the main Environment, shows the Plots */
 .plot_sidebar {
