@@ -25,4 +25,3 @@ export {Table} from './outputModules/table.js';
 export {Composit} from './compositModule/compositModule.js';
 export {ModuleManager} from './moduleManager.js';
 export {ModuleGenerator} from './generator/moduleGenerator.js';
-

@@ -64,6 +64,7 @@ export class LineChart extends Output {
         this.plotDiv;
         this.themeDD;
         this.setPopupContent();
+        this.createInspectorCardData();
     }
 
     setPopupContent = () => {
@@ -73,6 +74,20 @@ export class LineChart extends Output {
         this.plotDiv = GM.HF.createNewDiv(`plot_${this.key}`, `plot_${this.key}`, ['plot1'], ['chartDiv']);
         this.popupContent.appendChild(this.themeDD);
         this.popupContent.appendChild(this.plotDiv);
+    }
+
+    createInspectorCardData() {
+        this.setInspectorCardDescriptionText('This module will generate a line chart when connected to data.');
+        this.addInspectorCardIDField();
+        this.addInspectorCardDataConnectedField();
+    }
+
+    updateInspectorCardWithNewData(dataModule, data) {
+        this.addInspectorCardLinkedNodeField(dataModule.getData('key'));
+        this.addInspectorCardXAxisDropDown(data.data.getHeaders());
+        this.addInspectorCardYAxisDropDown(data.data.getHeaders());
+        this.addInspectorCardGenerateChartButton();
+        console.log(dataModule, data);
     }
 }
 

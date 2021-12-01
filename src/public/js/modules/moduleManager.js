@@ -6,7 +6,7 @@ import { ENVIRONMENT, MODULE_MANAGER, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGE
 export class ModuleManager {
     #MG;          // Module Generator
     publisher;    // Message Publisher
-
+    moduleMap;    // Hash Table that stores modules {module key: module object}
     constructor() {
         this.#MG = new ModuleGenerator();
         this.publisher = new Publisher();
@@ -24,6 +24,7 @@ export class ModuleManager {
         console.log(name, category, key);
         if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'createNewModule')) return false;
         const module = this.#MG.generateNewModule(name, category, key);
+        console.log(name, category, key);
         this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.moduleMap.has(key) }));
         this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', {moduleKey: key, card: module.getInspectorContent()}));
         this.#addModule(module, key);
@@ -67,6 +68,27 @@ export class ModuleManager {
         } else printErrorMessage('no module found for key', `key: ${key} -- ModuleManager - #removeModule`);
         return false;
     };
+
+    /**
+     * When a data module is generated, it connects to the module that generated the data. Search the module hash table and
+     * locate the unconnected module, then link them.
+     * @param {number} key identifies the module tha generated the daya.
+     * @return {Module} the module that was modified or undefined.
+     */
+    connectDataModule(key) {
+        let module = undefined;
+        this.moduleMap.forEach(element => {
+            if (element.getData('isDataModule') !== undefined) {
+                if (element.getData('isDataModule') === true) {
+                    if (element.getData('link') === -1) {
+                        element.setDataValue('link', key);
+                        module = element;
+                    }
+                }
+            }
+        });
+        return module;
+    }
 
     /**
      * Retrieves the module from the hash table.
@@ -142,6 +164,7 @@ export class ModuleManager {
      * @returns true if successful, false if missing data.
      */
     newDataLoaded = key => {
+        console.log('test');
         if (invalidVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'newDataLoaded')) return false;
         // Attach ProcessNewData function as callback. The Hub will call this function and pass the callback to the data manager.
         this.#sendMessage(new Message(DATA_MANAGER, MODULE_MANAGER, 'Data Request Event', { moduleKey: key, callBackFunction: this.processNewData }));
@@ -155,6 +178,7 @@ export class ModuleManager {
     processNewData = (key, data) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object')], 'ModuleManager', 'processNewData')) return;
         const module = this.getModule(key);
+        console.log(console.log(data.type));
         if (module) {
             switch (data.type) {
                 case 'table':
@@ -171,6 +195,30 @@ export class ModuleManager {
             this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Node Selected Event', { moduleKey: key }));
         } else printErrorMessage(`module undefined`, `key: ${key}. -- ModuleManager -> ProcessNewData`);
     };
+
+    /**
+     * When a new link is drawn between 2 modules, this function checks to see if the link is drawn between a composit data module and some
+     * other module, such as output or data filter processor. 
+     * @param {number} to key to the module from is linked to 
+     * @param {number} from key to the module from is linked from
+     * @returns true if link contains a data module, false if not.
+     */
+    checkForNewDataLink(to, from) {
+        if (invalidVariables([varTest(to, 'to', 'number'), varTest(from, 'from', 'number')], 'Module Manager', 'checkForNewDataLink')) return false;
+        const toModule = this.getModule(to);
+        const fromModule = this.getModule(from);
+        if (!toModule || !fromModule) {
+            printErrorMessage(`Missing Module`, `to: ${toModule}, from: ${fromModule}. --ModuleManager -> checkForNewDataLink`);
+        } else {
+            if (fromModule.getData('isDataModule')) return true;
+        }
+        return false;
+    }
+
+    updateDynamicInspectorCardField(key, field, value) {
+        this.getModule(key).updateInspectorCardDynamicField(field, value);
+    }
+
 
     /**
      * This function will process data returned from the server. This data needs to be turned into a chart.

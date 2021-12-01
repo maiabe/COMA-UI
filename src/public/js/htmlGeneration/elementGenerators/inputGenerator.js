@@ -8,7 +8,6 @@ export class InputGenerator {
         e.setAttribute('name', name);
         e.setAttribute('type', type);
         e.setAttribute('value', value);
-        e.setAttribute('disabled', disabled);
         classlist.forEach(c => {
             e.classList.add(c);
         });
@@ -34,7 +33,6 @@ export class InputGenerator {
         e.setAttribute('id', id);
         e.setAttribute('name', name);
         e.setAttribute('type', type);
-        e.disabled = disabled;
         classlist.forEach(c => {
             e.classList.add(c);
         });

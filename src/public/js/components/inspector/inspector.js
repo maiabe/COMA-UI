@@ -8,19 +8,21 @@ export class Inspector {
     publisher;                  // Message Publisher
     subscriber;                 // Message Subscriber
     #currentModuleKey;          // Key identifying the Highlighted Module
-    #domNodes = {};
     #htmlNode;
     #inspectorHeader;
     #moduleCards;
+    #dataCards;
 
     constructor() {
         // Set Up the communication components.
-        this.#domNodes.container = document.querySelector('#inspector');
+        this.domNodes = {};
+        this.domNodes.container = document.querySelector('#inspector');
         this.publisher = new Publisher();
         this.#currentModuleKey;
         //this.createTitle();
         this.contentArea;
         this.#moduleCards = new Map();
+        this.#dataCards = new Map();
         //this.createContentArea();
     }
 
@@ -28,29 +30,51 @@ export class Inspector {
         this.#createInspectorHeader()
         .#createHeaderButtons()
         .#appendHeaderButtons()
-        .#createInspectorCardContainer();
+        .#createInspectorModuleCardContainer()
+        .#createInspectorDataCardContainer();
+        this.showModuleCards();
     }
 
-    #createInspectorCardContainer() {
-        this.#domNodes.cardContainer = GM.HF.createNewDiv('inspector-card-container', 'inspector-card-container', ['inspector-card-container'], []);
-        this.#domNodes.container.appendChild(this.#domNodes.cardContainer);
+    #createInspectorModuleCardContainer() {
+        this.domNodes.moduleCardContainer = GM.HF.createNewDiv('inspector-module-card-container', 'inspector-card-container', ['inspector-card-container'], []);
+        this.domNodes.container.appendChild(this.domNodes.moduleCardContainer);
+        return this;
+    }
+
+    #createInspectorDataCardContainer() {
+        this.domNodes.dataCardContainer = GM.HF.createNewDiv('inspector-data-card-container', 'inspector-card-container', ['inspector-card-container'], []);
+        this.domNodes.container.appendChild(this.domNodes.dataCardContainer);
         return this;
     }
 
     #createInspectorHeader() {
-        this.#domNodes.inspectorHeaderContainer = GM.HF.createNewDiv('inspector-header', 'inspector-header', ['inspector-header'], []);
-        this.#domNodes.container.appendChild(this.#domNodes.inspectorHeaderContainer);
+        this.domNodes.inspectorHeaderContainer = GM.HF.createNewDiv('inspector-header', 'inspector-header', ['inspector-header'], []);
+        this.domNodes.container.appendChild(this.domNodes.inspectorHeaderContainer);
         return this;
     }
 
-    #createNewInspectorCard(title) {
-        this.#domNodes.cardContainer.append(new InspectorCard(title).getCard());
-        return this;
+    showModuleCards() {
+        this.domNodes.moduleCardContainer.style.display = 'flex';
+        this.domNodes.dataCardContainer.style.display = 'none';
+        this.domNodes.headerButtons.module.element.classList.add('active-header-button');
+        this.domNodes.headerButtons.data.element.classList.remove('active-header-button');
     }
 
-    #setCurrentModuleKey(key, content) {
-        this.#currentModuleKey = key;
+    showDataCards() {
+        this.domNodes.moduleCardContainer.style.display = 'none';
+        this.domNodes.dataCardContainer.style.display = 'flex';
+        this.domNodes.headerButtons.module.element.classList.remove('active-header-button');
+        this.domNodes.headerButtons.data.element.classList.add('active-header-button');
     }
+
+    // #createNewInspectorCard(title) {
+    //     this.domNodes.cardContainer.append(new InspectorCard(title).getCard());
+    //     return this;
+    // }
+
+    // #setCurrentModuleKey(key, content) {
+    //     this.#currentModuleKey = key;
+    // }
 
     // createTitle = () => {
     //     const titleDiv = document.createElement('h1');
@@ -60,29 +84,46 @@ export class Inspector {
     // }
 
     #createHeaderButtons() {
-        this.#domNodes.headerButtons = {};
-        this.#domNodes.headerButtons.node = {element: undefined, title: "Nodes" }
-        this.#domNodes.headerButtons.data = {element: undefined, title: 'Data' }
-        Object.values(this.#domNodes.headerButtons).forEach(button => {
-            button.element = this.#createHeaderButton(button.title);
+        this.domNodes.headerButtons = {};
+        this.domNodes.headerButtons.module = {element: undefined, title: "Modules" }
+        this.domNodes.headerButtons.data = {element: undefined, title: 'Data' }
+        Object.values(this.domNodes.headerButtons).forEach((button, index) => {
+            button.element = this.#createHeaderButton(button.title, index);
+            index === 0 ? this.#createModulesHeaderButtonEventListener(button.element) : this.#createDataHeaderButtonEventListener(button.element);
         });
         return this;
+    }
+
+    #createModulesHeaderButtonEventListener(element) {
+        element.addEventListener('click', this.showModuleCards.bind(this));
+    }
+
+    #createDataHeaderButtonEventListener(element) {
+        element.addEventListener('click', this.showDataCards.bind(this));
     }
 
     #appendHeaderButtons() {
-        Object.values(this.#domNodes.headerButtons).forEach(button => {
-           this.#domNodes.inspectorHeaderContainer.appendChild(this.#createHeaderButton(button.title));
+        Object.values(this.domNodes.headerButtons).forEach(button => {
+           this.domNodes.inspectorHeaderContainer.appendChild(button.element);
         });
         return this;
     }
 
-    #createHeaderButton(title) {
-        return GM.HF.createNewButton('inspector-header-node-button', 'inspector-header-node-button', ['inspector-header-button'], [], 'button', title, false);
+    #createHeaderButton(title, index) {
+        const identifier = index === 0 ? 'Module' : 'data';
+        const classlist = index === 0 ? ['inspector-header-button', 'active-header-button'] : ['inspector-header-button'];
+        return GM.HF.createNewButton(`inspector-header-${identifier}-button`, `inspector-header-${identifier}-button`, classlist, [], 'button', title, false);
     }
 
     addModuleCard(key, card) {
-        this.#domNodes.cardContainer.append(card);
+        this.domNodes.moduleCardContainer.append(card);
         this.#moduleCards.set(key, card);
+    }
+
+    addDataCard(key, card) {
+        console.log(card);
+        this.domNodes.dataCardContainer.append(card);
+        this.#dataCards.set(key, card);
     }
 
     // createContentArea = () => {

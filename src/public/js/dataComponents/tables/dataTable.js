@@ -27,4 +27,6 @@ export class DataTable {
         }
         return sum;
     }
+
+    getHeaders = () => this.#data[0];
 }

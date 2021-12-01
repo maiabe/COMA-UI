@@ -31,8 +31,12 @@ export class RandomData extends Source {
         super(category, color, shape, 'remote', 'getRandomData', 'Random Data', 'images/icons/data-random-squares.png', [], [{ name: 'OUT', leftSide: false }], key);
         this.popupContent;
         this.setPopupContent();
+        this.createInspectorCardData();
     }
-
+    createInspectorCardData() {
+        this.setInspectorCardDescriptionText('This module will retrieve two random arrays of integers.');
+        this.addInspectorCardIDField();
+    }
 }
 
 export class Json extends Source {

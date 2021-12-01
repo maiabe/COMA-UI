@@ -110,7 +110,7 @@ export class Environment {
     #setGridVisibility = visibility => this.#myDiagram.grid.visible = visibility;
 
     #createNewDiagram = gojs => {
-        return gojs(go.Diagram, this.#divID, this.#setInitialDiagramVariables(gojs), this.#setDiagramInsteractions());
+        return gojs(go.Diagram, this.#divID, this.#setInitialDiagramVariables(gojs));
     }
 
     #setInitialDiagramVariables = gojs => {
@@ -124,7 +124,8 @@ export class Environment {
         };
     }
 
-    #setDiagramInsteractions = () => { return { backgroundSingleClicked: this.#clearInspector } };
+    // This function is temporarily removed due to changing the inspector interface.
+    // #setDiagramInsteractions = () => { return { backgroundSingleClicked: this.#clearInspector } };
 
     /**
      * Builds the gojs node template. 
@@ -383,6 +384,12 @@ export class Environment {
         else console.log(`ERROR: Cannot select undefined node. -- Environment -> onSelectionChanged`);
     }
 
+    drawLinkBetweenNodes(source, destination) {
+        this.#myDiagram.startTransaction('make new link');
+        this.#myDiagram.model.addLinkData({ from: source, to: destination });
+        this.#myDiagram.commitTransaction('make new link');
+    }
+
     /** Removes a node from the diagram. */
     #removeNode = (nodeKey) => {
         const node = this.#myDiagram.findNodeForKey(nodeKey);
@@ -417,8 +424,9 @@ export class Environment {
     insertModule = (mod, templateExists) => {
         if (mod && templateExists != undefined) {
             if (!templateExists) this.#createTemplate(mod);
-            this.#model.nodeDataArray.push({ "key": this.#nodeKey - 1, "type": mod.getData('name'), "name": mod.getData('type') }); // Type and Name are switched between module and gojs.
-            this.#load(); // Reload the graph with the new node.
+            this.#myDiagram.startTransaction("make new node");
+            this.#myDiagram.model.addNodeData({ "key": this.#nodeKey - 1, "type": mod.getData('name'), "name": mod.getData('type') });
+            this.#myDiagram.commitTransaction("make new node");
         } else console.log(`ERROR: parameter error. mod: ${mod}, templateExists: ${templateExists}. -- Environment -> insertModule`);
     }
 

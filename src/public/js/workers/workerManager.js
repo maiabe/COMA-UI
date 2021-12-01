@@ -1,6 +1,8 @@
 import {Message, Publisher} from '../communication/index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
 import { ENVIRONMENT, DATA_MANAGER, WORKER_MANAGER } from '../sharedVariables/constants.js';
+import { GM } from '../main.js';
+
 export class WorkerManager {
     #workers;
     publisher;

@@ -1,3 +1,4 @@
+import { printErrorMessage } from '../../errorHandling/errorHandlers.js';
 import {GM} from '../../main.js';
 export class InspectorCard {
     #cardId;
@@ -8,8 +9,10 @@ export class InspectorCard {
     #title;
     #expanded;
     #color;
+    #dynamicFields;
 
     constructor(title, color) {
+        this.#dynamicFields = new Map();
         this.#color = color;
         this.#expanded = false;
         this.#title = title;
@@ -47,6 +50,23 @@ export class InspectorCard {
             this.expanded = !this.expanded;
             this.bodyElement.style.height = this.expanded ? '200px' : '10px';
         });
+    }
+
+    appendToBody(element) {
+        this.bodyElement.appendChild(element);
+    }
+
+    storeDynamicField(key, textDiv, container) {
+        this.#dynamicFields.set(key, {textDiv: textDiv, container: container});
+    }
+
+    updateDynamicField(key, textDiv) {
+        const data = this.#dynamicFields.get(key);
+        if (data) {
+            data.textDiv.remove();
+            data.textDiv = textDiv;
+            data.container.appendChild(textDiv);
+        } else printErrorMessage(`Undefined or Null Variable`, `data: ${data}. -- Inspector Card -> updateDynamicField`);
     }
 
     getCard = () => this.#wrapperElement;

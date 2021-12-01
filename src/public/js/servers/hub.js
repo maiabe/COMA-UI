@@ -116,6 +116,11 @@ export default class Hub {
                 break;
             case 'Link Drawn Event':
                 // TODO: Handle Link Drawn Event.
+                if (GM.MM.checkForNewDataLink(data.toNodeKey, data.fromNodeKey)) {
+                    if (GM.MM.getModule(data.toNodeKey).getData('type') === 'Output')
+                        GM.MM.updateDynamicInspectorCardField(data.toNodeKey, 'Data Linked: ', true);
+                        GM.MM.getModule(data.toNodeKey).updateInspectorCardWithNewData(GM.MM.getModule(data.fromNodeKey), GM.DM.getData(data.fromNodeKey));
+                }
                 break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForModuleManager`);
@@ -132,8 +137,9 @@ export default class Hub {
         switch (type) {
             case 'Node Selected Event':
                 if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInspector (Node Selected Event.)')) return;
-                GM.INS.setCurrentModuleKey(data.moduleKey);
-                GM.INS.updateContent(data.moduleKey, GM.MM.getInspectorContentForModule(data.moduleKey));
+                // Temporarily removed as I update the Inspector Interface.
+                //GM.INS.setCurrentModuleKey(data.moduleKey);
+                //GM.INS.updateContent(data.moduleKey, GM.MM.getInspectorContentForModule(data.moduleKey));
                 break;
             case 'Clear Inspector Event':
                 GM.INS.clearInspector(true);
@@ -141,6 +147,10 @@ export default class Hub {
             case 'Publish Module Inspector Card Event':
                 if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.card, 'card', 'object')], 'HUB', '#messageForInspector (publish Module Card Event')) return;
                 GM.INS.addModuleCard(data.moduleKey, data.card);
+                break;
+            case 'New Data Card Event':
+                if (invalidVariables([varTest(data.moduleKey, 'moduleKay', 'number'), varTest(data.card, 'card', 'object')], 'HUB', '#messageForInspector (New Data Card Event')) return;
+                GM.INS.addDataCard(data.moduleKey, data.card);
                 break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForInspector`);
@@ -212,8 +222,17 @@ export default class Hub {
     #messageForDataManager = (type, data) => {
         switch (type) {
             case 'New Data Event':
-                if (invalidVariables([varTest(data.id, 'id', 'number'), varTest(data.val, 'val', 'object')], 'HUB', ' #messageForDataManager. (new data event)')) return;
-                else GM.DM.addData(data.id, data.val);
+                if (invalidVariables([varTest(data.id, 'id', 'number'), varTest(data.val, 'val', 'object'), varTest(data.linkDataNode, 'linkDataNode', 'boolean')], 'HUB', ' #messageForDataManager. (new data event)')) return;
+                else if (GM.DM.addData(data.id, data.val)) {
+                    GM.MM.deployNewModule('Data', 'Composit');
+                    const module = GM.MM.connectDataModule(data.id);
+                    // TODO: If necessary create a link to the pipeline that called the data
+                    if (module && data.linkDataNode) {
+                        // TODO: Get The correct data and notify the environment.
+                        GM.ENV.drawLinkBetweenNodes(module.getData('link'), module.getData('key'));
+                        GM.DM.swapDataKeys(module.getData('link'), module.getData('key'));
+                    }
+                }
                 break;
             case 'Data Request Event':
                 if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.callBackFunction, 'callbackFunction', 'function')], 'HUB', '#messageForDataManager. (data request event)')) return;
@@ -280,6 +299,6 @@ export default class Hub {
     // The Pipeline must be validated, jsonified, then sent to the next layer for processing.
     run = () => {
         let m = GM.ENV.getModel();
-        GM.PLM.validatePipeline( GM.MM.getModulesForPipeline(m));
+        GM.PLM.validatePipeline(GM.MM.getModulesForPipeline(m));
     };
 }

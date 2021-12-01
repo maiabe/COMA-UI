@@ -16,11 +16,9 @@ export class InputManager {
     readFile = (type, source, path, moduleKey) => {
         switch (type) {
             case 'csv':
-                if (this.#validateFile(source, path)) {
+                if (this.#validateFile(source, path))
                     this.#csvReader.readFile(document.getElementById(path).files[0], this.fileReaderCB, moduleKey);
-                } else {
-                    console.log('Cannot Read File: No File Found.');
-                }
+                else console.log('Cannot Read File: No File Found.');
                 break;
         }
     }
@@ -29,9 +27,7 @@ export class InputManager {
         let valid = false;
         switch (source) {
             case 'html':
-                if (document.getElementById(path).files.length > 0) {
-                    valid = true;
-                }
+                if (document.getElementById(path).files.length > 0) valid = true;
                 break;
         }
         return valid;
@@ -43,9 +39,10 @@ export class InputManager {
             const data = {
                 val: {
                     type: 'table',
-                    data: new DataTable(table)
+                    data: new DataTable(table),
                 },
-                id: processId
+                id: processId,
+                linkDataNode: true
             }
             const msg = new Message(DATA_MANAGER, INPUT_MANAGER, 'New Data Event', data);
             this.publisher.publishMessage(msg);

@@ -6,13 +6,13 @@ import { InspectorCard } from '../components/inspector/inspectorCard.js';
 export class Module {
     #command;
     #dataTable;
-    #inspectorCard;
+    inspectorCard;
 
     constructor(type, color, shape, command, name, imagePath, inports, outports, key) {
         this.#dataTable = new Map();
         this.publisher = new Publisher();
         this.popupContent;
-        this.#inspectorCard = new InspectorCard(name, color);
+        this.inspectorCard = new InspectorCard(name, color);
         this.setInitialDataValues(type, color, shape, command, name, imagePath, inports, outports, key);
     };
 
@@ -124,9 +124,68 @@ export class Module {
         //         inspectorContent.set(key, { text: value.inspector.text, modify: value.inspector.modify, modifyType: value.inspector.modifyType });
         //     }
         // }
-        return this.#inspectorCard.getCard();
+        return this.inspectorCard.getCard();
     };
 
+    setInspectorCardDescriptionText(text) {
+        this.inspectorCard.appendToBody(GM.HF.createNewParagraph('','', ['inspector-card-description'], [], text));
+    }
+    
+    addInspectorCardIDField() {
+        this.#addInspectorCardField('Module Id: ', this.getData('key').toString(), false);
+    }
+
+    addInspectorCardDataConnectedField() {
+        this.#addInspectorCardField('Data Linked: ', false,  true)
+    }
+
+    addInspectorCardLinkedNodeField(key) {
+        this.#addInspectorCardField('Linked Node(s): ', `(${key})`, true);
+    }
+    addInspectorCardXAxisDropDown(headers) {
+        const dropDown = GM.HF.createNewSelect(`x-axis-selector-${this.getData('key')}`, `x-axis-selector-${this.getData('key')}`, [], [], headers, headers);
+        this.#addInspectorCardFieldWithPrebuiltValueDiv('X Axis Data: ', dropDown, true);
+    }
+
+    addInspectorCardYAxisDropDown(headers) {
+        const dropDown = GM.HF.createNewSelect(`y-axis-selector-${this.getData('key')}`, `y-axis-selector-${this.getData('key')}`, [], [], headers, headers);
+        this.#addInspectorCardFieldWithPrebuiltValueDiv('Y Axis Data: ', dropDown, true);
+    }
+
+    addInspectorCardGenerateChartButton() {
+        const button = GM.HF.createNewButton(`create-line-chart-button-${this.getData('key')}`, `create-line-chart-button-${this.getData('key')}`, [], [], 'button', 'Generate', false);
+        this.#addInspectorCardFieldWithPrebuiltValueDiv('Generate Chart: ', button, false);
+        console.log('here');
+    }
+
+    #createInspectorCardKeyText = text => GM.HF.createNewParagraph('', '', ['inspector-card-key-text'], [], text);
+    #createInspectorCardValueText = text => GM.HF.createNewParagraph('', '', ['inspector-card-value-text'], [], text);
+    
+    #addInspectorCardField(key, value, dynamic) {
+        const container = this.#createInspectorCardHorizontalFlexContainer();
+        const keyDiv = this.#createInspectorCardKeyText(key);
+        const valueDiv = this.#createInspectorCardValueText(value);
+        container.appendChild(keyDiv);
+        container.appendChild(valueDiv);
+        this.inspectorCard.appendToBody(container);
+        if (dynamic) this.inspectorCard.storeDynamicField(key, valueDiv, container);
+    }
+
+    #addInspectorCardFieldWithPrebuiltValueDiv(key, valueDiv, dynamic) {
+        const container = this.#createInspectorCardHorizontalFlexContainer();
+        const keyDiv = this.#createInspectorCardKeyText(key);
+        container.appendChild(keyDiv);
+        container.appendChild(valueDiv);
+        this.inspectorCard.appendToBody(container);
+        if (dynamic) this.inspectorCard.storeDynamicField(key, valueDiv, container);
+    }
+
+    updateInspectorCardDynamicField(key, value) {
+        this.inspectorCard.updateDynamicField(key, this.#createInspectorCardValueText(value));
+    }
+
+
+    #createInspectorCardHorizontalFlexContainer = () => GM.HF.createNewDiv('', '', ['inspector-card-horizontal-flex-container'], []);
     /**
      * Gets the content to populate a popup associated with this module.
      * @returns the content to populate the popup associated with this module
@@ -139,19 +198,5 @@ export class Module {
         console.log(`Update Popup for ${field} has not been implemented for this module.`);
     }
 
-    /** THESE WERE FUNCTIONS PROPOSED BY JAN AND MAY OR MAY NOT BE IMPLEMENTED */
-    // provides = () => { };
-    // requires = () => { };
-    // requirements = () => { };
-    // inputs_OK = () => { };
-    // run = () => { };
-    // output_status = () => { };
-    // get_output = name => { };
-    // connect_input = () => { };
-    // connections = () => { };
-    // updatePopupContent = () => { };
-    // updateInspectorContent = () => {
-    //     INS.updateContent(this.key);
-    // };
 
 }

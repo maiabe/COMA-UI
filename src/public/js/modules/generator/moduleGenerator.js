@@ -90,7 +90,10 @@ export class ModuleGenerator {
                         mod = new Value(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Composit':
-                        mod = new Composit(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
+                        mod = new Composit(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Composit', [], false);
+                        break;
+                    case 'Data':
+                        mod = new Composit(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false }], true);
                         break;
                 }
             } else console.log(`ERROR: Parameter Error. type: ${type}, category: ${category}. -- ModuleGenerator -> generate new module`);
