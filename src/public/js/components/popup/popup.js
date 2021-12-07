@@ -2,7 +2,6 @@ import { GM } from '../../main.js';
 
 export class Popup {
     constructor(width, height, initialTop, initialLeft, key, color, content, headerText) {
-
         this.content = content;
 
         // HTML elements

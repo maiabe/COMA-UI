@@ -168,6 +168,12 @@ export class WorkerManager {
         this.#sendMessage(msg);
     }
 
+    sendGetRequest(id){
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'sendGetRequest')) return false;
+        if (this.#workers.has(id)) this.#workers.get(id).worker.postMessage({ type: 'Get Routes'});
+        return true;
+    }
+
     /**
      * Kills All Outstanding webworkers.
      */
@@ -183,5 +189,20 @@ export class WorkerManager {
 document.addEventListener('keydown', e => {
     if (e.code === 'KeyF') {
         GM.WM.destroyAllWorkers();
+    }
+});
+
+/**
+ * If user presses f, all workers are destroyed.
+ */
+ document.addEventListener('keydown', e => {
+    if (e.code === 'KeyM') {
+        const worker = GM.WM.startWorker();
+                const workerIndex = GM.WM.addWorkerToDataTable(worker);
+                GM.WM.notifyWorkerOfId(workerIndex)
+                    .setStopWorkerFunction(workerIndex)
+                    .setHandleReturnFunction(workerIndex)
+                    .setWorkerMessageHandler(workerIndex)
+                    .sendGetRequest(workerIndex);
     }
 });

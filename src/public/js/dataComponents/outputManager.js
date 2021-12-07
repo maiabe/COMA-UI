@@ -22,11 +22,8 @@ export class OutputManager {
      */
     storeChartData = (key, data, div, type) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
-        if (!this.#outputMap.has(key)) {
-            this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark' });
-            return true;
-        } else console.log(`ERROR: chart data already exists for key ${key}. -- Output Manager -> storeChartData`);
-        return false;
+        this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark' });
+        return true;
     }
 
     /**
@@ -53,7 +50,7 @@ export class OutputManager {
         if (this.#activeChartMap.has(key)) {
             try { this.#activeChartMap.get(key).chartObject.dispose(); }
             catch (error) { console.log(error); }
-            finally {this.#activeChartMap.delete(key);}
+            finally { this.#activeChartMap.delete(key); }
             return true;
         } else return false;
     }

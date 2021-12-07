@@ -14,6 +14,9 @@ onmessage = e => {
             id = e.data.id;
             postMessage({ type: 'Text Only', data: `Worker ID set to ${id}` });
             break;
+        case 'Get Routes':
+            this.getRequest(this.buildURL(false, 'routes'));
+            break;
     }
 }
 
@@ -47,18 +50,42 @@ const cbf = data => {
     console.log('response received');
 }
 
-const url = 'http://127.0.0.1:8081/';
+const url = 'http://127.0.0.1:';
+const myPort = '8081/';
+const sshPort = '5004/';
+const testDir = 'routes';
 
 parseData = data => {
     console.log(data);
     plotData(data);
 }
 
-function getRequest(theUrl) {
-    fetch(theUrl, { mode: 'cors' })
-        .then(response => response.json())
-        .then(data => parseData(data));
+function buildURL(local, dir) {
+    let theURL;
+    const port = local ? myPort : sshPort;
+    if (dir) theURL = `${url}${port}`;
+    else theURL = url;
+    return theURL;
 }
+
+async function getRequest(theUrl) {
+    //console.log(JSON.stringify(data));
+    // Default options are marked with *
+    const response = await fetch(theUrl, {
+        method: 'GET', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json'
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer' // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
+}
+
 // Example POST method implementation:
 async function postData(url, data) {
     data.clientId = id;

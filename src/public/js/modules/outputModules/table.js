@@ -7,15 +7,15 @@ export class Table extends Output {
 
     constructor(category, color, shape, key) {
         super(category, color, shape, 'output', 'Table', 'images/icons/table.png', [{ name: 'IN', leftSide: true }], [], key);
-        this.popupContent;
-        this.plotDiv;
         this.setPopupContent();
 
     }
 
     setPopupContent = () => {
-        this.popupContent = GM.HF.createNewDiv('', '', [], []);
-        this.plotDiv = GM.HF.createNewDiv(`plot_${this.key}`, `plot_${this.key}`, ['plot1'], []);
-        this.popupContent.appendChild(this.plotDiv);
+        const popupContent = GM.HF.createNewDiv('', '', [], []);
+        const plotDiv = GM.HF.createNewDiv(`plot_${this.key}`, `plot_${this.key}`, ['plot1'], []);
+        popupContent.appendChild(this.plotDiv);
+        this.addData('popupContent', popupContent, false, '', false);
+        this.addData('plotDiv', plotDiv, false, '', false);
     }
 }

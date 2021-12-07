@@ -129,6 +129,16 @@ export class HTMLFactory {
         return this.#inputGenerator.generateFileInput(id, name, classlist, customStyles, type, disabled);
     }
 
+    /**
+     * Creates a new Drop Down
+     * @param {string} id 
+     * @param {string} name 
+     * @param {string[]} classlist 
+     * @param {string[]} customStyles 
+     * @param {string[]} options 
+     * @param {string[]} optionText 
+     * @returns 
+     */
     createNewSelect(id, name, classlist, customStyles, options, optionText) {
         return this.#selectGenerator.generateNewSelect(id, name, classlist, customStyles, options, optionText);
     }

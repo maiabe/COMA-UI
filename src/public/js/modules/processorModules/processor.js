@@ -8,7 +8,6 @@ export class Processor extends Module {
 export class FunctionProcessor extends Processor {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'function', 'Function', 'images/icons/function.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }], key);
-        this.popupContent;
         this.setPopupContent();
     }
 
@@ -17,7 +16,6 @@ export class FunctionProcessor extends Processor {
 export class Gaussian extends Processor {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'gaussianFilter', 'Gaussian Filter', 'images/icons/gaussian-function.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }], key);
-        this.popupContent;
         this.setPopupContent();
     }
 
@@ -26,7 +24,6 @@ export class Gaussian extends Processor {
 export class Laplacian extends Processor {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'laplacianFilter', 'Laplacian Filter', 'images/icons/filter.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }], key);
-        this.popupContent;
         this.setPopupContent();
     }
 
@@ -34,7 +31,6 @@ export class Laplacian extends Processor {
 export class Sum extends Processor {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'sum', 'Sum', 'images/icons/sum-sign.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }], key);
-        this.popupContent;
         this.setPopupContent();
     }
 
@@ -42,7 +38,6 @@ export class Sum extends Processor {
 export class Subtract extends Processor {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'subtract', 'Subtract', 'images/icons/subtraction-symbol.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }], key);
-        this.popupContent;
         this.setPopupContent();
     }
 

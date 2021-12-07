@@ -11,15 +11,15 @@ export class ChartBuilder {
     }
 
     drawEChartChart = (data, type, pdiv, width, height, theme) => {
-
+        console.log(data.data);
         const myChart = echarts.init(pdiv, theme);
         const option = {
             xAxis: {
-                type: 'value',
-                data: data.data.x
+                type: isNaN(data.data.x[0]) ? 'category' : 'value',
+                data: data.data.x,
             },
             yAxis: {
-                type: 'value'
+                type: isNaN(data.data.y[0])  ? 'category' : 'value',
             },
             series: [
                 {
@@ -28,7 +28,7 @@ export class ChartBuilder {
                 }
             ]
         };
-
+        console.log(option);
         option && myChart.setOption(option);
         this.resizeEchart(myChart, width, height);
         return myChart;

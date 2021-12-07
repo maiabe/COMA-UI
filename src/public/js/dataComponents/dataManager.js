@@ -77,19 +77,51 @@ export class DataManager {
      * @param {function} callbackFunction the function to call and pass data as a parameter.
      */
     processDataRequest = (key, callbackFunction) => {
-        console.log('pdr');
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(callbackFunction, 'callbackFunction', 'function')], 'DataManager', 'processDataRequest')) return;
         else callbackFunction(key, this.getData(key));
     }
 
+    /**
+     * When data is first loaded, its is stored with the key that loaded it. When a new data module is created, the key
+     * for this new module replaces the original key.
+     * @param {number} oldKey previous key associated with data
+     * @param {number} newKey new key to associate with specific data
+     * @returns true if successful, false if there was no data.
+     */
     swapDataKeys(oldKey, newKey) {
         const data = this.getData(oldKey);
         if (data) {
             this.deleteData(oldKey);
             this.addData(newKey, data);
             return true;
-        }
+        } else printErrorMessage(`Undefined Varaible`, `No Data found for key: ${oldKey}--> Data Manager - swapDataKeys`);
         return false;
+    }
+
+    /**
+     * Reduces a data object, getting only the data for specified columns. This is used to ploy specific 
+     * columns in the data where there are more than 2.
+     * @param {number} key The key for the data hash table.
+     * @param {object {xAxisField: string, yAxisField: string}} fields 
+     * @returns reduced data.
+     */
+    getDataWithFields(key, fields) {
+        /* this.getData(key) returns and object with fields like type: 'table', data: DataTable 
+        Then, the DataTable object has keys type: 'table' and data: ....
+        To access the data, use getData() because the actual data is a private field. */
+        const data = this.getData(key).data.getData();
+
+        const indicies = {};  // indicies will copy the keys from fields and replace the values with the proper index in the data table.
+        Object.entries(fields).forEach(entry => {
+            indicies[entry[0].toString()] = data[0].indexOf(entry[1]);  // Get Indices of the headers
+        });
+
+        const chartData ={type: data.type, data: {x: [], y: []}} ; // Build the arrays to plot.
+        for(let i = 1; i < data.length; i++) {
+            chartData.data.x.push(data[i][indicies.xAxisField]);
+            chartData.data.y.push(data[i][indicies.yAxisField]);
+        }
+        return chartData;
     }
 
     #createInspectorDataCard(key, data) {

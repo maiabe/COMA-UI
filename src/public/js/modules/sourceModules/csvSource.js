@@ -13,9 +13,9 @@ export class Csv extends Source {
     }
 
     setPopupContent = () => {
-        this.popupContent = GM.HF.createNewDiv('', '', [], []);
+        const popupContent = GM.HF.createNewDiv('', '', [], []);
         const uploadWrapper = GM.HF.createNewDiv('', '', ['uploadWrapper'], []);
-        this.popupContent.appendChild(uploadWrapper);
+        popupContent.appendChild(uploadWrapper);
         const upload = GM.HF.createNewFileInput('upload_csv', 'upload_csv', [], [], 'file', false);
         uploadWrapper.append(upload);
         upload.addEventListener('change', this.handleFiles);
@@ -24,11 +24,13 @@ export class Csv extends Source {
         uploadWrapper.appendChild(this.readFileButton);
 
         this.dataArea = GM.HF.createNewDiv('csvDataArea', 'csvDataArea', [], []);
-        this.popupContent.appendChild(this.dataArea);
+        popupContent.appendChild(this.dataArea);
 
         this.readFileButton.addEventListener('click', () => {
             GM.MM.readFile('csv', 'html', 'upload_csv', this.getData('key'));
         });
+        this.addData('popupContent', popupContent, false, '', false);
+
     }
 
     createTable = () => {

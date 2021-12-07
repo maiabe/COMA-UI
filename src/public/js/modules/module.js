@@ -11,7 +11,6 @@ export class Module {
     constructor(type, color, shape, command, name, imagePath, inports, outports, key) {
         this.#dataTable = new Map();
         this.publisher = new Publisher();
-        this.popupContent;
         this.inspectorCard = new InspectorCard(name, color);
         this.setInitialDataValues(type, color, shape, command, name, imagePath, inports, outports, key);
     };
@@ -52,8 +51,9 @@ export class Module {
 
     /** Sets the popup content associated with this module. This is the generic function and will likely be overriden in the child classes. */
     setPopupContent = () => {
-        this.popupContent = GM.HF.createNewDiv('', '', [], []);
-        this.popupContent.appendChild(GM.HF.createNewParagraph('', '', [], [], this.getData('name')));
+        const popupContent = GM.HF.createNewDiv('', '', [], []);
+        popupContent.appendChild(GM.HF.createNewParagraph('', '', [], [], this.getData('name')));
+        this.addData('popupContent', popupContent, false, '', false);
     }
 
     /**
@@ -145,17 +145,19 @@ export class Module {
     addInspectorCardXAxisDropDown(headers) {
         const dropDown = GM.HF.createNewSelect(`x-axis-selector-${this.getData('key')}`, `x-axis-selector-${this.getData('key')}`, [], [], headers, headers);
         this.#addInspectorCardFieldWithPrebuiltValueDiv('X Axis Data: ', dropDown, true);
+        return dropDown;
     }
 
     addInspectorCardYAxisDropDown(headers) {
         const dropDown = GM.HF.createNewSelect(`y-axis-selector-${this.getData('key')}`, `y-axis-selector-${this.getData('key')}`, [], [], headers, headers);
         this.#addInspectorCardFieldWithPrebuiltValueDiv('Y Axis Data: ', dropDown, true);
+        return dropDown;
     }
 
     addInspectorCardGenerateChartButton() {
         const button = GM.HF.createNewButton(`create-line-chart-button-${this.getData('key')}`, `create-line-chart-button-${this.getData('key')}`, [], [], 'button', 'Generate', false);
         this.#addInspectorCardFieldWithPrebuiltValueDiv('Generate Chart: ', button, false);
-        console.log('here');
+        return button;
     }
 
     #createInspectorCardKeyText = text => GM.HF.createNewParagraph('', '', ['inspector-card-key-text'], [], text);
@@ -191,11 +193,15 @@ export class Module {
      * @returns the content to populate the popup associated with this module
      */
     getPopupContent = () => {
-        return { color: this.getData('color'), content: this.popupContent, headerText: this.getData('name') };
+        return { color: this.getData('color'), content: this.getData('popupContent'), headerText: this.getData('name') };
     }
 
     updatePopupData = field => {
         console.log(`Update Popup for ${field} has not been implemented for this module.`);
+    }
+
+    setLinkedDataKey(key) {
+        this.addData('linkedDataKey', key, false, '', false);
     }
 
 
