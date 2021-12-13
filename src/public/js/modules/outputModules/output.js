@@ -59,7 +59,7 @@ export class BarChart extends Output {
 
 export class LineChart extends Output {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'Line Chart', 'images/icons/line-chart.png', [{ name: 'IN', leftSide: true }], [], key);
+        super(category, color, shape, 'output', 'Line Chart', 'images/icons/line-chart.png', [{ name: 'IN', leftSide: true }], [], key, );
         this.setPopupContent();
         this.createInspectorCardData();
         this.chartData = new ChartDataStorage('line');
@@ -78,18 +78,21 @@ export class LineChart extends Output {
     }
 
     createInspectorCardData() {
-        this.setInspectorCardDescriptionText('This module will generate a line chart when connected to data.');
         this.addInspectorCardIDField();
         this.addInspectorCardDataConnectedField();
     }
 
     updateInspectorCardWithNewData(dataModule, data) {
         this.addInspectorCardLinkedNodeField(dataModule.getData('key'));
-        const xAxis = this.addInspectorCardXAxisDropDown(data.data.getHeaders());
-        const yAxis = this.addInspectorCardYAxisDropDown(data.data.getHeaders());
-        this.chartData.listenToXAxisDataChanges(xAxis);
-        this.chartData.listenToYAxisDataChanges(yAxis);
-        this.chartData.setInitialValues(xAxis.value, yAxis.value);
+        //this.createInspectorCardAxisCard()
+        const xAxis = this.addInspectorCardChartAxisCard('X Axis Data', data.data.getHeaders());
+        const yAxis = this.addInspectorCardChartAxisCard('Y Axis Data', data.data.getHeaders());
+        console.log(xAxis);
+        this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
+        this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
+        this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
+        this.chartData.listenToYAxisLabelChanges(yAxis.labelInput);
+        this.chartData.setInitialValues(xAxis.dropdown.value, yAxis.dropdown.value, xAxis.labelInput.value, yAxis.labelInput.value);
         this.addBuildChartEventListener(this.addInspectorCardGenerateChartButton());
     }
 
@@ -137,4 +140,42 @@ export class Value extends Output {
     };
 
 
+}
+
+export class ToCSV extends Output {
+    constructor(category, color, shape, key) {
+        super(category, color, shape, 'output', 'To CSV', 'images/icons/csv-file-format-extension.png', [{ name: 'IN', leftSide: true }], [], key);
+        this.setPopupContent();
+        this.createInspectorCardData();
+    }
+
+    createInspectorCardData() {
+        this.addInspectorCardIDField();
+        this.addInspectorCardDataConnectedField();
+    }
+
+    updateInspectorCardWithNewData(dataModule, data) {
+        this.addInspectorCardLinkedNodeField(dataModule.getData('key'));
+        //this.createInspectorCardAxisCard()
+        const xAxis = this.addInspectorCardChartAxisCard('X Axis Data', data.data.getHeaders());
+        const yAxis = this.addInspectorCardChartAxisCard('Y Axis Data', data.data.getHeaders());
+        console.log(xAxis);
+        this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
+        this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
+        this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
+        this.chartData.listenToYAxisLabelChanges(yAxis.labelInput);
+        this.chartData.setInitialValues(xAxis.dropdown.value, yAxis.dropdown.value, xAxis.labelInput.value, yAxis.labelInput.value);
+        this.addBuildChartEventListener(this.addInspectorCardGenerateChartButton());
+    }
+
+    setPopupContent = () => {
+        const popupContent = GM.HF.createNewDiv('', '', [], []);
+        const setValueWrapper = GM.HF.createNewDiv('', '', ['setValueWrapper'], []);
+        popupContent.appendChild(setValueWrapper);
+        const dataArea = GM.HF.createNewDiv('', '', ['numberDataArea'], []);
+        this.textArea = GM.HF.createNewParagraph('', '', ['popup-text-large'], [], this.data);
+        dataArea.appendChild(this.textArea);
+        popupContent.appendChild(dataArea);
+        this.addData('popupContent', popupContent, false, '', false);
+    };
 }

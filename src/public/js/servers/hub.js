@@ -1,6 +1,6 @@
 import { Publisher, Subscriber } from "../communication/index.js";
 import { GM } from '../main.js';
-import { ENVIRONMENT, MODULE_MANAGER, INSPECTOR, POPUP_MANAGER, INPUT_MANAGER, DATA_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER } from '../sharedVariables/constants.js';
+import { ENVIRONMENT, MODULE_MANAGER, INSPECTOR, POPUP_MANAGER, INPUT_MANAGER, DATA_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER, DOM_MANAGER } from '../sharedVariables/constants.js';
 import { invalidVariables, printErrorMessage, varTest } from "../errorHandling/errorHandlers.js";
 /* Envionment Data Table is the central communication hub of the application. All Messages
 are routed through this singleton class. */
@@ -61,6 +61,7 @@ export default class Hub {
         GM.OM.publisher.subscribe(this.subscriber);
         GM.WM.publisher.subscribe(this.subscriber);
         GM.PM.publisher.subscribe(this.subscriber);
+        GM.DOM.publisher.subscribe(this.subscriber);
     };
 
     /**
@@ -118,9 +119,10 @@ export default class Hub {
                 // TODO: Handle Link Drawn Event.
                 if (GM.MM.checkForNewDataLink(data.toNodeKey, data.fromNodeKey)) {
                     if (GM.MM.getModule(data.toNodeKey).getData('type') === 'Output')
-                        GM.MM.updateDynamicInspectorCardField(data.toNodeKey, 'Data Linked: ', true);
-                        GM.MM.getModule(data.toNodeKey).updateInspectorCardWithNewData(GM.MM.getModule(data.fromNodeKey), GM.DM.getData(data.fromNodeKey));
-                        GM.MM.getModule(data.toNodeKey).setLinkedDataKey(data.fromNodeKey);
+                        GM.MM.updateDynamicInspectorCardField(data.toNodeKey, 'Data Linked', true);
+                        console.log(GM.MM.getModule(data.toNodeKey));
+                    GM.MM.getModule(data.toNodeKey).updateInspectorCardWithNewData(GM.MM.getModule(data.fromNodeKey), GM.DM.getData(data.fromNodeKey));
+                    GM.MM.getModule(data.toNodeKey).setLinkedDataKey(data.fromNodeKey);
                 }
                 break;
             default:
@@ -187,6 +189,17 @@ export default class Hub {
                 if (invalidVariables([varTest(data.type, 'type', 'string'), varTest(data.source, 'source', 'string'), varTest(data.path, 'path', 'string'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Read File Event)')) return;
                 else GM.IM.readFile(data.type, data.source, data.path, data.moduleKey);
                 break;
+            case 'Routes Loaded Event':
+                if (invalidVariables([varTest(data.data, 'data', 'object')], 'HUB', '#messageForInputManager (Routes Loaded Event')) return;
+                GM.IM.addRoutes(data.data);
+                GM.DOM.populateRoutesDiv(data.data);
+                console.log(data.data);
+                break;
+            case 'Objects Loaded Event':
+                if (invalidVariables([varTest(data.data, 'data', 'object')], 'HUB', '#messageForInputManager (Objects Loaded Event')) return;
+                GM.IM.addObjects(data.data);
+                GM.DOM.populateObjectsDiv(data.data);
+                break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForInputManager`);
                 break;
@@ -210,13 +223,13 @@ export default class Hub {
                     .sendPipelineToServer(workerIndex, data.value);
                 break;
             case 'Test SSH':
-                // const worker = GM.WM.startWorker();
-                // const workerIndex = GM.WM.addWorkerToDataTable(worker);
-                // GM.WM.notifyWorkerOfId(workerIndex)
-                //     .setStopWorkerFunction(workerIndex)
-                //     .setHandleReturnFunction(workerIndex)
-                //     .setWorkerMessageHandler(workerIndex)
-                //     .sendGetRequest(workerIndex);
+            // const worker = GM.WM.startWorker();
+            // const workerIndex = GM.WM.addWorkerToDataTable(worker);
+            // GM.WM.notifyWorkerOfId(workerIndex)
+            //     .setStopWorkerFunction(workerIndex)
+            //     .setHandleReturnFunction(workerIndex)
+            //     .setWorkerMessageHandler(workerIndex)
+            //     .sendGetRequest(workerIndex);
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForWorkerManager`);
                 break;
@@ -233,7 +246,7 @@ export default class Hub {
             case 'New Data Event':
                 if (invalidVariables([varTest(data.id, 'id', 'number'), varTest(data.val, 'val', 'object'), varTest(data.linkDataNode, 'linkDataNode', 'boolean')], 'HUB', ' #messageForDataManager. (new data event)')) return;
                 else if (GM.DM.addData(data.id, data.val)) {
-                    GM.MM.deployNewModule('Data', 'Composit');
+                    GM.MM.deployNewModule('Data', 'Composite');
                     const module = GM.MM.connectDataModule(data.id);
                     // TODO: If necessary create a link to the pipeline that called the data
                     if (module && data.linkDataNode) {
@@ -302,15 +315,50 @@ export default class Hub {
                 if (invalidVariables([varTest(data.datasetKey, 'datasetKey', 'number'), varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.fieldData, 'fieldData', 'object'), varTest(data.div, 'div', 'object'), varTest(data.type, 'type', 'string')], 'HUB', '#messageForOutputManager (Create Local Chart Event)')) return;
                 if (GM.DM.hasData(data.datasetKey)) {
                     const chartData = GM.DM.getDataWithFields(data.datasetKey, data.fieldData);
-                    if (GM.OM.storeChartData(data.moduleKey, chartData, data.div, data.type)) {
+                    if (GM.OM.storeChartData(data.moduleKey, chartData, data.div, data.type, data.fieldData.xAxisLabel, data.fieldData.yAxisLabel)) {
                         if (GM.PM.isPopupOpen(data.moduleKey)) GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
                     }
-                } 
+                }
                 break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForOutputManager`);
                 break;
         }
+    }
+
+    /** 
+     * At application start, server is pinged to get routes and available objects.
+     */
+    makeInitialContactWithServer() {
+        this.getRoutes();
+        this.getObjects();
+    }
+
+    getRoutes() {
+        const workerIndex = this.getNewWorkerIndex();
+        GM.WM.notifyWorkerOfId(workerIndex)
+            .setStopWorkerFunction(workerIndex)
+            .setHandleReturnFunction(workerIndex)
+            .setWorkerMessageHandler(workerIndex)
+            .setWorkerReturnMessageRecipient(workerIndex, INPUT_MANAGER)
+            .setWorkerReturnMessage(workerIndex, 'Routes Loaded Event')
+            .contactServer(workerIndex, 'GET', 'http://localhost:5004/routes/');
+    }
+
+    getObjects() {
+        const workerIndex = this.getNewWorkerIndex();
+        GM.WM.notifyWorkerOfId(workerIndex)
+            .setStopWorkerFunction(workerIndex)
+            .setHandleReturnFunction(workerIndex)
+            .setWorkerMessageHandler(workerIndex)
+            .setWorkerReturnMessageRecipient(workerIndex, INPUT_MANAGER)
+            .setWorkerReturnMessage(workerIndex, 'Objects Loaded Event')
+            .contactServer(workerIndex, 'GET', 'http://localhost:5004/objects/');
+    }
+
+    getNewWorkerIndex() {
+        const worker = GM.WM.startWorker();
+        return GM.WM.addWorkerToDataTable(worker);
     }
 
     // This function is called when the run button is pressed.

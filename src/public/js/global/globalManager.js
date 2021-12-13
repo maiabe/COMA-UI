@@ -7,6 +7,7 @@ import { HTMLFactory } from '../htmlGeneration/index.js';
 import { Inspector } from '../components/inspector/index.js';
 import { ModuleSelectionMenu } from "../components/moduleSelectionMenu/index.js";
 import Hub from '../servers/hub.js';
+import { DomManager } from '../components/domManagement/domManager.js';
 
 export class GlobalManager {
 
@@ -22,6 +23,7 @@ export class GlobalManager {
     OM;                 // The Output Manager
     PLM;                // The Pipeline MAnager
     WM;                 // Worker Manager
+    DOM;                // DOM Manager
 
     constructor() {
         this.HF = new HTMLFactory();
@@ -36,6 +38,7 @@ export class GlobalManager {
         this.OM = new OutputManager();
         this.PLM = new PipelineManager();
         this.WM = new WorkerManager();
+        this.DOM = new DomManager();
     };
 
     startEnvironment = () => {
@@ -44,8 +47,11 @@ export class GlobalManager {
         this.MSM.initializeMenu();
         this.#setEventListeners();
         this.#createInspector();
-        
+        this.DOM.initializeDomManager();
+        this.#initialServerContact();
     };
+
+    #initialServerContact = () => this.HUB.makeInitialContactWithServer();
 
     #setEventListeners = () => {
         document.getElementById('runButton').addEventListener('click', () => {

@@ -1,5 +1,8 @@
 import { printErrorMessage } from '../../errorHandling/errorHandlers.js';
+import { AxisCard } from './inspectorCardComponents/axisCard.js';
+import { KeyValueCard } from './inspectorCardComponents/keyValueCard.js';
 import {GM} from '../../main.js';
+
 export class InspectorCard {
     #cardId;
     #wrapperElement;
@@ -10,9 +13,11 @@ export class InspectorCard {
     #expanded;
     #color;
     #dynamicFields;
+    #axisCardMap;
 
     constructor(title, color) {
         this.#dynamicFields = new Map();
+        this.#axisCardMap = new Map();
         this.#color = color;
         this.#expanded = false;
         this.#title = title;
@@ -56,18 +61,27 @@ export class InspectorCard {
         this.bodyElement.appendChild(element);
     }
 
-    storeDynamicField(key, textDiv, container) {
-        this.#dynamicFields.set(key, {textDiv: textDiv, container: container});
-    }
-
-    updateDynamicField(key, textDiv) {
-        const data = this.#dynamicFields.get(key);
-        if (data) {
-            data.textDiv.remove();
-            data.textDiv = textDiv;
-            data.container.appendChild(textDiv);
+    updateDynamicField(key, text) {
+        console.log(key);
+        console.log(this.#dynamicFields);
+        const keyValueCard = this.#dynamicFields.get(key);
+        if (keyValueCard) {
+            keyValueCard.updateValue(text);
         } else printErrorMessage(`Undefined or Null Variable`, `data: ${data}. -- Inspector Card -> updateDynamicField`);
     }
 
+    addAxisCard(axis, dropdownData) {
+
+    }
+
+    addKeyValueCard(key, value) {
+        const card = new KeyValueCard(key, value);
+        this.appendToBody(card.getCard());
+        return card;
+    }
+
+    addDynamicKeyValueCard(key, value) {
+        this.#dynamicFields.set(key, this.addKeyValueCard(key, value));
+    }
     getCard = () => this.#wrapperElement;
 }

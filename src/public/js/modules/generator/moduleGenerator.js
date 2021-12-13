@@ -1,19 +1,19 @@
 import { sourceColor, outputColor, processorColor, compositColor } from "../../sharedVariables/colors.js";
-import {Sql, Fits, Csv, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table, Composit} from '../index.js';
+import { Sql, Fits, Csv, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table, ToCSV, Composite } from '../index.js';
 export class ModuleGenerator {
     constructor() {
         this.colors = {
             source: sourceColor,
             processor: processorColor,
             output: outputColor,
-            composit: compositColor
+            composite: compositColor
         };
 
         this.shapes = {
             source: 'Rectangle',
             processor: 'Circle',
             output: 'RoundedRectangle',
-            composit: 'Rectangle'
+            composite: 'Rectangle'
         }
     }
 
@@ -89,11 +89,14 @@ export class ModuleGenerator {
                     case 'Value':
                         mod = new Value(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
-                    case 'Composit':
-                        mod = new Composit(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Composit', [], false);
+                    case 'Composite':
+                        mod = new Composite(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Composite', [], false);
                         break;
                     case 'Data':
-                        mod = new Composit(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false }], true);
+                        mod = new Composite(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false }], true);
+                        break;
+                    case 'To Csv':
+                        mod = new ToCSV(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false }], true);
                         break;
                 }
             } else console.log(`ERROR: Parameter Error. type: ${type}, category: ${category}. -- ModuleGenerator -> generate new module`);

@@ -7,10 +7,12 @@ export class InputManager {
 
     publisher;                      // Publishes messages to the hub
     #csvReader;
+    #dataTable;
 
     constructor() {
         this.publisher = new Publisher();
         this.#csvReader = new CsvReader();
+        this.#dataTable = new Map();
     };
 
     readFile = (type, source, path, moduleKey) => {
@@ -48,4 +50,7 @@ export class InputManager {
             this.publisher.publishMessage(msg);
         }
     }
+
+    addRoutes = routes => this.#dataTable.set('routes', routes);
+    addObjects = objects => this.#dataTable.set('objects', objects);
 }

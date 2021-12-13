@@ -1,25 +1,31 @@
 export class ChartBuilder {
     constructor() { };
 
-    plotData = (data, type, pdiv, width, height, framework, theme) => {
+    plotData = (data, type, pdiv, width, height, framework, theme, xAxisLabel, yAxisLabel) => {
         switch (framework) {
             case 'plotly':
                 return this.drawPlotlyChart(data, type, pdiv, width, height);
             case 'echart':
-                return this.drawEChartChart(data, type, pdiv, width, height, theme);
+                return this.drawEChartChart(data, type, pdiv, width, height, theme, xAxisLabel, yAxisLabel);
         }
     }
 
-    drawEChartChart = (data, type, pdiv, width, height, theme) => {
-        console.log(data.data);
+    drawEChartChart = (data, type, pdiv, width, height, theme, xAxisLabel, yAxisLabel) => {
+        console.log(xAxisLabel, yAxisLabel);
         const myChart = echarts.init(pdiv, theme);
         const option = {
             xAxis: {
                 type: isNaN(data.data.x[0]) ? 'category' : 'value',
                 data: data.data.x,
+                name: xAxisLabel,
+                nameLocation: 'middle',
+                nameGap: 34
             },
             yAxis: {
-                type: isNaN(data.data.y[0])  ? 'category' : 'value',
+                type: isNaN(data.data.y[0]) ? 'category' : 'value',
+                name: yAxisLabel,
+                nameLocation: 'middle',
+                nameGap: 34
             },
             series: [
                 {

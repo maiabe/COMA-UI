@@ -119,7 +119,7 @@ export class Environment {
             initialAutoScale: go.Diagram.UniformToFill,
             layout: gojs(go.LayeredDigraphLayout,
                 { direction: 0 }),
-            "commandHandler.archetypeGroupData": { text: "Composit", isGroup: true, color: "black", background: compositColor },
+            "commandHandler.archetypeGroupData": { text: "Composite", isGroup: true, color: "black", background: compositColor },
             "undoManager.isEnabled": true
         };
     }
@@ -518,7 +518,7 @@ export class Environment {
             case 'Output':
                 color = outputColor;
                 break;
-            case 'Composit':
+            case 'Composite':
                 color = compositColor;
                 break;
             default:

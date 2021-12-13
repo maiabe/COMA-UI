@@ -1,4 +1,4 @@
-import {Message, Publisher} from '../communication/index.js';
+import { Message, Publisher } from '../communication/index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
 import { ENVIRONMENT, DATA_MANAGER, WORKER_MANAGER } from '../sharedVariables/constants.js';
 import { GM } from '../main.js';
@@ -31,7 +31,7 @@ export class WorkerManager {
     addWorkerToDataTable = worker => {
         if (invalidVariables([varTest(worker, 'worker', 'object')], 'WorkerManager', 'addWorkerToDataTable')) return -1;
         let workerId = this.getNextIndex();
-        this.#workers.set(workerId, { id: workerId, worker: worker, stopWorkerFunction: undefined, handleReturnFunction: undefined });
+        this.#workers.set(workerId, { id: workerId, worker: worker, stopWorkerFunction: undefined, handleReturnFunction: undefined, returnMessageRecipient: undefined, returnMessage: undefined });
         return workerId;
     };
 
@@ -68,6 +68,20 @@ export class WorkerManager {
         return this;
     };
 
+    setWorkerReturnMessageRecipient = (id, recipient) => {
+        if (invalidVariables([varTest(id, 'id', 'number'), varTest(recipient, 'recipient', 'number')], 'WorkerManager', 'setReturnMessageRecipient')) return undefined;
+        if (this.#workers.has(id)) this.#workers.get(id).returnMessageRecipient = recipient;
+        return this;
+    }
+
+    setWorkerReturnMessage = (id, message) => {
+        if (invalidVariables([varTest(id, 'id', 'number'), varTest(message, 'message', 'string')], 'WorkerManager', 'setReturnMessage')) return undefined;
+        if (this.#workers.has(id)) {
+            this.#workers.get(id).returnMessage = message;
+            return this;
+        } else return undefined;
+    }
+
     /**
      * Sets the algorithm for onmessage events.
      * @param {number} id the worker id 
@@ -91,6 +105,10 @@ export class WorkerManager {
                     case 'Processing Incomplete':
                         workerObject.handleReturnFunction(event.data.data, 'incomplete');
                         break;
+                    case 'Server Return Event':
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage, event.data));
+                        workerObject.stopWorkerFunction(id);
+                        break;
                 }
             }
         }
@@ -107,6 +125,21 @@ export class WorkerManager {
         if (invalidVariables([varTest(id, 'id', 'number'), varTest(pipelineArray, 'pipelineArray', 'object')], 'WorkerManager', 'sendPipelineToServer')) return false;
         if (this.#workers.has(id)) this.#workers.get(id).worker.postMessage({ type: 'Execute Post', list: pipelineArray });
         return true;
+    }
+
+    /**
+     * 
+     * @param {number} id the worker id 
+     * @param {string} method REST API method: GET, POST, PUT
+     * @param {string} url  
+     * @returns true if successful
+     */
+    contactServer = (id, method, url) => {
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'sendPipelineToServer')) return false;
+        if (this.#workers.has(id)) {
+            this.#workers.get(id).worker.postMessage({ type: `Contact Server`, method: method, url: url});
+            return true;
+        } else return false;
     }
 
     /**
@@ -149,30 +182,30 @@ export class WorkerManager {
     /**
      * Callback called by web workers when data is returned from the server.
      * @param {object} results Results object varies based on event status. If Complete, contains data, if incomplete, contains array of completed keys.
-     * @param {string} event either 'complete' (all nodes finished processing) or 'incomplete' only partial pipeline processed. 
      */
-    handleReturn = (results, event) => {
+    handleReturn = (results) => {
         if (invalidVariables([varTest(results, 'results', 'object'), varTest(event, 'event', 'string')], 'WorkerManager', 'handleReturn')) retur;
-        let msg;
-        switch (event) {
-            case 'complete':
-                msg = new Message(DATA_MANAGER, WORKER_MANAGER, 'Pipeline Return Event', { value: results });
-                break;
-            case 'incomplete':
-                msg = new Message(ENVIRONMENT, WORKER_MANAGER, 'Partial Pipeline Return Event', { value: results });
-                break;
-            default:
-                console.log(`ERROR: invalid event: ${event}. -- WorkerManager -> handleReturn.`);
-                return;
-        }
-        this.#sendMessage(msg);
+        // let msg;
+        // switch (event) {
+        //     case 'complete':
+        //         // msg = new Message(DATA_MANAGER, WORKER_MANAGER, 'Pipeline Return Event', { value: results });
+        //         break;
+        //     case 'incomplete':
+        //         // sg = new Message(ENVIRONMENT, WORKER_MANAGER, 'Partial Pipeline Return Event', { value: results });
+        //         break;
+        //     default:
+        //         console.log(`ERROR: invalid event: ${event}. -- WorkerManager -> handleReturn.`);
+        //         return;
+        // }
+        //this.#sendMessage(msg);
+        console.log(results);
     }
 
-    sendGetRequest(id){
-        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'sendGetRequest')) return false;
-        if (this.#workers.has(id)) this.#workers.get(id).worker.postMessage({ type: 'Get Routes'});
-        return true;
-    }
+    // sendGetRequest(id){
+    //     if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'sendGetRequest')) return false;
+    //     if (this.#workers.has(id)) this.#workers.get(id).worker.postMessage({ type: 'Get Routes'});
+    //     return true;
+    // }
 
     /**
      * Kills All Outstanding webworkers.
@@ -186,7 +219,7 @@ export class WorkerManager {
 /**
  * If user presses f, all workers are destroyed.
  */
-document.addEventListener('keydown', e => {
+document.addEventListener('keyup', e => {
     if (e.code === 'KeyF') {
         GM.WM.destroyAllWorkers();
     }
@@ -195,14 +228,14 @@ document.addEventListener('keydown', e => {
 /**
  * If user presses f, all workers are destroyed.
  */
- document.addEventListener('keydown', e => {
+document.addEventListener('keyup', e => {
     if (e.code === 'KeyM') {
         const worker = GM.WM.startWorker();
-                const workerIndex = GM.WM.addWorkerToDataTable(worker);
-                GM.WM.notifyWorkerOfId(workerIndex)
-                    .setStopWorkerFunction(workerIndex)
-                    .setHandleReturnFunction(workerIndex)
-                    .setWorkerMessageHandler(workerIndex)
-                    .sendGetRequest(workerIndex);
+        const workerIndex = GM.WM.addWorkerToDataTable(worker);
+        GM.WM.notifyWorkerOfId(workerIndex)
+            .setStopWorkerFunction(workerIndex)
+            .setHandleReturnFunction(workerIndex)
+            .setWorkerMessageHandler(workerIndex)
+            .sendGetRequest(workerIndex);
     }
 });

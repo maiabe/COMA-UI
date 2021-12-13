@@ -8,11 +8,11 @@ export class Module {
     #dataTable;
     inspectorCard;
 
-    constructor(type, color, shape, command, name, imagePath, inports, outports, key) {
+    constructor(type, color, shape, command, name, imagePath, inports, outports, key, description) {
         this.#dataTable = new Map();
         this.publisher = new Publisher();
         this.inspectorCard = new InspectorCard(name, color);
-        this.setInitialDataValues(type, color, shape, command, name, imagePath, inports, outports, key);
+        this.setInitialDataValues(type, color, shape, command, name, imagePath, inports, outports, key, description);
     };
 
     /**
@@ -27,7 +27,7 @@ export class Module {
      * @param {array} outports array of outports
      * @param {number} key key of module
      */
-    setInitialDataValues = (type, color, shape, command, name, imagePath, inports, outports, key) => {
+    setInitialDataValues = (type, color, shape, command, name, imagePath, inports, outports, key, description) => {
         if (type && color && shape && command && name && imagePath && inports && outports && key) {
             this.addData('type', type, true, type, false);
             this.addData('image', imagePath, false, '', false);
@@ -38,6 +38,7 @@ export class Module {
             this.addData('name', name, true, name, false);
             this.addData('key', key, true, -1, false);
             this.addData('command', command, false, '', false);
+            this.addData('description', description);
         } else console.log(`ERROR: Missing Parameter. type: ${type}, imagePath: ${imagePath}, color: ${color}, shape: ${shape}, command: ${command}, name: ${name}, inports: ${inports}, outports: ${outports}, key: ${key}. -- Module -> setInitialDataValues`);
     };
 
@@ -116,14 +117,6 @@ export class Module {
      * @returns the inspector Content if found. Empty Map if not.
      */
     getInspectorContent = () => {
-        // const inspectorContent = new Map();
-        // for (let entry of this.#dataTable) {
-        //     const key = entry[0];
-        //     const value = entry[1];
-        //     if (value.inspector.allowInspection) {
-        //         inspectorContent.set(key, { text: value.inspector.text, modify: value.inspector.modify, modifyType: value.inspector.modifyType });
-        //     }
-        // }
         return this.inspectorCard.getCard();
     };
 
@@ -132,31 +125,26 @@ export class Module {
     }
     
     addInspectorCardIDField() {
-        this.#addInspectorCardField('Module Id: ', this.getData('key').toString(), false);
+        this.inspectorCard.addKeyValueCard('Module Id', [this.getData('key').toString()]);
     }
 
     addInspectorCardDataConnectedField() {
-        this.#addInspectorCardField('Data Linked: ', false,  true)
+        this.inspectorCard.addDynamicKeyValueCard('Data Linked', [false]);
     }
 
     addInspectorCardLinkedNodeField(key) {
-        this.#addInspectorCardField('Linked Node(s): ', `(${key})`, true);
+        this.inspectorCard.addDynamicKeyValueCard('Linked Node(s)', [`(${key})`]);
     }
-    addInspectorCardXAxisDropDown(headers) {
-        const dropDown = GM.HF.createNewSelect(`x-axis-selector-${this.getData('key')}`, `x-axis-selector-${this.getData('key')}`, [], [], headers, headers);
-        this.#addInspectorCardFieldWithPrebuiltValueDiv('X Axis Data: ', dropDown, true);
-        return dropDown;
-    }
-
-    addInspectorCardYAxisDropDown(headers) {
-        const dropDown = GM.HF.createNewSelect(`y-axis-selector-${this.getData('key')}`, `y-axis-selector-${this.getData('key')}`, [], [], headers, headers);
-        this.#addInspectorCardFieldWithPrebuiltValueDiv('Y Axis Data: ', dropDown, true);
-        return dropDown;
+    addInspectorCardChartAxisCard(title, headers) {
+        const dropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], headers, headers);
+        const labelInput = GM.HF.createNewTextInput('','', ['axis-card-label-input'], [], 'text');
+        this.inspectorCard.addKeyValueCard(title, [dropDown, labelInput]);
+        return {dropdown: dropDown, labelInput: labelInput};
     }
 
     addInspectorCardGenerateChartButton() {
         const button = GM.HF.createNewButton(`create-line-chart-button-${this.getData('key')}`, `create-line-chart-button-${this.getData('key')}`, [], [], 'button', 'Generate', false);
-        this.#addInspectorCardFieldWithPrebuiltValueDiv('Generate Chart: ', button, false);
+        this.#addDynamicInspectorCardFieldWithPrebuiltValueDiv('Generate Chart: ', button, false);
         return button;
     }
 
@@ -170,22 +158,24 @@ export class Module {
         container.appendChild(keyDiv);
         container.appendChild(valueDiv);
         this.inspectorCard.appendToBody(container);
-        if (dynamic) this.inspectorCard.storeDynamicField(key, valueDiv, container);
     }
 
-    #addInspectorCardFieldWithPrebuiltValueDiv(key, valueDiv, dynamic) {
+    /** Call this when you want to create an inspector card keyValueCard object with a dropdown or other precreated HTML element */
+    #addDynamicInspectorCardFieldWithPrebuiltValueDiv(key, valueDiv) {
         const container = this.#createInspectorCardHorizontalFlexContainer();
         const keyDiv = this.#createInspectorCardKeyText(key);
         container.appendChild(keyDiv);
         container.appendChild(valueDiv);
         this.inspectorCard.appendToBody(container);
-        if (dynamic) this.inspectorCard.storeDynamicField(key, valueDiv, container);
     }
 
     updateInspectorCardDynamicField(key, value) {
-        this.inspectorCard.updateDynamicField(key, this.#createInspectorCardValueText(value));
+        this.inspectorCard.updateDynamicField(key, value);
     }
 
+    createInspectorCardAxisCard(whichAxis, dropdownHeaders) {
+        this.inspectorCard.addAxisCard(whichAxis, dropdownValues);
+    }
 
     #createInspectorCardHorizontalFlexContainer = () => GM.HF.createNewDiv('', '', ['inspector-card-horizontal-flex-container'], []);
     /**

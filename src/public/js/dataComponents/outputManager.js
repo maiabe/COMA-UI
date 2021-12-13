@@ -17,12 +17,16 @@ export class OutputManager {
      * Stores the chart information and data into the outputmap hash table.
      * @param {number} key key identifying the location in the hash table. it is also the id of the module associated with this chart.
      * @param {object} data the data that is used for the chart
+     * @param {object} div the html div to inject the chart
      * @param {string} type the type of chart. ie. 'bar', 'scatter'
+     * @param {string} xAxisLabel (Optional)
+     * @param {string} yAxisLabel (Optional)
+     * 
      * @returns true if successful, false if failure
      */
-    storeChartData = (key, data, div, type) => {
-        if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
-        this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark' });
+    storeChartData = (key, data, div, type, xAxisLabel, yAxisLabel) => {
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(div, 'div', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
+        this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark', xAxisLabel: xAxisLabel, yAxisLabel: yAxisLabel });
         return true;
     }
 
@@ -36,7 +40,7 @@ export class OutputManager {
      */
     drawChart = (key, div, width, height) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(div, 'div', 'object'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'OutputManager', 'drawChart')) return;
-        if (this.#outputMap.has(key)) this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(this.#outputMap.get(key).data, this.#outputMap.get(key).type, div, width, height, this.#outputMap.get(key).framework, this.#outputMap.get(key).theme) });
+        if (this.#outputMap.has(key)) this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(this.#outputMap.get(key).data, this.#outputMap.get(key).type, div, width, height, this.#outputMap.get(key).framework, this.#outputMap.get(key).theme, this.#outputMap.get(key).xAxisLabel, this.#outputMap.get(key).yAxisLabel) });
         else printErrorMessage(`Missing Data.`, `key: ${key} - OutputManager -> drawChart`);
     }
 

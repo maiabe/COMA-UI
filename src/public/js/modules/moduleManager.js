@@ -21,10 +21,8 @@ export class ModuleManager {
      * @return true if successful, false if not.
      */
     createNewModule = (name, category, key) => {
-        console.log(name, category, key);
         if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'createNewModule')) return false;
         const module = this.#MG.generateNewModule(name, category, key);
-        console.log(name, category, key);
         this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.moduleMap.has(key) }));
         this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', {moduleKey: key, card: module.getInspectorContent()}));
         this.#addModule(module, key);
@@ -197,7 +195,7 @@ export class ModuleManager {
     };
 
     /**
-     * When a new link is drawn between 2 modules, this function checks to see if the link is drawn between a composit data module and some
+     * When a new link is drawn between 2 modules, this function checks to see if the link is drawn between a composite data module and some
      * other module, such as output or data filter processor. 
      * @param {number} to key to the module from is linked to 
      * @param {number} from key to the module from is linked from

@@ -1,5 +1,4 @@
-import { H3Generator } from "./elementGenerators/h3Generator.js";
-import { DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, SelectGenerator } from "./index.js";
+import {  H3Generator, H1Generator, DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, SelectGenerator } from "./index.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
 export class HTMLFactory {
 
@@ -12,6 +11,7 @@ export class HTMLFactory {
     #inputGenerator;          // Class that builds HTML inputs with various features;
     #selectGenerator;
     #h3Generator;
+    #h1Generator;
 
     constructor() {
         this.#tableGenerator = new HTMLTableGenerator();
@@ -21,6 +21,7 @@ export class HTMLFactory {
         this.#inputGenerator = new InputGenerator();
         this.#selectGenerator = new SelectGenerator();
         this.#h3Generator = new H3Generator();
+        this.#h1Generator = new H1Generator();
     };
 
     createNewTable(dataTable, rowLimit) {
@@ -83,6 +84,20 @@ export class HTMLFactory {
         return this.#h3Generator.generateNewH3(id, name, classlist, customStyles, text);
     }
 
+    /** Creates a new HTML h1 element
+     * @param id -> the id of the element (if not adding id, use empty string '')
+     * @param name -> the name of the element (if not adding name, use empty string '')
+     * @param classlist -> Array of strings, each string is a css classname
+     * @param customStyles -> array of objects in the following format
+     *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
+     *                         value: 'green;}
+     * @param text -> a string to display in the h3 element.
+     * @return the new p
+     */
+    createNewH1(id, name, classlist, customStyles, text) {
+        return this.#h1Generator.generateNewH3(id, name, classlist, customStyles, text);
+    }
+
     /** Creates a new HTML button (input) element
          * @param id -> the id of the element (if not adding id, use empty string '')
          * @param name -> the name of the element (if not adding name, use empty string '')
@@ -121,7 +136,7 @@ export class HTMLFactory {
              * @param customStyles -> array of objects in the following format
              *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
              *                         value: 'green;}
-             * @param type -> must be 'file' (string)
+             * @param type -> must be 'text' (string)
              * @param disabled -> boolean (true = disabeled, false = enabeled )
              * @return the new button
              */

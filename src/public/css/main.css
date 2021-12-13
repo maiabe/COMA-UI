@@ -63,7 +63,27 @@ h2 {
   width: 100vw;
   position: relative;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 20px;
+  gap: 20px;
+  color: white;
+}
+
+.nav-two-column {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  border: 1px solid white;
+  padding: 5px;
+  align-items: center;
+  height: 30px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.nav-two-column > select {
+  height: 30px;
 }
 
 .nav > img {
@@ -228,6 +248,7 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
   top: 52px;
   z-index: 1;
 }
+
 /* Very small devices */
 @media (max-width: 480px) {
 }

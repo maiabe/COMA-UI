@@ -22,6 +22,7 @@ export {ScatterPlot} from './outputModules/output.js';
 export {Value} from './outputModules/output.js';
 export {ImageOutput} from './outputModules/output.js';
 export {Table} from './outputModules/table.js';
-export {Composit} from './compositModule/compositModule.js';
+export {ToCSV} from './outputModules/output.js';
+export {Composite} from './compositModule/compositModule.js';
 export {ModuleManager} from './moduleManager.js';
 export {ModuleGenerator} from './generator/moduleGenerator.js';
