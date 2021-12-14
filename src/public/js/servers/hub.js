@@ -122,7 +122,7 @@ export default class Hub {
                         GM.MM.updateDynamicInspectorCardField(data.toNodeKey, 'Data Linked', true);
                     GM.MM.getModule(data.toNodeKey).updateInspectorCardWithNewData(GM.MM.getModule(data.fromNodeKey), GM.DM.getData(data.fromNodeKey));
                     GM.MM.getModule(data.toNodeKey).setLinkedDataKey(data.fromNodeKey);
-                    GM.MM.getModule(data.toNodeKey).storeTableHeaders(GM.DM.getData(data.fromNodeKey).data.getHeaders());
+                    if (GM.MM.getModule(data.toNodeKey).storeTableHeaders) GM.MM.getModule(data.toNodeKey).storeTableHeaders(GM.DM.getData(data.fromNodeKey).data.getHeaders());
                 }
                 break;
             default:
@@ -315,27 +315,37 @@ export default class Hub {
                 if (invalidVariables([varTest(data.datasetKey, 'datasetKey', 'number'), varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.fieldData, 'fieldData', 'object'), varTest(data.div, 'div', 'object'), varTest(data.type, 'type', 'string')], 'HUB', '#messageForOutputManager (Create Local Chart Event)')) return;
                 if (GM.DM.hasData(data.datasetKey)) {
                     const chartData = GM.DM.getXYDataWithFields(data.datasetKey, data.fieldData);
-                    if (GM.OM.storeChartData(data.moduleKey, chartData, data.div, data.type, data.fieldData.xAxisLabel, data.fieldData.yAxisLabel)) {
+                    console.log(data.fieldData);
+                    if (GM.OM.storeChartData(data.moduleKey,
+                        chartData,
+                        data.div,
+                        data.type,
+                        data.fieldData.xAxisLabel,
+                        data.fieldData.yAxisLabel,
+                        data.fieldData.xAxisGrid,
+                        data.fieldData.yAxisGrid,
+                        data.fieldData.xAxisTick,
+                        data.fieldData.yAxisTick)) {
                         if (GM.PM.isPopupOpen(data.moduleKey)) GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
                     }
                 }
                 break;
-                case 'Create New Local Table Event':
-                    if (invalidVariables([varTest(data.datasetKey, 'datasetKey', 'number'), varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.fieldData, 'fieldData', 'object'), varTest(data.div, 'div', 'object'), varTest(data.type, 'type', 'string')], 'HUB', '#messageForOutputManager (Create Local Chart Event)')) return;
-                    if (GM.DM.hasData(data.datasetKey)) {
-                        const chartData = GM.DM.getTableDataWithFields(data.datasetKey, data.fieldData);
-                        if (GM.OM.storeChartData(data.moduleKey, chartData, data.div, data.type, '', '')) {
-                            if (GM.PM.isPopupOpen(data.moduleKey)) GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
-                        }
+            case 'Create New Local Table Event':
+                if (invalidVariables([varTest(data.datasetKey, 'datasetKey', 'number'), varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.fieldData, 'fieldData', 'object'), varTest(data.div, 'div', 'object'), varTest(data.type, 'type', 'string')], 'HUB', '#messageForOutputManager (Create Local Chart Event)')) return;
+                if (GM.DM.hasData(data.datasetKey)) {
+                    const chartData = GM.DM.getTableDataWithFields(data.datasetKey, data.fieldData);
+                    if (GM.OM.storeChartData(data.moduleKey, chartData, data.div, data.type, '', '')) {
+                        if (GM.PM.isPopupOpen(data.moduleKey)) GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
                     }
-                    break;
-                case 'Create New CSV File Event':
-                    if (invalidVariables([varTest(data.datasetKey, 'datasetKey', 'number'), varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.fieldData, 'fieldData', 'object') ], 'HUB', '#messageForOutputManager (Create Local Chart Event)')) return;
-                    if (GM.DM.hasData(data.datasetKey)) {
-                        const tableData = GM.DM.getTableDataWithFields(data.datasetKey, data.fieldData);
-                        GM.OM.generateCsvFile(tableData);
-                    }
-                    break;
+                }
+                break;
+            case 'Create New CSV File Event':
+                if (invalidVariables([varTest(data.datasetKey, 'datasetKey', 'number'), varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.fieldData, 'fieldData', 'object')], 'HUB', '#messageForOutputManager (Create Local Chart Event)')) return;
+                if (GM.DM.hasData(data.datasetKey)) {
+                    const tableData = GM.DM.getTableDataWithFields(data.datasetKey, data.fieldData);
+                    GM.OM.generateCsvFile(tableData);
+                }
+                break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForOutputManager`);
                 break;

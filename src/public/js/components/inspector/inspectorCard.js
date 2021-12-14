@@ -1,7 +1,7 @@
 import { printErrorMessage } from '../../errorHandling/errorHandlers.js';
-import { AxisCard } from './inspectorCardComponents/axisCard.js';
+import { XAxisCard, YAxisCard } from './inspectorCardComponents/axisCard.js';
 import { KeyValueCard } from './inspectorCardComponents/keyValueCard.js';
-import {GM} from '../../main.js';
+import { GM } from '../../main.js';
 import { IncludeColumnCard } from './index.js';
 
 export class InspectorCard {
@@ -40,13 +40,13 @@ export class InspectorCard {
     }
 
     #createHeaderNode() {
-        return GM.HF.createNewDiv(`Inspector-card-header-${this.#cardId}`, `Inspector-card-header-${this.#cardId}`, ['inspector-card-header'], [{style: 'backgroundColor', value: this.#color}]);
+        return GM.HF.createNewDiv(`Inspector-card-header-${this.#cardId}`, `Inspector-card-header-${this.#cardId}`, ['inspector-card-header'], [{ style: 'backgroundColor', value: this.#color }]);
     }
 
     #createBodyNode() {
         return GM.HF.createNewDiv(`Inspector-card-body-${this.#cardId}`, `Inspector-card-body-${this.#cardId}`, ['inspector-card-body'], []);
     }
-    
+
     #createTitleNode() {
         return GM.HF.createNewH3(`Inspector-card-header-h3-${this.cardId}`, `Inspector-card-header-h3-${this.cardId}`, [], [], this.#title);
     }
@@ -74,12 +74,19 @@ export class InspectorCard {
     addIncludeColumnCard(checkboxes) {
         const card = new IncludeColumnCard(checkboxes);
         this.appendToBody(card.getCard());
-        console.log(card);
         return card;
     }
 
-    addAxisCard(axis, dropdownData) {
+    addXAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox) {
+        const card = new XAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox);
+        this.appendToBody(card.getCard());
+        return card;
+    }
 
+    addYAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox) {
+        const card = new YAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox);
+        this.appendToBody(card.getCard());
+        return card;
     }
 
     addKeyValueCard(key, value) {

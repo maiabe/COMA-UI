@@ -1,17 +1,16 @@
 export class ChartBuilder {
     constructor() { };
 
-    plotData = (data, type, pdiv, width, height, framework, theme, xAxisLabel, yAxisLabel) => {
+    plotData = (data, type, pdiv, width, height, framework, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick) => {
         switch (framework) {
             case 'plotly':
                 return this.drawPlotlyChart(data, type, pdiv, width, height);
             case 'echart':
-                return this.drawEChartChart(data, type, pdiv, width, height, theme, xAxisLabel, yAxisLabel);
+                return this.drawEChartChart(data, type, pdiv, width, height, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick);
         }
     }
 
-    drawEChartChart = (data, type, pdiv, width, height, theme, xAxisLabel, yAxisLabel) => {
-        console.log(xAxisLabel, yAxisLabel);
+    drawEChartChart = (data, type, pdiv, width, height, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick) => {
         const myChart = echarts.init(pdiv, theme);
         const option = {
             xAxis: {
@@ -19,13 +18,25 @@ export class ChartBuilder {
                 data: data.data.x,
                 name: xAxisLabel,
                 nameLocation: 'middle',
-                nameGap: 34
+                nameGap: 34,
+                minorTick: {
+                    show: xAxisTick
+                },
+                minorSplitLine: {
+                    show: xAxisGrid
+                }
             },
             yAxis: {
                 type: isNaN(data.data.y[0]) ? 'category' : 'value',
                 name: yAxisLabel,
                 nameLocation: 'middle',
-                nameGap: 34
+                nameGap: 34,
+                minorTick: {
+                    show: yAxisTick
+                },
+                minorSplitLine: {
+                    show: yAxisGrid
+                }
             },
             series: [
                 {
@@ -116,7 +127,7 @@ export class ChartBuilder {
     }
 
     getPlotlyTableHeaderObject = data => {
-        
+
         const header = {
             values: [],
             align: "center",

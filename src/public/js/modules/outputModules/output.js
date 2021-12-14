@@ -19,6 +19,9 @@ export class Output extends Module {
     }
 }
 
+export class Chart extends Output {
+    constructor() { };
+}
 
 export class ScatterPlot extends Output {
     constructor(category, color, shape, key) {
@@ -48,13 +51,25 @@ export class ScatterPlot extends Output {
     updateInspectorCardWithNewData(dataModule, data) {
         this.addInspectorCardLinkedNodeField(dataModule.getData('key'));
         //this.createInspectorCardAxisCard()
-        const xAxis = this.addInspectorCardChartAxisCard('X Axis Data', data.data.getHeaders());
-        const yAxis = this.addInspectorCardChartAxisCard('Y Axis Data', data.data.getHeaders());
+        const xAxis = this.addInspectorCardChartXAxisCard(data.data.getHeaders());
+        const yAxis = this.addInspectorCardChartYAxisCard(data.data.getHeaders());
         this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
         this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
         this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
         this.chartData.listenToYAxisLabelChanges(yAxis.labelInput);
-        this.chartData.setInitialValues(xAxis.dropdown.value, yAxis.dropdown.value, xAxis.labelInput.value, yAxis.labelInput.value);
+        console.log(xAxis);
+        this.chartData.listenToXAxisTickChanges(xAxis.tickCheckbox.checkbox);
+        this.chartData.listenToYAxisTickChanges(yAxis.tickCheckbox.checkbox);
+        this.chartData.listenToXAxisGridChanges(xAxis.gridCheckbox.checkbox);
+        this.chartData.listenToYAxisGridChanges(yAxis.gridCheckbox.checkbox);
+        this.chartData.setInitialValues(xAxis.dropdown.value,
+            yAxis.dropdown.value,
+            xAxis.labelInput.value,
+            yAxis.labelInput.value,
+            xAxis.gridCheckbox.checkbox.checked,
+            yAxis.gridCheckbox.checkbox.checked,
+            xAxis.tickCheckbox.checkbox.checked,
+            yAxis.tickCheckbox.checkbox.checked);
         this.addBuildChartEventListener(this.addInspectorCardGenerateChartButton());
     }
 
@@ -75,24 +90,68 @@ export class BarChart extends Output {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'output', 'Bar Chart', 'images/icons/bar-chart.png', [{ name: 'IN', leftSide: true }], [], key);
         this.setPopupContent();
+        this.createInspectorCardData();
+        this.chartData = new ChartDataStorage('bar');
     }
 
     setPopupContent = () => {
         const popupContent = GM.HF.createNewDiv('', '', [], []);
-        const plotDiv = GM.HF.createNewDiv(`plot_${this.key}`, `plot_${this.key}`, ['plot1'], []);
         const themeDD = this.buildEchartThemeDropdown();
-        this.setEchartThemeDropdownEventListener(this.themeDD);
+        this.setEchartThemeDropdownEventListener(themeDD);
+        const plotDiv = GM.HF.createNewDiv(`plot_${this.key}`, `plot_${this.key}`, ['plot1'], ['chartDiv']);
         popupContent.appendChild(themeDD);
         popupContent.appendChild(plotDiv);
         this.addData('popupContent', popupContent, false, '', false);
         this.addData('themeDD', themeDD, false, '', false);
         this.addData('plotDiv', plotDiv, false, '', false);
     }
+
+    createInspectorCardData() {
+        this.addInspectorCardIDField();
+        this.addInspectorCardDataConnectedField();
+    }
+
+    updateInspectorCardWithNewData(dataModule, data) {
+        this.addInspectorCardLinkedNodeField(dataModule.getData('key'));
+        //this.createInspectorCardAxisCard()
+        const xAxis = this.addInspectorCardChartXAxisCard(data.data.getHeaders());
+        const yAxis = this.addInspectorCardChartYAxisCard(data.data.getHeaders());
+        this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
+        this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
+        this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
+        this.chartData.listenToYAxisLabelChanges(yAxis.labelInput);
+        console.log(xAxis);
+        this.chartData.listenToXAxisTickChanges(xAxis.tickCheckbox.checkbox);
+        this.chartData.listenToYAxisTickChanges(yAxis.tickCheckbox.checkbox);
+        this.chartData.listenToXAxisGridChanges(xAxis.gridCheckbox.checkbox);
+        this.chartData.listenToYAxisGridChanges(yAxis.gridCheckbox.checkbox);
+        this.chartData.setInitialValues(xAxis.dropdown.value,
+            yAxis.dropdown.value,
+            xAxis.labelInput.value,
+            yAxis.labelInput.value,
+            xAxis.gridCheckbox.checkbox.checked,
+            yAxis.gridCheckbox.checkbox.checked,
+            xAxis.tickCheckbox.checkbox.checked,
+            yAxis.tickCheckbox.checkbox.checked);
+        this.addBuildChartEventListener(this.addInspectorCardGenerateChartButton());
+    }
+
+
+    addBuildChartEventListener(button) { button.addEventListener('click', this.createNewChartFromButtonClick.bind(this)); }
+
+    createNewChartFromButtonClick() {
+        GM.MM.emitLocalChartEvent(
+            this.getData('linkedDataKey'),
+            this.getData('key'),
+            this.chartData.getChartData(),
+            this.getData('plotDiv'),
+            'bar');
+    }
 }
 
 export class LineChart extends Output {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'Line Chart', 'images/icons/line-chart.png', [{ name: 'IN', leftSide: true }], [], key, );
+        super(category, color, shape, 'output', 'Line Chart', 'images/icons/line-chart.png', [{ name: 'IN', leftSide: true }], [], key,);
         this.setPopupContent();
         this.createInspectorCardData();
         this.chartData = new ChartDataStorage('line');
@@ -118,13 +177,25 @@ export class LineChart extends Output {
     updateInspectorCardWithNewData(dataModule, data) {
         this.addInspectorCardLinkedNodeField(dataModule.getData('key'));
         //this.createInspectorCardAxisCard()
-        const xAxis = this.addInspectorCardChartAxisCard('X Axis Data', data.data.getHeaders());
-        const yAxis = this.addInspectorCardChartAxisCard('Y Axis Data', data.data.getHeaders());
+        const xAxis = this.addInspectorCardChartXAxisCard(data.data.getHeaders());
+        const yAxis = this.addInspectorCardChartYAxisCard(data.data.getHeaders());
         this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
         this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
         this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
         this.chartData.listenToYAxisLabelChanges(yAxis.labelInput);
-        this.chartData.setInitialValues(xAxis.dropdown.value, yAxis.dropdown.value, xAxis.labelInput.value, yAxis.labelInput.value);
+        console.log(xAxis);
+        this.chartData.listenToXAxisTickChanges(xAxis.tickCheckbox.checkbox);
+        this.chartData.listenToYAxisTickChanges(yAxis.tickCheckbox.checkbox);
+        this.chartData.listenToXAxisGridChanges(xAxis.gridCheckbox.checkbox);
+        this.chartData.listenToYAxisGridChanges(yAxis.gridCheckbox.checkbox);
+        this.chartData.setInitialValues(xAxis.dropdown.value,
+            yAxis.dropdown.value,
+            xAxis.labelInput.value,
+            yAxis.labelInput.value,
+            xAxis.gridCheckbox.checkbox.checked,
+            yAxis.gridCheckbox.checkbox.checked,
+            xAxis.tickCheckbox.checkbox.checked,
+            yAxis.tickCheckbox.checkbox.checked);
         this.addBuildChartEventListener(this.addInspectorCardGenerateChartButton());
     }
 
@@ -196,7 +267,7 @@ export class ToCSV extends Output {
     }
 
     addGenerateTablePreviewEventListener(button) { button.addEventListener('click', this.createNewTableFromButtonClick.bind(this)); }
-    addCreateCSVFileEventListener(button) { button.addEventListener('click', this.createCSVFile.bind(this))};
+    addCreateCSVFileEventListener(button) { button.addEventListener('click', this.createCSVFile.bind(this)) };
 
     createCSVFile() {
         GM.MM.emitCreateCSVEvent(this.getData('linkedDataKey'), this.getData('key'), this.chartData.getTableData());

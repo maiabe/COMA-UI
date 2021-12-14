@@ -135,11 +135,22 @@ export class Module {
     addInspectorCardLinkedNodeField(key) {
         this.inspectorCard.addDynamicKeyValueCard('Linked Node(s)', [`(${key})`]);
     }
-    addInspectorCardChartAxisCard(title, headers) {
+    addInspectorCardChartXAxisCard(headers) {
         const dropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], headers, headers);
         const labelInput = GM.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
-        this.inspectorCard.addKeyValueCard(title, [dropDown, labelInput]);
-        return { dropdown: dropDown, labelInput: labelInput };
+        const gridCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');
+        const tickCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Ticks', 'Ticks');
+        this.inspectorCard.addXAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper);
+        return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox };
+    }
+
+    addInspectorCardChartYAxisCard(headers) {
+        const dropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], headers, headers);
+        const labelInput = GM.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
+        const gridCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');
+        const tickCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Ticks', 'Ticks');
+        this.inspectorCard.addYAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper);
+        return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox };
     }
 
     addInspectorCardIncludeColumnCard(headers) {
