@@ -330,11 +330,10 @@ export default class Hub {
                     }
                     break;
                 case 'Create New CSV File Event':
-                    console.log(data);
                     if (invalidVariables([varTest(data.datasetKey, 'datasetKey', 'number'), varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.fieldData, 'fieldData', 'object') ], 'HUB', '#messageForOutputManager (Create Local Chart Event)')) return;
                     if (GM.DM.hasData(data.datasetKey)) {
                         const tableData = GM.DM.getTableDataWithFields(data.datasetKey, data.fieldData);
-                        console.log(tableData);
+                        GM.OM.generateCsvFile(tableData);
                     }
                     break;
             default:

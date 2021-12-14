@@ -19,22 +19,55 @@ export class Output extends Module {
     }
 }
 
+
 export class ScatterPlot extends Output {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'output', 'Scatter Plot', 'images/icons/scatter-graph-black.png', [{ name: 'IN', leftSide: true }], [], key);
         this.setPopupContent();
+        this.createInspectorCardData();
+        this.chartData = new ChartDataStorage('scatter');
     }
 
     setPopupContent = () => {
         const popupContent = GM.HF.createNewDiv('', '', [], []);
-        const plotDiv = GM.HF.createNewDiv(`plot_${this.key}`, `plot_${this.key}`, ['plot1'], []);
         const themeDD = this.buildEchartThemeDropdown();
-        this.setEchartThemeDropdownEventListener(this.themeDD);
-        popupContent.appendChild(this.themeDD);
-        popupContent.appendChild(this.plotDiv);
+        this.setEchartThemeDropdownEventListener(themeDD);
+        const plotDiv = GM.HF.createNewDiv(`plot_${this.key}`, `plot_${this.key}`, ['plot1'], ['chartDiv']);
+        popupContent.appendChild(themeDD);
+        popupContent.appendChild(plotDiv);
         this.addData('popupContent', popupContent, false, '', false);
         this.addData('themeDD', themeDD, false, '', false);
         this.addData('plotDiv', plotDiv, false, '', false);
+    }
+
+    createInspectorCardData() {
+        this.addInspectorCardIDField();
+        this.addInspectorCardDataConnectedField();
+    }
+
+    updateInspectorCardWithNewData(dataModule, data) {
+        this.addInspectorCardLinkedNodeField(dataModule.getData('key'));
+        //this.createInspectorCardAxisCard()
+        const xAxis = this.addInspectorCardChartAxisCard('X Axis Data', data.data.getHeaders());
+        const yAxis = this.addInspectorCardChartAxisCard('Y Axis Data', data.data.getHeaders());
+        this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
+        this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
+        this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
+        this.chartData.listenToYAxisLabelChanges(yAxis.labelInput);
+        this.chartData.setInitialValues(xAxis.dropdown.value, yAxis.dropdown.value, xAxis.labelInput.value, yAxis.labelInput.value);
+        this.addBuildChartEventListener(this.addInspectorCardGenerateChartButton());
+    }
+
+
+    addBuildChartEventListener(button) { button.addEventListener('click', this.createNewChartFromButtonClick.bind(this)); }
+
+    createNewChartFromButtonClick() {
+        GM.MM.emitLocalChartEvent(
+            this.getData('linkedDataKey'),
+            this.getData('key'),
+            this.chartData.getChartData(),
+            this.getData('plotDiv'),
+            'scatter');
     }
 }
 

@@ -1,16 +1,19 @@
 import { Publisher, Message } from '../communication/index.js';
-import { ChartBuilder } from './index.js';
+import { ChartBuilder, CsvWriter } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
 export class OutputManager {
     publisher;
     #outputMap;
     #chartBuilder;
     #activeChartMap;
+    #csvWriter;
+
     constructor() {
         this.publisher = new Publisher();
         this.#outputMap = new Map();
         this.#chartBuilder = new ChartBuilder();
         this.#activeChartMap = new Map();
+        this.#csvWriter = new CsvWriter();
     };
 
     /**
@@ -165,4 +168,8 @@ export class OutputManager {
             if (this.removeChart(key)) this.drawChart(key, this.#outputMap.get(key).div, width, height);
         }
     }
+
+    generateCsvFile = data => {
+        this.#csvWriter.createCsvFileFromData('comaCSVFile', data);
+    };
 }
