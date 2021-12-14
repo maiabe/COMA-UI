@@ -87,7 +87,6 @@ export class LineChart extends Output {
         //this.createInspectorCardAxisCard()
         const xAxis = this.addInspectorCardChartAxisCard('X Axis Data', data.data.getHeaders());
         const yAxis = this.addInspectorCardChartAxisCard('Y Axis Data', data.data.getHeaders());
-        console.log(xAxis);
         this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
         this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
         this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
@@ -118,7 +117,6 @@ export class ImageOutput extends Output {
 export class Value extends Output {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'output', 'Value', 'images/icons/equal.png', [{ name: 'IN', leftSide: true }], [], key);
-
         this.setPopupContent();
     }
 
@@ -147,6 +145,7 @@ export class ToCSV extends Output {
         super(category, color, shape, 'output', 'To CSV', 'images/icons/csv-file-format-extension.png', [{ name: 'IN', leftSide: true }], [], key);
         this.setPopupContent();
         this.createInspectorCardData();
+        this.chartData = new ChartDataStorage('table');
     }
 
     createInspectorCardData() {
@@ -156,26 +155,39 @@ export class ToCSV extends Output {
 
     updateInspectorCardWithNewData(dataModule, data) {
         this.addInspectorCardLinkedNodeField(dataModule.getData('key'));
-        //this.createInspectorCardAxisCard()
-        const xAxis = this.addInspectorCardChartAxisCard('X Axis Data', data.data.getHeaders());
-        const yAxis = this.addInspectorCardChartAxisCard('Y Axis Data', data.data.getHeaders());
-        console.log(xAxis);
-        this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
-        this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
-        this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
-        this.chartData.listenToYAxisLabelChanges(yAxis.labelInput);
-        this.chartData.setInitialValues(xAxis.dropdown.value, yAxis.dropdown.value, xAxis.labelInput.value, yAxis.labelInput.value);
-        this.addBuildChartEventListener(this.addInspectorCardGenerateChartButton());
+        const columnCheckboxes = this.addInspectorCardIncludeColumnCard(data.data.getHeaders());
+        this.chartData.listenToCheckboxChanges(columnCheckboxes);
+        this.addGenerateTablePreviewEventListener(this.addInspectorCardGenerateTablePreviewButton());
+        this.addCreateCSVFileEventListener(this.addInspectorCardGenerateCSVFileButton());
+        console.log(data);
+    }
+
+    addGenerateTablePreviewEventListener(button) { button.addEventListener('click', this.createNewTableFromButtonClick.bind(this)); }
+    addCreateCSVFileEventListener(button) { button.addEventListener('click', this.createCSVFile.bind(this))};
+
+    createCSVFile() {
+        GM.MM.emitCreateCSVEvent(this.getData('linkedDataKey'), this.getData('key'), this.chartData.getTableData());
+    }
+
+    createNewTableFromButtonClick() {
+        GM.MM.emitLocalTableEvent(
+            this.getData('linkedDataKey'),
+            this.getData('key'),
+            this.chartData.getTableData(),
+            this.getData('plotDiv'),
+            'table');
     }
 
     setPopupContent = () => {
         const popupContent = GM.HF.createNewDiv('', '', [], []);
-        const setValueWrapper = GM.HF.createNewDiv('', '', ['setValueWrapper'], []);
-        popupContent.appendChild(setValueWrapper);
-        const dataArea = GM.HF.createNewDiv('', '', ['numberDataArea'], []);
-        this.textArea = GM.HF.createNewParagraph('', '', ['popup-text-large'], [], this.data);
-        dataArea.appendChild(this.textArea);
-        popupContent.appendChild(dataArea);
+        const plotDiv = GM.HF.createNewDiv(`plot_${this.key}`, `plot_${this.key}`, ['plot1'], ['chartDiv']);
+        popupContent.appendChild(plotDiv);
         this.addData('popupContent', popupContent, false, '', false);
+        this.addData('plotDiv', plotDiv, false, '', false);
     };
+
+    storeTableHeaders(headerRow) {
+        console.log(headerRow);
+        this.chartData.storeHeaders(headerRow);
+    }
 }

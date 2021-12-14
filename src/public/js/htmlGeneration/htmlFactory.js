@@ -1,4 +1,4 @@
-import {  H3Generator, H1Generator, DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, SelectGenerator } from "./index.js";
+import {  H3Generator, H1Generator, DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator } from "./index.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
 export class HTMLFactory {
 
@@ -12,6 +12,7 @@ export class HTMLFactory {
     #selectGenerator;
     #h3Generator;
     #h1Generator;
+    #checkboxGenerator;
 
     constructor() {
         this.#tableGenerator = new HTMLTableGenerator();
@@ -22,6 +23,7 @@ export class HTMLFactory {
         this.#selectGenerator = new SelectGenerator();
         this.#h3Generator = new H3Generator();
         this.#h1Generator = new H1Generator();
+        this.#checkboxGenerator = new CheckboxGenerator();
     };
 
     createNewTable(dataTable, rowLimit) {
@@ -156,6 +158,21 @@ export class HTMLFactory {
      */
     createNewSelect(id, name, classlist, customStyles, options, optionText) {
         return this.#selectGenerator.generateNewSelect(id, name, classlist, customStyles, options, optionText);
+    }
+
+    /**
+     * Creates a checkbox with label wrapped in a div.
+     * @param {string} id 
+     * @param {string} name 
+     * @param {string[]} classlist 
+     * @param {string[]} customStyles 
+     * @param {string} value 
+     * @param {string} label 
+     * @param {boolean} checked 
+     * @return {wrapper: (Div), checkbox: (Input), label: (Label)t}
+     */
+    createNewCheckbox(id, name, classlist, customStyles, value, label, checked) {
+        return this.#checkboxGenerator.generateCheckbox(id, name, classlist, customStyles, value, label, checked);
     }
 
     /** Takes an array of style objects and applies them to an element

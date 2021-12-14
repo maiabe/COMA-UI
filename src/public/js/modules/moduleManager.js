@@ -222,6 +222,15 @@ export class ModuleManager {
         this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Local Chart Event', {datasetKey: key, moduleKey: moduleKey, fieldData: chartData, div: div, type: type}));
     }
 
+    emitLocalTableEvent(key, moduleKey, chartData, div, type) {
+        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Local Table Event', {datasetKey: key, moduleKey: moduleKey, fieldData: chartData, div: div, type: type}));
+    }
+
+    emitCreateCSVEvent(datasetKey, moduleKey, chartData) {
+        console.log(datasetKey, moduleKey);
+        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New CSV File Event', {datasetKey: datasetKey, moduleKey: moduleKey, fieldData: chartData}));
+    }
+
     /**
      * This function will process data returned from the server. This data needs to be turned into a chart.
      * @param {Module} module The module associated with the chart.

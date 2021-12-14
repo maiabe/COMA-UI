@@ -2,6 +2,7 @@ import { printErrorMessage } from '../../errorHandling/errorHandlers.js';
 import { AxisCard } from './inspectorCardComponents/axisCard.js';
 import { KeyValueCard } from './inspectorCardComponents/keyValueCard.js';
 import {GM} from '../../main.js';
+import { IncludeColumnCard } from './index.js';
 
 export class InspectorCard {
     #cardId;
@@ -68,6 +69,13 @@ export class InspectorCard {
         if (keyValueCard) {
             keyValueCard.updateValue(text);
         } else printErrorMessage(`Undefined or Null Variable`, `data: ${data}. -- Inspector Card -> updateDynamicField`);
+    }
+
+    addIncludeColumnCard(checkboxes) {
+        const card = new IncludeColumnCard(checkboxes);
+        this.appendToBody(card.getCard());
+        console.log(card);
+        return card;
     }
 
     addAxisCard(axis, dropdownData) {

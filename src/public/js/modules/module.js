@@ -121,9 +121,9 @@ export class Module {
     };
 
     setInspectorCardDescriptionText(text) {
-        this.inspectorCard.appendToBody(GM.HF.createNewParagraph('','', ['inspector-card-description'], [], text));
+        this.inspectorCard.appendToBody(GM.HF.createNewParagraph('', '', ['inspector-card-description'], [], text));
     }
-    
+
     addInspectorCardIDField() {
         this.inspectorCard.addKeyValueCard('Module Id', [this.getData('key').toString()]);
     }
@@ -137,9 +137,24 @@ export class Module {
     }
     addInspectorCardChartAxisCard(title, headers) {
         const dropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], headers, headers);
-        const labelInput = GM.HF.createNewTextInput('','', ['axis-card-label-input'], [], 'text');
+        const labelInput = GM.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
         this.inspectorCard.addKeyValueCard(title, [dropDown, labelInput]);
-        return {dropdown: dropDown, labelInput: labelInput};
+        return { dropdown: dropDown, labelInput: labelInput };
+    }
+
+    addInspectorCardIncludeColumnCard(headers) {
+        let checkboxes = [];
+        headers.forEach((header, index) => {
+            checkboxes.push(GM.HF.createNewCheckbox(`includeColumn-checkbox-module${this.getData('key')}-${index}`,
+                `includeColumn-checkbox-module${this.getData('key')}-${index}`,
+                ['include-column-checkbox'],
+                [],
+                header,
+                header,
+                true));
+        });
+        this.inspectorCard.addIncludeColumnCard(checkboxes);
+        return checkboxes;
     }
 
     addInspectorCardGenerateChartButton() {
@@ -148,9 +163,21 @@ export class Module {
         return button;
     }
 
+    addInspectorCardGenerateTablePreviewButton() {
+        const button = GM.HF.createNewButton(`create-table-preview-button-${this.getData('key')}`, `create-table-preview-button-${this.getData('key')}`, [], [], 'button', 'Genereate', false);
+        this.#addDynamicInspectorCardFieldWithPrebuiltValueDiv('Preview Table: ', button, false);
+        return button;
+    }
+
+    addInspectorCardGenerateCSVFileButton() {
+        const button = GM.HF.createNewButton(`create-CSV-button-${this.getData('key')}`, `create-CSV-button-${this.getData('key')}`, [], [], 'button', 'Genereate', false);
+        this.#addDynamicInspectorCardFieldWithPrebuiltValueDiv('Generate CSV File: ', button, false);
+        return button;
+    }
+
     #createInspectorCardKeyText = text => GM.HF.createNewParagraph('', '', ['inspector-card-key-text'], [], text);
     #createInspectorCardValueText = text => GM.HF.createNewParagraph('', '', ['inspector-card-value-text'], [], text);
-    
+
     #addInspectorCardField(key, value, dynamic) {
         const container = this.#createInspectorCardHorizontalFlexContainer();
         const keyDiv = this.#createInspectorCardKeyText(key);

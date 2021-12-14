@@ -108,29 +108,44 @@ export class ChartBuilder {
                 break;
             case 'table':
                 data.type = 'table';
-                data.header = this.getPlotlyTableHeaderObject();
+                data.header = this.getPlotlyTableHeaderObject(data);
                 data.cells = this.getPlotlyTableCellsObject(data);
                 break;
         }
         return data;
     }
 
-    getPlotlyTableHeaderObject = () => {
-        return {
-            values: [["<b>X</b>"], ["<b>Y</b>"]],
+    getPlotlyTableHeaderObject = data => {
+        
+        const header = {
+            values: [],
             align: "center",
             line: { width: 1, color: 'black' },
             fill: { color: "black" },
             font: { family: "Arial", size: 18, color: "white" }
         };
+
+        data.headerNames = [];
+        Object.keys(data).forEach(key => {
+            if (key !== 'type' && key !== 'headerNames' && key !== 'header' && key !== 'cells') {
+                header.values.push([`<br>${key}<br>`]);
+                data.headerNames.push(key);
+            }
+
+        });
+        return header;
     };
 
     getPlotlyTableCellsObject = data => {
-        return {
-            values: [data.x, data.y],
+        const cellObject = {
+            values: [],
             align: "right",
             line: { color: "black", width: 1 },
             font: { family: "Arial", size: 11, color: ["black"] }
         };
+        data.headerNames.forEach(header => {
+            cellObject.values.push(data[header]);
+        });
+        return cellObject;
     };
 }

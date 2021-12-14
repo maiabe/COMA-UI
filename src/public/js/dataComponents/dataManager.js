@@ -105,7 +105,7 @@ export class DataManager {
      * @param {object {xAxisField: string, yAxisField: string}} fields 
      * @returns reduced data.
      */
-    getDataWithFields(key, fields) {
+    getXYDataWithFields(key, fields) {
         /* this.getData(key) returns and object with fields like type: 'table', data: DataTable 
         Then, the DataTable object has keys type: 'table' and data: ....
         To access the data, use getData() because the actual data is a private field. */
@@ -116,10 +116,41 @@ export class DataManager {
             indicies[entry[0].toString()] = data[0].indexOf(entry[1]);  // Get Indices of the headers
         });
 
-        const chartData ={type: data.type, data: {x: [], y: []}} ; // Build the arrays to plot.
-        for(let i = 1; i < data.length; i++) {
+        const chartData = { type: data.type, data: { x: [], y: [] } }; // Build the arrays to plot.
+        for (let i = 1; i < data.length; i++) {
             chartData.data.x.push(data[i][indicies.xAxisField]);
             chartData.data.y.push(data[i][indicies.yAxisField]);
+        }
+        return chartData;
+    }
+
+    /**
+     * Reduces a data object, getting only the data for specified columns. Users can select a subset of the possible columns
+     * when displaying a table or downloading a csv file.
+     * @param {number} key The key for the data hash table.
+     * @param {object {xAxisField: string, yAxisField: string}} fields 
+     * @returns reduced data.
+     */
+    getTableDataWithFields(key, fields) {
+        /* this.getData(key) returns and object with fields like type: 'table', data: DataTable 
+        Then, the DataTable object has keys type: 'table' and data: ....
+        To access the data, use getData() because the actual data is a private field. */
+        const data = this.getData(key).data.getData();
+
+        const indicies = {};  // indicies will copy the keys from fields and replace the values with the proper index in the data table.
+        const chartData = { type: 'table', data: {}}; // Build the arrays to plot.
+
+        fields.forEach(field => {
+            if (field.include) {
+                indicies[field.label.toString()] = data[0].indexOf(field.label);
+                chartData.data[field.label] = [];
+            }
+        });
+
+        for (let i = 1; i < data.length; i++) {
+            Object.entries(indicies).forEach(entry => {
+                chartData.data[entry[0]].push(data[i][entry[1]])
+            });
         }
         return chartData;
     }
