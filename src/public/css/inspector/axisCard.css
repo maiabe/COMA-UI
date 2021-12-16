@@ -35,3 +35,15 @@
 .justify-left {
     text-align: left;
 }
+
+.axis-card-button {
+    border-radius: 3px;
+    margin-top: 5px;
+    box-shadow: none;
+    border: 1px solid black;
+    transition: background-color 0.2s ease-out;
+}
+.axis-card-button:hover {
+    background-color: black;
+    color:white;
+}

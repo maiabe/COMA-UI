@@ -200,6 +200,12 @@ export default class Hub {
                 GM.IM.addObjects(data.data);
                 GM.DOM.populateObjectsDiv(data.data);
                 break;
+            case 'Request List Of Objects Event':
+                if (invalidVariables([varTest(data.callbackFunction, 'callbackFunction', 'function')], 'HUB', '#messageForInputManager (Request List Of Objects Event)' ))return;
+                let objects = GM.IM.getObjects();
+                if (objects === undefined) objects = {'9P': 'Temple 1', '10P': 'Temple 2'};
+                data.callbackFunction(objects);
+                break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForInputManager`);
                 break;

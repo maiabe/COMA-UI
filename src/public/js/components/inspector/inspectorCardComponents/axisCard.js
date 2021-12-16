@@ -1,15 +1,15 @@
 import { GM } from "../../../main.js";
 
 export class AxisCard {
-    constructor(dropdown, labelInput, title, gridCheckbox, tickCheckbox) {
+    constructor(dropdown, labelInput, title, gridCheckbox, tickCheckbox, addTraceButton) {
         this.elementTable = new Map();
-        this.#createHTMLElement(title, dropdown, labelInput, gridCheckbox, tickCheckbox);
+        this.#createHTMLElement(title, dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton);
     }
 
-    #createHTMLElement(title, dropdown, labelInput, gridCheckbox, tickCheckbox) {
+    #createHTMLElement(title, dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton) {
         this.#createWrapper();
         this.#createTitleBarElement(title);
-        this.#createDataField(dropdown);
+        this.#createDataField(dropdown, addTraceButton);
         this.#createLabelField(labelInput);
         this.#createCheckboxField(gridCheckbox, tickCheckbox);
     }
@@ -26,13 +26,19 @@ export class AxisCard {
         this.elementTable.get('wrapperElement').appendChild(titleBarElement);
     }
 
-    #createDataField(dropdown) {
+    #createDataField(dropdown, addTraceButton) {
         const wrapper = GM.HF.createNewDiv('', '', ['axis-card-label-field-wrapper'], []);
         const header = GM.HF.createNewParagraph('', '', [], [], 'Data');
         wrapper.appendChild(header);
         wrapper.appendChild(dropdown);
+        wrapper.appendChild(addTraceButton);
         this.storeElement('dataFieldWrapper', wrapper);
+        this.storeElement('addTraceButton', addTraceButton);
         this.elementTable.get('wrapperElement').appendChild(wrapper);
+    }
+
+    addTrace(dropdown) {
+        this.elementTable.get('dataFieldWrapper').insertBefore(dropdown, this.elementTable.get('addTraceButton'));
     }
 
     #createLabelField(labelInput) {
@@ -61,19 +67,19 @@ export class AxisCard {
 }
 
 export class XAxisCard extends AxisCard {
-    constructor(dropdown, labelInput, gridCheckbox, tickCheckbox) {
-        super(dropdown, labelInput, 'X Axis', gridCheckbox, tickCheckbox);
+    constructor(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton) {
+        super(dropdown, labelInput, 'X Axis', gridCheckbox, tickCheckbox, addTraceButton);
     }
 }
 
 export class YAxisCard extends AxisCard {
-    constructor(dropdown, labelInput, gridCheckbox, tickCheckbox) {
-        super(dropdown, labelInput, 'Y Axis', gridCheckbox, tickCheckbox);
+    constructor(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton) {
+        super(dropdown, labelInput, 'Y Axis', gridCheckbox, tickCheckbox, addTraceButton);
     }
 }
 
 export class ZAxisCard extends AxisCard {
-    constructor(dropdown, labelInput, gridCheckbox, tickCheckbox) {
-        super(dropdown, labelInput, 'Z Axis', gridCheckbox, tickCheckbox);
+    constructor(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton) {
+        super(dropdown, labelInput, 'Z Axis', gridCheckbox, tickCheckbox, addTraceButton);
     }
 }

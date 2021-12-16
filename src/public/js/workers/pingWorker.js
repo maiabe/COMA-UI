@@ -23,6 +23,15 @@ onmessage = e => {
                 });
             }
             break;
+        case 'Get Header':
+            const message = {
+                'fits_file': '/COMA/bundles/coma.9p/deepimpact/990318/990318.122'
+            }
+            postData(e.data.url, message)
+            .then(data => {
+                console.log(data);
+            });
+            break;
     }
 }
 
@@ -97,7 +106,6 @@ async function getRequest(url) {
 
 // Example POST method implementation:
 async function postData(url, data) {
-    data.clientId = id;
     //console.log(JSON.stringify(data));
     // Default options are marked with *
     const response = await fetch(url, {

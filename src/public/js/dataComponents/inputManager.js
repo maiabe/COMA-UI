@@ -53,4 +53,5 @@ export class InputManager {
 
     addRoutes = routes => this.#dataTable.set('routes', routes);
     addObjects = objects => this.#dataTable.set('objects', objects);
+    getObjects = () => this.#dataTable.get('objects');
 }

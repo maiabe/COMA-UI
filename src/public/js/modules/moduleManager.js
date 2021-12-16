@@ -227,8 +227,11 @@ export class ModuleManager {
     }
 
     emitCreateCSVEvent(datasetKey, moduleKey, chartData) {
-        console.log(datasetKey, moduleKey);
         this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New CSV File Event', {datasetKey: datasetKey, moduleKey: moduleKey, fieldData: chartData}));
+    }
+
+    requestListOfObjects(callbackFunction) {
+        this.#sendMessage(new Message(INPUT_MANAGER, MODULE_MANAGER, 'Request List Of Objects Event', {callbackFunction: callbackFunction}));
     }
 
     /**
@@ -323,7 +326,7 @@ export class ModuleManager {
      * @returns 
      */
     handleEchartThemeChange = (key, theme) => {
-        if (invalidVariables([varTest(key, 'key', 'number')], 'Module Manager', 'handleEchartThemeChange')) return;;
+        if (invalidVariables([varTest(key, 'key', 'number')], 'Module Manager', 'handleEchartThemeChange')) return;
         this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Change EChart Theme Event', {moduleKey: key, theme: theme}));
     };
 

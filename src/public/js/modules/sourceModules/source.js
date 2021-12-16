@@ -2,9 +2,8 @@ import { Module } from "../index.js";
 import { GM } from '../../main.js';
 /** This represents a source module and extends the module class. */
 export class Source extends Module {
-    constructor(category, color, shape, location, command, name, image, inports, outports, key) {
-        super(category, color, shape, command, name, image, inports, outports, key);
-        this.addData('location', location, false, '', false);
+    constructor(category, color, shape, location, command, name, image, inports, outports, key, description) {
+        super(category, color, shape, command, name, image, inports, outports, key, description);
     }
 }
 
@@ -18,8 +17,14 @@ export class Sql extends Source {
 
 export class Fits extends Source {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'remote', 'querySql', 'FITS File', 'images/icons/files.png', [], [{ name: 'OUT', leftSide: false }], key);
+        super(category, color, shape, 'remote', 'querySql', 'FITS', 'images/icons/files.png', [], [{ name: 'OUT', leftSide: false }], key, 'This module will retrieve fits files for an object.');
         this.setPopupContent();
+        this.createInspectorCardData();
+    }
+
+    createInspectorCardData() {
+        this.setInspectorCardDescriptionText('This module will retrieve fits files for an object.');
+        this.addInspectorCardObjectsDropdown();
     }
 }
 
@@ -71,7 +76,7 @@ export class NumberSource extends Source {
         super(category, color, shape, 'local', 'storeThisData', 'Number', 'images/icons/number.png', [], [{ name: 'OUT', leftSide: false }], key);
 
         this.setPopupContent();
-        this.addData('value', -1, true, -1, true);
+        this.addData('value', -1);
     }
 
     setPopupContent = () => {

@@ -53,11 +53,11 @@ export class ScatterPlot extends Output {
         //this.createInspectorCardAxisCard()
         const xAxis = this.addInspectorCardChartXAxisCard(data.data.getHeaders());
         const yAxis = this.addInspectorCardChartYAxisCard(data.data.getHeaders());
+                this.chartData.storeHeaders(data.data.getHeaders());
         this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
         this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
         this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
         this.chartData.listenToYAxisLabelChanges(yAxis.labelInput);
-        console.log(xAxis);
         this.chartData.listenToXAxisTickChanges(xAxis.tickCheckbox.checkbox);
         this.chartData.listenToYAxisTickChanges(yAxis.tickCheckbox.checkbox);
         this.chartData.listenToXAxisGridChanges(xAxis.gridCheckbox.checkbox);
@@ -70,6 +70,8 @@ export class ScatterPlot extends Output {
             yAxis.gridCheckbox.checkbox.checked,
             xAxis.tickCheckbox.checkbox.checked,
             yAxis.tickCheckbox.checkbox.checked);
+        this.chartData.listenToAddTraceButton(xAxis.addTraceButton);
+        this.chartData.listenToAddTraceButton(yAxis.addTraceButton);
         this.addBuildChartEventListener(this.addInspectorCardGenerateChartButton());
     }
 
@@ -116,11 +118,11 @@ export class BarChart extends Output {
         //this.createInspectorCardAxisCard()
         const xAxis = this.addInspectorCardChartXAxisCard(data.data.getHeaders());
         const yAxis = this.addInspectorCardChartYAxisCard(data.data.getHeaders());
+        this.chartData.storeHeaders(data.data.getHeaders());
         this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
         this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
         this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
         this.chartData.listenToYAxisLabelChanges(yAxis.labelInput);
-        console.log(xAxis);
         this.chartData.listenToXAxisTickChanges(xAxis.tickCheckbox.checkbox);
         this.chartData.listenToYAxisTickChanges(yAxis.tickCheckbox.checkbox);
         this.chartData.listenToXAxisGridChanges(xAxis.gridCheckbox.checkbox);
@@ -179,11 +181,11 @@ export class LineChart extends Output {
         //this.createInspectorCardAxisCard()
         const xAxis = this.addInspectorCardChartXAxisCard(data.data.getHeaders());
         const yAxis = this.addInspectorCardChartYAxisCard(data.data.getHeaders());
+        this.chartData.storeHeaders(data.data.getHeaders());
         this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
         this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
         this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
         this.chartData.listenToYAxisLabelChanges(yAxis.labelInput);
-        console.log(xAxis);
         this.chartData.listenToXAxisTickChanges(xAxis.tickCheckbox.checkbox);
         this.chartData.listenToYAxisTickChanges(yAxis.tickCheckbox.checkbox);
         this.chartData.listenToXAxisGridChanges(xAxis.gridCheckbox.checkbox);
@@ -196,9 +198,14 @@ export class LineChart extends Output {
             yAxis.gridCheckbox.checkbox.checked,
             xAxis.tickCheckbox.checkbox.checked,
             yAxis.tickCheckbox.checkbox.checked);
+        this.addNewTraceButtonListener(xAxis.addTraceButton);
+        this.addNewTraceButtonListener(yAxis.addTraceButton);
         this.addBuildChartEventListener(this.addInspectorCardGenerateChartButton());
     }
 
+    addNewTraceButtonListener(button) {
+        button.addEventListener('click', this.addTrace.bind(this));
+    }
 
     addBuildChartEventListener(button) { button.addEventListener('click', this.createNewChartFromButtonClick.bind(this)); }
 
@@ -209,6 +216,12 @@ export class LineChart extends Output {
             this.chartData.getChartData(),
             this.getData('plotDiv'),
             'line');
+    }
+
+    addTrace() {
+        const dropDownX = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], this.chartData.getHeaders(),this.chartData.getHeaders()); 
+        const dropDownY = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], this.chartData.getHeaders(), this.chartData.getHeaders());
+        
     }
 }
 

@@ -29,15 +29,15 @@ export class Module {
      */
     setInitialDataValues = (type, color, shape, command, name, imagePath, inports, outports, key, description) => {
         if (type && color && shape && command && name && imagePath && inports && outports && key) {
-            this.addData('type', type, true, type, false);
-            this.addData('image', imagePath, false, '', false);
-            this.addData('color', color, false, '', false);
-            this.addData('shape', shape, false, '', false);
-            this.addData('inports', inports, false, '', false);
-            this.addData('outports', outports, false, '', false);
-            this.addData('name', name, true, name, false);
-            this.addData('key', key, true, -1, false);
-            this.addData('command', command, false, '', false);
+            this.addData('type', type,);
+            this.addData('image', imagePath);
+            this.addData('color', color);
+            this.addData('shape', shape);
+            this.addData('inports', inports);
+            this.addData('outports', outports);
+            this.addData('name', name);
+            this.addData('key', key);
+            this.addData('command', command);
             this.addData('description', description);
         } else console.log(`ERROR: Missing Parameter. type: ${type}, imagePath: ${imagePath}, color: ${color}, shape: ${shape}, command: ${command}, name: ${name}, inports: ${inports}, outports: ${outports}, key: ${key}. -- Module -> setInitialDataValues`);
     };
@@ -65,9 +65,10 @@ export class Module {
      * @param {string} inspectorText the text to display in the inspector
      * @param {boolean} modify true if user can modify this value in the inspector, false if it is read only.
      */
-    addData = (key, value, allowInspection, inspectorText, modify) => {
-        if (invalidVariables([varTest(key, 'key', 'string'), varTest(value, 'value', 'any'), varTest(allowInspection, 'allowInspection', 'boolean'), varTest(inspectorText, 'inspectorText', 'any'), varTest(modify, 'modify', 'boolean')], 'Module', 'addData')) return;
-        else this.#dataTable.set(key, { data: value, inspector: { allowInspection: allowInspection, text: inspectorText, modify: modify, modifyType: 'text input' } });
+    addData = (key, value) => {
+        console.log(key, value);
+        if (invalidVariables([varTest(key, 'key', 'string'), varTest(value, 'value', 'any')], 'Module', 'addData')) return;
+        else this.#dataTable.set(key, value);
     }
 
     /**
@@ -76,13 +77,9 @@ export class Module {
      * @param {*} data the data value to update
      * @param {string} inspectorText inspector text to update for this value.
      */
-    setData = (key, data, inspectorText) => {
-        if (invalidVariables([varTest(key, 'key', 'string'), varTest(data, 'data', 'any'), varTest(inspectorText, 'inspectorText', 'any')], 'Module', 'setData')) return;
-        if (this.#dataTable.has(key)) {
-            const val = this.#dataTable.get(key);
-            val.data = data;
-            val.inspector.text = inspectorText.toString();
-        } else printErrorMessage(`No data found for the key`, `key: ${key}. -- Module -> setData`);
+    setData = (key, data) => {
+        if (invalidVariables([varTest(key, 'key', 'string'), varTest(data, 'data', 'any')], 'Module', 'setDataValue')) return undefined;
+        this.#dataTable.set(key, data);
     }
 
     /**
@@ -93,9 +90,7 @@ export class Module {
      */
     setDataValue = (key, data) => {
         if (invalidVariables([varTest(key, 'key', 'string'), varTest(data, 'data', 'any')], 'Module', 'setDataValue')) return undefined;
-        const val = this.#dataTable.get(key);
-        val.data = data;
-        if (val.inspector.allowInspection) val.inspector.text = data.toString(); // Update inspector text if necessary
+        this.#dataTable.set(key, data);
         return this;
     }
 
@@ -106,7 +101,7 @@ export class Module {
      */
     getData = key => {
         if (key != undefined && key !== '') {
-            if (this.#dataTable.has(key)) return this.#dataTable.get(key).data;
+            if (this.#dataTable.has(key)) return this.#dataTable.get(key);
             else console.log(`ERROR: No data found for key: ${key}. -- Module -> getData`);
         } else console.log(`ERROR: key: ${key}. -- Module -> getData`);
         return undefined;
@@ -125,6 +120,8 @@ export class Module {
     }
 
     addInspectorCardIDField() {
+        console.log(this.getData('key'));
+        console.log(this.#dataTable);
         this.inspectorCard.addKeyValueCard('Module Id', [this.getData('key').toString()]);
     }
 
@@ -135,13 +132,36 @@ export class Module {
     addInspectorCardLinkedNodeField(key) {
         this.inspectorCard.addDynamicKeyValueCard('Linked Node(s)', [`(${key})`]);
     }
+
+    addInspectorCardObjectsDropdown() {
+        GM.MM.requestListOfObjects(this.createInspectorCardDropdown.bind(this));
+    }
+
+    createInspectorCardDropdown(objectsList) {
+        this.addData('Objects List', objectsList);
+        this.addData('Selected Object', Object.keys(objectsList)[0]);
+        const searchCard = this.inspectorCard.addObjectsSearchCard(objectsList);
+        searchCard.getCard().dropdown.addEventListener('change', this.updateSelectedObject.bind(this));
+    }
+
+    updateSelectedObject = event => {
+        this.setData('Selected Object', event.target.value);
+        console.log(this.#dataTable);
+    }
+
     addInspectorCardChartXAxisCard(headers) {
         const dropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], headers, headers);
         const labelInput = GM.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
         const gridCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');
         const tickCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Ticks', 'Ticks');
-        this.inspectorCard.addXAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper);
-        return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox };
+        const addTraceButton = GM.HF.createNewButton('','', ['axis-card-button'], [], 'button', 'Add Trace');
+        this.inspectorCard.addXAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper, addTraceButton);
+        return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox, addTraceButton: addTraceButton };
+    }
+
+    addNewTraceToInspectorCard(xDropdown, yDropdown) {
+        // TODO: Add traces to the x and y Axis cards.
+        // TODO: Store the axis cards so they can be edited.
     }
 
     addInspectorCardChartYAxisCard(headers) {
@@ -149,8 +169,9 @@ export class Module {
         const labelInput = GM.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
         const gridCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');
         const tickCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Ticks', 'Ticks');
-        this.inspectorCard.addYAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper);
-        return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox };
+        const addTraceButton = GM.HF.createNewButton('','', ['axis-card-button'], [], 'button', 'Add Trace');
+        this.inspectorCard.addYAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper, addTraceButton);
+        return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox, addTraceButton: addTraceButton };
     }
 
     addInspectorCardIncludeColumnCard(headers) {

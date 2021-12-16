@@ -167,6 +167,14 @@ export class WorkerManager {
         } else console.log(`ERROR: id: ${id}. -- WorkerManager -> stopWorker.`);
     }
 
+    sendPhotometry = (id, method, url) => {
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'sendPhotometry')) return false;
+        if (this.#workers.has(id)) {
+            this.#workers.get(id).worker.postMessage({ type: `Get Header`, method: method, url: url});
+            return true;
+        } else return false;
+    }
+
     /**
      * Webworkers have a unique id. When one is created, the id is generated from this function.
      * @returns the next webworker id.
@@ -228,14 +236,30 @@ document.addEventListener('keyup', e => {
 /**
  * If user presses f, all workers are destroyed.
  */
+// document.addEventListener('keyup', e => {
+//     if (e.code === 'KeyM') {
+//         const worker = GM.WM.startWorker();
+//         const workerIndex = GM.WM.addWorkerToDataTable(worker);
+//         GM.WM.notifyWorkerOfId(workerIndex)
+//             .setStopWorkerFunction(workerIndex)
+//             .setHandleReturnFunction(workerIndex)
+//             .setWorkerMessageHandler(workerIndex)
+//             .sendGetRequest(workerIndex);
+//     }
+// });
+
+/**
+ * 
+ * If user presses f, all workers are destroyed.
+ */
 document.addEventListener('keyup', e => {
-    if (e.code === 'KeyM') {
+    if (e.code === 'KeyN') {
         const worker = GM.WM.startWorker();
         const workerIndex = GM.WM.addWorkerToDataTable(worker);
         GM.WM.notifyWorkerOfId(workerIndex)
             .setStopWorkerFunction(workerIndex)
             .setHandleReturnFunction(workerIndex)
             .setWorkerMessageHandler(workerIndex)
-            .sendGetRequest(workerIndex);
+            .sendPhotometry(workerIndex, 'POST', 'http://localhost:5004/fits/header/');
     }
 });

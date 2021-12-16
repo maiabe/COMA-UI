@@ -16,6 +16,8 @@ export class ChartDataStorage {
     listenToXAxisGridChanges(element) { element.addEventListener('change', this.updateXAxisGrid.bind(this)) };
     listenToYAxisGridChanges(element) { element.addEventListener('change', this.updateYAxisGrid.bind(this)) };
 
+
+
     updateXAxisFieldName = event => this.#setData('xAxisField', event.target.value);
     updateYAxisFieldName = event => this.#setData('yAxisField', event.target.value);
     updateXAxisLabel = event => this.#setData('xAxisLabel', event.target.value);

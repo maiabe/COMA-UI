@@ -1,0 +1,16 @@
+.inspector-card-objects-search-wrapper {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.inspector-card-objects-search-wrapper>p {
+    width: 100%;
+    text-align: center;
+}
+
+.inspector-card-objects-search-bar, .inspector-card-objects-search-dropdown{
+   margin: 10px 10% 0 10%;
+}
+

@@ -28,7 +28,7 @@ export class OutputManager {
      * @returns true if successful, false if failure
      */
     storeChartData = (key, data, div, type, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick) => {
-        if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(div, 'div', 'object'), varTest(type, 'type', 'string'), varTest(xAxisGrid, 'xAxisGrid', 'boolean'), varTest(yAxisGrid, 'yAxisGrid', 'boolean'), varTest(xAxisTick, 'xAxisTick', 'boolean'), varTest(yAxisTick, 'yAxisTick', 'boolean')], 'OutputManager', 'storeChartData')) return false;
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(div, 'div', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
         this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark', xAxisLabel: xAxisLabel, yAxisLabel: yAxisLabel, xAxisGrid: xAxisGrid, yAxisGrid: yAxisGrid, xAxisTick: xAxisTick, yAxisTick: yAxisTick });
         return true;
     }
