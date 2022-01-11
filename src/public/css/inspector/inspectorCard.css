@@ -37,7 +37,7 @@
   height: 8px;
   width: calc(100% - 8px);
   border-radius: 0 0 10px 10px;
-  transition: height 0.2s ease-in;
+  transition: height 0.1s linear;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;

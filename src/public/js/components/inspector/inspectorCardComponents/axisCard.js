@@ -34,6 +34,7 @@ export class AxisCard {
         wrapper.appendChild(addTraceButton);
         this.storeElement('dataFieldWrapper', wrapper);
         this.storeElement('addTraceButton', addTraceButton);
+        this.storeElement('lastDropdown', dropdown);
         this.elementTable.get('wrapperElement').appendChild(wrapper);
     }
 
@@ -57,6 +58,11 @@ export class AxisCard {
         wrapper.appendChild(tickCheckbox);
         this.storeElement('labelFieldWrapper', wrapper);
         this.elementTable.get('wrapperElement').appendChild(wrapper);
+    }
+
+    addTraceDropdown(dropdown) {
+        this.elementTable.get('lastDropdown').after(dropdown);
+        this.elementTable.set('lastDropdown', dropdown);
     }
 
     getCard = () => this.elementTable.get('wrapperElement');

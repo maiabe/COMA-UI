@@ -260,6 +260,6 @@ document.addEventListener('keyup', e => {
             .setStopWorkerFunction(workerIndex)
             .setHandleReturnFunction(workerIndex)
             .setWorkerMessageHandler(workerIndex)
-            .sendPhotometry(workerIndex, 'POST', 'http://localhost:5004/fits/header/');
+            .sendPhotometry(workerIndex, 'POST', 'https://coma.ifa.hawaii.edu/api/fits/header/');
     }
 });

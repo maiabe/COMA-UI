@@ -178,9 +178,9 @@ export class LineChart extends Output {
 
     updateInspectorCardWithNewData(dataModule, data) {
         this.addInspectorCardLinkedNodeField(dataModule.getData('key'));
-        //this.createInspectorCardAxisCard()
         const xAxis = this.addInspectorCardChartXAxisCard(data.data.getHeaders());
         const yAxis = this.addInspectorCardChartYAxisCard(data.data.getHeaders());
+        yAxis.dropdown.id = `${this.chartData.getNumberOfTraces()}-x-axis-dropdown`;
         this.chartData.storeHeaders(data.data.getHeaders());
         this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
         this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
@@ -219,9 +219,12 @@ export class LineChart extends Output {
     }
 
     addTrace() {
-        const dropDownX = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], this.chartData.getHeaders(),this.chartData.getHeaders()); 
-        const dropDownY = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], this.chartData.getHeaders(), this.chartData.getHeaders());
-        
+        const dropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], this.chartData.getHeaders(),this.chartData.getHeaders()); 
+        this.addNewTraceToInspectorCard(dropDown);
+        dropDown.id = `${this.chartData.getNumberOfTraces()}-x-axis-dropdown`;
+        this.chartData.listenToYAxisDataChanges(dropDown);
+        console.log(dropDown.id);
+        this.chartData.addInitialValueForNewTrace(dropDown.value, dropDown.id.split('-')[0]);
     }
 }
 

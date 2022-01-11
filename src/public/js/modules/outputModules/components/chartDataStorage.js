@@ -1,9 +1,11 @@
 export class ChartDataStorage {
 
     #dataTable;
+    numberOfTraces;
 
     constructor(chartType) {
         this.#dataTable = new Map();
+        this.numberOfTraces = 0;
         this.#setData('chartType', chartType);
     }
 
@@ -19,7 +21,12 @@ export class ChartDataStorage {
 
 
     updateXAxisFieldName = event => this.#setData('xAxisField', event.target.value);
-    updateYAxisFieldName = event => this.#setData('yAxisField', event.target.value);
+    updateYAxisFieldName = event => {
+        const yAxisArray = this.#dataTable.get('yAxisField');
+        const index = event.target.id.split('-')[0];
+        yAxisArray[index] = event.target.value;
+        console.log(this.#dataTable);
+    }
     updateXAxisLabel = event => this.#setData('xAxisLabel', event.target.value);
     updateYAxisLabel = event => this.#setData('yAxisLabel', event.target.value);
     updateXAxisTick = event => this.#setData('xAxisTick', event.target.checked);
@@ -35,14 +42,17 @@ export class ChartDataStorage {
     }
 
     setInitialValues(xAxisField, yAxisField, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick) {
+        const yAxisFieldArray = new Array(100);
+        yAxisFieldArray[this.numberOfTraces] = yAxisField;
         this.#setData('xAxisField', xAxisField);
-        this.#setData('yAxisField', yAxisField);
+        this.#setData('yAxisField', yAxisFieldArray);
         this.#setData('xAxisLabel', xAxisLabel);
         this.#setData('yAxisLabel', yAxisLabel);
         this.#setData('xAxisGrid', xAxisGrid);
         this.#setData('yAxisGrid', yAxisGrid);
         this.#setData('xAxisTick', xAxisTick);
-        this.#setData('yAxisTick', yAxisTick)
+        this.#setData('yAxisTick', yAxisTick);
+        this.numberOfTraces = 1;
     }
 
     toggleIncludeHeader(event) {
@@ -50,7 +60,6 @@ export class ChartDataStorage {
         headerArray.forEach(header => {
             if (header.label === event.target.value) header.include = event.target.checked;
         });
-        console.log(this.#dataTable);
     }
 
     storeHeaders(headers) {
@@ -61,6 +70,18 @@ export class ChartDataStorage {
         this.#setData('headers', headerArray);
     }
 
+    getHeaders = () => {
+        const headers = this.#dataTable.get('headers');
+        const lables = [];
+        headers.forEach(header => lables.push(header.label));
+        return lables;
+    }
+
+    addInitialValueForNewTrace(value, index) {
+        const yAxisArray = this.#dataTable.get('yAxisField');
+        yAxisArray[index] = value;
+        this.numberOfTraces++;
+    }
     getChartData() {
         return {
             xAxisField: this.#dataTable.get('xAxisField'),
@@ -77,6 +98,8 @@ export class ChartDataStorage {
     getTableData() {
         return this.#dataTable.get('headers');
     }
+
+    getNumberOfTraces = () => this.numberOfTraces;
 
     #setData(key, value) {
         this.#dataTable.set(key, value);

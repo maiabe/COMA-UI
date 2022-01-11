@@ -154,12 +154,14 @@ export class InspectorCard {
     addXAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton) {
         const card = new XAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton);
         this.appendToBody(card.getCard());
+        this.#axisCardMap.set('x', card);
         return card;
     }
 
     addYAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton) {
         const card = new YAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton);
         this.appendToBody(card.getCard());
+        this.#axisCardMap.set('y', card);
         return card;
     }
 
@@ -178,5 +180,10 @@ export class InspectorCard {
     addDynamicKeyValueCard(key, value) {
         this.#dynamicFields.set(key, this.addKeyValueCard(key, value));
     }
+
+    addChartTrace(dropdown) {
+        this.#axisCardMap.get('y').addTraceDropdown(dropdown);
+    }
+    
     getCard = () => this.#wrapperElement;
 }

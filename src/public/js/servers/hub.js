@@ -116,7 +116,6 @@ export default class Hub {
                 else GM.MM.updateModuleDataTable(data.moduleKey, data.field, data.newValue);
                 break;
             case 'Link Drawn Event':
-                // TODO: Handle Link Drawn Event.
                 if (GM.MM.checkForNewDataLink(data.toNodeKey, data.fromNodeKey)) {
                     if (GM.MM.getModule(data.toNodeKey).getData('type') === 'Output')
                         GM.MM.updateDynamicInspectorCardField(data.toNodeKey, 'Data Linked', true);
@@ -124,6 +123,13 @@ export default class Hub {
                     GM.MM.getModule(data.toNodeKey).setLinkedDataKey(data.fromNodeKey);
                     if (GM.MM.getModule(data.toNodeKey).storeTableHeaders) GM.MM.getModule(data.toNodeKey).storeTableHeaders(GM.DM.getData(data.fromNodeKey).data.getHeaders());
                 }
+                break;
+            case 'Nodes Deleted Event':
+                if (invalidVariables([varTest(data, 'data', 'object')], 'HUB', 'Nodes Deleted Event')) return;
+                data.forEach(key => {
+                    GM.MM.removeModule(key);
+                    GM.OM.removeOutputData(key);
+                });
                 break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForModuleManager`);
@@ -374,7 +380,7 @@ export default class Hub {
             .setWorkerMessageHandler(workerIndex)
             .setWorkerReturnMessageRecipient(workerIndex, INPUT_MANAGER)
             .setWorkerReturnMessage(workerIndex, 'Routes Loaded Event')
-            .contactServer(workerIndex, 'GET', 'http://localhost:5004/routes/');
+            .contactServer(workerIndex, 'GET', 'https://coma.ifa.hawaii.edu/api/routes/');
     }
 
     getObjects() {
@@ -385,7 +391,7 @@ export default class Hub {
             .setWorkerMessageHandler(workerIndex)
             .setWorkerReturnMessageRecipient(workerIndex, INPUT_MANAGER)
             .setWorkerReturnMessage(workerIndex, 'Objects Loaded Event')
-            .contactServer(workerIndex, 'GET', 'http://localhost:5004/objects/');
+            .contactServer(workerIndex, 'GET', 'https://coma.ifa.hawaii.edu/api/objects/');
     }
 
     getNewWorkerIndex() {

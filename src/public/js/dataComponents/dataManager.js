@@ -106,6 +106,7 @@ export class DataManager {
      * @returns reduced data.
      */
     getXYDataWithFields(key, fields) {
+        console.log(fields);
         /* this.getData(key) returns and object with fields like type: 'table', data: DataTable 
         Then, the DataTable object has keys type: 'table' and data: ....
         To access the data, use getData() because the actual data is a private field. */
@@ -113,13 +114,23 @@ export class DataManager {
 
         const indicies = {};  // indicies will copy the keys from fields and replace the values with the proper index in the data table.
         Object.entries(fields).forEach(entry => {
-            indicies[entry[0].toString()] = data[0].indexOf(entry[1]);  // Get Indices of the headers
+            if (entry[0] === 'yAxisField') {
+                indicies[entry[0].toString()] = [];
+                entry[1].forEach(field => {
+                    indicies[entry[0].toString()].push(data[0].indexOf(field));
+                });
+            } else indicies[entry[0].toString()] = data[0].indexOf(entry[1]);  // Get Indices of the headers
         });
 
         const chartData = { type: data.type, data: { x: [], y: [] } }; // Build the arrays to plot.
+        for (let i = 0; i < indicies.yAxisField.length; i++) {
+            chartData.data.y.push([]);
+        }
         for (let i = 1; i < data.length; i++) {
             chartData.data.x.push(data[i][indicies.xAxisField]);
-            chartData.data.y.push(data[i][indicies.yAxisField]);
+            for(let j = 0; j < indicies.yAxisField.length; j++) {
+                chartData.data.y[j].push(data[i][indicies.yAxisField[j]]);
+            }
         }
         return chartData;
     }

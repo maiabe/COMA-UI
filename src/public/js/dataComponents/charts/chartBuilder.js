@@ -27,7 +27,7 @@ export class ChartBuilder {
                 }
             },
             yAxis: {
-                type: isNaN(data.data.y[0]) ? 'category' : 'value',
+                type: isNaN(data.data.y[0][0]) ? 'category' : 'value',
                 name: yAxisLabel,
                 nameLocation: 'middle',
                 nameGap: 34,
@@ -38,18 +38,24 @@ export class ChartBuilder {
                     show: yAxisGrid
                 }
             },
-            series: [
-                {
-                    data: data.data.y,
-                    type: this.getEchartType(type)
-                }
-            ]
+            series: this.createSeries(data, type)
         };
         console.log(option);
         option && myChart.setOption(option);
         this.resizeEchart(myChart, width, height);
         return myChart;
     };
+
+    createSeries(data, type) {
+        const seriesArray = [];
+        data.data.y.forEach(dataList => {
+            seriesArray.push({
+                data: dataList,
+                type: this.getEchartType(type)
+            })
+        });
+        return seriesArray;
+    }
 
     /**
      * Resizes an Echart

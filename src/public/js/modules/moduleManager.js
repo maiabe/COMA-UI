@@ -58,9 +58,11 @@ export class ModuleManager {
      * @param {number} key the key of the module to remove
      * @return true if successful, false if failure.
      */
-    #removeModule = key => {
+    removeModule = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'ModuleManager', '#removeModule')) return false;
         if (this.moduleMap.has(key)) {
+            const module = this.moduleMap.get(key);
+            module.deleteInspectorCard();
             this.moduleMap.delete(key);
             return true;
         } else printErrorMessage('no module found for key', `key: ${key} -- ModuleManager - #removeModule`);

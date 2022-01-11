@@ -51,6 +51,14 @@ export class Environment {
         this.#myDiagram.addDiagramListener('LinkDrawn', e => {
             this.#sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Link Drawn Event', { event: 'LinkDrawn', fromNodeKey: e.subject.fromNode.key, toNodeKey: e.subject.toNode.key }));
         });
+
+        this.#myDiagram.addDiagramListener('SelectionDeleted', e => {
+            const deletedKeys = [];
+            e.subject.each(node => {
+                if (node.data.key) deletedKeys.push(node.data.key);
+            });
+            this.#sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Nodes Deleted Event', deletedKeys));
+        });
     }
 
     #createNewModel = () => {

@@ -45,7 +45,6 @@ export class OutputManager {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(div, 'div', 'object'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'OutputManager', 'drawChart')) return;
         if (this.#outputMap.has(key)) this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(this.#outputMap.get(key).data, this.#outputMap.get(key).type, div, width, height, this.#outputMap.get(key).framework, this.#outputMap.get(key).theme, this.#outputMap.get(key).xAxisLabel, this.#outputMap.get(key).yAxisLabel, this.#outputMap.get(key).xAxisGrid, this.#outputMap.get(key).yAxisGrid, this.#outputMap.get(key).xAxisTick, this.#outputMap.get(key).yAxisTick) });
         else printErrorMessage(`Missing Data.`, `key: ${key} - OutputManager -> drawChart`);
-        console.log('here');
     }
 
     /**
@@ -172,4 +171,8 @@ export class OutputManager {
     generateCsvFile = data => {
         this.#csvWriter.createCsvFileFromData('comaCSVFile', data);
     };
+
+    removeOutputData(key) {
+        if (this.#outputMap.has(key)) this.#outputMap.delete(key);
+    }
 }

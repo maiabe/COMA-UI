@@ -19,6 +19,7 @@ onmessage = e => {
                 getRequest(e.data.url)
                 .then(data => { data.text().then(text => {
                         handleReturn(JSON.parse(text));
+                        console.log(text)
                     });
                 });
             }

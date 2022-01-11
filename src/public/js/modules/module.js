@@ -159,9 +159,8 @@ export class Module {
         return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox, addTraceButton: addTraceButton };
     }
 
-    addNewTraceToInspectorCard(xDropdown, yDropdown) {
-        // TODO: Add traces to the x and y Axis cards.
-        // TODO: Store the axis cards so they can be edited.
+    addNewTraceToInspectorCard(dropdown) {
+        this.inspectorCard.addChartTrace(dropdown);
     }
 
     addInspectorCardChartYAxisCard(headers) {
@@ -234,6 +233,10 @@ export class Module {
 
     createInspectorCardAxisCard(whichAxis, dropdownHeaders) {
         this.inspectorCard.addAxisCard(whichAxis, dropdownValues);
+    }
+
+    deleteInspectorCard() {
+        this.inspectorCard.getCard().remove();
     }
 
     #createInspectorCardHorizontalFlexContainer = () => GM.HF.createNewDiv('', '', ['inspector-card-horizontal-flex-container'], []);
