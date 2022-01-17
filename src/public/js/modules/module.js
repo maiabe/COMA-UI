@@ -150,6 +150,7 @@ export class Module {
     }
 
     addInspectorCardChartXAxisCard(headers) {
+        const title = 'test';
         const dropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], headers, headers);
         const labelInput = GM.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
         const gridCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');
@@ -164,6 +165,7 @@ export class Module {
     }
 
     addInspectorCardChartYAxisCard(headers) {
+        const title = 'test';
         const dropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], headers, headers);
         const labelInput = GM.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
         const gridCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');

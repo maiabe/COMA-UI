@@ -11,7 +11,8 @@ export class DomManager {
 
     initializeDomManager() {
         this.#addToDomTable('navBarDiv', document.querySelector('#navWrapper'));
-        this.#addToDomTable('title', this.#initializeTitle('COMA'));
+        // this.#addToDomTable('title', this.#initializeTitle('COMA'));
+        this.#addToDomTable('logo', this.#initializeLogo());
         this.#addToDomTable('objectsDiv', this.#initializeObjectsDiv());
         this.#addToDomTable('routesDiv', this.#initializeRoutesDiv());
 
@@ -33,6 +34,12 @@ export class DomManager {
          const element = GM.HF.createNewH1('title', 'title', [], [], title);
          this.#domTable.get('navBarDiv').appendChild(element);
          return element;
+    }
+
+    #initializeLogo() {
+        const element = GM.HF.createNewIMG('logo','logo', '../../../images/logo/Coma-logos_transparent.png', ['logo'], [], 'COMA logo');
+        this.#domTable.get('navBarDiv').appendChild(element);
+        return element;
     }
 
     #addToDomTable(key, value) {
