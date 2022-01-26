@@ -14,11 +14,11 @@ export class WorkerManager {
     }
 
     /**
-     * Starts a new WebWorker object with pingWorker.js file.
+     * Starts a new WebWorker object with clientWorker.js file.
      * @returns a newly created webWorker
      */
     startWorker = () => {
-        if (typeof (Worker) !== "undefined") return new Worker("js/workers/pingWorker.js");
+        if (typeof (Worker) !== "undefined") return new Worker("js/workers/clientWorker.js");
         else console.log('ERROR: No Web Worker Support for this browser.');
         return undefined;
     }
@@ -109,6 +109,9 @@ export class WorkerManager {
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage, event.data));
                         workerObject.stopWorkerFunction(id);
                         break;
+                    case 'Saved Modules Return':
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage, event.data));
+                        break;
                 }
             }
         }
@@ -127,21 +130,42 @@ export class WorkerManager {
         return true;
     }
 
+    sendCompositeModuleInfoToServer = (id, groupInfo) => {
+        if (this.#workers.has(id)) this.#workers.get(id).worker.postMessage({ type: 'Save Module', groupInfo: groupInfo });
+    }
+
     /**
      * 
      * @param {number} id the worker id 
-     * @param {string} method REST API method: GET, POST, PUT
-     * @param {string} url  
      * @returns true if successful
      */
-    contactServer = (id, method, url) => {
-        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'sendPipelineToServer')) return false;
+    getObjectsFromServer = id => {
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'getObjectsFromServer')) return false;
         if (this.#workers.has(id)) {
-            this.#workers.get(id).worker.postMessage({ type: `Contact Server`, method: method, url: url});
+            this.#workers.get(id).worker.postMessage({ type: `Get Objects`});
+            return true;
+        } else return false;
+    }
+    /**
+     * 
+     * @param {number} id the worker id 
+     * @returns true if successful
+     */
+    getRoutesFromServer = id => {
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'getRoutesFromServer')) return false;
+        if (this.#workers.has(id)) {
+            this.#workers.get(id).worker.postMessage({ type: `Get Routes`});
             return true;
         } else return false;
     }
 
+    getSavedModulesFromServer = id => {
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'getSavedModulesFromServer')) return false;
+        if (this.#workers.has(id)) {
+            this.#workers.get(id).worker.postMessage({ type: `Load Saved Modules`});
+            return true;
+        } else return false;
+    }
     /**
      * Stops a webworker process
      * @param {number} id the id of the process to stop.
@@ -167,10 +191,10 @@ export class WorkerManager {
         } else console.log(`ERROR: id: ${id}. -- WorkerManager -> stopWorker.`);
     }
 
-    sendPhotometry = (id, method, url) => {
-        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'sendPhotometry')) return false;
+    requestNewJob = (id, method, url) => {
+        if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'requestNewJob')) return false;
         if (this.#workers.has(id)) {
-            this.#workers.get(id).worker.postMessage({ type: `Get Header`, method: method, url: url});
+            this.#workers.get(id).worker.postMessage({ type: `test`, method: method });
             return true;
         } else return false;
     }
@@ -260,6 +284,6 @@ document.addEventListener('keyup', e => {
             .setStopWorkerFunction(workerIndex)
             .setHandleReturnFunction(workerIndex)
             .setWorkerMessageHandler(workerIndex)
-            .sendPhotometry(workerIndex, 'POST', 'https://coma.ifa.hawaii.edu/api/fits/header/');
+            .requestNewJob(workerIndex, 'POST', 'https://localhost:8080/');
     }
 });

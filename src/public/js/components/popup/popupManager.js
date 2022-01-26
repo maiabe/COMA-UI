@@ -7,13 +7,14 @@ import { OUTPUT_MANAGER, POPUP, POPUP_MANAGER } from '../../sharedVariables/inde
 export class PopupManager {
     publisher;                  // Publishes Messages
     #popupList;                 // Map of popups
-    #popupIndex;                // Strictly increasing value that identifies a popup.
+    #nonModulePopupIndex;                // Strictly increasing value that identifies a non-module popup.
     #zIndex;
 
     constructor() {
         this.publisher = new Publisher();
         this.#popupList = new Map();       // Popups are indexed with a module Key.
         this.#zIndex = 10001;
+        this.#nonModulePopupIndex = 1000001;
     };
 
     /** Publishes a message to all subscribers 
@@ -46,6 +47,27 @@ export class PopupManager {
             this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Resize Popup Event', { moduleKey: moduleKey }));
         } else console.log(`ERROR: Popup already exists for moduleKey: ${moduleKey}. -- PopupManager -> createModulePopup.`);
     };
+
+    createOtherPopup = (content) => {
+        if (invalidVariables([varTest(content, 'content', 'object')], 'Popup Manager', 'createOtherPopup')) return;
+        const nextIndex = this.incrementNonModulePopupIndex();
+        if (!this.#popupList.has(nextIndex)) {
+            // Check window size before building.
+            let width = 400;
+            let height = 500;
+            if (window.innerWidth > 2048) {
+                width = 600;
+                height = 800;
+            }
+            const p = new Popup(width, height, 0, 0, nextIndex, content.color, content.content, content.headerText);
+            this.#popupList.set(nextIndex, { type: 'other', element: p });
+            this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Resize Popup Event', { moduleKey: nextIndex }));
+        } else console.log(`ERROR: Popup already exists for this key: ${nextIndex}. -- PopupManager -> createModulePopup.`);
+    }
+
+    incrementNonModulePopupIndex() {
+        return ++this.#nonModulePopupIndex;
+    }
 
     /**
      * Checks to see if a popup is already open for a module.

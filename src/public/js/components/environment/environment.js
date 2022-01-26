@@ -11,6 +11,7 @@ export class Environment {
     #model;     // The Gojs Model
     #nodeKey;   // Identifies individual Nodes. Keys are unique and icremented each time a node is added.
     #contextMenu;
+    #nextGroupKey;
 
     constructor(divID) {
         this.publisher = new Publisher();
@@ -18,6 +19,7 @@ export class Environment {
         this.#myDiagram;                            // GOJS diagram.
         this.#model;                                // GOJS Model.
         this.#nodeKey = 1;                          // Initialize the next node key to 1.
+        this.#nextGroupKey = -10000;
         this.#contextMenu = this.#createContextMenu();
         this.#setPrintEventListener();
     }
@@ -59,6 +61,9 @@ export class Environment {
             });
             this.#sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Nodes Deleted Event', deletedKeys));
         });
+
+        this.#myDiagram.addDiagramListener('SelectionGrouped', this.#handleNewGroup.bind(this));
+        this.#myDiagram.addDiagramListener('SelectionUngrouped', this.#handleUngrouping.bind(this));
     }
 
     #createNewModel = () => {
@@ -397,6 +402,31 @@ export class Environment {
         this.#myDiagram.model.addLinkData({ from: source, to: destination });
         this.#myDiagram.commitTransaction('make new link');
     }
+    createNewGroupNode() {
+        const key = this.getNextGroupKey();
+        this.#myDiagram.startTransaction("make new group");
+        this.#myDiagram.model.addNodeData({ key: key, isGroup: true });
+        this.#myDiagram.commitTransaction("make new group");
+        return key;
+    }
+    // createGroupFromModuleMap(moduleMap) {
+    //     const key = this.getNextGroupKey();
+
+    //     this.#myDiagram.startTransaction("make new group");
+    //     this.#myDiagram.model.addNodeData({ key: key, isGroup: true });
+    //     this.#myDiagram.commitTransaction("make new group");
+
+    //     moduleMap.forEach(module => {
+    //         const node = this.#myDiagram.findNodeForKey(module.getData('key'));
+    //         node.data.group = key;
+    //     });
+    //     this.#load();
+    // }
+
+    getNextGroupKey() {
+        this.#nextGroupKey = this.#nextGroupKey - 100;
+        return this.#nextGroupKey;
+    }
 
     /** Removes a node from the diagram. */
     #removeNode = (nodeKey) => {
@@ -429,11 +459,12 @@ export class Environment {
      * @param {Module} mod the module to insert into the graph
      * @param {boolean} templateExists true if a template exists for this node type, false if not.
      */
-    insertModule = (mod, templateExists) => {
+    insertModule = (mod, templateExists, groupKey) => {
         if (mod && templateExists != undefined) {
             if (!templateExists) this.#createTemplate(mod);
             this.#myDiagram.startTransaction("make new node");
-            this.#myDiagram.model.addNodeData({ "key": this.#nodeKey - 1, "type": mod.getData('name'), "name": mod.getData('type') });
+            if (groupKey) this.#myDiagram.model.addNodeData({ "key": this.#nodeKey - 1, "type": mod.getData('name'), "name": mod.getData('type') === 'Composite' ? '' : mod.getData('type'), "group": groupKey });
+            else this.#myDiagram.model.addNodeData({ "key": this.#nodeKey - 1, "type": mod.getData('name'), "name": mod.getData('type') === 'Composite' ? '' : mod.getData('type') });
             this.#myDiagram.commitTransaction("make new node");
         } else console.log(`ERROR: parameter error. mod: ${mod}, templateExists: ${templateExists}. -- Environment -> insertModule`);
     }
@@ -507,6 +538,42 @@ export class Environment {
             const node = this.#myDiagram.findNodeForKey(key);
             this.changeNodeBackgroundColor(node, this.#getNodeColor(node.data.name));
         });
+    }
+
+    #handleNewGroup() {
+        // When a new group is made, it should be the only thing selected on the diagram.
+        if (this.#myDiagram.selection.count != 1) {
+            console.log('More than one module selected error.');
+            return;
+        }
+
+        let groupKey = Infinity;
+        const groupDiagram = { nodes: [], links: [] };
+        // console.log(this.#model.nodeDataArray);
+        // console.log();
+        this.#myDiagram.selection.each(e => {
+            if (e.data.isGroup) groupKey = e.data.key;
+        });
+
+        if (groupKey != Infinity && groupKey != undefined) {
+            const idArray = [];
+            this.#model.nodeDataArray.forEach(node => {
+                if (node.group === groupKey) {
+                    groupDiagram.nodes.push(node);
+                    idArray.push(node.key);
+                }
+            });
+            this.#model.linkDataArray.forEach(link => {
+                if (idArray.includes(link.to) && idArray.includes(link.from)) groupDiagram.links.push(link);
+            });
+        }
+        this.#sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'New Group Created', { groupDiagram: groupDiagram, groupKey: groupKey }));
+    }
+
+    #handleUngrouping(event) {
+        const groupKeys = [];
+        event.subject.iterator.each(node => groupKeys.push(node.data.key));
+        this.#sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Nodes Deleted Event', groupKeys));
     }
 
     /**

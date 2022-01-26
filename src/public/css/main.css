@@ -131,7 +131,7 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
 
 /* the run botton is separate from the rest of the css currently */
 #runButton {
-  left: 60%;
+  left: 50%;
   top: 92%;
   position: absolute;
   z-index: 10000;
@@ -154,7 +154,7 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
 #environmentDiv {
   position: relative;
   outline: 1px solid black;
-  width: 71.5%;
+  width: 60%;
   height: 100%;
   max-height: 1000px;
   display: inline-block;

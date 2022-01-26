@@ -13,6 +13,11 @@ export class ChartBuilder {
     drawEChartChart = (data, type, pdiv, width, height, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick) => {
         const myChart = echarts.init(pdiv, theme);
         const option = {
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
             xAxis: {
                 type: isNaN(data.data.x[0]) ? 'category' : 'value',
                 data: data.data.x,

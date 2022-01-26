@@ -9,9 +9,7 @@ export class Inspector {
     subscriber;                 // Message Subscriber
     #currentModuleKey;          // Key identifying the Highlighted Module
     #htmlNode;
-    #inspectorHeader;
     #moduleCards;
-    #dataCards;
 
     constructor() {
         // Set Up the communication components.
@@ -22,17 +20,10 @@ export class Inspector {
         //this.createTitle();
         this.contentArea;
         this.#moduleCards = new Map();
-        this.#dataCards = new Map();
-        //this.createContentArea();
     }
 
     createInspectorDomNode() {
-        this.#createInspectorHeader()
-        .#createHeaderButtons()
-        .#appendHeaderButtons()
-        .#createInspectorModuleCardContainer()
-        .#createInspectorDataCardContainer();
-        this.showModuleCards();
+        this.#createInspectorModuleCardContainer();
     }
 
     #createInspectorModuleCardContainer() {
@@ -41,30 +32,11 @@ export class Inspector {
         return this;
     }
 
-    #createInspectorDataCardContainer() {
-        this.domNodes.dataCardContainer = GM.HF.createNewDiv('inspector-data-card-container', 'inspector-card-container', ['inspector-card-container'], []);
-        this.domNodes.container.appendChild(this.domNodes.dataCardContainer);
-        return this;
-    }
 
     #createInspectorHeader() {
         this.domNodes.inspectorHeaderContainer = GM.HF.createNewDiv('inspector-header', 'inspector-header', ['inspector-header'], []);
         this.domNodes.container.appendChild(this.domNodes.inspectorHeaderContainer);
         return this;
-    }
-
-    showModuleCards() {
-        this.domNodes.moduleCardContainer.style.display = 'flex';
-        this.domNodes.dataCardContainer.style.display = 'none';
-        this.domNodes.headerButtons.module.element.classList.add('active-header-button');
-        this.domNodes.headerButtons.data.element.classList.remove('active-header-button');
-    }
-
-    showDataCards() {
-        this.domNodes.moduleCardContainer.style.display = 'none';
-        this.domNodes.dataCardContainer.style.display = 'flex';
-        this.domNodes.headerButtons.module.element.classList.remove('active-header-button');
-        this.domNodes.headerButtons.data.element.classList.add('active-header-button');
     }
 
     // #createNewInspectorCard(title) {
@@ -83,24 +55,7 @@ export class Inspector {
     //     this.div.appendChild(titleDiv);
     // }
 
-    #createHeaderButtons() {
-        this.domNodes.headerButtons = {};
-        this.domNodes.headerButtons.module = {element: undefined, title: "Modules" }
-        this.domNodes.headerButtons.data = {element: undefined, title: 'Data' }
-        Object.values(this.domNodes.headerButtons).forEach((button, index) => {
-            button.element = this.#createHeaderButton(button.title, index);
-            index === 0 ? this.#createModulesHeaderButtonEventListener(button.element) : this.#createDataHeaderButtonEventListener(button.element);
-        });
-        return this;
-    }
 
-    #createModulesHeaderButtonEventListener(element) {
-        element.addEventListener('click', this.showModuleCards.bind(this));
-    }
-
-    #createDataHeaderButtonEventListener(element) {
-        element.addEventListener('click', this.showDataCards.bind(this));
-    }
 
     #appendHeaderButtons() {
         Object.values(this.domNodes.headerButtons).forEach(button => {
@@ -116,14 +71,9 @@ export class Inspector {
     }
 
     addModuleCard(key, card) {
+        console.log(`Key ${key}`);
         this.domNodes.moduleCardContainer.append(card);
         this.#moduleCards.set(key, card);
-    }
-
-    addDataCard(key, card) {
-        console.log(card);
-        this.domNodes.dataCardContainer.append(card);
-        this.#dataCards.set(key, card);
     }
 
     // createContentArea = () => {
@@ -185,6 +135,16 @@ export class Inspector {
                 return e;
         }
     };
+
+    maximizeCard(cardId) {
+        this.#moduleCards.forEach((card, key) => {
+            if (key !== cardId) card.style.display = 'none';
+        });
+    }
+
+    minimizeCard() {
+        this.#moduleCards.forEach(card => card.style.display = 'flex');
+    }
 
     clearInspector = clearCurrentModuleKey => {
         this.contentArea.innerHTML = '';

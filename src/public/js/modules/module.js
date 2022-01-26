@@ -11,7 +11,7 @@ export class Module {
     constructor(type, color, shape, command, name, imagePath, inports, outports, key, description) {
         this.#dataTable = new Map();
         this.publisher = new Publisher();
-        this.inspectorCard = new InspectorCard(name, color);
+        this.inspectorCard = new InspectorCard(name, color, key);
         this.setInitialDataValues(type, color, shape, command, name, imagePath, inports, outports, key, description);
     };
 
@@ -208,6 +208,14 @@ export class Module {
         return button;
     }
 
+    addInspectorDataCard() {
+        console.log('DATA Card');
+    }
+
+    createInspectorCompositeDetailCard(groupData, saveModuleCallback) {
+        this.inspectorCard.addCompositeDetailsCard(groupData, saveModuleCallback);
+    }
+
     #createInspectorCardKeyText = text => GM.HF.createNewParagraph('', '', ['inspector-card-key-text'], [], text);
     #createInspectorCardValueText = text => GM.HF.createNewParagraph('', '', ['inspector-card-value-text'], [], text);
 
@@ -256,6 +264,10 @@ export class Module {
 
     setLinkedDataKey(key) {
         this.addData('linkedDataKey', key, false, '', false);
+    }
+
+    destroyOldKey() {
+        if (this.#dataTable.has('oldKey')) this.#dataTable.delete('oldKey');
     }
 
 

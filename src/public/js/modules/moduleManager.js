@@ -1,16 +1,19 @@
 import { ModuleGenerator } from './index.js';
 import { Message, Publisher } from '../communication/index.js';
 import { invalidVariables, printErrorMessage, varTest } from '../errorHandling/errorHandlers.js';
-import { ENVIRONMENT, MODULE_MANAGER, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR } from '../sharedVariables/index.js';
+import { ENVIRONMENT, MODULE_MANAGER, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR, WORKER_MANAGER } from '../sharedVariables/index.js';
 
 export class ModuleManager {
     #MG;          // Module Generator
     publisher;    // Message Publisher
     moduleMap;    // Hash Table that stores modules {module key: module object}
+    compositePrefabMap;
+
     constructor() {
         this.#MG = new ModuleGenerator();
         this.publisher = new Publisher();
         this.moduleMap = new Map();
+        this.compositePrefabMap = new Map();
     };
 
     /**
@@ -20,13 +23,32 @@ export class ModuleManager {
      * @param {number} key unique identifier of the module.
      * @return true if successful, false if not.
      */
-    createNewModule = (name, category, key) => {
+    createNewModule = (name, category, key, oldKey, groupKey) => {
         if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'createNewModule')) return false;
         const module = this.#MG.generateNewModule(name, category, key);
-        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.moduleMap.has(key) }));
+        module.addData('oldKey', oldKey);
+        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.moduleMap.has(key), groupKey: groupKey }));
         this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', {moduleKey: key, card: module.getInspectorContent()}));
         this.#addModule(module, key);
         return true;
+    }
+
+    createNewCompositeModule = (key, groupData) => {
+        const module = this.#MG.generateNewModule('Composite', 'Composite', key);
+        this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', {moduleKey: key, card: module.getInspectorContent()}));
+        this.#addModule(module, key);
+        module.setCompositeGroupInfo(groupData);
+        module.setSaveModuleFunction(this.saveCompositeModule.bind(this));
+        return module;
+    }
+
+    storeCompositePrefabData(name, moduleData) {
+        this.compositePrefabMap.set(name, moduleData);
+    }
+
+    saveCompositeModule(groupInfo) {
+        console.log(groupInfo);
+        this.#sendMessage(new Message(WORKER_MANAGER, MODULE_MANAGER, 'Save Composite Module Event', {groupInfo: groupInfo}));
     }
 
     /**
@@ -35,11 +57,44 @@ export class ModuleManager {
      * @param {string} category the category of the module (ie. output, processor, source).
      * @return true if successful, false if failure.
      */
-    deployNewModule = (name, category) => {
+    deployNewModule = (name, category, oldKey, groupKey) => {
         if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string')], 'ModuleManager', 'deployNewModule')) return false;
-        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Request Module Key Event', { name: name, category: category, cb: this.createNewModule }));
+        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Request Module Key Event', { name: name, category: category, cb: this.createNewModule, oldKey: oldKey, groupKey: groupKey }));
         return true;
     };
+
+    deployCompositeComponents = name => {
+        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Create Composite Group Event', { callback: this.deployCompositeComponentsWithGroupKey.bind(this), name: name}));
+    }
+
+    deployCompositeComponentsWithGroupKey = (key, name) => {
+        const data = this.compositePrefabMap.get(name);
+        const modulesInGroup = new Map();
+        Object.values(data.nodes).forEach(node => {
+            this.deployNewModule(node.type, node.name, node.key, key);
+            modulesInGroup.set(this.getModuleByOldKey(node.key).getData('key'), this.getModuleByOldKey(node.key));
+        });
+        // Connect Modules with saved links
+        Object.values(data.links).forEach(link => {
+            const from = this.getModuleByOldKey(link.from);
+            const to = this.getModuleByOldKey(link.to);
+            this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Draw Link Event', {from: from.getData('key'), to: to.getData('key')}));
+        });
+        this.moduleMap.forEach(module => module.destroyOldKey());
+    }
+
+    getModuleByOldKey(key) {
+        let mod = null;
+        this.moduleMap.forEach(module => {
+            const oldKey = module.getData('oldKey');
+            if (oldKey === key) {
+                mod =  module;
+            }
+        });
+        return mod;
+    }
+
+
 
     /**
      * Add a module to the moduleMap hash table.

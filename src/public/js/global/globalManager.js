@@ -44,7 +44,6 @@ export class GlobalManager {
     startEnvironment = () => {
         this.HUB.subscribe(this);
         this.ENV.setUpEnvironment();
-        this.MSM.initializeMenu();
         this.#setEventListeners();
         this.#createInspector();
         this.DOM.initializeDomManager();

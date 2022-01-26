@@ -4,6 +4,7 @@ import { ObjectSearchCard } from '../../../css/inspector/objectSearchCard.js';
 import { KeyValueCard } from './inspectorCardComponents/keyValueCard.js';
 import { GM } from '../../main.js';
 import { IncludeColumnCard } from './index.js';
+import { CompositeDetailsCard } from './inspectorCardComponents/compositeDetailsCard.js';
 
 export class InspectorCard {
     #cardId;
@@ -11,8 +12,12 @@ export class InspectorCard {
     #headerElement;
     bodyElement;
     #titleElement;
+    #maxButton;
+    #collapseButton;
+    #expandButton;
     #title;
     #expanded;
+    #maximized;
     #color;
     #dynamicFields;
     #axisCardMap;
@@ -20,16 +25,19 @@ export class InspectorCard {
     maxExpansion;
 
 
-    constructor(title, color) {
+    constructor(title, color, key) {
+        this.#cardId = key;
         this.resizing = false;
         this.maxExpansion = 200;
+        this.expandSize = 200;
+        this.minHeight=0;
         this.#dynamicFields = new Map();
         this.#axisCardMap = new Map();
         this.#color = color;
         this.#expanded = false;
+        this.#maximized = false;
         this.#title = title;
         this.mousePositions = [];
-
         this.#createDomNode();
     };
 
@@ -39,11 +47,19 @@ export class InspectorCard {
         this.bodyElement = this.#createBodyNode();
         this.#titleElement = this.#createTitleNode();
         this.#dragElement = this.#createDragElement();
+        this.#maxButton = this.#createMaxButton();
+        this.#expandButton = this.#createExpandButton();
+        this.#collapseButton = this.#createCollapseButton();
         this.#wrapperElement.appendChild(this.#headerElement).append(this.#titleElement);
+        this.#headerElement.appendChild(this.#maxButton);
+        this.#headerElement.appendChild(this.#expandButton);
+        this.#headerElement.append(this.#collapseButton);
         this.#wrapperElement.appendChild(this.bodyElement);
         this.#wrapperElement.appendChild(this.#dragElement);
         this.#addResizeEventListeners();
         this.#addExpansionEventListener();
+        this.#addMaximizeEventListener();
+        this.#addCollapseEventListener();
     }
 
     #createWrapperNode() {
@@ -64,6 +80,28 @@ export class InspectorCard {
 
     #createDragElement() {
         return GM.HF.createNewDiv('', '', ['inspector-card-drag-element'], []);
+    }
+
+
+    #createMaxButton() {
+        const buttonDiv = GM.HF.createNewDiv('', '', ['inspector-card-max-button'], []);
+        const img = GM.HF.createNewIMG('', '', '../../../images/icons/maximize.png', [], [], 'Minimize or Maximize Inspector Card Button');
+        buttonDiv.appendChild(img);
+        return buttonDiv;
+    }
+
+    #createCollapseButton() {
+        const buttonDiv = GM.HF.createNewDiv('', '', ['inspector-card-collapse-button'], []);
+        const img = GM.HF.createNewIMG('', '', '../../../images/icons/minus.png', [], [], 'Collapse Inspector Card Button');
+        buttonDiv.appendChild(img);
+        return buttonDiv;
+    }
+
+    #createExpandButton() {
+        const buttonDiv = GM.HF.createNewDiv('', '', ['inspector-card-expand-button'], []);
+        const img = GM.HF.createNewIMG('', '', '../../../images/icons/squares.png', [], [], 'Expand Inspector Card Button');
+        buttonDiv.appendChild(img);
+        return buttonDiv;
     }
 
     #addResizeEventListeners() {
@@ -94,7 +132,7 @@ export class InspectorCard {
                 const distance = this.#calculateDistanceTraveled(this.mousePositions[0], this.mousePositions[this.mousePositions.length - 1]);
                 this.#resetMousePositionsArray(this.mousePositions[this.mousePositions.length - 1]);
                 this.#updateHeight(distance.y);
-                this.setHeight();
+                this.setHeight(this.maxExpansion);
             }
             GM.PM.resizeEventHandler(this.key);
         }
@@ -105,8 +143,8 @@ export class InspectorCard {
         if (value > 50) this.maxExpansion = value;
     }
 
-    setHeight = () => {
-        this.bodyElement.style.height = `${this.maxExpansion}px`;
+    setHeight = (height) => {
+        this.bodyElement.style.height = `${height}px`;
     }
 
     /**
@@ -126,10 +164,46 @@ export class InspectorCard {
     #resetMousePositionsArray = lastPosition => this.mousePositions = [lastPosition];
 
     #addExpansionEventListener() {
-        this.#headerElement.addEventListener('click', event => {
-            this.expanded = !this.expanded;
-            this.bodyElement.style.height = this.expanded ? `${this.maxExpansion}px` : '10px';
-        });
+        this.#expandButton.addEventListener('click', this.expandCard.bind(this));
+    }
+
+    #addMaximizeEventListener() {
+        this.#maxButton.addEventListener('click', this.maximizeCard.bind(this));
+    }
+    #addCollapseEventListener() {
+        this.#collapseButton.addEventListener('click', this.minimizeCard.bind(this));
+    }
+
+    maximizeCard() {
+        if (this.#maximized) {
+            GM.INS.minimizeCard();
+            this.minimizeCard();
+        }
+        else {
+            GM.INS.maximizeCard(this.#cardId);
+            this.bodyElement.style.height = `${this.getParentHeight() - 40}px`;
+            this.#maximized = true;
+        }
+    }
+
+    minimizeCard() {
+        if (this.#maximized) GM.INS.minimizeCard();
+        this.#maximized = false;
+        this.#expanded = false;
+        this.setHeight(this.minHeight);
+    }
+
+    expandCard() {
+        if (this.#maximized) {
+            GM.INS.minimizeCard();
+        }
+        this.#expanded = true;
+        this.#maximized = false;
+        this.setHeight(this.expandSize);
+    }
+
+    getParentHeight() {
+        return document.querySelector('#mainWrapper').getBoundingClientRect().height;
     }
 
     appendToBody(element) {
@@ -184,6 +258,11 @@ export class InspectorCard {
     addChartTrace(dropdown) {
         this.#axisCardMap.get('y').addTraceDropdown(dropdown);
     }
-    
+
+    addCompositeDetailsCard(groupData, saveModuleCallback) {
+        const card = new CompositeDetailsCard(groupData, saveModuleCallback);
+        this.appendToBody(card.getCard());
+    }
+
     getCard = () => this.#wrapperElement;
 }

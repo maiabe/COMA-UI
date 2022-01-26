@@ -1,5 +1,5 @@
 import { sourceColor, outputColor, processorColor, compositColor } from "../../sharedVariables/colors.js";
-import { Sql, Fits, Csv, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table, ToCSV, Composite } from '../index.js';
+import { Sql, Fits, Csv, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table, ToCSV, Composite, Data } from '../index.js';
 export class ModuleGenerator {
     constructor() {
         this.colors = {
@@ -35,7 +35,7 @@ export class ModuleGenerator {
                     case 'FITS':
                         mod = new Fits(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
-                    case 'CSV':
+                    case 'CSV File':
                         mod = new Csv(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key);
                         break;
                     case 'Random':
@@ -93,7 +93,7 @@ export class ModuleGenerator {
                         mod = new Composite(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Composite', [], false);
                         break;
                     case 'Data':
-                        mod = new Composite(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false }], true);
+                        mod = new Data(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false }], true);
                         break;
                     case 'To Csv':
                         mod = new ToCSV(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false }], true);

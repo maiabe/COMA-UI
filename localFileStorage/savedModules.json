@@ -1,0 +1,1 @@
+{"New Composite Module":{"nodes":[{"key":4,"type":"CSV File","name":"Source","__gohashid":12465,"group":-6},{"key":5,"type":"Line Chart","name":"Output","__gohashid":12637,"group":-6}],"links":[{"__gohashid":12939,"from":4,"to":5,"frompid":"OUT","topid":"IN"}]}}

@@ -11,7 +11,7 @@ export class ModuleSelectionMenu {
         this.sourceSubMenuItems = [
             // { icon: 'images/icons/sql-open-file-format.png', text: 'SQL', category: 'Source' },
             { icon: 'images/icons/files.png', text: 'FITS', category: 'Source' },
-            { icon: 'images/icons/csv-file-format-extension.png', text: 'CSV', category: 'Source' },
+            { icon: 'images/icons/csv-file-format-extension.png', text: 'CSV File', category: 'Source' },
             // { icon: 'images/icons/data-random-squares.png', text: 'Random', category: 'Source' },
             // { icon: 'images/icons/json-file.png', text: 'JSON', category: 'Source' },
             // { icon: 'images/icons/axis.png', text: 'Ephemeris', category: 'Source' },
@@ -35,11 +35,9 @@ export class ModuleSelectionMenu {
             // { icon: 'images/icons/image.png', text: 'Image', category: 'Output' },
             // { icon: 'images/icons/equal.png', text: 'Value', category: 'Output' },
         ];
-        this.compositSubMenuItems = [
-            { icon: 'images/icons/flow-diagram-black.png', text: 'Composite', category: 'Composite' }
-        ]
+        this.compositeSubMenuItems = [];
         this.moduleTypes = [
-            { text: 'Composite', color: compositColor, subMenuItems: this.compositSubMenuItems, subMenu: null, buttonIcon: 'images/icons/flow-diagram-white.png' },
+            { text: 'Composite', color: compositColor, subMenuItems: this.compositeSubMenuItems, subMenu: null, buttonIcon: 'images/icons/flow-diagram-white.png' },
             { text: 'Source', color: sourceColor, subMenuItems: this.sourceSubMenuItems, subMenu: null, buttonIcon: 'images/icons/database-storage.png' },
             { text: 'Processor', color: processorColor, subMenuItems: this.processorSubMenuItems, subMenu: null, buttonIcon: 'images/icons/calculator.png' },
             { text: 'Output', color: outputColor, subMenuItems: this.outputSubMenuItems, subMenu: null, buttonIcon: 'images/icons/scatter-graph.png' }];
@@ -47,14 +45,20 @@ export class ModuleSelectionMenu {
     };
 
     initializeMenu = () => {
-        this.moduleTypes.forEach((m, index) => {
-            const button = new ModuleTopButton(m);
+        this.moduleTypes.forEach((m, index) => this.instantiateMenuButton(m, index));
+    }
+
+    instantiateMenuButton = (m, index) => {
+        const button = new ModuleTopButton(m);
             if (index === 0) button.getButtonElement().classList.add('topRoundedCorners');
             else if (index === this.moduleTypes.length - 1) button.getButtonElement().classList.add('bottomRoundedCorners');
             this.topMenuButtonArray.push(button.getElement());
             this.menuContainer.append(button.getElement());
-        });
     }
+
+    addCompositeSubMenuItem = name => {
+        this.compositeSubMenuItems.push({ icon: 'images/icons/flow-diagram-black.png', text: name, category: 'Composite'});
+    };
 }
 
 class ModuleTopButton {
@@ -142,10 +146,21 @@ class SubMenuCard {
     };
 
     clickHandler = () => {
+        if (this.category === 'Composite') this.createCompositeModel();
+        else this.createNonCompositeModel();
+    };
+
+    createCompositeModel() {
+        const data = { moduleName: this.text, moduleCategory: this.category };
+        const msg = new Message(MODULE_MANAGER, MODULE_SELECTION_MENU, 'Composite Module Creation Event', data);
+        this.#sendMessage(msg);
+    }
+
+    createNonCompositeModel() {
         const data = { moduleName: this.text, moduleCategory: this.category };
         const msg = new Message(MODULE_MANAGER, MODULE_SELECTION_MENU, 'Deploy Module Event', data);
         this.#sendMessage(msg);
-    };
+    }
 
     #sendMessage = msg => {
         GM.MSM.publisher.publishMessage(msg);

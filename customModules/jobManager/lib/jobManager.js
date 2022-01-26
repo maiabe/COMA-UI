@@ -13,7 +13,7 @@ class JobManager {
         this.initializeWorkerMap();
         this.initializeJobQueue();
         this.initializeWorkerQueue();
-        this.initializeWorkerPool(3,'./customModules/jobManager/lib/workerFiles/workerTest.js');
+        this.initializeWorkerPool(3, './customModules/jobManager/lib/workerFiles/workerScript.js');
     }
 
     initializeDataMap() {
@@ -58,7 +58,16 @@ class JobManager {
             const worker = new Worker(__filename, { workerData: 'test' }); // Create the worker
             this.workerMap.set(i, { worker: worker, onJob: false, id: i }); // Populate the worker Map
             if (i < 3) this.workerQueue.push(worker); // Populate the worker queue
+            worker.on('message', this.handleMessage);
         }
+    }
+
+    handleMessage(e) {
+        console.log(`Message: ${e}`);
+    }
+
+    addJob() {
+        // TODO: This will add a new job to the queue
     }
 }
 

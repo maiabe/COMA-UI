@@ -26,3 +26,4 @@ export {ToCSV} from './outputModules/output.js';
 export {Composite} from './compositModule/compositModule.js';
 export {ModuleManager} from './moduleManager.js';
 export {ModuleGenerator} from './generator/moduleGenerator.js';
+export {Data} from './dataModule/dataModule.js';

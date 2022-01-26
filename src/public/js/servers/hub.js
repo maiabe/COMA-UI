@@ -73,14 +73,14 @@ export default class Hub {
         switch (type) {
             case 'New Module Created Event':
                 if (invalidVariables([varTest(data.module, 'module', 'object'), varTest(data.templateExists, 'templateExists', 'boolean')], 'HUB', '#messageForEnvironment (New Module Created Event)')) return;
-                else GM.ENV.insertModule(data.module, data.templateExists);
+                else GM.ENV.insertModule(data.module, data.templateExists, data.groupKey);
                 break;
             case 'Start Environment Event':
                 GM.ENV.setUpEnvironment();
                 break;
             case 'Request Module Key Event':
                 if (invalidVariables([varTest(data.cb, 'cb', 'function'), varTest(data.name, 'name', 'string'), varTest(data.category, 'category', 'string')], 'HUB', '#messageForEnvironment (Request Module Key Event')) return;
-                else data.cb(data.name, data.category, GM.ENV.getNextNodeKey());
+                else data.cb(data.name, data.category, GM.ENV.getNextNodeKey(), data.oldKey, data.groupKey);
                 break;
             case 'Partial Pipeline Return Event':
                 if (invalidVariables([varTest(data.value, 'value', 'object')], 'HUB', '#messageForEnvironment (Partial Pipeline Return Event')) return;
@@ -89,6 +89,15 @@ export default class Hub {
             case 'Gray Out Pipeline Event':
                 if (invalidVariables([varTest(data.value, 'value', 'object')], 'HUB', '#messageForEnvironment (Gray Out Pipeline Event')) return;
                 else GM.ENV.grayOutPipeline(data.value);
+                break;
+            case 'Draw Link Event':
+                console.log(data);
+                if (invalidVariables([varTest(data.from, 'from', 'number'), varTest(data.to, 'to', 'number')], 'HUB', '#messageForEnvironment (Draw Link Event')) return;
+                GM.ENV.drawLinkBetweenNodes(data.from, data.to);
+                break;
+            case 'Create Composite Group Event':
+                if (invalidVariables([varTest(data.callback, 'callback', 'function')], 'HUB', '#messageForEnivonment (Create Composite Group Event')) return;
+                data.callback(GM.ENV.createNewGroupNode(), data.name);
                 break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForEnvironment`);
@@ -131,6 +140,23 @@ export default class Hub {
                     GM.OM.removeOutputData(key);
                 });
                 break;
+            case 'New Group Created':
+                if (invalidVariables([varTest(data.groupDiagram, 'groupDiagram', 'object'), varTest(data.groupKey, 'groupKey', 'number')], 'HUB', '#messageForModuleManager (New Group Created)')) return;
+                let module = GM.MM.createNewCompositeModule(data.groupKey, data.groupDiagram);
+                module.createInspectorCompositeDetailCard(data.groupDiagram, module.saveModule.bind(module));
+                break;
+            case 'Saved Modules Loaded Event':
+                if (invalidVariables([varTest(data.data, 'data', 'object')], 'HUB', '#messageForModuleManager (Saved Modules Loaded Event)')) return;
+                Object.entries(data.data).forEach(module => {
+                    GM.MM.storeCompositePrefabData(module[0], module[1]);
+                    GM.MSM.addCompositeSubMenuItem(module[0]);
+                    GM.MSM.initializeMenu();
+                });
+                break;
+            case 'Composite Module Creation Event':
+                if (invalidVariables([varTest(data.moduleName, 'moduleName', 'string')], 'HUB', '#messageForModuleManager (Composite Module Creation Event)')) return;
+                    GM.MM.deployCompositeComponents(data.moduleName);
+                break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForModuleManager`);
                 break;
@@ -156,10 +182,6 @@ export default class Hub {
             case 'Publish Module Inspector Card Event':
                 if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.card, 'card', 'object')], 'HUB', '#messageForInspector (publish Module Card Event')) return;
                 GM.INS.addModuleCard(data.moduleKey, data.card);
-                break;
-            case 'New Data Card Event':
-                if (invalidVariables([varTest(data.moduleKey, 'moduleKay', 'number'), varTest(data.card, 'card', 'object')], 'HUB', '#messageForInspector (New Data Card Event')) return;
-                GM.INS.addDataCard(data.moduleKey, data.card);
                 break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForInspector`);
@@ -207,9 +229,9 @@ export default class Hub {
                 GM.DOM.populateObjectsDiv(data.data);
                 break;
             case 'Request List Of Objects Event':
-                if (invalidVariables([varTest(data.callbackFunction, 'callbackFunction', 'function')], 'HUB', '#messageForInputManager (Request List Of Objects Event)' ))return;
+                if (invalidVariables([varTest(data.callbackFunction, 'callbackFunction', 'function')], 'HUB', '#messageForInputManager (Request List Of Objects Event)')) return;
                 let objects = GM.IM.getObjects();
-                if (objects === undefined) objects = {'9P': 'Temple 1', '10P': 'Temple 2'};
+                if (objects === undefined) objects = { '9P': 'Temple 1', '10P': 'Temple 2' };
                 data.callbackFunction(objects);
                 break;
             default:
@@ -224,24 +246,28 @@ export default class Hub {
      * @param {object} data the data necessary to handle the event. It is event specific.
      */
     #messageForWorkerManager = (type, data) => {
+        let worker = null;
+        let workerIndex = null;
         switch (type) {
             case 'Transmit Pipeline Event':
-                const worker = GM.WM.startWorker();
-                const workerIndex = GM.WM.addWorkerToDataTable(worker);
+                worker = GM.WM.startWorker();
+                workerIndex = GM.WM.addWorkerToDataTable(worker);
                 GM.WM.notifyWorkerOfId(workerIndex)
                     .setStopWorkerFunction(workerIndex)
                     .setHandleReturnFunction(workerIndex)
                     .setWorkerMessageHandler(workerIndex)
                     .sendPipelineToServer(workerIndex, data.value);
                 break;
-            case 'Test SSH':
-            // const worker = GM.WM.startWorker();
-            // const workerIndex = GM.WM.addWorkerToDataTable(worker);
-            // GM.WM.notifyWorkerOfId(workerIndex)
-            //     .setStopWorkerFunction(workerIndex)
-            //     .setHandleReturnFunction(workerIndex)
-            //     .setWorkerMessageHandler(workerIndex)
-            //     .sendGetRequest(workerIndex);
+            case 'Save Composite Module Event':
+                if (invalidVariables([varTest(data.groupInfo, 'groupInfo', 'object')], 'HUB', '#messageForWorkerManager (Save Composite Module Event)')) return;
+                worker = GM.WM.startWorker();
+                workerIndex = GM.WM.addWorkerToDataTable(worker);
+                GM.WM.notifyWorkerOfId(workerIndex)
+                    .setStopWorkerFunction(workerIndex)
+                    .setHandleReturnFunction(workerIndex)
+                    .setWorkerMessageHandler(workerIndex)
+                    .sendCompositeModuleInfoToServer(workerIndex, data.groupInfo);
+                break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForWorkerManager`);
                 break;
@@ -300,7 +326,9 @@ export default class Hub {
                 if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.data, 'data', 'object'), varTest(data.type, 'type', 'string'), varTest(data.div, 'div', 'object')], 'HUB', '#messageForOutputManager (Create New Chart Event)')) return;
                 // If successfully able to store chart data, then draw a chart if the popup is open.
                 if (GM.OM.storeChartData(data.moduleKey, data.data, data.div, data.type)) {
-                    if (GM.PM.isPopupOpen(data.moduleKey)) GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
+                    // If not chart is opened yet, open one.
+                    if (!GM.PM.isPopupOpen(data.moduleKey)) GM.PM.createModulePopup(data.moduleKey, GM.MM.getPopupContentForModule(data.moduleKey), 0, 0);
+                    GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
                 }
                 break;
             case 'Resize Popup Event':  // This fires when a popup has finished resizing.
@@ -338,7 +366,8 @@ export default class Hub {
                         data.fieldData.yAxisGrid,
                         data.fieldData.xAxisTick,
                         data.fieldData.yAxisTick)) {
-                        if (GM.PM.isPopupOpen(data.moduleKey)) GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
+                        if (!GM.PM.isPopupOpen(data.moduleKey)) GM.PM.createModulePopup(data.moduleKey, GM.MM.getPopupContentForModule(data.moduleKey), 0, 0);
+                        GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
                     }
                 }
                 break;
@@ -370,6 +399,7 @@ export default class Hub {
     makeInitialContactWithServer() {
         this.getRoutes();
         this.getObjects();
+        this.getSavedModules();
     }
 
     getRoutes() {
@@ -380,7 +410,7 @@ export default class Hub {
             .setWorkerMessageHandler(workerIndex)
             .setWorkerReturnMessageRecipient(workerIndex, INPUT_MANAGER)
             .setWorkerReturnMessage(workerIndex, 'Routes Loaded Event')
-            .contactServer(workerIndex, 'GET', 'https://coma.ifa.hawaii.edu/api/routes/');
+            .getRoutesFromServer(workerIndex);
     }
 
     getObjects() {
@@ -391,7 +421,22 @@ export default class Hub {
             .setWorkerMessageHandler(workerIndex)
             .setWorkerReturnMessageRecipient(workerIndex, INPUT_MANAGER)
             .setWorkerReturnMessage(workerIndex, 'Objects Loaded Event')
-            .contactServer(workerIndex, 'GET', 'https://coma.ifa.hawaii.edu/api/objects/');
+            .getObjectsFromServer(workerIndex);
+    }
+
+    getSavedModules() {
+        const workerIndex = this.getNewWorkerIndex();
+        this.prepWorker(workerIndex, MODULE_MANAGER, 'Saved Modules Loaded Event')
+        .getSavedModulesFromServer(workerIndex);
+    }
+
+    prepWorker(workerIndex, messageRecipient, returnMessage) {
+        return GM.WM.notifyWorkerOfId(workerIndex)
+            .setStopWorkerFunction(workerIndex)
+            .setHandleReturnFunction(workerIndex)
+            .setWorkerMessageHandler(workerIndex)
+            .setWorkerReturnMessageRecipient(workerIndex, messageRecipient)
+            .setWorkerReturnMessage(workerIndex, returnMessage)
     }
 
     getNewWorkerIndex() {

@@ -43,7 +43,7 @@ export class DataManager {
     addData = (key, val) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(val, 'val', 'object')], 'DataManager', 'addData')) return false;
         if (this.#dataTable.has(key)) console.log(`Data Table already has key: ${key} in it. Will Overwrite. -- DataManager -> addData.`);
-        this.#dataTable.set(key, { data: val, card: this.#createInspectorDataCard(key, val) });
+        this.#dataTable.set(key, { data: val});
         // Notify Module Manager that new data was added to the table.
         this.#sendMessage(new Message(MODULE_MANAGER, DATA_MANAGER, 'New Data Loaded Event', { moduleKey: key }));
         return true;
@@ -65,12 +65,9 @@ export class DataManager {
      */
     deleteData = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'DataManager', 'deleteData')) return false;
-        console.log(this.#dataTable.get(key));
-        this.#removeDataCard(this.#dataTable.get(key).card);
         return this.#dataTable.delete(key);
     }
 
-    #removeDataCard = card => card.remove();
     /**
      * Data requests come with a key and a callback. All Data is returned as a parameter to this callback function.
      * @param {number} key the key to find the data.
@@ -166,14 +163,4 @@ export class DataManager {
         return chartData;
     }
 
-    #createInspectorDataCard(key, data) {
-        const card = new InspectorCard('Data Card', 'orange');
-        this.#createCardDescription(card);
-        this.#sendMessage(new Message(INSPECTOR, DATA_MANAGER, 'New Data Card Event', { moduleKey: key, card: card.getCard() }));
-        return card.getCard();
-    }
-
-    #createCardDescription(card) {
-        card.appendToBody(GM.HF.createNewParagraph('', '', [], [], 'This data card will have information pertaining to this specific entry in the data table.'));
-    }
 }
