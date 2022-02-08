@@ -23,9 +23,23 @@ const lightRed = '#792f24';
 const lightBlue = '#1E4D48';
 const lightOrange = "#7D5130";
 
-const sourceColor = lightGreen;
-const processorColor = lightRed;
-const outputColor = lightBlue;
-const compositColor = lightOrange;
+const darkGray = "#383838";
+const themeBlue = "#19171a";
+const themeGreen = "#363538";
+const themeBlack = "#363538";
+const themeGray = "#757474";
+const themeWhite = "#F6F6F6";
 
-export {sourceColor, processorColor, outputColor, compositColor};
+const logoGreen = "#00e17b";
+
+// const sourceColor = lightGreen;
+const processorColor = themeGreen;
+// const outputColor = lightBlue;
+// const compositColor = lightOrange;
+const sourceColor = themeGreen;
+const outputColor = themeGreen;
+const compositColor = themeGray;
+
+const typeColorArray = [rubyRed, ming, turquoise, middleGreen];
+
+export { sourceColor, processorColor, outputColor, compositColor, typeColorArray };

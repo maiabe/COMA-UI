@@ -32,6 +32,7 @@ export class PopupManager {
      * @param {number} y -> The y position of the mouse click that generated the popup.
      */
     createModulePopup = (moduleKey, content, x, y) => {
+        console.log(content)
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(content, 'content', 'object')], 'Popup Manager', 'createModulePopup')) return;
         // Only allow one popup for each module at any given time.
         if (!this.#popupList.has(moduleKey)) {
@@ -49,6 +50,7 @@ export class PopupManager {
     };
 
     createOtherPopup = (content) => {
+        console.log(content)
         if (invalidVariables([varTest(content, 'content', 'object')], 'Popup Manager', 'createOtherPopup')) return;
         const nextIndex = this.incrementNonModulePopupIndex();
         if (!this.#popupList.has(nextIndex)) {

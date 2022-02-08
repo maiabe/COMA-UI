@@ -9,3 +9,4 @@ export { SelectGenerator } from './elementGenerators/selectGenerator.js';
 export { H1Generator } from './elementGenerators/h1Generator.js';
 export { H3Generator } from './elementGenerators/h3Generator.js';
 export { CheckboxGenerator } from './elementGenerators/checkboxGenerator.js';
+export { TextAreaGenerator } from './elementGenerators/textAreaGenerator.js';

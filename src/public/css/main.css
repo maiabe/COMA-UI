@@ -13,6 +13,7 @@
   --color-dark-gray: #363434;
   --color-light-gray: #c9c9c9;
   --color-very-light-gray: #eeeeee;
+  --color-logo-green: #00e17b;
 }
 
 body {
@@ -22,7 +23,7 @@ body {
   padding: 0 0 0 0;
   overflow-x: hidden;
   font-family: "Sora", Fallback, sans-serif;
-  background-color: rgb(25,25,25);
+  background-color: rgb(37, 35, 35);
   color: var(--color-dark-gray);
 }
 
@@ -74,7 +75,7 @@ h2 {
   display: flex;
   flex-direction: row;
   gap: 5px;
-  border: 1px solid white;
+  /* border: 1px solid white; */
   padding: 5px;
   align-items: center;
   height: 30px;
@@ -139,15 +140,16 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
   height: 2em;
   font-size: 0.8em;
   font-weight: 500;
-  border: none;
-  background-color: var(--color-dark-gray);
+  border: 2px solid black;
+  background-color: black;
+  border-radius: 5px;
   color: white;
   cursor: pointer;
-  transition: background-color 0.2s ease-in;
+  transition: opacity 0.2s ease-in;
 }
 
 #runButton:hover {
-  background-color: var(--color-light-gray);
+  opacity: 0.7;
 }
 
 /* The main diagram hold sthe main Environment */

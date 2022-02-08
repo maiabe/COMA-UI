@@ -2,6 +2,7 @@ import { Module } from "../index.js";
 import { GM } from '../../main.js';
 import chartThemes from '../../dataComponents/charts/echarts/theme/echartsThemes.js';
 import { ChartDataStorage } from "./components/chartDataStorage.js";
+import { TABLE_OUTPUT, LOCAL_DATA_SOURCE } from "../../sharedVariables/constants.js";
 
 export class Output extends Module {
     constructor(category, color, shape, command, name, image, inports, outports, key) {
@@ -20,11 +21,11 @@ export class Output extends Module {
 }
 
 export class Chart_2D extends Output {
-    constructor(category, color, shape, command, name, image, inports, outports, key) {
-        super(category, color, shape, command, name, image, inports, outports, key)
-     };
+    constructor(category, color, shape, command, name, image, outports, key) {
+        super(category, color, shape, command, name, image, [{ name: 'IN', leftSide: true, type: TABLE_OUTPUT }], outports, key)
+    };
 
-     setPopupContent = () => {
+    setPopupContent = () => {
         const popupContent = GM.HF.createNewDiv('', '', [], []);
         const themeDD = this.buildEchartThemeDropdown();
         this.setEchartThemeDropdownEventListener(themeDD);
@@ -34,6 +35,8 @@ export class Chart_2D extends Output {
         this.addData('popupContent', popupContent, false, '', false);
         this.addData('themeDD', themeDD, false, '', false);
         this.addData('plotDiv', plotDiv, false, '', false);
+        this.addData('inportType', LOCAL_DATA_SOURCE);
+        this.addData('outportType', -1);
     }
 
     createInspectorCardData() {
@@ -96,7 +99,7 @@ export class Chart_2D extends Output {
 
 export class ScatterPlot extends Chart_2D {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'Scatter Plot', 'images/icons/scatter-graph-black.png', [{ name: 'IN', leftSide: true }], [], key);
+        super(category, color, shape, 'output', 'Scatter Plot', 'images/icons/scatter-graph.png', [], key);
         this.setPopupContent();
         this.createInspectorCardData();
         this.addData('chartType', 'scatter');
@@ -106,7 +109,7 @@ export class ScatterPlot extends Chart_2D {
 
 export class BarChart extends Chart_2D {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'Bar Chart', 'images/icons/bar-chart.png', [{ name: 'IN', leftSide: true }], [], key);
+        super(category, color, shape, 'output', 'Bar Chart', 'images/icons/bar-chart-white.png', [], key);
         this.setPopupContent();
         this.createInspectorCardData();
         this.addData('chartType', 'bar');
@@ -116,7 +119,7 @@ export class BarChart extends Chart_2D {
 
 export class LineChart extends Chart_2D {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'Line Chart', 'images/icons/line-chart.png', [{ name: 'IN', leftSide: true }], [], key,);
+        super(category, color, shape, 'output', 'Line Chart', 'images/icons/line-chart-white.png', [], key,);
         this.setPopupContent();
         this.createInspectorCardData();
         this.addData('chartType', 'line');
@@ -126,13 +129,13 @@ export class LineChart extends Chart_2D {
 
 export class ImageOutput extends Output {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'Image', 'images/icons/image.png', [{ name: 'IN', leftSide: true }], [], key);
+        super(category, color, shape, 'output', 'Image', 'images/icons/image.png', [], key);
         this.setPopupContent();
     }
 }
 export class Value extends Output {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'Value', 'images/icons/equal.png', [{ name: 'IN', leftSide: true }], [], key);
+        super(category, color, shape, 'output', 'Value', 'images/icons/equal.png', [], key);
         this.setPopupContent();
     }
 
@@ -158,10 +161,12 @@ export class Value extends Output {
 
 export class ToCSV extends Output {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'To CSV', 'images/icons/csv-file-format-extension.png', [{ name: 'IN', leftSide: true }], [], key);
+        super(category, color, shape, 'output', 'To CSV', 'images/icons/csv-file-format-extension-white.png', [{ name: 'IN', leftSide: true, type: TABLE_OUTPUT }], [], key);
         this.setPopupContent();
         this.createInspectorCardData();
         this.chartData = new ChartDataStorage('table');
+        this.addData('inportType', LOCAL_DATA_SOURCE);
+        this.addData('outportType', -1);
     }
 
     createInspectorCardData() {

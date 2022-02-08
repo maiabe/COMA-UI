@@ -30,7 +30,7 @@ export class InspectorCard {
         this.resizing = false;
         this.maxExpansion = 200;
         this.expandSize = 200;
-        this.minHeight=0;
+        this.minHeight = 10;
         this.#dynamicFields = new Map();
         this.#axisCardMap = new Map();
         this.#color = color;
@@ -184,6 +184,7 @@ export class InspectorCard {
             this.bodyElement.style.height = `${this.getParentHeight() - 40}px`;
             this.#maximized = true;
         }
+        this.showAllElements();
     }
 
     minimizeCard() {
@@ -191,15 +192,28 @@ export class InspectorCard {
         this.#maximized = false;
         this.#expanded = false;
         this.setHeight(this.minHeight);
+        this.hideAllBodyChildren();
     }
 
     expandCard() {
-        if (this.#maximized) {
-            GM.INS.minimizeCard();
+        if (!this.#expanded) {
+            if (this.#maximized) GM.INS.minimizeCard();
+            this.#expanded = true;
+            this.#maximized = false;
+            this.setHeight(this.expandSize);
+            this.showAllElements();
+        } else {
+            this.minimizeCard();
         }
-        this.#expanded = true;
-        this.#maximized = false;
-        this.setHeight(this.expandSize);
+
+    }
+
+    hideAllBodyChildren() {
+        this.bodyElement.childNodes.forEach(child => child.style.display = 'none');
+    }
+
+    showAllElements() {
+        this.bodyElement.childNodes.forEach(child => child.style.display = 'flex');
     }
 
     getParentHeight() {
@@ -208,6 +222,7 @@ export class InspectorCard {
 
     appendToBody(element) {
         this.bodyElement.appendChild(element);
+        if (!this.#maximized && !this.#expanded) element.style.display = 'none';
     }
 
     updateDynamicField(key, text) {

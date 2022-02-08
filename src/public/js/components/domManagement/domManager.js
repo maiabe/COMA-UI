@@ -37,7 +37,7 @@ export class DomManager {
     }
 
     #initializeLogo() {
-        const element = GM.HF.createNewIMG('logo','logo', '../../../images/logo/Coma-logos_transparent.png', ['logo'], [], 'COMA logo');
+        const element = GM.HF.createNewIMG('logo','logo', '../../../images/logo/COMA-LOGO.png', ['logo'], [], 'COMA logo');
         this.#domTable.get('navBarDiv').appendChild(element);
         return element;
     }

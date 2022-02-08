@@ -60,7 +60,8 @@ function handleIncomingPost(requestBody) {
     case 'Get Routes':
       return dataTable.get('Routes');
     case 'Save Module':
-      return SM.addModule(requestBody.groupInfo);
+      console.log(requestBody)
+      return SM.addModule(requestBody.groupInfo.groupInfo, requestBody.groupInfo.name, requestBody.groupInfo.description);
     case 'Get Saved Modules':
       return SM.getAllModules();
   }
@@ -73,3 +74,4 @@ function updateSavedDataFromServer() {
 }
 
 updateSavedDataFromServer();
+// SM.loadSolarFile();

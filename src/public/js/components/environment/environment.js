@@ -1,6 +1,6 @@
 import { Publisher, Message } from '../../communication/index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../../errorHandling/errorHandlers.js';
-import { ENVIRONMENT, MODULE_MANAGER, POPUP_MANAGER, INSPECTOR, compositIcon, sourceColor, outputColor, processorColor, compositColor } from '../../sharedVariables/index.js';
+import { ENVIRONMENT, MODULE_MANAGER, POPUP_MANAGER, INSPECTOR, compositIcon, sourceColor, outputColor, processorColor, compositColor, typeColorArray } from '../../sharedVariables/index.js';
 
 export class Environment {
     // Communication Variables
@@ -45,6 +45,7 @@ export class Environment {
         this.#startGoJsEnvironment();
         this.#defineGroupTemplate(this.#getGOJSMakeObject());
         this.#createNewModel();
+        this.#createValidationRules();
         this.#load();
         this.#createInteractionEventListeners();
     };
@@ -76,7 +77,7 @@ export class Environment {
      */
     #createTemplate = module => {
         if (invalidVariables([varTest(module, 'module', 'object')], 'Environment', '#createTemplate')) return;
-        this.#makeTemplate(module.getData('name'), module.getData('image'), module.getData('color'), module.getData('shape'), this.#unpackPortArray(module, 'inports'), this.#unpackPortArray(module, 'outports'));
+        this.#makeTemplate(module.getData('name'), module.getData('image'), module.getData('color'), module.getData('shape'), this.#unpackPortArray(module, 'inports'), this.#unpackPortArray(module, 'outports'), module.getData('inportType'), module.getData('outportType'));
     }
 
     #createContextMenu = () => {
@@ -109,7 +110,7 @@ export class Environment {
     #unpackPortArray = (module, portType) => {
         if (invalidVariables([varTest(module, 'module', 'object'), varTest(portType, 'portType', 'string')], 'Environemnt', '#unpackPortArray')) return undefined;
         const ports = [];
-        module.getData(portType).forEach(obj => ports.push(this.#makePort(obj.name, obj.leftSide)));
+        module.getData(portType).forEach(obj => ports.push(this.#makePort(obj.name, obj.leftSide, obj.type)));
         return ports;
     }
 
@@ -133,7 +134,7 @@ export class Environment {
             layout: gojs(go.LayeredDigraphLayout,
                 { direction: 0 }),
             "commandHandler.archetypeGroupData": { text: "Composite", isGroup: true, color: "black", background: compositColor },
-            "undoManager.isEnabled": true
+            "undoManager.isEnabled": true,
         };
     }
 
@@ -149,18 +150,19 @@ export class Environment {
      * @param {[] of gojs panel objects} inports array of panels. These were created by the makeport function
      * @param {[] of gojs panel objects} outports array of panels. These were created by the makeport function
      */
-    #makeTemplate = (typename, icon, background, shape, inports, outports) => {
+    #makeTemplate = (typename, icon, background, shape, inports, outports, inportType, outportType) => {
         const gojs = this.#getGOJSMakeObject();
-        const node = this.#createNewNode(gojs, shape, background, typename, icon, inports, outports);
+        const node = this.#createNewNode(gojs, shape, background, typename, icon, inports, outports, outportType, inportType);
         this.#myDiagram.nodeTemplateMap.add(typename, node);
     }
 
-    #createNewNode = (gojs, shape, background, typename, icon, inports, outports) => {
+    #createNewNode = (gojs, shape, background, typename, icon, inports, outports, outportType, inportType) => {
         return gojs(go.Node,
             this.#setSelectionAdornedVariables(),
             this.#setDoubleClickListener(),
             this.#createNodeBody(gojs, shape, background, typename, icon, inports, outports),
-            this.#createMenuAdornment(gojs));
+            this.#createMenuAdornment(gojs),
+            this.#createNewGOJSBinding('outPortType', 1));
     };
 
     #createMenuAdornment = gojs => {
@@ -282,10 +284,10 @@ export class Environment {
      * @param {boolean} leftside true if left side, false if right side.
      * @returns a panel object.
      */
-    #makePort = (name, leftside) => {
+    #makePort = (name, leftside, type) => {
         const gojs = this.#getGOJSMakeObject();
         const panel = this.#createPortPanel(gojs);
-        panel.add(this.#setupPort(leftside, this.#createPortObject(gojs, name), this.#createPortLabel(gojs, name), panel));
+        panel.add(this.#setupPort(leftside, this.#createPortObject(gojs, name, type), this.#createPortLabel(gojs, name), panel));
         return panel;
     }
 
@@ -312,10 +314,10 @@ export class Environment {
     #createPortLabel = (gojs, name) => {
         return gojs(go.TextBlock, name, { font: "7pt sans-serif" });
     }
-    #createPortObject = (gojs, name) => {
+    #createPortObject = (gojs, name, type) => {
         return gojs(go.Shape, "Rectangle",
             {
-                fill: "gray", stroke: null,
+                fill: typeColorArray[type], stroke: null,
                 desiredSize: new go.Size(12, 12),
                 portId: name,  // declare this object to be a "port"
                 toMaxLinks: 4,
@@ -331,7 +333,12 @@ export class Environment {
                 {
                     selectionObjectName: "PANEL",  // selection handle goes around shape, not label
                     ungroupable: true  // enable Ctrl-Shift-G to ungroup a selected Group
-                }, gojs("SubGraphExpanderButton", { row: 0, column: 0, margin: 3 }),
+                },
+                {
+                    layout: gojs(go.LayeredDigraphLayout,
+                        { direction: 0 })
+                },
+                gojs("SubGraphExpanderButton", { row: 0, column: 0, margin: 3 }),
                 gojs(go.TextBlock,
                     {
                         //alignment: go.Spot.Right,
@@ -601,6 +608,15 @@ export class Environment {
                 break;
         }
         return color;
+    }
+
+    #createValidationRules() {
+        this.#myDiagram.toolManager.linkingTool.linkValidation = this.validatePortLinks;
+    }
+
+    validatePortLinks(fromnode, fromport, tonode, toport) {
+        console.log(fromport)
+        return fromport.fill === toport.fill;
     }
 
     /**

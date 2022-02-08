@@ -1,4 +1,5 @@
-import {  H3Generator, H1Generator, DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator } from "./index.js";
+
+import {  TextAreaGenerator , H3Generator, H1Generator, DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator } from "./index.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
 export class HTMLFactory {
 
@@ -13,6 +14,7 @@ export class HTMLFactory {
     #h3Generator;
     #h1Generator;
     #checkboxGenerator;
+    #textAreaGenerator;
 
     constructor() {
         this.#tableGenerator = new HTMLTableGenerator();
@@ -24,6 +26,7 @@ export class HTMLFactory {
         this.#h3Generator = new H3Generator();
         this.#h1Generator = new H1Generator();
         this.#checkboxGenerator = new CheckboxGenerator();
+        this.#textAreaGenerator = new TextAreaGenerator();
     };
 
     createNewTable(dataTable, rowLimit) {
@@ -144,6 +147,20 @@ export class HTMLFactory {
              */
     createNewTextInput(id, name, classlist, customStyles, type, disabled) {
         return this.#inputGenerator.generateFileInput(id, name, classlist, customStyles, type, disabled);
+    }
+
+    /** Creates a new HTML text input element
+             * @param id -> the id of the element (if not adding id, use empty string '')
+             * @param name -> the name of the element (if not adding name, use empty string '')
+             * @param classlist -> Array of strings, each string is a css classname
+             * @param customStyles -> array of objects in the following format
+             *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
+             *                         value: 'green;}
+             * @param type -> must be 'text' (string)
+             * @return the new button
+             */
+    createNewTextArea(id, name, classlist, customStyles,) {
+        return this.#textAreaGenerator.generateTextArea(id, name, classlist, customStyles);
     }
 
     /**

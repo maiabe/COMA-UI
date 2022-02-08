@@ -212,6 +212,10 @@ export class Module {
         console.log('DATA Card');
     }
 
+    addInspectorCardDescription(description) {
+        this.inspectorCard.appendToBody(GM.HF.createNewParagraph('','',['inspector-card-description'], [], description));
+    }
+
     createInspectorCompositeDetailCard(groupData, saveModuleCallback) {
         this.inspectorCard.addCompositeDetailsCard(groupData, saveModuleCallback);
     }

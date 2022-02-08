@@ -17,7 +17,7 @@ export class Sql extends Source {
 
 export class Fits extends Source {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'remote', 'querySql', 'FITS', 'images/icons/files.png', [], [{ name: 'OUT', leftSide: false }], key, 'This module will retrieve fits files for an object.');
+        super(category, color, shape, 'remote', 'querySql', 'FITS', 'images/icons/files-white.png', [], [{ name: 'OUT', leftSide: false }], key, 'This module will retrieve fits files for an object.');
         this.setPopupContent();
         this.createInspectorCardData();
     }

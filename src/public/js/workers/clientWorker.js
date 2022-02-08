@@ -72,25 +72,30 @@ const initiatePing = () => {
 }
 
 const handleReturn = data => {
-    const responseJson = JSON.parse(data.response);
-    let messageType = undefined;
-    switch (responseJson.type) {
-        case 'Initial Response':
-            // console.log(data.status);
-            break;
-        case 'Status Check':
-            if (data.status == 'Complete') {
-                clearInterval(intervalId);
-                postMessage({ type: 'Processing Complete', clientId: id, data: data.data });
-            } else {
-                postMessage({ type: 'Processing Incomplete', clientId: id, data: data.data });
-            }
-            break;
-        case 'Saved Modules':
-            messageType = 'Saved Modules Return';
-            break;
+    if (data.response != 'No Saved Modules Found') {
+        const responseJson = JSON.parse(data.response);
+        let messageType = undefined;
+        switch (responseJson.type) {
+            case 'Initial Response':
+                // console.log(data.status);
+                break;
+            case 'Status Check':
+                if (data.status == 'Complete') {
+                    clearInterval(intervalId);
+                    postMessage({ type: 'Processing Complete', clientId: id, data: data.data });
+                } else {
+                    postMessage({ type: 'Processing Incomplete', clientId: id, data: data.data });
+                }
+                break;
+            case 'Saved Modules':
+                messageType = 'Saved Modules Return';
+                break;
+        }
+        postMessage({ type: messageType, clientId: id, data: responseJson.returnData});
+    } else {
+        postMessage({ type: 'Saved Modules Return', clientId: id, data: data.response});
     }
-    postMessage({ type: messageType, clientId: id, data: responseJson.returnData});
+
 }
 
 const cbf = data => {

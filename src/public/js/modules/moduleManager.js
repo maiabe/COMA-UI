@@ -1,7 +1,7 @@
-import { ModuleGenerator } from './index.js';
+import { ModuleGenerator, SaveCompositeModulePopupContent } from './index.js';
 import { Message, Publisher } from '../communication/index.js';
 import { invalidVariables, printErrorMessage, varTest } from '../errorHandling/errorHandlers.js';
-import { ENVIRONMENT, MODULE_MANAGER, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR, WORKER_MANAGER } from '../sharedVariables/index.js';
+import { ENVIRONMENT, MODULE_MANAGER, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR, POPUP_MANAGER, WORKER_MANAGER } from '../sharedVariables/index.js';
 
 export class ModuleManager {
     #MG;          // Module Generator
@@ -42,13 +42,29 @@ export class ModuleManager {
         return module;
     }
 
+    createNewCompositePrefabModule = (key, groupData) => {
+        const module = this.#MG.generateNewModule('CompositePrefab', 'Composite', key);
+        this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', {moduleKey: key, card: module.getInspectorContent()}));
+        this.#addModule(module, key);
+        module.setCompositeGroupInfo(groupData);
+        module.setSaveModuleFunction(this.saveCompositeModule.bind(this));
+        return module;
+    }
+
     storeCompositePrefabData(name, moduleData) {
         this.compositePrefabMap.set(name, moduleData);
     }
 
     saveCompositeModule(groupInfo) {
-        console.log(groupInfo);
-        this.#sendMessage(new Message(WORKER_MANAGER, MODULE_MANAGER, 'Save Composite Module Event', {groupInfo: groupInfo}));
+        const saveContent = new SaveCompositeModulePopupContent(groupInfo, this.saveCompositeModuleCallback.bind(this));
+        this.#sendMessage(new Message(POPUP_MANAGER, MODULE_MANAGER, 'Create Save Composite Popup Event', {color:saveContent.getColor(), content: saveContent.getContent(), headerText: saveContent.getHeaderText()}));
+        // this.#sendMessage(new Message(WORKER_MANAGER, MODULE_MANAGER, 'Save Composite Module Event', {groupInfo: groupInfo}));
+    }
+
+    saveCompositeModuleCallback(data) {
+        if (data.name !== '') {
+            this.#sendMessage(new Message(WORKER_MANAGER, MODULE_MANAGER, 'Save Composite Module Event', data));
+        } else alert('Module Name Cannot Be Left Blank');
     }
 
     /**
@@ -70,17 +86,19 @@ export class ModuleManager {
     deployCompositeComponentsWithGroupKey = (key, name) => {
         const data = this.compositePrefabMap.get(name);
         const modulesInGroup = new Map();
-        Object.values(data.nodes).forEach(node => {
+        Object.values(data.groupInfo.nodes).forEach(node => {
             this.deployNewModule(node.type, node.name, node.key, key);
             modulesInGroup.set(this.getModuleByOldKey(node.key).getData('key'), this.getModuleByOldKey(node.key));
         });
         // Connect Modules with saved links
-        Object.values(data.links).forEach(link => {
+        Object.values(data.groupInfo.links).forEach(link => {
             const from = this.getModuleByOldKey(link.from);
             const to = this.getModuleByOldKey(link.to);
             this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Draw Link Event', {from: from.getData('key'), to: to.getData('key')}));
         });
         this.moduleMap.forEach(module => module.destroyOldKey());
+        console.log(key)
+        this.createNewCompositePrefabModule(key, {});
     }
 
     getModuleByOldKey(key) {

@@ -36,7 +36,7 @@
 .inspector-card-body {
   position: relative;
   background-color: #efefef;
-  height: 0px;
+  height: 10px;
   width: calc(100% - 8px);
   border-radius: 0 0 10px 10px;
   transition: height 0.1s linear;

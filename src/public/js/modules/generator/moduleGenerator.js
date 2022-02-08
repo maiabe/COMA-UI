@@ -1,5 +1,6 @@
 import { sourceColor, outputColor, processorColor, compositColor } from "../../sharedVariables/colors.js";
-import { Sql, Fits, Csv, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table, ToCSV, Composite, Data } from '../index.js';
+import { LOCAL_DATA_SOURCE } from "../../sharedVariables/constants.js";
+import { Sql, Fits, Csv, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table, ToCSV, Composite, CompositePrefab, Data } from '../index.js';
 export class ModuleGenerator {
     constructor() {
         this.colors = {
@@ -92,8 +93,11 @@ export class ModuleGenerator {
                     case 'Composite':
                         mod = new Composite(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Composite', [], false);
                         break;
+                    case 'CompositePrefab':
+                        mod = new CompositePrefab(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Composite', [], false);
+                        break;
                     case 'Data':
-                        mod = new Data(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false }], true);
+                        mod = new Data(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false, type: LOCAL_DATA_SOURCE }], true);
                         break;
                     case 'To Csv':
                         mod = new ToCSV(category, this.colors[category.toLowerCase()], this.shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false }], true);

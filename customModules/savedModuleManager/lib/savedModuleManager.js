@@ -25,11 +25,15 @@ class SavedModuleManager {
     }
 
     getAllModules() {
-        const object = {
-            returnData: Object.fromEntries(this.moduleMap),
-            type: 'Saved Modules'
-        }
-        return JSON.stringify(object);
+        if (this.moduleMap.size > 0) {
+            const object = {
+                returnData: Object.fromEntries(this.moduleMap),
+                type: 'Saved Modules'
+            }
+            console.log(object)
+            return JSON.stringify(object);
+        } else return 'No Saved Modules Found';
+
     }
     getModuleById() {}
 
@@ -37,12 +41,15 @@ class SavedModuleManager {
         
     }
 
-    addModule(groupInfo){
-        this.moduleMap.set('New Composite Module', groupInfo);
-        console.log(this.moduleMap);
+    addModule(groupInfo, name, description){
+        console.log(groupInfo, name, description)
+        if (this.moduleMap.has(name)) return `Saved Module Named ${name} already exists.`;
+        else this.moduleMap.set(name, {groupInfo: groupInfo, description: description});
+        console.log(this.moduleMap)
         if (this.updateFile()) return 'Successfully Saved Module';
         else return 'Save Module Failed';
     }
+
 }
 
 module.exports = SavedModuleManager;

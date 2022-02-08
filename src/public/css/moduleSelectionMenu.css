@@ -33,7 +33,7 @@
 
 #moduleMenu > .menuSegmentWrapper > .topMenuButton {
   text-align: center;
-  background-color: #efefef;
+  border: 1px solid #eeeeee;
   position: relative;
   /* outline: 1px solid black; */
   height: 50px;

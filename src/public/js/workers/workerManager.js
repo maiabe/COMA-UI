@@ -142,7 +142,7 @@ export class WorkerManager {
     getObjectsFromServer = id => {
         if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'getObjectsFromServer')) return false;
         if (this.#workers.has(id)) {
-            this.#workers.get(id).worker.postMessage({ type: `Get Objects`});
+            this.#workers.get(id).worker.postMessage({ type: `Get Objects` });
             return true;
         } else return false;
     }
@@ -154,7 +154,7 @@ export class WorkerManager {
     getRoutesFromServer = id => {
         if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'getRoutesFromServer')) return false;
         if (this.#workers.has(id)) {
-            this.#workers.get(id).worker.postMessage({ type: `Get Routes`});
+            this.#workers.get(id).worker.postMessage({ type: `Get Routes` });
             return true;
         } else return false;
     }
@@ -162,7 +162,7 @@ export class WorkerManager {
     getSavedModulesFromServer = id => {
         if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'getSavedModulesFromServer')) return false;
         if (this.#workers.has(id)) {
-            this.#workers.get(id).worker.postMessage({ type: `Load Saved Modules`});
+            this.#workers.get(id).worker.postMessage({ type: `Load Saved Modules` });
             return true;
         } else return false;
     }

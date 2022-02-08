@@ -146,12 +146,13 @@ export default class Hub {
                 module.createInspectorCompositeDetailCard(data.groupDiagram, module.saveModule.bind(module));
                 break;
             case 'Saved Modules Loaded Event':
-                if (invalidVariables([varTest(data.data, 'data', 'object')], 'HUB', '#messageForModuleManager (Saved Modules Loaded Event)')) return;
-                Object.entries(data.data).forEach(module => {
-                    GM.MM.storeCompositePrefabData(module[0], module[1]);
-                    GM.MSM.addCompositeSubMenuItem(module[0]);
-                    GM.MSM.initializeMenu();
-                });
+                if (data.data !== 'No Saved Modules Found') {
+                    Object.entries(data.data).forEach(module => {
+                        GM.MM.storeCompositePrefabData(module[0], module[1]);
+                        GM.MSM.addCompositeSubMenuItem(module[0]);
+                    });
+                }
+                GM.MSM.initializeMenu();
                 break;
             case 'Composite Module Creation Event':
                 if (invalidVariables([varTest(data.moduleName, 'moduleName', 'string')], 'HUB', '#messageForModuleManager (Composite Module Creation Event)')) return;
@@ -199,6 +200,10 @@ export default class Hub {
             case 'Double Click Event':
                 if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.x, 'x', 'number'), varTest(data.y, 'y', 'number')], 'HUB', '#messageForPopupManager (double click event)'));
                 else GM.PM.createModulePopup(data.moduleKey, GM.MM.getPopupContentForModule(data.moduleKey), data.x, data.y);
+                break;
+            case 'Create Save Composite Popup Event':
+                if (invalidVariables([varTest(data.content, 'content', 'object'), varTest(data.color, 'color', 'string'), varTest(data.headerText, 'headerText', 'string')], 'HUB', '#messageForPopupManager (Create Save Composite Popup Event)')) return;
+                else GM.PM.createOtherPopup(data);
                 break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForPopupManager`);
@@ -259,14 +264,15 @@ export default class Hub {
                     .sendPipelineToServer(workerIndex, data.value);
                 break;
             case 'Save Composite Module Event':
-                if (invalidVariables([varTest(data.groupInfo, 'groupInfo', 'object')], 'HUB', '#messageForWorkerManager (Save Composite Module Event)')) return;
+                console.log('test')
+                if (invalidVariables([varTest(data.groupInfo, 'groupInfo', 'object'), varTest(data.name, 'name', 'string'), varTest(data.description, 'description', 'string')], 'HUB', '#messageForWorkerManager (Save Composite Module Event)')) return;
                 worker = GM.WM.startWorker();
                 workerIndex = GM.WM.addWorkerToDataTable(worker);
                 GM.WM.notifyWorkerOfId(workerIndex)
                     .setStopWorkerFunction(workerIndex)
                     .setHandleReturnFunction(workerIndex)
                     .setWorkerMessageHandler(workerIndex)
-                    .sendCompositeModuleInfoToServer(workerIndex, data.groupInfo);
+                    .sendCompositeModuleInfoToServer(workerIndex, data);
                 break;
             default:
                 printErrorMessage(`unhandled switch case`, `type: ${type}. -- HUB -> #messageForWorkerManager`);
