@@ -32,15 +32,15 @@ export class CompositePrefab extends Module {
     #nodeArray;
     #linkArray;
     #isDataModule;
+
     constructor (category, color, shape, key, name, inports, isData) {
-        console.log(name)
         super(category, color, shape, 'composite', name, 'images/icons/flow-diagram-white.png', inports, [{ name: 'OUT', leftSide: false }], key, 'Composite Module');
         this.isData = isData;
         this.setPopupContent();
-        this.createInspectorCardData();
     }
     createInspectorCardData() {
         this.addInspectorCardIDField();
+        this.addInspectorCardDescription(this.getData('description'));
     }
 
     saveModule() {

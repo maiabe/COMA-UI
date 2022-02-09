@@ -42,16 +42,18 @@ export class ModuleManager {
         return module;
     }
 
-    createNewCompositePrefabModule = (key, groupData) => {
+    createNewCompositePrefabModule = (key, groupData, description) => {
         const module = this.#MG.generateNewModule('CompositePrefab', 'Composite', key);
         this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', {moduleKey: key, card: module.getInspectorContent()}));
         this.#addModule(module, key);
         module.setCompositeGroupInfo(groupData);
-        module.setSaveModuleFunction(this.saveCompositeModule.bind(this));
+        module.addData('description', description);
+        module.createInspectorCardData();
         return module;
     }
 
     storeCompositePrefabData(name, moduleData) {
+        console.log(moduleData)
         this.compositePrefabMap.set(name, moduleData);
     }
 
@@ -97,8 +99,7 @@ export class ModuleManager {
             this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Draw Link Event', {from: from.getData('key'), to: to.getData('key')}));
         });
         this.moduleMap.forEach(module => module.destroyOldKey());
-        console.log(key)
-        this.createNewCompositePrefabModule(key, {});
+        this.createNewCompositePrefabModule(key, data.groupInfo, data.description);
     }
 
     getModuleByOldKey(key) {

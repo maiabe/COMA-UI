@@ -44,7 +44,7 @@ class SavedModuleManager {
     addModule(groupInfo, name, description){
         console.log(groupInfo, name, description)
         if (this.moduleMap.has(name)) return `Saved Module Named ${name} already exists.`;
-        else this.moduleMap.set(name, {groupInfo: groupInfo, description: description});
+        else this.moduleMap.set(groupname, {groupInfo: groupInfo, description: description});
         console.log(this.moduleMap)
         if (this.updateFile()) return 'Successfully Saved Module';
         else return 'Save Module Failed';
