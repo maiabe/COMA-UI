@@ -1,48 +1,48 @@
 import { sourceColor, outputColor, processorColor, compositColor, MODULE_MANAGER, MODULE_SELECTION_MENU } from '../../sharedVariables/index.js';
 import { Publisher, Message } from '../../communication/index.js';
 import { GM } from '../../main.js';
-import { HTMLFactory } from '../../htmlGeneration/index.js'
+import { HTMLFactory } from '../../htmlGeneration/index.js';
+import { moduleDataObject } from '../../sharedVariables/moduleData.js';
 
 export class ModuleSelectionMenu {
     publisher;
     constructor() {
         this.publisher = new Publisher();
         this.menuContainer = document.getElementById('moduleMenu');
-        this.sourceSubMenuItems = [
-            // { icon: 'images/icons/sql-open-file-format.png', text: 'SQL', category: 'Source' },
-            { icon: 'images/icons/files.png', text: 'FITS', category: 'Source' },
-            { icon: 'images/icons/csv-file-format-extension.png', text: 'CSV File', category: 'Source' },
-            // { icon: 'images/icons/data-random-squares.png', text: 'Random', category: 'Source' },
-            // { icon: 'images/icons/json-file.png', text: 'JSON', category: 'Source' },
-            // { icon: 'images/icons/axis.png', text: 'Ephemeris', category: 'Source' },
-            // { icon: 'images/icons/calendar.png', text: 'MJD', category: 'Source' },
-            // { icon: 'images/icons/truck.png', text: 'All', category: 'Source' },
-            // { icon: 'images/icons/number.png', text: 'Number', category: 'Source' }
-        ];
-        this.processorSubMenuItems = [
-            // { icon: 'images/icons/function.png', text: 'Function', category: 'Processor' },
-            // { icon: 'images/icons/gaussian-function.png', text: 'Gaussian Filter', category: 'Processor' },
-            // { icon: 'images/icons/filter.png', text: 'Laplacian Filter', category: 'Processor' },
-            // { icon: 'images/icons/sum-sign.png', text: 'Sum', category: 'Processor' },
-            // { icon: 'images/icons/subtraction-symbol.png', text: 'Subtract', category: 'Processor' },
-        ];
-        this.outputSubMenuItems = [
-            { icon: 'images/icons/scatter-graph-black.png', text: 'Scatter Plot', category: 'Output' },
-            { icon: 'images/icons/bar-chart.png', text: 'Bar Chart', category: 'Output' },
-            { icon: 'images/icons/line-chart.png', text: 'Line Chart', category: 'Output' },
-            { icon: 'images/icons/csv-file-format-extension.png', text: 'To Csv', category: 'Output'}
-            // { icon: 'images/icons/table.png', text: 'Table', category: 'Output' },
-            // { icon: 'images/icons/image.png', text: 'Image', category: 'Output' },
-            // { icon: 'images/icons/equal.png', text: 'Value', category: 'Output' },
-        ];
+        this.sourceSubMenuItems = [];
+        this.processorSubMenuItems = [];
+        this.outputSubMenuItems = [];
         this.compositeSubMenuItems = [];
         this.moduleTypes = [
             { text: 'Composite', color: compositColor, subMenuItems: this.compositeSubMenuItems, subMenu: null, buttonIcon: 'images/icons/flow-diagram-white.png' },
             { text: 'Source', color: sourceColor, subMenuItems: this.sourceSubMenuItems, subMenu: null, buttonIcon: 'images/icons/database-storage.png' },
             { text: 'Processor', color: processorColor, subMenuItems: this.processorSubMenuItems, subMenu: null, buttonIcon: 'images/icons/calculator.png' },
-            { text: 'Output', color: outputColor, subMenuItems: this.outputSubMenuItems, subMenu: null, buttonIcon: 'images/icons/scatter-graph.png' }];
+            { text: 'Output', color: outputColor, subMenuItems: this.outputSubMenuItems, subMenu: null, buttonIcon: 'images/icons/scatter-graph.png' }
+        ];
         this.topMenuButtonArray = [];
+        this.populateMenuArrays();
     };
+
+    populateMenuArrays() {
+        moduleDataObject.forEach(e => {
+            if (e.menuData) {
+                switch (e.menuData.category) {
+                    case 'Source':
+                        this.sourceSubMenuItems.push(e.menuData);
+                        break;
+                    case 'Processor':
+                        this.processorSubMenuItems.push(e.menuData);
+                        break;
+                    case 'Output':
+                        this.outputSubMenuItems.push(e.menuData);
+                        break;
+                    case 'Composite':
+                        this.compositeSubMenuItems.push(e.menuData);
+                        break;
+                }
+            }
+        });
+    }
 
     initializeMenu = () => {
         this.moduleTypes.forEach((m, index) => this.instantiateMenuButton(m, index));
@@ -50,14 +50,14 @@ export class ModuleSelectionMenu {
 
     instantiateMenuButton = (m, index) => {
         const button = new ModuleTopButton(m);
-            if (index === 0) button.getButtonElement().classList.add('topRoundedCorners');
-            else if (index === this.moduleTypes.length - 1) button.getButtonElement().classList.add('bottomRoundedCorners');
-            this.topMenuButtonArray.push(button.getElement());
-            this.menuContainer.append(button.getElement());
+        if (index === 0) button.getButtonElement().classList.add('topRoundedCorners');
+        else if (index === this.moduleTypes.length - 1) button.getButtonElement().classList.add('bottomRoundedCorners');
+        this.topMenuButtonArray.push(button.getElement());
+        this.menuContainer.append(button.getElement());
     }
 
     addCompositeSubMenuItem = name => {
-        this.compositeSubMenuItems.push({ icon: 'images/icons/flow-diagram-black.png', text: name, category: 'Composite'});
+        this.compositeSubMenuItems.push({ icon: 'images/icons/flow-diagram-black.png', text: name, category: 'Composite' });
     };
 }
 

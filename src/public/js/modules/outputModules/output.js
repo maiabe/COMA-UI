@@ -40,14 +40,14 @@ export class Chart_2D extends Output {
     }
 
     createInspectorCardData() {
-        this.addInspectorCardIDField();
-        this.addInspectorCardDataConnectedField();
+        this.inspectorCardMaker.addInspectorCardIDField(this.getData('key'));
+        this.inspectorCardMaker.addInspectorCardDataConnectedField();
     }
 
     updateInspectorCardWithNewData(dataModule, data) {
-        this.addInspectorCardLinkedNodeField(dataModule.getData('key'));
-        const xAxis = this.addInspectorCardChartXAxisCard(data.data.getHeaders());
-        const yAxis = this.addInspectorCardChartYAxisCard(data.data.getHeaders());
+        this.inspectorCardMaker.addInspectorCardLinkedNodeField(dataModule.getData('key'));
+        const xAxis = this.inspectorCardMaker.addInspectorCardChartXAxisCard(data.data.getHeaders(), this.getData('key'));
+        const yAxis = this.inspectorCardMaker.addInspectorCardChartYAxisCard(data.data.getHeaders(), this.getData('key'));
         yAxis.dropdown.id = `${this.chartData.getNumberOfTraces()}-x-axis-dropdown`;
         this.chartData.storeHeaders(data.data.getHeaders());
         this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
@@ -68,7 +68,7 @@ export class Chart_2D extends Output {
             yAxis.tickCheckbox.checkbox.checked);
         this.addNewTraceButtonListener(xAxis.addTraceButton);
         this.addNewTraceButtonListener(yAxis.addTraceButton);
-        this.addBuildChartEventListener(this.addInspectorCardGenerateChartButton());
+        this.addBuildChartEventListener(this.inspectorCardMaker.addInspectorCardGenerateChartButton(this.getData('key')));
     }
 
     addNewTraceButtonListener(button) {
@@ -89,7 +89,7 @@ export class Chart_2D extends Output {
     addTrace() {
         const title = 'test';
         const dropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], this.chartData.getHeaders(), this.chartData.getHeaders());
-        this.addNewTraceToInspectorCard(dropDown);
+        this.inspectorCardMaker.addNewTraceToInspectorCard(dropDown);
         dropDown.id = `${this.chartData.getNumberOfTraces()}-x-axis-dropdown`;
         this.chartData.listenToYAxisDataChanges(dropDown);
         console.log(dropDown.id);
@@ -170,16 +170,16 @@ export class ToCSV extends Output {
     }
 
     createInspectorCardData() {
-        this.addInspectorCardIDField();
-        this.addInspectorCardDataConnectedField();
+        this.inspectorCardMaker.addInspectorCardIDField(this.getData('key'));
+        this.inspectorCardMaker.addInspectorCardDataConnectedField();
     }
 
     updateInspectorCardWithNewData(dataModule, data) {
-        this.addInspectorCardLinkedNodeField(dataModule.getData('key'));
-        const columnCheckboxes = this.addInspectorCardIncludeColumnCard(data.data.getHeaders());
+        this.inspectorCardMaker.addInspectorCardLinkedNodeField(dataModule.getData('key'));
+        const columnCheckboxes = this.inspectorCardMaker.addInspectorCardIncludeColumnCard(data.data.getHeaders(), this.getData('key'));
         this.chartData.listenToCheckboxChanges(columnCheckboxes);
-        this.addGenerateTablePreviewEventListener(this.addInspectorCardGenerateTablePreviewButton());
-        this.addCreateCSVFileEventListener(this.addInspectorCardGenerateCSVFileButton());
+        this.addGenerateTablePreviewEventListener(this.inspectorCardMaker.addInspectorCardGenerateTablePreviewButton(this.getData('key')));
+        this.addCreateCSVFileEventListener(this.inspectorCardMaker.addInspectorCardGenerateCSVFileButton(this.getData('key')));
         console.log(data);
     }
 

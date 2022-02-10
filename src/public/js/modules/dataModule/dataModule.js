@@ -22,8 +22,8 @@ export class Data extends Module {
     }
 
     createInspectorCardData() {
-        this.addInspectorCardIDField();
-        this.addInspectorDataCard();
+        this.inspectorCardMaker.addInspectorCardIDField(this.getData('key'));
+        this.inspectorCardMaker.addInspectorDataCard();
     }
 
 }

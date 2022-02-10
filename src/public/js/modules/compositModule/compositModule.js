@@ -11,7 +11,7 @@ export class Composite extends Module {
     }
     
     createInspectorCardData() {
-        this.addInspectorCardIDField();
+        this.inspectorCardMaker.addInspectorCardIDField(this.getData('key'));
     }
 
     saveModule() {
@@ -39,8 +39,8 @@ export class CompositePrefab extends Module {
         this.setPopupContent();
     }
     createInspectorCardData() {
-        this.addInspectorCardIDField();
-        this.addInspectorCardDescription(this.getData('description'));
+        this.inspectorCardMaker.addInspectorCardIDField(this.getData('key'));
+        this.inspectorCardMaker.addInspectorCardDescription(this.getData('description'));
     }
 
     saveModule() {

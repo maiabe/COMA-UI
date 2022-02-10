@@ -5,6 +5,7 @@ import { LOCAL_DATA_SOURCE } from "../../sharedVariables/constants.js";
 
 export class Csv extends Source {
     constructor(category, color, shape, key) {
+        console.log(category, color, shape, key)
         super(category, color, shape, 'local', 'storeData', 'CSV File', 'images/icons/csv-file-format-extension-white.png', [], [{ name: 'OUT', leftSide: false, type: LOCAL_DATA_SOURCE }], key);
         this.dataArea;
         this.readFileButton;
@@ -18,8 +19,9 @@ export class Csv extends Source {
     }
 
     createInspectorCardData() {
-        this.addInspectorCardDescription(this.getData('description'));
+        this.inspectorCardMaker.addInspectorCardDescription(this.getData('description'));
     }
+    
     setPopupContent = () => {
         const popupContent = GM.HF.createNewDiv('', '', [], []);
         const description = GM.HF.createNewParagraph('','',['popup-module-description'], [], this.getData('description'));
