@@ -23,8 +23,8 @@ export class Fits extends Source {
     }
 
     createInspectorCardData() {
-        this.setInspectorCardDescriptionText('This module will retrieve fits files for an object.');
-        this.addInspectorCardObjectsDropdown();
+        this.inspectorCardMaker.setInspectorCardDescriptionText('This module will retrieve fits files for an object.');
+        // this.inspectorCardMaker.addInspectorCardObjectsDropdown();
     }
 }
 

@@ -21,32 +21,17 @@ export class Csv extends Source {
     createInspectorCardData() {
         this.inspectorCardMaker.addInspectorCardDescription(this.getData('description'));
     }
-    
+
     setPopupContent = () => {
-        const popupContent = GM.HF.createNewDiv('', '', [], []);
-        const description = GM.HF.createNewParagraph('','',['popup-module-description'], [], this.getData('description'));
-        const uploadWrapper = GM.HF.createNewDiv('', '', ['uploadWrapper'], []);
-        popupContent.appendChild(description);
-        popupContent.appendChild(uploadWrapper);
-        const upload = GM.HF.createNewFileInput('upload_csv', 'upload_csv', [], [], 'file', false);
-        uploadWrapper.append(upload);
-        upload.addEventListener('change', this.handleFiles);
-
-        this.readFileButton = GM.HF.createNewButton('read-file-button', 'read-file-button', [], [], 'button', 'Read File', true);
-        uploadWrapper.appendChild(this.readFileButton);
-
-        this.dataArea = GM.HF.createNewDiv('csvDataArea', 'csvDataArea', [], []);
-        popupContent.appendChild(this.dataArea);
-
-        this.readFileButton.addEventListener('click', () => {
-            GM.MM.readFile('csv', 'html', 'upload_csv', this.getData('key'));
-        });
-        this.addData('popupContent', popupContent, false, '', false);
+        this.popupContentMaker.addDescriptionText(this.getData('description'));
+        this.popupContentMaker.createFileUploadField(this.handleFiles.bind(this), this.getData('key'));
+        this.popupContentMaker.addDataArea();
+        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
 
     }
 
     createTable = () => {
-        this.dataArea.appendChild(this.csvReader.generateHTMLTable(100));
+        this.popupContentMaker.getField('dataArea').appendChild(this.csvReader.generateHTMLTable(100));
     };
 
     handleFiles = () => {
@@ -59,7 +44,7 @@ export class Csv extends Source {
         }
     }
     enableReadFileButton = () => {
-        this.readFileButton.disabled = false;
+        this.popupContentMaker.getField('readFileButton').disabled = false;
     };
 
 }

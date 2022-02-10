@@ -1,22 +1,11 @@
 import { Module } from "../index.js";
 import { GM } from '../../main.js';
-import chartThemes from '../../dataComponents/charts/echarts/theme/echartsThemes.js';
 import { ChartDataStorage } from "./components/chartDataStorage.js";
 import { TABLE_OUTPUT, LOCAL_DATA_SOURCE } from "../../sharedVariables/constants.js";
 
 export class Output extends Module {
     constructor(category, color, shape, command, name, image, inports, outports, key) {
         super(category, color, shape, command, name, image, inports, outports, key);
-    }
-
-    buildEchartThemeDropdown = () => {
-        return GM.HF.createNewSelect(`plot_${this.key}`, `plot_${this.key}`, ['plot-dd'], [], chartThemes, chartThemes);
-    };
-
-    setEchartThemeDropdownEventListener = dropDownElement => {
-        dropDownElement.addEventListener('change', event => {
-            GM.MM.handleEchartThemeChange(this.getData('key'), event.target.value);
-        });
     }
 }
 
@@ -26,15 +15,9 @@ export class Chart_2D extends Output {
     };
 
     setPopupContent = () => {
-        const popupContent = GM.HF.createNewDiv('', '', [], []);
-        const themeDD = this.buildEchartThemeDropdown();
-        this.setEchartThemeDropdownEventListener(themeDD);
-        const plotDiv = GM.HF.createNewDiv(`plot_${this.key}`, `plot_${this.key}`, ['plot1'], ['chartDiv']);
-        popupContent.appendChild(themeDD);
-        popupContent.appendChild(plotDiv);
-        this.addData('popupContent', popupContent, false, '', false);
-        this.addData('themeDD', themeDD, false, '', false);
-        this.addData('plotDiv', plotDiv, false, '', false);
+        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
+        this.addData('themeDD', this.popupContentMaker.addEChartThemeDropdown(this.getData('key')), false, '', false);
+        this.addData('plotDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
         this.addData('inportType', LOCAL_DATA_SOURCE);
         this.addData('outportType', -1);
     }
@@ -140,16 +123,16 @@ export class Value extends Output {
     }
 
     setPopupContent = () => {
-        const popupContent = GM.HF.createNewDiv('', '', [], []);
-        const setValueWrapper = GM.HF.createNewDiv('', '', ['setValueWrapper'], []);
-        popupContent.appendChild(setValueWrapper);
-        const dataArea = GM.HF.createNewDiv('', '', ['numberDataArea'], []);
-        this.textArea = GM.HF.createNewParagraph('', '', ['popup-text-large'], [], this.data);
-        dataArea.appendChild(this.textArea);
-        popupContent.appendChild(dataArea);
-        this.addData('popupContent', popupContent, false, '', false);
-        this.addData('themeDD', themeDD, false, '', false);
-        this.addData('plotDiv', plotDiv, false, '', false);
+        // const popupContent = GM.HF.createNewDiv('', '', [], []);
+        // const setValueWrapper = GM.HF.createNewDiv('', '', ['setValueWrapper'], []);
+        // popupContent.appendChild(setValueWrapper);
+        // const dataArea = GM.HF.createNewDiv('', '', ['numberDataArea'], []);
+        // this.textArea = GM.HF.createNewParagraph('', '', ['popup-text-large'], [], this.data);
+        // dataArea.appendChild(this.textArea);
+        // popupContent.appendChild(dataArea);
+        // this.addData('popupContent', popupContent, false, '', false);
+        // this.addData('themeDD', themeDD, false, '', false);
+        // this.addData('plotDiv', plotDiv, false, '', false);
     };
 
     updatePopupText = val => {
@@ -200,11 +183,8 @@ export class ToCSV extends Output {
     }
 
     setPopupContent = () => {
-        const popupContent = GM.HF.createNewDiv('', '', [], []);
-        const plotDiv = GM.HF.createNewDiv(`plot_${this.key}`, `plot_${this.key}`, ['plot1'], ['chartDiv']);
-        popupContent.appendChild(plotDiv);
-        this.addData('popupContent', popupContent, false, '', false);
-        this.addData('plotDiv', plotDiv, false, '', false);
+        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
+        this.addData('plotDiv', this.popupContentMaker.addPlotDiv(), false, '', false);
     };
 
     storeTableHeaders(headerRow) {

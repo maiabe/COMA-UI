@@ -2,18 +2,20 @@ import { Publisher, Message } from '../communication/index.js';
 import { invalidVariables, varTest } from '../errorHandling/errorHandlers.js';
 import { GM } from '../main.js';
 import { InspectorCardMaker } from './components/inspectorCardMaker.js';
+import { PopupContentMaker } from './components/popupContentMaker.js';
 
 
 export class Module {
     #command;
     #dataTable;
-    inspectorCard;
     inspectorCardMaker;
+    popupContentMaker;
 
     constructor(type, color, shape, command, name, imagePath, inports, outports, key, description) {
         this.#dataTable = new Map();
         this.publisher = new Publisher();
         this.inspectorCardMaker = new InspectorCardMaker(name, color, key);
+        this.popupContentMaker = new PopupContentMaker();
         this.setInitialDataValues(type, color, shape, command, name, imagePath, inports, outports, key, description);
     };
 
@@ -122,11 +124,6 @@ export class Module {
         return this.inspectorCardMaker.getCard();
     };
 
-    
-
-    
-
-    
     /**
      * Gets the content to populate a popup associated with this module.
      * @returns the content to populate the popup associated with this module
