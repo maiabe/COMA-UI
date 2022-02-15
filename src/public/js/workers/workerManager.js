@@ -62,9 +62,9 @@ export class WorkerManager {
      * @param {number} id the worker id
      * @returns this (WorkerManager) for chaining
      */
-    setHandleReturnFunction = id => {
+    setHandleReturnFunction = (id, fn) => {
         if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'setHandleReturnFunction')) return undefined;
-        if (this.#workers.has(id)) this.#workers.get(id).handleReturnFunction = this.handleReturn;
+        if (this.#workers.has(id)) this.#workers.get(id).handleReturnFunction = fn === undefined ? this.handleReturn : fn;
         return this;
     };
 
@@ -112,6 +112,9 @@ export class WorkerManager {
                     case 'Saved Modules Return':
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage, event.data));
                         break;
+                    case 'Metadata Return':
+                        workerObject.handleReturnFunction(event.data.data)
+                        break;
                 }
             }
         }
@@ -128,6 +131,10 @@ export class WorkerManager {
         if (invalidVariables([varTest(id, 'id', 'number'), varTest(pipelineArray, 'pipelineArray', 'object')], 'WorkerManager', 'sendPipelineToServer')) return false;
         if (this.#workers.has(id)) this.#workers.get(id).worker.postMessage({ type: 'Execute Post', list: pipelineArray });
         return true;
+    }
+
+    requestMetadata(id, moduleName) {
+        if (this.#workers.has(id)) this.#workers.get(id).worker.postMessage({ type: 'Get Metadata', moduleName: moduleName });
     }
 
     sendCompositeModuleInfoToServer = (id, groupInfo) => {
@@ -195,6 +202,13 @@ export class WorkerManager {
         if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'requestNewJob')) return false;
         if (this.#workers.has(id)) {
             this.#workers.get(id).worker.postMessage({ type: `test`, method: method });
+            return true;
+        } else return false;
+    }
+
+    requestMetadata(id, moduleName) {
+        if (this.#workers.has(id)) {
+            this.#workers.get(id).worker.postMessage({ type: `Get Metadata`, moduleName: moduleName });
             return true;
         } else return false;
     }

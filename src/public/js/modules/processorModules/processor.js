@@ -1,7 +1,35 @@
 import { Module } from "../module.js";
+import { LOCAL_DATA_SOURCE, REMOTE_DATA_TABLE, TABLE_OUTPUT } from "../../sharedVariables/constants.js";
 export class Processor extends Module {
     constructor(category, color, shape, command, name, image, inports, outports, key) {
         super(category, color, shape, command, name, image, inports, outports, key);
+    }
+}
+
+export class Filter extends Processor {
+    constructor(category, color, shape, key) {
+        super(category, color, shape, 'filter', 'Filter', 'images/icons/filter-white.png', [{ name: 'IN', leftSide: true, type: REMOTE_DATA_TABLE }, { name: 'IN', leftSide: true, type: LOCAL_DATA_SOURCE }], [{ name: 'OUT', leftSide: false, type: REMOTE_DATA_TABLE }, { name: 'OUT', leftSide: false, type: TABLE_OUTPUT }], key);
+        this.addData('inportType', REMOTE_DATA_TABLE);
+        this.addData('outportType', REMOTE_DATA_TABLE);
+        this.addData('description', 'Use this module to filter table data.');
+        this.addData('linkedToData', false);
+        this.setPopupContent();
+        this.createInspectorCardData();
+    }
+
+    createInspectorCardData() {
+        this.inspectorCardMaker.addInspectorCardDescription(this.getData('description'));
+    }
+
+    setPopupContent = () => {
+        this.popupContentMaker.addDescriptionText(this.getData('description'));
+        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
+    }
+
+    processNewMetadata(metadata) {
+        console.log(metadata)
+        this.addData('metadata', metadata);
+        this.inspectorCardMaker.addFilterCards(this.getData('metadata'));
     }
 }
 

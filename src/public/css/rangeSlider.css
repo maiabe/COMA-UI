@@ -1,0 +1,38 @@
+:root {
+    --slider-width: 200px;
+    --slider-height: 20px;
+    --ball-width: 18px;
+}
+.range-slider-wrapper {
+  width: var(--slider-width);
+  height: var(--slider-height);
+}
+
+.range-slider-background-bar {
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: inset 0 0 10px #000000;
+}
+
+.range-slider-ball {
+    height: 18px;
+    width: 18px;
+    background-color: black;
+    border-radius: 50% 0 0 50%;
+    position: relative;
+    top: calc( (var(--slider-height) - 1px) * -1);
+    left: 0;
+}
+
+.range-slider-ball-right {
+    height: 18px;
+    width: 18px;
+    background-color: black;
+    border-radius: 0 50% 50% 0;
+    position: relative;
+    top: calc( (var(--slider-height) - 1px) * -2 + 1px);
+    left: calc( var(--slider-width) - var(--ball-width));
+}
+

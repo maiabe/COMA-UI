@@ -29,6 +29,9 @@ export class PopupContentMaker {
         });
     }
 
+    addMetadataCard(metadata) {
+        console.log(metadata);
+    }
     addDataArea() {
         this.dataTable.set('dataArea', GM.HF.createNewDiv('csvDataArea', 'csvDataArea', [], []));
         this.getPopupContentWrapper().appendChild(this.dataTable.get('dataArea'));

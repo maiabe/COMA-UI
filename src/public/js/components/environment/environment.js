@@ -556,8 +556,6 @@ export class Environment {
 
         let groupKey = Infinity;
         const groupDiagram = { nodes: [], links: [] };
-        // console.log(this.#model.nodeDataArray);
-        // console.log();
         this.#myDiagram.selection.each(e => {
             if (e.data.isGroup) groupKey = e.data.key;
         });
@@ -615,7 +613,6 @@ export class Environment {
     }
 
     validatePortLinks(fromnode, fromport, tonode, toport) {
-        console.log(fromport)
         return fromport.fill === toport.fill;
     }
 

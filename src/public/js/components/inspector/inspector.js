@@ -39,6 +39,10 @@ export class Inspector {
         return this;
     }
 
+    getCard(id) {
+        return this.#moduleCards.get(id);
+    }
+
     // #createNewInspectorCard(title) {
     //     this.domNodes.cardContainer.append(new InspectorCard(title).getCard());
     //     return this;
@@ -71,7 +75,6 @@ export class Inspector {
     }
 
     addModuleCard(key, card) {
-        console.log(`Key ${key}`);
         this.domNodes.moduleCardContainer.append(card);
         this.#moduleCards.set(key, card);
     }
@@ -139,6 +142,7 @@ export class Inspector {
     maximizeCard(cardId) {
         this.#moduleCards.forEach((card, key) => {
             if (key !== cardId) card.style.display = 'none';
+            else card.style.display = 'flex';
         });
     }
 

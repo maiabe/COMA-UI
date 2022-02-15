@@ -1,65 +1,78 @@
+
 let id = -1;
 let messageDataObject = {};
 const baseUrl = 'http://localhost:8080/';
 
-onmessage = e => {
-    var workerResult = 'Result: ' + (e.data);
-    let message;
-    switch (e.data.type) {
-        case 'Execute Post':
-            postData(url, { type: 'Process Pipeline Request', data: e.data.list, clientId: id })
-                .then(data => { handleReturn(data); });
-            postMessage({ type: 'Text Only', data: 'Post Request Executed' });
-            initiatePing();
-            break;
-        case 'Set Worker Id':
-            id = e.data.id;
-            postMessage({ type: 'Text Only', data: `Worker ID set to ${id}` });
-            break;
-        case 'Get Objects':
-            message = { message: 'Get Objects' };
-            postData(baseUrl, message)
-                .then(data => {
-                    console.log(data);
-                    //  data.text().then(text => {
-                    //     console.log(data);
-                    // });
-                });
-            break;
-        case 'Get Routes':
-            message = { message: 'Get Routes' };
-            postData(baseUrl, message)
-                .then(data => {
-                    console.log(data);
-                    //  data.text().then(text => {
-                    //     console.log(data);
-                    // });
-                });
-            break;
-        case 'test':
-            message = { testData: 'This Is A test' };
-            postData(baseUrl, message)
-                .then(data => {
-                    console.log(data);
-                });
-            break;
-        case 'Save Module':
-            message = { message: 'Save Module', groupInfo: e.data.groupInfo };
-            postData(baseUrl, message)
-                .then(data => {
-                    //  data.text().then(text => {
-                    //     console.log(data);
-                    // });
-                });
-            break;
-        case 'Load Saved Modules':
-            message = { message: 'Get Saved Modules' };
-            postData(baseUrl, message)
-                .then(data => {
-                    handleReturn(data);
-                });
-            break;
-    }
+
+const onMessageTable = new Map();
+onMessageTable.set('ExecutePost', executePost);
+onMessageTable.set('Set Worker Id', setWorkerId);
+onMessageTable.set('Get Objects', getObjects);
+onMessageTable.set('Get Routes', getRoutes);
+onMessageTable.set('Get Metadata', getMetadata);
+onMessageTable.set('Save Module', saveModule);
+onMessageTable.set('Load Saved Modules', loadSavedModules);
+
+
+onmessage = e => onMessageTable.get(e.data.type)(e);
+
+function loadSavedModules(e) {
+    const message = { message: 'Get Saved Modules' };
+    postData(baseUrl, message)
+        .then(data => {
+            handleReturn(data);
+        });
+}
+
+function saveModule(e) {
+    const message = { message: 'Save Module', groupInfo: e.data.groupInfo };
+    postData(baseUrl, message)
+        .then(data => {
+            //  data.text().then(text => {
+            //     console.log(data);
+            // });
+        });
+}
+
+function getMetadata(e) {
+    const message = { message: 'Get Metadata', moduleName: e.data.moduleName }
+    postData(baseUrl, message)
+    .then(data => {
+       handleReturn(data);
+    });
+}
+
+function getRoutes(e) {
+    const message = { message: 'Get Routes' };
+    postData(baseUrl, message)
+        .then(data => {
+            console.log(data);
+            //  data.text().then(text => {
+            //     console.log(data);
+            // });
+        });
+}
+
+function getObjects(e) {
+    const message = { message: 'Get Objects' };
+    postData(baseUrl, message)
+        .then(data => {
+            console.log(data);
+            //  data.text().then(text => {
+            //     console.log(data);
+            // });
+        });
+}
+function setWorkerId(e) {
+    id = e.data.id;
+    postMessage({ type: 'Text Only', data: `Worker ID set to ${id}` });
+}
+
+function executePost(e) {
+    postData(url, { type: 'Process Pipeline Request', data: e.data.list, clientId: id })
+        .then(data => { handleReturn(data); });
+    postMessage({ type: 'Text Only', data: 'Post Request Executed' });
+    initiatePing();
 }
 
 let intervalId;
@@ -71,31 +84,41 @@ const initiatePing = () => {
     }, 1000);
 }
 
-const handleReturn = data => {
-    if (data.response != 'No Saved Modules Found') {
-        const responseJson = JSON.parse(data.response);
-        let messageType = undefined;
-        switch (responseJson.type) {
-            case 'Initial Response':
-                // console.log(data.status);
-                break;
-            case 'Status Check':
-                if (data.status == 'Complete') {
-                    clearInterval(intervalId);
-                    postMessage({ type: 'Processing Complete', clientId: id, data: data.data });
-                } else {
-                    postMessage({ type: 'Processing Incomplete', clientId: id, data: data.data });
-                }
-                break;
-            case 'Saved Modules':
-                messageType = 'Saved Modules Return';
-                break;
-        }
-        postMessage({ type: messageType, clientId: id, data: responseJson.returnData});
-    } else {
-        postMessage({ type: 'Saved Modules Return', clientId: id, data: data.response});
-    }
+const handleReturnTable = new Map();
 
+handleReturnTable.set('InitialResponse', handleInitialResponseReturn);
+handleReturnTable.set('Status Check', handleStatusCheckReturn);
+handleReturnTable.set('Saved Modules', handleSavedModulesReturn)
+handleReturnTable.set('Metadata Return', handleMetadataReturn);
+
+function handleMetadataReturn(data) {
+    postMessage({type: 'Metadata Return', clientId: id, data: data.returnData});
+}
+
+function handleSavedModulesReturn(responseJson) {
+    postMessage({ type: 'Saved Modules Return', clientId: id, data: responseJson.returnData });
+}
+function handleInitialResponseReturn(data) {
+    console.log(`Handle Initial Response: ${data}`);
+}
+
+function handleStatusCheckReturn(data) {
+    if (data.status == 'Complete') {
+        clearInterval(intervalId);
+        postMessage({ type: 'Processing Complete', clientId: id, data: data.data });
+    } else {
+        postMessage({ type: 'Processing Incomplete', clientId: id, data: data.data });
+    }
+}
+
+const noSavedModulesFound = data => postMessage({ type: 'Saved Modules Return', clientId: id, data: data.response });
+
+const handleReturn = data => {
+    if (data.response === 'No Saved Modules Found') noSavedModulesFound(data);
+    else {
+        const responseJson = JSON.parse(data.response);
+        if (handleReturnTable.has(responseJson.type)) handleReturnTable.get(responseJson.type)(responseJson);
+    }
 }
 
 const cbf = data => {

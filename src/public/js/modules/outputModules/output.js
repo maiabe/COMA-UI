@@ -33,22 +33,11 @@ export class Chart_2D extends Output {
         const yAxis = this.inspectorCardMaker.addInspectorCardChartYAxisCard(data.data.getHeaders(), this.getData('key'));
         yAxis.dropdown.id = `${this.chartData.getNumberOfTraces()}-x-axis-dropdown`;
         this.chartData.storeHeaders(data.data.getHeaders());
-        this.chartData.listenToXAxisDataChanges(xAxis.dropdown);
-        this.chartData.listenToYAxisDataChanges(yAxis.dropdown);
-        this.chartData.listenToXAxisLabelChanges(xAxis.labelInput);
-        this.chartData.listenToYAxisLabelChanges(yAxis.labelInput);
-        this.chartData.listenToXAxisTickChanges(xAxis.tickCheckbox.checkbox);
-        this.chartData.listenToYAxisTickChanges(yAxis.tickCheckbox.checkbox);
-        this.chartData.listenToXAxisGridChanges(xAxis.gridCheckbox.checkbox);
-        this.chartData.listenToYAxisGridChanges(yAxis.gridCheckbox.checkbox);
-        this.chartData.setInitialValues(xAxis.dropdown.value,
-            yAxis.dropdown.value,
-            xAxis.labelInput.value,
-            yAxis.labelInput.value,
-            xAxis.gridCheckbox.checkbox.checked,
-            yAxis.gridCheckbox.checkbox.checked,
-            xAxis.tickCheckbox.checkbox.checked,
-            yAxis.tickCheckbox.checkbox.checked);
+        this.chartData.set_2D_XAxisListeners(xAxis);
+        this.chartData.set_2D_YAxisListeners(yAxis);
+        this.chartData.setInitialValues(xAxis.dropdown.value, yAxis.dropdown.value, xAxis.labelInput.value,
+            yAxis.labelInput.value, xAxis.gridCheckbox.checkbox.checked, yAxis.gridCheckbox.checkbox.checked,
+            xAxis.tickCheckbox.checkbox.checked, yAxis.tickCheckbox.checkbox.checked);
         this.addNewTraceButtonListener(xAxis.addTraceButton);
         this.addNewTraceButtonListener(yAxis.addTraceButton);
         this.addBuildChartEventListener(this.inspectorCardMaker.addInspectorCardGenerateChartButton(this.getData('key')));
@@ -75,7 +64,6 @@ export class Chart_2D extends Output {
         this.inspectorCardMaker.addNewTraceToInspectorCard(dropDown);
         dropDown.id = `${this.chartData.getNumberOfTraces()}-x-axis-dropdown`;
         this.chartData.listenToYAxisDataChanges(dropDown);
-        console.log(dropDown.id);
         this.chartData.addInitialValueForNewTrace(dropDown.value, dropDown.id.split('-')[0]);
     }
 }

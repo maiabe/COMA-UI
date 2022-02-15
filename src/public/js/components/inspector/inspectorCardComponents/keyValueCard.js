@@ -20,8 +20,6 @@ export class KeyValueCard {
     #appendCardElements() {
         this.#data.get('wrapperElement').appendChild(this.#data.get('headerElement'));
         const bodyElements = this.#data.get('bodyElements');
-        console.log(this.#data);
-        console.log(bodyElements);
         bodyElements.forEach(element => this.#data.get('wrapperElement').appendChild(element));
     }
 

@@ -1,4 +1,4 @@
-import { Sql, Fits, Csv, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table, ToCSV, Composite, CompositePrefab, Data } from '../modules/index.js';
+import {Cholera, Sql, Fits, Csv, Filter, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table, ToCSV, Composite, CompositePrefab, Data } from '../modules/index.js';
 import { sourceColor, outputColor, processorColor, compositColor } from './colors.js';
 import { LOCAL_DATA_SOURCE } from "./constants.js";
 
@@ -30,6 +30,16 @@ const moduleDataObject = [
         key: 'FITS',
         moduleCreationFunction: (category, key) => new Fits(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
         menuData: { icon: 'images/icons/files.png', text: 'FITS', category: 'Source' }
+    },
+    {
+        key: 'Cholera',
+        moduleCreationFunction: (category, key) => new Cholera(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
+        menuData: { icon: 'images/icons/skull.png', text: 'Cholera', category: 'Source' }
+    },
+    {
+        key: 'Filter',
+        moduleCreationFunction: (category, key) => new Filter(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
+        menuData: { icon: 'images/icons/filter.png', text: 'Filter', category: 'Processor' }
     },
     {
         key: 'Scatter Plot',

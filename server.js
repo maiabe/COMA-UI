@@ -4,6 +4,10 @@ const axios = require('axios');
 const https = require('https')
 const JobManager = require('./customModules/jobManager');
 const SavedModuleManager = require('./customModules/savedModuleManager');
+const DatabaseSimulator = require('./customModules/databaseSimulator');
+const req = require('express/lib/request');
+
+//const CSVtoJSON = require('./customModules/csvToJSON');
 
 const dataTable = new Map();
 
@@ -23,8 +27,10 @@ app.listen(PORT, () => {
 const handleCompletedJob = () => {
   console.log('Job Done');
 }
+
 const JM = new JobManager(handleCompletedJob);
 const SM = new SavedModuleManager();
+const DB = new DatabaseSimulator();
 
 function postToClient() {
   axios
@@ -53,19 +59,24 @@ app.post('/', function (req, res) {
   res.end(JSON.stringify({response: data}));
 });
 
+
+
+const getMetadata = requestBody => DB.getMetadata(requestBody.moduleName)
+const getObjects = requestBody => dataTable.get('Objects');
+const getRoutes = requestBody => dataTable.get('Routes');
+const saveModule = requestBody => SM.addModule(requestBody.groupInfo.groupInfo, requestBody.groupInfo.name, requestBody.groupInfo.description);
+const getSavedModules = requestBody => SM.getAllModules();
+
+const handleIncomingPostFunctions = new Map();
+handleIncomingPostFunctions.set('Get Objects', getObjects);
+handleIncomingPostFunctions.set('Get Routes', getRoutes);
+handleIncomingPostFunctions.set('Save Module', saveModule);
+handleIncomingPostFunctions.set('Get Saved Modules', getSavedModules);
+handleIncomingPostFunctions.set('Get Metadata', getMetadata);
+
 function handleIncomingPost(requestBody) {
-  switch(requestBody.message) {
-    case 'Get Objects':
-      return dataTable.get('Objects');
-    case 'Get Routes':
-      return dataTable.get('Routes');
-    case 'Save Module':
-      console.log(requestBody)
-      return SM.addModule(requestBody.groupInfo.groupInfo, requestBody.groupInfo.name, requestBody.groupInfo.description);
-    case 'Get Saved Modules':
-      return SM.getAllModules();
-  }
-  return 'Got The message';
+  if (handleIncomingPostFunctions.has(requestBody.message)) return handleIncomingPostFunctions.get(requestBody.message)(requestBody);
+  else return 'Got The message';
 }
 
 function updateSavedDataFromServer() {
@@ -74,4 +85,6 @@ function updateSavedDataFromServer() {
 }
 
 updateSavedDataFromServer();
-// SM.loadSolarFile();
+
+// const CTJ = new CSVtoJSON();
+// CTJ.convertCSVFileToJSON('./localFileStorage/comaCSVFile.csv');

@@ -74,7 +74,6 @@ export class Module {
      * @param {boolean} modify true if user can modify this value in the inspector, false if it is read only.
      */
     addData = (key, value) => {
-        console.log(key, value);
         if (invalidVariables([varTest(key, 'key', 'string'), varTest(value, 'value', 'any')], 'Module', 'addData')) return;
         else this.#dataTable.set(key, value);
     }
@@ -90,6 +89,18 @@ export class Module {
         this.#dataTable.set(key, data);
     }
 
+    updateMetadata = metadata => {
+        if (this.#dataTable.has('metadata')) this.processMetadataChange(metadata);
+        else this.processNewMetadata(metadata);
+    }
+
+    processMetadataChange(metadata) {
+        console.log('Process Metadata Change Stub');
+    }
+
+    processNewMetadata(metadata){
+        console.log('Process New Metadata Stub');
+    }
     /**
      * Sets a key value pair in the dataTable hash table.
      * @param {string} key key for the hash table
@@ -119,11 +130,9 @@ export class Module {
      * Iterates the data table and returns all data that is flagged as allowInspection
      * @returns the inspector Content if found. Empty Map if not.
      */
-    getInspectorContent = () => {
-        console.log(this.inspectorCardMaker.getCard())
-        return this.inspectorCardMaker.getCard();
-    };
+    getInspectorContent = () => this.inspectorCardMaker.getCard();;
 
+    getInspectorCard = () => this.inspectorCardMaker.inspectorCard;
     /**
      * Gets the content to populate a popup associated with this module.
      * @returns the content to populate the popup associated with this module

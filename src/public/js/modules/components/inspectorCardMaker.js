@@ -5,6 +5,10 @@ export class InspectorCardMaker {
         this.inspectorCard = new InspectorCard(name, color, key);   
     }
 
+    maximizeCard() {
+        this.inspectorCard.maximizeCard();
+    }
+
     setInspectorCardDescriptionText(text) {
         this.inspectorCard.appendToBody(GM.HF.createNewParagraph('', '', ['inspector-card-description'], [], text));
     }
@@ -31,8 +35,6 @@ export class InspectorCardMaker {
         const searchCard = this.inspectorCard.addObjectsSearchCard(objectsList);
         searchCard.getCard().dropdown.addEventListener('change', callback);
     }
-
-
 
     addInspectorCardChartXAxisCard(headers, key) {
         const title = 'test';
@@ -103,6 +105,19 @@ export class InspectorCardMaker {
 
     createInspectorCompositeDetailCard(groupData, saveModuleCallback) {
         this.inspectorCard.addCompositeDetailsCard(groupData, saveModuleCallback);
+    }
+
+    addMetadataCard(metadata) {
+        metadata.columnHeaders.forEach(header => {
+            this.inspectorCard.addKeyValueCard(header.name, [header.dataType, header.dataFormat]);
+        });
+    }
+
+    addFilterCards(metadata) {
+        console.log(metadata)
+        metadata?.columnHeaders.forEach(header => {
+            this.inspectorCard.addMinMaxCard(header.name);
+        });
     }
 
     #createInspectorCardKeyText = text => GM.HF.createNewParagraph('', '', ['inspector-card-key-text'], [], text);

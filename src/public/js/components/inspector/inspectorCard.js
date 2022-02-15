@@ -5,6 +5,7 @@ import { KeyValueCard } from './inspectorCardComponents/keyValueCard.js';
 import { GM } from '../../main.js';
 import { IncludeColumnCard } from './index.js';
 import { CompositeDetailsCard } from './inspectorCardComponents/compositeDetailsCard.js';
+import { MinMaxFilter } from './inspectorCardComponents/minMaxFilter.js';
 
 export class InspectorCard {
     #cardId;
@@ -187,6 +188,13 @@ export class InspectorCard {
         this.showAllElements();
     }
 
+    maximizeCardEnvironmentClick() {
+        GM.INS.maximizeCard(this.#cardId);
+        this.bodyElement.style.height = `${this.getParentHeight() - 40}px`;
+        this.#maximized = true;
+        this.showAllElements();
+    }
+
     minimizeCard() {
         if (this.#maximized) GM.INS.minimizeCard();
         this.#maximized = false;
@@ -263,6 +271,12 @@ export class InspectorCard {
     addObjectsSearchCard(objects) {
         const card = new ObjectSearchCard(objects);
         this.appendToBody(card.getCard().wrapper);
+        return card;
+    }
+
+    addMinMaxCard(label) {
+        const card = new MinMaxFilter(label);
+        this.appendToBody(card.getHTML());
         return card;
     }
 

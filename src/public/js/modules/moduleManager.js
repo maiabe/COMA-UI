@@ -26,7 +26,6 @@ export class ModuleManager {
     createNewModule = (name, category, key, oldKey, groupKey) => {
         if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'createNewModule')) return false;
         const module = this.#MG.generateNewModule(name, category, key);
-        console.log(name, category, key, oldKey, groupKey)
         module.addData('oldKey', oldKey);
         this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.moduleMap.has(key), groupKey: groupKey }));
         this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', {moduleKey: key, card: module.getInspectorContent()}));
@@ -53,8 +52,13 @@ export class ModuleManager {
         return module;
     }
 
+    collapseAllInspectorCards() {
+        this.moduleMap.forEach((value, key) => {
+            value.getInspectorCard().minimizeCard();
+        });
+    }
+
     storeCompositePrefabData(name, moduleData) {
-        console.log(moduleData)
         this.compositePrefabMap.set(name, moduleData);
     }
 
@@ -288,6 +292,14 @@ export class ModuleManager {
             if (fromModule.getData('isDataModule')) return true;
         }
         return false;
+    }
+
+    checkForMetadataLink(to, from) {
+        const toModule = this.getModule(to);
+        const fromModule = this.getModule(from);
+        console.log(fromModule);
+        if (fromModule?.getData('linkedToData') && fromModule?.getData('metadata')) return true;
+        else return false;
     }
 
     updateDynamicInspectorCardField(key, field, value) {

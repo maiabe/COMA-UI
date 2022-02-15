@@ -1,5 +1,5 @@
 
-import {  TextAreaGenerator , H3Generator, H1Generator, DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator } from "./index.js";
+import {  TextAreaGenerator , H3Generator, H1Generator, DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider } from "./index.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
 export class HTMLFactory {
 
@@ -15,6 +15,7 @@ export class HTMLFactory {
     #h1Generator;
     #checkboxGenerator;
     #textAreaGenerator;
+    #rangeSliderGenerator;
 
     constructor() {
         this.#tableGenerator = new HTMLTableGenerator();
@@ -27,6 +28,7 @@ export class HTMLFactory {
         this.#h1Generator = new H1Generator();
         this.#checkboxGenerator = new CheckboxGenerator();
         this.#textAreaGenerator = new TextAreaGenerator();
+        this.#rangeSliderGenerator = new RangeSlider();
     };
 
     createNewTable(dataTable, rowLimit) {
@@ -190,6 +192,10 @@ export class HTMLFactory {
      */
     createNewCheckbox(id, name, classlist, customStyles, value, label, checked) {
         return this.#checkboxGenerator.generateCheckbox(id, name, classlist, customStyles, value, label, checked);
+    }
+
+    createNewRangeSlider(id, name, classlist, customStyles) {
+        return this.#rangeSliderGenerator.generateRangeSlider(id, name, classlist, customStyles);
     }
 
     /** Takes an array of style objects and applies them to an element

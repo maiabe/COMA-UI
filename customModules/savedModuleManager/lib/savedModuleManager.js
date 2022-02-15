@@ -30,7 +30,6 @@ class SavedModuleManager {
                 returnData: Object.fromEntries(this.moduleMap),
                 type: 'Saved Modules'
             }
-            console.log(object)
             return JSON.stringify(object);
         } else return 'No Saved Modules Found';
 
@@ -42,7 +41,6 @@ class SavedModuleManager {
     }
 
     addModule(groupInfo, name, description){
-        console.log(groupInfo, name, description)
         if (this.moduleMap.has(name)) return `Saved Module Named ${name} already exists.`;
         else this.moduleMap.set(groupname, {groupInfo: groupInfo, description: description});
         console.log(this.moduleMap)

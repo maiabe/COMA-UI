@@ -9,6 +9,20 @@ export class ChartDataStorage {
         this.#setData('chartType', chartType);
     }
 
+    set_2D_XAxisListeners(xAxis) {
+        this.listenToXAxisDataChanges(xAxis.dropdown);
+        this.listenToXAxisLabelChanges(xAxis.labelInput);
+        this.listenToXAxisTickChanges(xAxis.tickCheckbox.checkbox);
+        this.listenToXAxisGridChanges(xAxis.gridCheckbox.checkbox);
+    }
+
+    set_2D_YAxisListeners(yAxis) {
+        this.listenToYAxisDataChanges(yAxis.dropdown);
+        this.listenToYAxisLabelChanges(yAxis.labelInput);
+        this.listenToYAxisTickChanges(yAxis.tickCheckbox.checkbox);
+        this.listenToYAxisGridChanges(yAxis.gridCheckbox.checkbox);
+    }
+
     listenToXAxisDataChanges(element) { element.addEventListener('change', this.updateXAxisFieldName.bind(this)); }
     listenToYAxisDataChanges(element) { element.addEventListener('change', this.updateYAxisFieldName.bind(this)); }
     listenToXAxisLabelChanges(element) { element.addEventListener('change', this.updateXAxisLabel.bind(this)); }

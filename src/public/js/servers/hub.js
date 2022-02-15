@@ -84,9 +84,70 @@ export default class Hub {
         this.messageForEnvironment.set('New Module Created Event', this.newModuleCreatedEvent.bind(this));
     }
 
+    buildMessageForModuleManager() {
+        this.messageForModuleManager.set('Composite Module Creation Event', this.compositeModuleCreationEvent.bind(this));
+        this.messageForModuleManager.set('Saved Modules Loaded Event', this.savedModulesLoadedEvent.bind(this));
+        this.messageForModuleManager.set('New Group Created', this.newGroupCreated.bind(this));
+        this.messageForModuleManager.set('Nodes Deleted Event', this.nodesDeletedEvent.bind(this));
+        this.messageForModuleManager.set('Link Drawn Event', this.linkDrawnEvent.bind(this));
+        this.messageForModuleManager.set('Value Change Event', this.valueChangeEvent.bind(this));
+        this.messageForModuleManager.set('New Data Loaded Event', this.newDataEvent.bind(this));
+        this.messageForModuleManager.set('Deploy Module Event', this.deployModuleEvent.bind(this));
+    }
+
+    buildMessageForInspector() {
+        this.messageForInspector.set('Publish Module Inspector Card Event', this.publishModuleInspectorCardEvent.bind(this));
+        this.messageForInspector.set('Clear Inspector Event', this.clearInspectorEvent.bind(this));
+        this.messageForInspector.set('Node Selected Event', this.nodeSelectedEvent.bind(this));
+    }
+
+    buildMessageForInputManager() {
+        this.messageForInputManager.set('Request List Of Objects Event', this.requestListOfObjectsEvent.bind(this));
+        this.messageForInputManager.set('Objects Loaded Event', this.objectsLoadedEvent.bind(this));
+        this.messageForInputManager.set('Routes Loaded Event', this.routesLoadedEvent.bind(this));
+        this.messageForInputManager.set('Read File Event', this.readFileEvent.bind(this));
+    }
+
+    buildMessageForWorkerManagerMap() {
+        this.messageForWorkerManager.set('Transmit Pipeline Event', this.transmitPipelineEvent.bind(this));
+        this.messageForWorkerManager.set('Save Composite Module Event', this.saveCompositeModuleEvent.bind(this));
+    }
+
+    buildMessageForPopupManager() {
+        this.messageForPopupManager.set('Create Save Composite Popup Event', this.createSaveCompositePopupEvent.bind(this));
+        this.messageForPopupManager.set('Double Click Event', this.doubleClickEvent.bind(this));
+    }
+
+
+    buildMessageForDataManagerMap() {
+        this.messageForDataManager.set('Pipeline Return Event', this.pipelineReturnEvent.bind(this));
+        this.messageForDataManager.set('Data Request Event', this.dataRequestEvent.bind(this));
+        this.messageForDataManager.set('New Data Event', this.newDataEvent.bind(this));
+    }
+
+    buildMessageForOutputManagerMap() {
+        this.messageForOutputManager.set('Create New CSV File Event', this.createNewCSVFileEvent.bind(this));
+        this.messageForOutputManager.set('Create New Local Table Event', this.createNewLocalTableEvent.bind(this));
+        this.messageForOutputManager.set('Create New Local Chart Event', this.createNewLocalChartEvent.bind(this));
+        this.messageForOutputManager.set('Change EChart Theme Event', this.createEChartThemeEvent.bind(this));
+        this.messageForOutputManager.set('Popup Closed Event', this.createPopupClosedEvent.bind(this));
+        this.messageForOutputManager.set('Resize Popup Event', this.createResizePopupEvent.bind(this));
+        this.messageForOutputManager.set('Create New Chart Event', this.createNewChartEvent.bind(this));
+    }
+
     newModuleCreatedEvent(data) {
         if (invalidVariables([varTest(data.module, 'module', 'object'), varTest(data.templateExists, 'templateExists', 'boolean')], 'HUB', '#messageForEnvironment (New Module Created Event)')) return;
-        else GM.ENV.insertModule(data.module, data.templateExists, data.groupKey);
+        else {
+            GM.ENV.insertModule(data.module, data.templateExists, data.groupKey);
+            if (data.module.getData('requestMetadataOnCreation') === true) {
+                const workerIndex = this.getNewWorkerIndex();
+                GM.WM.notifyWorkerOfId(workerIndex)
+                    .setStopWorkerFunction(workerIndex)
+                    .setHandleReturnFunction(workerIndex, data.module.getData('onCreationFunction'))
+                    .setWorkerMessageHandler(workerIndex)
+                    .requestMetadata(workerIndex, data.module.getData('name'));
+            }
+        }
     }
 
     startEnvironmentEvent(data) {
@@ -118,17 +179,6 @@ export default class Hub {
         data.callback(GM.ENV.createNewGroupNode(), data.name);
     }
 
-    buildMessageForModuleManager() {
-        this.messageForModuleManager.set('Composite Module Creation Event', this.compositeModuleCreationEvent.bind(this));
-        this.messageForModuleManager.set('Saved Modules Loaded Event', this.savedModulesLoadedEvent.bind(this));
-        this.messageForModuleManager.set('New Group Created', this.newGroupCreated.bind(this));
-        this.messageForModuleManager.set('Nodes Deleted Event', this.nodesDeletedEvent.bind(this));
-        this.messageForModuleManager.set('Link Drawn Event', this.linkDrawnEvent.bind(this));
-        this.messageForModuleManager.set('Value Change Event', this.valueChangeEvent.bind(this));
-        this.messageForModuleManager.set('New Data Loaded Event', this.newDataEvent.bind(this));
-        this.messageForModuleManager.set('Deploy Module Event', this.deployModuleEvent.bind(this));
-    }
-
     deployModuleEvent(data) {
         if (invalidVariables([varTest(data.moduleName, 'moduleName', 'string'), varTest(data.moduleCategory, 'category', 'string')], 'HUB', '#messageForModuleManager (Deploy Module Event)')) return;
         else GM.MM.deployNewModule(data.moduleName, data.moduleCategory);
@@ -145,13 +195,20 @@ export default class Hub {
     }
 
     linkDrawnEvent(data) {
-        if (GM.MM.checkForNewDataLink(data.toNodeKey, data.fromNodeKey)) {
-            if (GM.MM.getModule(data.toNodeKey).getData('type') === 'Output')
-                GM.MM.updateDynamicInspectorCardField(data.toNodeKey, 'Data Linked', true);
-            GM.MM.getModule(data.toNodeKey).updateInspectorCardWithNewData(GM.MM.getModule(data.fromNodeKey), GM.DM.getData(data.fromNodeKey));
-            GM.MM.getModule(data.toNodeKey).setLinkedDataKey(data.fromNodeKey);
-            if (GM.MM.getModule(data.toNodeKey).storeTableHeaders) GM.MM.getModule(data.toNodeKey).storeTableHeaders(GM.DM.getData(data.fromNodeKey).data.getHeaders());
-        }
+        if (GM.MM.checkForNewDataLink(data.toNodeKey, data.fromNodeKey)) this.processNewDataLink(data);
+        else if (GM.MM.checkForMetadataLink(data.toNodeKey, data.fromNodeKey)) this.processMetadataLink(data);
+    }
+
+    processNewDataLink(data) {
+        if (GM.MM.getModule(data.toNodeKey).getData('type') === 'Output')
+            GM.MM.updateDynamicInspectorCardField(data.toNodeKey, 'Data Linked', true);
+        GM.MM.getModule(data.toNodeKey).updateInspectorCardWithNewData(GM.MM.getModule(data.fromNodeKey), GM.DM.getData(data.fromNodeKey));
+        GM.MM.getModule(data.toNodeKey).setLinkedDataKey(data.fromNodeKey);
+        if (GM.MM.getModule(data.toNodeKey).storeTableHeaders) GM.MM.getModule(data.toNodeKey).storeTableHeaders(GM.DM.getData(data.fromNodeKey).data.getHeaders());
+    }
+
+    processMetadataLink(data) {
+        GM.MM.getModule(data.toNodeKey).updateMetadata(GM.MM.getModule(data.fromNodeKey).getData('metadata'));
     }
 
     nodesDeletedEvent(data) {
@@ -164,7 +221,7 @@ export default class Hub {
     newGroupCreated(data) {
         if (invalidVariables([varTest(data.groupDiagram, 'groupDiagram', 'object'), varTest(data.groupKey, 'groupKey', 'number')], 'HUB', '#messageForModuleManager (New Group Created)')) return;
         let module = GM.MM.createNewCompositeModule(data.groupKey, data.groupDiagram);
-        module.createInspectorCompositeDetailCard(data.groupDiagram, module.saveModule.bind(module));
+        module.inspectorCardMaker.createInspectorCompositeDetailCard(data.groupDiagram, module.saveModule.bind(module));
     }
     savedModulesLoadedEvent(data) {
         if (data.data !== 'No Saved Modules Found') {
@@ -181,17 +238,10 @@ export default class Hub {
         GM.MM.deployCompositeComponents(data.moduleName);
     }
 
-    buildMessageForInspector() {
-        this.messageForInspector.set('Publish Module Inspector Card Event', this.publishModuleInspectorCardEvent.bind(this));
-        this.messageForInspector.set('Clear Inspector Event', this.clearInspectorEvent.bind(this));
-        this.messageForInspector.set('Node Selected Event', this.nodeSelectedEvent.bind(this));
-    }
-
     nodeSelectedEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInspector (Node Selected Event.)')) return;
-        // Temporarily removed as I update the Inspector Interface.
-        //GM.INS.setCurrentModuleKey(data.moduleKey);
-        //GM.INS.updateContent(data.moduleKey, GM.MM.getInspectorContentForModule(data.moduleKey));
+        GM.MM.collapseAllInspectorCards();
+        GM.MM.getModule(data.moduleKey).getInspectorCard().maximizeCardEnvironmentClick();
     }
 
     clearInspectorEvent() {
@@ -203,10 +253,7 @@ export default class Hub {
         GM.INS.addModuleCard(data.moduleKey, data.card);
     }
 
-    buildMessageForPopupManager() {
-        this.messageForPopupManager.set('Create Save Composite Popup Event', this.createSaveCompositePopupEvent.bind(this));
-        this.messageForPopupManager.set('Double Click Event', this.doubleClickEvent.bind(this));
-    }
+
 
     doubleClickEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.x, 'x', 'number'), varTest(data.y, 'y', 'number')], 'HUB', '#messageForPopupManager (double click event)'));
@@ -217,12 +264,7 @@ export default class Hub {
         if (invalidVariables([varTest(data.content, 'content', 'object'), varTest(data.color, 'color', 'string'), varTest(data.headerText, 'headerText', 'string')], 'HUB', '#messageForPopupManager (Create Save Composite Popup Event)')) return;
         else GM.PM.createOtherPopup(data);
     }
-    buildMessageForInputManager() {
-        this.messageForInputManager.set('Request List Of Objects Event', this.requestListOfObjectsEvent.bind(this));
-        this.messageForInputManager.set('Objects Loaded Event', this.objectsLoadedEvent.bind(this));
-        this.messageForInputManager.set('Routes Loaded Event', this.routesLoadedEvent.bind(this));
-        this.messageForInputManager.set('Read File Event', this.readFileEvent.bind(this));
-    }
+
     readFileEvent(data) {
         if (invalidVariables([varTest(data.type, 'type', 'string'), varTest(data.source, 'source', 'string'), varTest(data.path, 'path', 'string'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Read File Event)')) return;
         else GM.IM.readFile(data.type, data.source, data.path, data.moduleKey);
@@ -247,10 +289,6 @@ export default class Hub {
         data.callbackFunction(objects);
     }
 
-    buildMessageForWorkerManagerMap() {
-        this.messageForWorkerManager.set('Transmit Pipeline Event', this.transmitPipelineEvent.bind(this));
-        this.messageForWorkerManager.set('Save Composite Module Event', this.saveCompositeModuleEvent.bind(this));
-    }
 
     saveCompositeModuleEvent(data) {
         if (invalidVariables([varTest(data.groupInfo, 'groupInfo', 'object'), varTest(data.name, 'name', 'string'), varTest(data.description, 'description', 'string')], 'HUB', '#messageForWorkerManager (Save Composite Module Event)')) return;
@@ -277,11 +315,6 @@ export default class Hub {
             .sendPipelineToServer(workerIndex, data.value);
     }
 
-    buildMessageForDataManagerMap() {
-        this.messageForDataManager.set('Pipeline Return Event', this.pipelineReturnEvent.bind(this));
-        this.messageForDataManager.set('Data Request Event', this.dataRequestEvent.bind(this));
-        this.messageForDataManager.set('New Data Event', this.newDataEvent.bind(this));
-    }
 
     newDataEvent(data) {
         if (invalidVariables([varTest(data.id, 'id', 'number'), varTest(data.val, 'val', 'object'), varTest(data.linkDataNode, 'linkDataNode', 'boolean')], 'HUB', ' #messageForDataManager. (new data event)')) return;
@@ -312,16 +345,6 @@ export default class Hub {
             } else printErrorMessage(`Parameter Error.`, `id: ${dataObject.id}, value: ${dataObject.val} -- HUB -> Pipeline Return Event`);
             GM.ENV.highlightChangedNodes(keyArray);
         });
-    }
-
-    buildMessageForOutputManagerMap() {
-        this.messageForOutputManager.set('Create New CSV File Event', this.createNewCSVFileEvent.bind(this));
-        this.messageForOutputManager.set('Create New Local Table Event', this.createNewLocalTableEvent.bind(this));
-        this.messageForOutputManager.set('Create New Local Chart Event', this.createNewLocalChartEvent.bind(this));
-        this.messageForOutputManager.set('Change EChart Theme Event', this.createEChartThemeEvent.bind(this));
-        this.messageForOutputManager.set('Popup Closed Event', this.createPopupClosedEvent.bind(this));
-        this.messageForOutputManager.set('Resize Popup Event', this.createResizePopupEvent.bind(this));
-        this.messageForOutputManager.set('Create New Chart Event', this.createNewChartEvent.bind(this));
     }
 
     createNewChartEvent(data) {
