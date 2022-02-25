@@ -28,14 +28,14 @@ export class ModuleManager {
         const module = this.#MG.generateNewModule(name, category, key);
         module.addData('oldKey', oldKey);
         this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.moduleMap.has(key), groupKey: groupKey }));
-        this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', {moduleKey: key, card: module.getInspectorContent()}));
+        this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
         this.#addModule(module, key);
         return true;
     }
 
     createNewCompositeModule = (key, groupData) => {
         const module = this.#MG.generateNewModule('Composite', 'Composite', key);
-        this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', {moduleKey: key, card: module.getInspectorContent()}));
+        this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
         this.#addModule(module, key);
         module.setCompositeGroupInfo(groupData);
         module.setSaveModuleFunction(this.saveCompositeModule.bind(this));
@@ -44,7 +44,7 @@ export class ModuleManager {
 
     createNewCompositePrefabModule = (key, groupData, description) => {
         const module = this.#MG.generateNewModule('CompositePrefab', 'Composite', key);
-        this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', {moduleKey: key, card: module.getInspectorContent()}));
+        this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
         this.#addModule(module, key);
         module.setCompositeGroupInfo(groupData);
         module.addData('description', description);
@@ -64,7 +64,7 @@ export class ModuleManager {
 
     saveCompositeModule(groupInfo) {
         const saveContent = new SaveCompositeModulePopupContent(groupInfo, this.saveCompositeModuleCallback.bind(this));
-        this.#sendMessage(new Message(POPUP_MANAGER, MODULE_MANAGER, 'Create Save Composite Popup Event', {color:saveContent.getColor(), content: saveContent.getContent(), headerText: saveContent.getHeaderText()}));
+        this.#sendMessage(new Message(POPUP_MANAGER, MODULE_MANAGER, 'Create Save Composite Popup Event', { color: saveContent.getColor(), content: saveContent.getContent(), headerText: saveContent.getHeaderText() }));
         // this.#sendMessage(new Message(WORKER_MANAGER, MODULE_MANAGER, 'Save Composite Module Event', {groupInfo: groupInfo}));
     }
 
@@ -87,7 +87,7 @@ export class ModuleManager {
     };
 
     deployCompositeComponents = name => {
-        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Create Composite Group Event', { callback: this.deployCompositeComponentsWithGroupKey.bind(this), name: name}));
+        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Create Composite Group Event', { callback: this.deployCompositeComponentsWithGroupKey.bind(this), name: name }));
     }
 
     deployCompositeComponentsWithGroupKey = (key, name) => {
@@ -101,7 +101,7 @@ export class ModuleManager {
         Object.values(data.groupInfo.links).forEach(link => {
             const from = this.getModuleByOldKey(link.from);
             const to = this.getModuleByOldKey(link.to);
-            this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Draw Link Event', {from: from.getData('key'), to: to.getData('key')}));
+            this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Draw Link Event', { from: from.getData('key'), to: to.getData('key') }));
         });
         this.moduleMap.forEach(module => module.destroyOldKey());
         this.createNewCompositePrefabModule(key, data.groupInfo, data.description);
@@ -112,7 +112,7 @@ export class ModuleManager {
         this.moduleMap.forEach(module => {
             const oldKey = module.getData('oldKey');
             if (oldKey === key) {
-                mod =  module;
+                mod = module;
             }
         });
         return mod;
@@ -289,18 +289,52 @@ export class ModuleManager {
         if (!toModule || !fromModule) {
             printErrorMessage(`Missing Module`, `to: ${toModule}, from: ${fromModule}. --ModuleManager -> checkForNewDataLink`);
         } else {
-            if (fromModule.getData('isDataModule')) return true;
+            if (fromModule.getData('isDataModule') && toModule.getData('type') !== 'Processor') return true;
         }
         return false;
     }
 
+
     checkForMetadataLink(to, from) {
         const toModule = this.getModule(to);
         const fromModule = this.getModule(from);
-        console.log(fromModule);
         if (fromModule?.getData('linkedToData') && fromModule?.getData('metadata')) return true;
         else return false;
     }
+
+    checkForLocalDataConnection(to, from) {
+        const toModule = this.getModule(to);
+        const fromModule = this.getModule(from);
+        if (fromModule.name === 'Data') this.updateModule_DirectLocalDataConnection(toModule, fromModule);
+        else if (fromModule.getData('linkedToData')) this.updateModule_LocalDataConnection(toModule, fromModule);
+
+        if (toModule.getData('name') === 'Filter') this.updateModule_NewFilterConnection(toModule, fromModule);
+        const filtered = toModule.getData('name') === 'Filter' ? true : fromModule.getData('localDataIsFiltered');
+
+        if (toModule.getData('linkedToData')) {
+            toModule.addData('localDataIsFiltered', filtered);
+        }
+        console.log(toModule);
+    }
+
+    updateModule_NewFilterConnection(toModule, fromModule) {
+        console.log('New Filter Connection');
+        let dataKey = -1;
+        if (fromModule.getData('name') === 'Data') dataKey = fromModule.getData('key');
+        else dataKey = fromModule.getData('dataModuleKey');
+        this.#sendMessage(new Message(DATA_MANAGER, MODULE_MANAGER, 'New Filter Applied Event', { filterKey: toModule.getData('key'), dataKey: dataKey }));
+    }
+
+    updateModule_LocalDataConnection(toModule, fromModule) {
+        toModule.addData('linkedToData', true);
+        toModule.addData('dataModuleKey', fromModule.getData('dataModuleKey'));
+    }
+
+    updateModule_DirectLocalDataConnection(toModule, fromModule) {
+        toModule.addData('linkedToData', true);
+        toModule.addData('dataModuleKey', fromModule.getData('key'));
+    }
+
 
     updateDynamicInspectorCardField(key, field, value) {
         this.getModule(key).inspectorCardMaker.updateInspectorCardDynamicField(field, value);
@@ -308,19 +342,19 @@ export class ModuleManager {
 
 
     emitLocalChartEvent(key, moduleKey, chartData, div, type) {
-        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Local Chart Event', {datasetKey: key, moduleKey: moduleKey, fieldData: chartData, div: div, type: type}));
+        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Local Chart Event', { datasetKey: key, moduleKey: moduleKey, fieldData: chartData, div: div, type: type }));
     }
 
     emitLocalTableEvent(key, moduleKey, chartData, div, type) {
-        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Local Table Event', {datasetKey: key, moduleKey: moduleKey, fieldData: chartData, div: div, type: type}));
+        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Local Table Event', { datasetKey: key, moduleKey: moduleKey, fieldData: chartData, div: div, type: type }));
     }
 
     emitCreateCSVEvent(datasetKey, moduleKey, chartData) {
-        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New CSV File Event', {datasetKey: datasetKey, moduleKey: moduleKey, fieldData: chartData}));
+        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New CSV File Event', { datasetKey: datasetKey, moduleKey: moduleKey, fieldData: chartData }));
     }
 
     requestListOfObjects(callbackFunction) {
-        this.#sendMessage(new Message(INPUT_MANAGER, MODULE_MANAGER, 'Request List Of Objects Event', {callbackFunction: callbackFunction}));
+        this.#sendMessage(new Message(INPUT_MANAGER, MODULE_MANAGER, 'Request List Of Objects Event', { callbackFunction: callbackFunction }));
     }
 
     /**
@@ -416,7 +450,7 @@ export class ModuleManager {
      */
     handleEchartThemeChange = (key, theme) => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'Module Manager', 'handleEchartThemeChange')) return;
-        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Change EChart Theme Event', {moduleKey: key, theme: theme}));
+        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Change EChart Theme Event', { moduleKey: key, theme: theme }));
     };
 
     /**

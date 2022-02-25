@@ -1,7 +1,7 @@
 :root {
-    --slider-width: 200px;
+    --slider-width: 100%;
     --slider-height: 20px;
-    --ball-width: 18px;
+    --ball-width: 20px;
 }
 .range-slider-wrapper {
   width: var(--slider-width);
@@ -13,7 +13,7 @@
   height: 100%;
   background-color: #ffffff;
   border-radius: 10px;
-  box-shadow: inset 0 0 10px #000000;
+  box-shadow: inset 0 0 6px #000000;
 }
 
 .range-slider-ball {
@@ -32,7 +32,6 @@
     background-color: black;
     border-radius: 0 50% 50% 0;
     position: relative;
-    top: calc( (var(--slider-height) - 1px) * -2 + 1px);
-    left: calc( var(--slider-width) - var(--ball-width));
+    top: calc(var(--slider-height) * -2 + 3px);
+    left: calc( var(--slider-width) - var(--ball-width) + 1px);
 }
-

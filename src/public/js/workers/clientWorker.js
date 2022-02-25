@@ -43,25 +43,25 @@ function getMetadata(e) {
 }
 
 function getRoutes(e) {
-    const message = { message: 'Get Routes' };
-    postData(baseUrl, message)
-        .then(data => {
-            console.log(data);
-            //  data.text().then(text => {
-            //     console.log(data);
-            // });
-        });
+    // const message = { message: 'Get Routes' };
+    // postData(baseUrl, message)
+    //     .then(data => {
+    //         console.log(data);
+    //         //  data.text().then(text => {
+    //         //     console.log(data);
+    //         // });
+    //     });
 }
 
 function getObjects(e) {
-    const message = { message: 'Get Objects' };
-    postData(baseUrl, message)
-        .then(data => {
-            console.log(data);
-            //  data.text().then(text => {
-            //     console.log(data);
-            // });
-        });
+    // const message = { message: 'Get Objects' };
+    // postData(baseUrl, message)
+    //     .then(data => {
+    //         console.log(data);
+    //         //  data.text().then(text => {
+    //         //     console.log(data);
+    //         // });
+    //     });
 }
 function setWorkerId(e) {
     id = e.data.id;

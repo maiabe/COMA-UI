@@ -1,5 +1,5 @@
 
-import {  TextAreaGenerator , H3Generator, H1Generator, DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider } from "./index.js";
+import { TextAreaGenerator, H3Generator, H1Generator, DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider } from "./index.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
 export class HTMLFactory {
 
@@ -15,7 +15,6 @@ export class HTMLFactory {
     #h1Generator;
     #checkboxGenerator;
     #textAreaGenerator;
-    #rangeSliderGenerator;
 
     constructor() {
         this.#tableGenerator = new HTMLTableGenerator();
@@ -28,7 +27,6 @@ export class HTMLFactory {
         this.#h1Generator = new H1Generator();
         this.#checkboxGenerator = new CheckboxGenerator();
         this.#textAreaGenerator = new TextAreaGenerator();
-        this.#rangeSliderGenerator = new RangeSlider();
     };
 
     createNewTable(dataTable, rowLimit) {
@@ -135,7 +133,7 @@ export class HTMLFactory {
     createNewFileInput(id, name, classlist, customStyles, type, disabled) {
         return this.#inputGenerator.generateFileInput(id, name, classlist, customStyles, type, disabled);
     }
-    
+
     /** Creates a new HTML text input element
              * @param id -> the id of the element (if not adding id, use empty string '')
              * @param name -> the name of the element (if not adding name, use empty string '')
@@ -194,8 +192,9 @@ export class HTMLFactory {
         return this.#checkboxGenerator.generateCheckbox(id, name, classlist, customStyles, value, label, checked);
     }
 
-    createNewRangeSlider(id, name, classlist, customStyles) {
-        return this.#rangeSliderGenerator.generateRangeSlider(id, name, classlist, customStyles);
+    createNewRangeSlider(id, name, classlist, customStyles, callback, updateSliderFunction) {
+        const slider = new RangeSlider(id, name, classlist, customStyles, callback, updateSliderFunction);
+        return slider.getWrappper();
     }
 
     /** Takes an array of style objects and applies them to an element

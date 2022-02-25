@@ -123,6 +123,7 @@ export default class Hub {
         this.messageForDataManager.set('Pipeline Return Event', this.pipelineReturnEvent.bind(this));
         this.messageForDataManager.set('Data Request Event', this.dataRequestEvent.bind(this));
         this.messageForDataManager.set('New Data Event', this.newDataEvent.bind(this));
+        this.messageForDataManager.set('New Filter Applied Event', this.newFilterAppliedEvent.bind(this));
     }
 
     buildMessageForOutputManagerMap() {
@@ -184,11 +185,6 @@ export default class Hub {
         else GM.MM.deployNewModule(data.moduleName, data.moduleCategory);
     }
 
-    newDataLoadedEvent(data) {
-        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#mesageForModuleManager (New Data Loaded Event)')) return;
-        else GM.MM.newDataLoaded(data.moduleKey);
-    }
-
     valueChangeEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.field, 'field', 'string')], 'HUB', '#messageForModuleManager (Value change event)')) return;
         else GM.MM.updateModuleDataTable(data.moduleKey, data.field, data.newValue);
@@ -197,14 +193,18 @@ export default class Hub {
     linkDrawnEvent(data) {
         if (GM.MM.checkForNewDataLink(data.toNodeKey, data.fromNodeKey)) this.processNewDataLink(data);
         else if (GM.MM.checkForMetadataLink(data.toNodeKey, data.fromNodeKey)) this.processMetadataLink(data);
+        GM.MM.checkForLocalDataConnection(data.toNodeKey, data.fromNodeKey);
     }
 
     processNewDataLink(data) {
         if (GM.MM.getModule(data.toNodeKey).getData('type') === 'Output')
             GM.MM.updateDynamicInspectorCardField(data.toNodeKey, 'Data Linked', true);
-        GM.MM.getModule(data.toNodeKey).updateInspectorCardWithNewData(GM.MM.getModule(data.fromNodeKey), GM.DM.getData(data.fromNodeKey));
-        GM.MM.getModule(data.toNodeKey).setLinkedDataKey(data.fromNodeKey);
-        if (GM.MM.getModule(data.toNodeKey).storeTableHeaders) GM.MM.getModule(data.toNodeKey).storeTableHeaders(GM.DM.getData(data.fromNodeKey).data.getHeaders());
+        else if (GM.MM.getModule(data.toNodeKey).getData('type') !== 'Processor') {
+            GM.MM.getModule(data.toNodeKey).updateInspectorCardWithNewData(GM.MM.getModule(data.fromNodeKey), GM.DM.getData(data.fromNodeKey));
+            GM.MM.getModule(data.toNodeKey).setLinkedDataKey(data.fromNodeKey);
+            if (GM.MM.getModule(data.toNodeKey).storeTableHeaders) GM.MM.getModule(data.toNodeKey).storeTableHeaders(GM.DM.getData(data.fromNodeKey).data.getHeaders());
+        }
+
     }
 
     processMetadataLink(data) {
@@ -317,17 +317,22 @@ export default class Hub {
 
 
     newDataEvent(data) {
-        if (invalidVariables([varTest(data.id, 'id', 'number'), varTest(data.val, 'val', 'object'), varTest(data.linkDataNode, 'linkDataNode', 'boolean')], 'HUB', ' #messageForDataManager. (new data event)')) return;
-        else if (GM.DM.addData(data.id, data.val)) {
+        if (invalidVariables([varTest(data.id, 'id', 'number'), varTest(data.val, 'val', 'object'), varTest(data.linkDataNode, 'linkDataNode', 'boolean'), varTest(data.local, 'local', 'boolean')], 'HUB', ' #messageForDataManager. (new data event)')) return;
+        else if (GM.DM.addData(data.id, data.val, data.local)) {
             GM.MM.deployNewModule('Data', 'Composite');
             const module = GM.MM.connectDataModule(data.id);
-            // TODO: If necessary create a link to the pipeline that called the data
+            console.log(data);
+            if (data.local) module.setMetadata(data.val.data.getMetadata());
             if (module && data.linkDataNode) {
-                // TODO: Get The correct data and notify the environment.
                 GM.ENV.drawLinkBetweenNodes(module.getData('link'), module.getData('key'));
                 GM.DM.swapDataKeys(module.getData('link'), module.getData('key'));
             }
         }
+    }
+
+    newFilterAppliedEvent(data) {
+        if (invalidVariables([varTest(data.filterKey, 'filterKey', 'number'), varTest(data.dataKey, 'dataKey', 'number')], 'HUB', 'newFilterAppliedEvent')) return;
+        else GM.DM.addFilterKeyToDataTable(data.filterKey, data.dataKey);
     }
 
     dataRequestEvent(data) {
@@ -336,15 +341,15 @@ export default class Hub {
     }
 
     pipelineReturnEvent(data) {
-        const keyArray = [];
-        data.value.forEach(dataObject => {
-            if (dataObject.id != undefined && dataObject.val != undefined) {
-                // Data Is Pushed to the data manager. Then the datamanager sends a new data loaded event. to the module manager
-                GM.DM.addData(dataObject.id, { type: typeof (dataObject.val), data: dataObject.val });
-                keyArray.push(dataObject.id);
-            } else printErrorMessage(`Parameter Error.`, `id: ${dataObject.id}, value: ${dataObject.val} -- HUB -> Pipeline Return Event`);
-            GM.ENV.highlightChangedNodes(keyArray);
-        });
+    //     const keyArray = [];
+    //     data.value.forEach(dataObject => {
+    //         if (dataObject.id != undefined && dataObject.val != undefined) {
+    //             // Data Is Pushed to the data manager. Then the datamanager sends a new data loaded event. to the module manager
+    //             GM.DM.addData(dataObject.id, { type: typeof (dataObject.val), data: dataObject.val });
+    //             keyArray.push(dataObject.id);
+    //         } else printErrorMessage(`Parameter Error.`, `id: ${dataObject.id}, value: ${dataObject.val} -- HUB -> Pipeline Return Event`);
+    //         GM.ENV.highlightChangedNodes(keyArray);
+    //     });
     }
 
     createNewChartEvent(data) {

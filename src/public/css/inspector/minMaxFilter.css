@@ -16,6 +16,7 @@
     flex-direction: column;
     position: relative;
     top: 10px;
+    align-items: center;
 }
 
 .min-max-label-wrapper {
@@ -26,4 +27,11 @@
 
 .min-max-label-wrapper > .checkbox-wrapper {
     display: flex;
+}
+
+.slider-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 70%;
+    padding-top: 10px;
 }

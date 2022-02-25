@@ -39,14 +39,23 @@ export class DataManager {
      * Adds to the data table. If the specified key is in the table, it will be overwritten.
      * @param {number} key key into the data table. It is also the key to the module associated with this data.
      * @param {object} val the value linked to the key. This is the "data".
+     * @param {boolean} local true if the data was generated locally (creates metadata)
      */
-    addData = (key, val) => {
-        if (invalidVariables([varTest(key, 'key', 'number'), varTest(val, 'val', 'object')], 'DataManager', 'addData')) return false;
+    addData = (key, val, local) => {
+        console.log(key, val, local)
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(val, 'val', 'object'), varTest(local, 'local', 'boolean')], 'DataManager', 'addData')) return false;
         if (this.#dataTable.has(key)) console.log(`Data Table already has key: ${key} in it. Will Overwrite. -- DataManager -> addData.`);
         this.#dataTable.set(key, { data: val});
-        // Notify Module Manager that new data was added to the table.
-        this.#sendMessage(new Message(MODULE_MANAGER, DATA_MANAGER, 'New Data Loaded Event', { moduleKey: key }));
+        let metadata = undefined;
+        if (local) metadata = val.data.setMetadata();
+        console.log(this.#dataTable.get(key));
         return true;
+    }
+
+    addFilterKeyToDataTable(filterKey, dataKey) {
+        console.log(this);
+        console.log(this.#dataTable);
+        console.log(this.getData(dataKey));
     }
 
     /**
@@ -87,9 +96,11 @@ export class DataManager {
      */
     swapDataKeys(oldKey, newKey) {
         const data = this.getData(oldKey);
+        console.log(newKey)
+        console.log(data);
         if (data) {
             this.deleteData(oldKey);
-            this.addData(newKey, data);
+            this.addData(newKey, data, true);
             return true;
         } else printErrorMessage(`Undefined Varaible`, `No Data found for key: ${oldKey}--> Data Manager - swapDataKeys`);
         return false;

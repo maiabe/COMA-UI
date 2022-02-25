@@ -274,8 +274,8 @@ export class InspectorCard {
         return card;
     }
 
-    addMinMaxCard(label) {
-        const card = new MinMaxFilter(label);
+    addMinMaxCard(label, min, max, dataType, dataFormat) {
+        const card = new MinMaxFilter(label, min, max, dataType, dataFormat);
         this.appendToBody(card.getHTML());
         return card;
     }

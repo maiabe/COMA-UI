@@ -8,7 +8,7 @@ export class Processor extends Module {
 
 export class Filter extends Processor {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'filter', 'Filter', 'images/icons/filter-white.png', [{ name: 'IN', leftSide: true, type: REMOTE_DATA_TABLE }, { name: 'IN', leftSide: true, type: LOCAL_DATA_SOURCE }], [{ name: 'OUT', leftSide: false, type: REMOTE_DATA_TABLE }, { name: 'OUT', leftSide: false, type: TABLE_OUTPUT }], key);
+        super(category, color, shape, 'filter', 'Filter', 'images/icons/filter-white.png', [{ name: 'IN', leftSide: true, type: REMOTE_DATA_TABLE }, { name: 'IN', leftSide: true, type: TABLE_OUTPUT }], [{ name: 'OUT', leftSide: false, type: REMOTE_DATA_TABLE }, { name: 'OUT', leftSide: false, type: TABLE_OUTPUT }], key);
         this.addData('inportType', REMOTE_DATA_TABLE);
         this.addData('outportType', REMOTE_DATA_TABLE);
         this.addData('description', 'Use this module to filter table data.');
@@ -27,7 +27,6 @@ export class Filter extends Processor {
     }
 
     processNewMetadata(metadata) {
-        console.log(metadata)
         this.addData('metadata', metadata);
         this.inspectorCardMaker.addFilterCards(this.getData('metadata'));
     }

@@ -37,14 +37,14 @@ export class InputManager {
 
     fileReaderCB = (table, processId) => {
         if (table) {
-            const dt = new DataTable();
             const data = {
                 val: {
                     type: 'table',
                     data: new DataTable(table),
                 },
                 id: processId,
-                linkDataNode: true
+                linkDataNode: true,
+                local: true
             }
             const msg = new Message(DATA_MANAGER, INPUT_MANAGER, 'New Data Event', data);
             this.publisher.publishMessage(msg);

@@ -114,9 +114,8 @@ export class InspectorCardMaker {
     }
 
     addFilterCards(metadata) {
-        console.log(metadata)
         metadata?.columnHeaders.forEach(header => {
-            this.inspectorCard.addMinMaxCard(header.name);
+            this.inspectorCard.addMinMaxCard(header.name, header.min, header.max, header.dataType, header.dataFormat);
         });
     }
 
