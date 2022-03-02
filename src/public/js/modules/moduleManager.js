@@ -290,13 +290,13 @@ export class ModuleManager {
             printErrorMessage(`Missing Module`, `to: ${toModule}, from: ${fromModule}. --ModuleManager -> checkForNewDataLink`);
         } else {
             if (fromModule.getData('isDataModule') && toModule.getData('type') !== 'Processor') return true;
+            if (fromModule.getData('linkedToData') && toModule.getData('type') !== 'Processor') return true;
         }
         return false;
     }
 
 
-    checkForMetadataLink(to, from) {
-        const toModule = this.getModule(to);
+    checkForMetadataLink(from) {
         const fromModule = this.getModule(from);
         if (fromModule?.getData('linkedToData') && fromModule?.getData('metadata')) return true;
         else return false;
@@ -305,41 +305,24 @@ export class ModuleManager {
     checkForLocalDataConnection(to, from) {
         const toModule = this.getModule(to);
         const fromModule = this.getModule(from);
-        if (fromModule.name === 'Data') this.updateModule_DirectLocalDataConnection(toModule, fromModule);
-        else if (fromModule.getData('linkedToData')) this.updateModule_LocalDataConnection(toModule, fromModule);
-
+        if (fromModule.getData('linkedToData')) this.updateModule_LocalDataConnection(toModule, fromModule);
         if (toModule.getData('name') === 'Filter') this.updateModule_NewFilterConnection(toModule, fromModule);
-        const filtered = toModule.getData('name') === 'Filter' ? true : fromModule.getData('localDataIsFiltered');
-
-        if (toModule.getData('linkedToData')) {
-            toModule.addData('localDataIsFiltered', filtered);
-        }
-        console.log(toModule);
     }
 
     updateModule_NewFilterConnection(toModule, fromModule) {
-        console.log('New Filter Connection');
-        let dataKey = -1;
-        if (fromModule.getData('name') === 'Data') dataKey = fromModule.getData('key');
-        else dataKey = fromModule.getData('dataModuleKey');
-        this.#sendMessage(new Message(DATA_MANAGER, MODULE_MANAGER, 'New Filter Applied Event', { filterKey: toModule.getData('key'), dataKey: dataKey }));
+        let dataKey = fromModule.getData('dataKey');
+        this.#sendMessage(new Message(DATA_MANAGER, MODULE_MANAGER, 'New Filter Applied Event', { filterFunction: toModule.getFilterDataFunction.bind(toModule), dataKey: dataKey }));
     }
 
     updateModule_LocalDataConnection(toModule, fromModule) {
         toModule.addData('linkedToData', true);
-        toModule.addData('dataModuleKey', fromModule.getData('dataModuleKey'));
-    }
-
-    updateModule_DirectLocalDataConnection(toModule, fromModule) {
-        toModule.addData('linkedToData', true);
-        toModule.addData('dataModuleKey', fromModule.getData('key'));
+        toModule.addData('dataKey', fromModule.getData('dataKey'));
     }
 
 
     updateDynamicInspectorCardField(key, field, value) {
         this.getModule(key).inspectorCardMaker.updateInspectorCardDynamicField(field, value);
     }
-
 
     emitLocalChartEvent(key, moduleKey, chartData, div, type) {
         this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Local Chart Event', { datasetKey: key, moduleKey: moduleKey, fieldData: chartData, div: div, type: type }));

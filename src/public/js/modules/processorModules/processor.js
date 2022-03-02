@@ -28,7 +28,13 @@ export class Filter extends Processor {
 
     processNewMetadata(metadata) {
         this.addData('metadata', metadata);
-        this.inspectorCardMaker.addFilterCards(this.getData('metadata'));
+        this.addData('getFilterDetailsFunctionArray', this.inspectorCardMaker.addFilterCards(this.getData('metadata')));
+    }
+
+    getFilterDataFunction() {
+        const dataArray = [];
+        this.getData('getFilterDetailsFunctionArray').forEach(fn => dataArray.push(fn()));
+        return dataArray;
     }
 }
 

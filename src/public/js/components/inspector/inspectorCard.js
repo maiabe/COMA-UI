@@ -277,7 +277,7 @@ export class InspectorCard {
     addMinMaxCard(label, min, max, dataType, dataFormat) {
         const card = new MinMaxFilter(label, min, max, dataType, dataFormat);
         this.appendToBody(card.getHTML());
-        return card;
+        return card.getData.bind(card);
     }
 
     addDynamicKeyValueCard(key, value) {

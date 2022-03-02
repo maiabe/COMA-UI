@@ -12,6 +12,7 @@ export class Data extends Module {
         this.addData('isDataModule', isData, false, '', false);
         this.addData('inportType', LOCAL_DATA_SOURCE);
         this.addData('outportType', TABLE_OUTPUT);
+        this.addData('dataKey', key);
         this.setPopupContent();
         this.createInspectorCardData();
     }
@@ -31,7 +32,6 @@ export class Data extends Module {
         this.inspectorCardMaker.addMetadataCard(metadata);
         this.popupContentMaker.addMetadataCard(metadata);
         this.setData('linkedToData', true);
-        console.log(metadata);
     }
 
 }

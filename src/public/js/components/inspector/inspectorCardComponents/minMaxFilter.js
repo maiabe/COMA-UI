@@ -139,4 +139,6 @@ export class MinMaxFilter {
 
     getHTML = () => this.dataTable.get('wrapper');
 
+    getData = () => this.dataTable;
+
 }

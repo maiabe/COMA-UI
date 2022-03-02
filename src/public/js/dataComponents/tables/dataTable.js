@@ -51,32 +51,7 @@ export class DataTable {
         }
     }
 
-    // {
-    //     "metadata": {
-    //         "columnHeaders": [
-    //             {
-    //                 "name": "Date",
-    //                 "dataType": "date",
-    //                 "dataFormat": "dd/mm/yyyy",
-    //                 "min": "19/08/1854",
-    //                 "max":"29/09/1854"
-    //             },
-    //             {
-    //                 "name": "Attack",
-    //                 "dataType": "int",
-    //                 "dataFormat": "int",
-    //                 "min": "0",
-    //                 "max": "143"
-    //             },
-    //             {
-    //                 "name":"Death",
-    //                 "dataType": "int",
-    //                 "dataFormat":"int",
-    //                 "min":"0",
-    //                 "max":"127"
-    //             }
-    //         ]
-    //     },
+
 
     setDataTypes(minMaxArray) {
         for (let i = 0; i < this.getColumns(); i++) {

@@ -28,7 +28,8 @@ export class Chart_2D extends Output {
     }
 
     updateInspectorCardWithNewData(dataModule, data) {
-        this.inspectorCardMaker.addInspectorCardLinkedNodeField(dataModule.getData('key'));
+        const dataKey = dataModule.getData('dataKey');
+        this.inspectorCardMaker.addInspectorCardLinkedNodeField(dataKey);
         const xAxis = this.inspectorCardMaker.addInspectorCardChartXAxisCard(data.data.getHeaders(), this.getData('key'));
         const yAxis = this.inspectorCardMaker.addInspectorCardChartYAxisCard(data.data.getHeaders(), this.getData('key'));
         yAxis.dropdown.id = `${this.chartData.getNumberOfTraces()}-x-axis-dropdown`;
@@ -51,7 +52,7 @@ export class Chart_2D extends Output {
 
     createNewChartFromButtonClick() {
         GM.MM.emitLocalChartEvent(
-            this.getData('linkedDataKey'),
+            this.getData('dataKey'),
             this.getData('key'),
             this.chartData.getChartData(),
             this.getData('plotDiv'),

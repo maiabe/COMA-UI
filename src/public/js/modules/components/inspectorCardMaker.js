@@ -114,9 +114,11 @@ export class InspectorCardMaker {
     }
 
     addFilterCards(metadata) {
+        const filterArray = [];
         metadata?.columnHeaders.forEach(header => {
-            this.inspectorCard.addMinMaxCard(header.name, header.min, header.max, header.dataType, header.dataFormat);
+            filterArray.push(this.inspectorCard.addMinMaxCard(header.name, header.min, header.max, header.dataType, header.dataFormat));
         });
+        return filterArray;
     }
 
     #createInspectorCardKeyText = text => GM.HF.createNewParagraph('', '', ['inspector-card-key-text'], [], text);

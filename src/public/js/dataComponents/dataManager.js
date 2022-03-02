@@ -30,9 +30,18 @@ export class DataManager {
      */
     getData = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'DataManager', 'getData')) return undefined;
-        if (this.#dataTable.has(key)) return this.#dataTable.get(key).data;
+        if (this.#dataTable.has(key)) {
+            let data = this.#dataTable.get(key).data;   
+            if (data.filtered) this.applyDataFilter(data);
+            return data;
+        }
         else console.log(`ERROR: No data found for key: ${key}. -- Data Manager -> getData`);
         return undefined;
+    }
+
+    applyDataFilter(data) {
+        const filterDetails = data.getFilterDetails();
+        console.log(filterDetails);
     }
 
     /**
@@ -42,20 +51,28 @@ export class DataManager {
      * @param {boolean} local true if the data was generated locally (creates metadata)
      */
     addData = (key, val, local) => {
-        console.log(key, val, local)
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(val, 'val', 'object'), varTest(local, 'local', 'boolean')], 'DataManager', 'addData')) return false;
         if (this.#dataTable.has(key)) console.log(`Data Table already has key: ${key} in it. Will Overwrite. -- DataManager -> addData.`);
         this.#dataTable.set(key, { data: val});
         let metadata = undefined;
         if (local) metadata = val.data.setMetadata();
-        console.log(this.#dataTable.get(key));
         return true;
     }
 
-    addFilterKeyToDataTable(filterKey, dataKey) {
-        console.log(this);
-        console.log(this.#dataTable);
-        console.log(this.getData(dataKey));
+    addFilterToDataTable(getFilterFunction, dataKey) {
+        if (this.getData(dataKey).filtered) {
+            console.log(`Data at key: ${dataKey} is already filtered.`);
+            return;
+        }
+        this.getData(dataKey).getFilterDetails = getFilterFunction;
+        this.getData(dataKey).filtered = true;
+    }
+
+    removeFilter(dataKey) {
+        const data = this.getData(dataKey);
+        if (data?.filtered) {
+            data.filtered = false;
+        }
     }
 
     /**
@@ -96,8 +113,6 @@ export class DataManager {
      */
     swapDataKeys(oldKey, newKey) {
         const data = this.getData(oldKey);
-        console.log(newKey)
-        console.log(data);
         if (data) {
             this.deleteData(oldKey);
             this.addData(newKey, data, true);

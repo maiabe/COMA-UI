@@ -25,7 +25,6 @@ class SavedModuleManager {
     }
 
     getAllModules() {
-        console.log("!!!!");
         if (this.moduleMap.size > 0) {
             const object = {
                 returnData: Object.fromEntries(this.moduleMap),
@@ -42,10 +41,8 @@ class SavedModuleManager {
     }
 
     addModule(groupInfo, name, description){
-        console.log('addModule Now!');
         if (this.moduleMap.has(name)) return `Saved Module Named ${name} already exists.`;
         else this.moduleMap.set(name, {groupInfo: groupInfo, description: description});
-        console.log(this.moduleMap)
         if (this.updateFile()) return 'Successfully Saved Module';
         else return 'Save Module Failed';
     }

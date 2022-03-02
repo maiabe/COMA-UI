@@ -52,7 +52,6 @@ export class AxisCard {
     }
 
     #createCheckboxField(gridCheckbox, tickCheckbox) {
-        console.log(tickCheckbox);
         const wrapper = GM.HF.createNewDiv('', '', ['axis-card-label-field-wrapper', 'justify-left'], []);
         wrapper.appendChild(gridCheckbox);
         wrapper.appendChild(tickCheckbox);

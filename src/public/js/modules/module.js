@@ -126,11 +126,13 @@ export class Module {
         return undefined;
     }
 
+    deleteInspectorCard = () => this.inspectorCardMaker.deleteInspectorCard();
+
     /**
      * Iterates the data table and returns all data that is flagged as allowInspection
      * @returns the inspector Content if found. Empty Map if not.
      */
-    getInspectorContent = () => this.inspectorCardMaker.getCard();;
+    getInspectorContent = () => this.inspectorCardMaker.getCard();
 
     getInspectorCard = () => this.inspectorCardMaker.inspectorCard;
     /**
@@ -143,10 +145,6 @@ export class Module {
 
     updatePopupData = field => {
         console.log(`Update Popup for ${field} has not been implemented for this module.`);
-    }
-
-    setLinkedDataKey(key) {
-        this.addData('linkedDataKey', key, false, '', false);
     }
 
     destroyOldKey() {
