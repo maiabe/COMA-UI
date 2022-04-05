@@ -2,10 +2,12 @@ export class DataTable {
 
     #data;                // 2D array of data
     #metadata;
+    #filteredData;
 
     constructor(data) {
         this.#data = data;
         this.#metadata = {};
+        this.#filteredData = null;
     };
 
     getRows = () => {
@@ -17,7 +19,15 @@ export class DataTable {
     }
 
     getData = () => {
+        return this.#filteredData ? this.#filteredData : this.#data;
+    }
+
+    getCleanData = () => {
         return this.#data;
+    }
+
+    setFilteredData = (data) => {
+        this.#filteredData = data;
     }
 
     getNumElements = () => {
@@ -31,6 +41,7 @@ export class DataTable {
     }
 
     setMetadata() {
+        this.#metadata = {};
         const minMaxArray = [];
         this.setDataTypes(minMaxArray);
         this.setMinMaxValues(minMaxArray);
@@ -55,7 +66,7 @@ export class DataTable {
 
     setDataTypes(minMaxArray) {
         for (let i = 0; i < this.getColumns(); i++) {
-            if (Date.parse(this.#data[1][i]) < 0) {
+            if (Date.parse(this.#data[1][i]) < 0 && (this.#data[1][i].includes('-') || this.#data[1][i].includes('/'))) {
                 minMaxArray.push({ min: Infinity, max: -Infinity, type: 'date' });
             } else if (parseFloat(this.#data[1][i])) {
                 minMaxArray.push({ min: Infinity, max: -Infinity, type: 'number' });
@@ -86,15 +97,19 @@ export class DataTable {
                 element.max = this.convertDateToString(element.max);
             }
         });
+    }
 
-        console.log(minMaxArray)
+    replaceMetadata(metadata) {
+        this.#metadata = metadata;
     }
 
     convertDateToString(milliseconds) {
         const conversion = new Date(milliseconds);
         return `${conversion.getMonth() + 1}/${conversion.getDate()}/${conversion.getFullYear()}`;
     }
-
+    updateTable = () => {
+        this.setMetadata();
+    }
     getHeaders = () => this.#data[0];
     getMetadata = () => this.#metadata;
 }

@@ -6,6 +6,7 @@ import { GM } from '../../main.js';
 import { IncludeColumnCard } from './index.js';
 import { CompositeDetailsCard } from './inspectorCardComponents/compositeDetailsCard.js';
 import { MinMaxFilter } from './inspectorCardComponents/minMaxFilter.js';
+import { ConversionCard } from './inspectorCardComponents/conversionCard.js';
 
 export class InspectorCard {
     #cardId;
@@ -248,15 +249,15 @@ export class InspectorCard {
         return card;
     }
 
-    addXAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton) {
-        const card = new XAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton);
+    addXAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, errorDropDown) {
+        const card = new XAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, errorDropDown);
         this.appendToBody(card.getCard());
         this.#axisCardMap.set('x', card);
         return card;
     }
 
-    addYAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton) {
-        const card = new YAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton);
+    addYAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, errorDropDown) {
+        const card = new YAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, errorDropDown);
         this.appendToBody(card.getCard());
         this.#axisCardMap.set('y', card);
         return card;
@@ -274,8 +275,8 @@ export class InspectorCard {
         return card;
     }
 
-    addMinMaxCard(label, min, max, dataType, dataFormat) {
-        const card = new MinMaxFilter(label, min, max, dataType, dataFormat);
+    addMinMaxCard(label, min, max, dataType, dataFormat, changeDataTypeFunction) {
+        const card = new MinMaxFilter(label, min, max, dataType, dataFormat, changeDataTypeFunction);
         this.appendToBody(card.getHTML());
         return card.getData.bind(card);
     }
@@ -284,13 +285,19 @@ export class InspectorCard {
         this.#dynamicFields.set(key, this.addKeyValueCard(key, value));
     }
 
-    addChartTrace(dropdown) {
-        this.#axisCardMap.get('y').addTraceDropdown(dropdown);
+    addChartTrace(dropdown, errorDropdown) {
+        this.#axisCardMap.get('y').addTraceDropdown(dropdown, errorDropdown);
     }
 
     addCompositeDetailsCard(groupData, saveModuleCallback) {
         const card = new CompositeDetailsCard(groupData, saveModuleCallback);
         this.appendToBody(card.getCard());
+    }
+
+    addConversionCard(metadata) {
+        const cardObject = new ConversionCard(metadata);
+        this.appendToBody(cardObject.getCard());
+        return cardObject;
     }
 
     getCard = () => this.#wrapperElement;

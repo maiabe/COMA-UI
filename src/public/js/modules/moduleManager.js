@@ -257,7 +257,6 @@ export class ModuleManager {
     processNewData = (key, data) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object')], 'ModuleManager', 'processNewData')) return;
         const module = this.getModule(key);
-        console.log(console.log(data.type));
         if (module) {
             switch (data.type) {
                 case 'table':
@@ -302,6 +301,7 @@ export class ModuleManager {
         else return false;
     }
 
+
     checkForLocalDataConnection(to, from) {
         const toModule = this.getModule(to);
         const fromModule = this.getModule(from);
@@ -319,9 +319,20 @@ export class ModuleManager {
         toModule.addData('dataKey', fromModule.getData('dataKey'));
     }
 
-
     updateDynamicInspectorCardField(key, field, value) {
         this.getModule(key).inspectorCardMaker.updateInspectorCardDynamicField(field, value);
+    }
+
+    updateMetadataToLinkedNodes(key, metadata, numColumns) {
+        this.moduleMap.forEach(module => {
+            const oldKey = module.getData('dataKey');
+            if (oldKey === key) {
+                module.processMetadataChange(metadata);
+                try {
+                    module.updateInspectorCardForModifiedMetadata(1);
+                } catch(e){}
+            }
+        });
     }
 
     emitLocalChartEvent(key, moduleKey, chartData, div, type) {
@@ -338,6 +349,14 @@ export class ModuleManager {
 
     requestListOfObjects(callbackFunction) {
         this.#sendMessage(new Message(INPUT_MANAGER, MODULE_MANAGER, 'Request List Of Objects Event', { callbackFunction: callbackFunction }));
+    }
+
+    emitDataConversionEvent(data, key, moduleKey) {
+        this.#sendMessage(new Message(DATA_MANAGER, MODULE_MANAGER, 'Data Conversion Event', {conversionFunction: data.fn, outputFieldName: data.outputFieldName, inputFieldName: data.input, key: key, moduleKey: moduleKey}));
+    }
+
+    emitDataTypeChangeRequest(data) {
+        this.#sendMessage(new Message(DATA_MANAGER, MODULE_MANAGER, 'Data Type Change Event', data));
     }
 
     /**

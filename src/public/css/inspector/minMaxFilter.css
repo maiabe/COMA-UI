@@ -8,7 +8,21 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 }
+
+.min-max-input-wrapper > img {
+    height: 30px;
+}
+
+.min-max-button {
+    opacity: 0.6;
+    transition: opacity 0.2s ease-in;
+}
+.min-max-button:hover {
+    opacity: 1;
+}
+
 
 .min-max-filter-wrapper {
     width: 100%;
@@ -34,4 +48,30 @@
     justify-content: center;
     width: 70%;
     padding-top: 10px;
+}
+
+.min-max-options-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.min-max-flip-button {
+    width: 25%;
+    height: 32px;
+}
+
+.min-max-dropdown-wrapper {
+    display:flex;
+    align-items: center;
+}
+
+.min-max-dropdown-wrapper > p {
+    padding-right: 10px;
+}
+
+.min-max-dropdown-wrapper > select {
+    height: 32px;
+    padding-left: 5px;
 }

@@ -47,3 +47,15 @@
     background-color: black;
     color:white;
 }
+
+.axis-card-dropdown-card-wrapper {
+    display: flex;
+}
+
+.axis-card-dropdown-wrapper > select {
+    width: 100%;
+}
+
+.axis-card-dropdown-card-errordd {
+    width: 30%;
+}

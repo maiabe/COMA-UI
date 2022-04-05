@@ -124,6 +124,8 @@ export default class Hub {
         this.messageForDataManager.set('Data Request Event', this.dataRequestEvent.bind(this));
         this.messageForDataManager.set('New Data Event', this.newDataEvent.bind(this));
         this.messageForDataManager.set('New Filter Applied Event', this.newFilterAppliedEvent.bind(this));
+        this.messageForDataManager.set('Data Conversion Event', this.dataConversionEvent.bind(this));
+        this.messageForDataManager.set('Data Type Change Event', this.dataTypeChangeEvent.bind(this));
     }
 
     buildMessageForOutputManagerMap() {
@@ -320,6 +322,7 @@ export default class Hub {
     newDataEvent(data) {
         if (invalidVariables([varTest(data.id, 'id', 'number'), varTest(data.val, 'val', 'object'), varTest(data.linkDataNode, 'linkDataNode', 'boolean'), varTest(data.local, 'local', 'boolean')], 'HUB', ' #messageForDataManager. (new data event)')) return;
         else if (GM.DM.addData(data.id, data.val, data.local)) {
+            console.log(data)
             GM.MM.deployNewModule('Data', 'Composite');
             const module = GM.MM.connectDataModule(data.id);
             console.log(data);
@@ -334,6 +337,15 @@ export default class Hub {
     newFilterAppliedEvent(data) {
         if (invalidVariables([varTest(data.filterFunction, 'filterFunction', 'function'), varTest(data.dataKey, 'dataKey', 'number')], 'HUB', 'newFilterAppliedEvent')) return;
         else GM.DM.addFilterToDataTable(data.filterFunction, data.dataKey);
+    }
+
+    dataConversionEvent(data) {
+        const dataTable = GM.DM.convertData(data.inputFieldName, data.outputFieldName, data.conversionFunction, data.key, data.moduleKey);
+        this.newDataEvent({id: data.moduleKey, val: dataTable, local: true, linkDataNode: true});
+    }
+
+    dataTypeChangeEvent(data) {
+        GM.DM.changeDataType(data.metadata, data.oldType, data.newType, data.field, data.dataKey, data.callbackFN, data.updateMetadataFN);
     }
 
     dataRequestEvent(data) {
@@ -394,7 +406,8 @@ export default class Hub {
                 data.fieldData.xAxisGrid,
                 data.fieldData.yAxisGrid,
                 data.fieldData.xAxisTick,
-                data.fieldData.yAxisTick)) {
+                data.fieldData.yAxisTick, 
+                data.fieldData.coordinateSystem)) {
                 if (!GM.PM.isPopupOpen(data.moduleKey)) GM.PM.createModulePopup(data.moduleKey, GM.MM.getPopupContentForModule(data.moduleKey), 0, 0);
                 GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
             }

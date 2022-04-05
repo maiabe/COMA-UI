@@ -95,11 +95,11 @@ export class Module {
     }
 
     processMetadataChange(metadata) {
-        console.log('Process Metadata Change Stub');
+        this.setDataValue('metadata', metadata);
     }
 
-    processNewMetadata(metadata){
-        console.log('Process New Metadata Stub');
+    processNewMetadata(metadata) {
+        this.setDataValue('metadata', metadata);
     }
     /**
      * Sets a key value pair in the dataTable hash table.
@@ -135,6 +135,8 @@ export class Module {
     getInspectorContent = () => this.inspectorCardMaker.getCard();
 
     getInspectorCard = () => this.inspectorCardMaker.inspectorCard;
+
+    getInspectorCardMaker = () => this.inspectorCardMaker;
     /**
      * Gets the content to populate a popup associated with this module.
      * @returns the content to populate the popup associated with this module

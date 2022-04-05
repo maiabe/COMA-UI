@@ -1,4 +1,4 @@
-import {Cholera, Sql, Fits, Csv, Filter, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, Value, ImageOutput, Table, ToCSV, Composite, CompositePrefab, Data } from '../modules/index.js';
+import {Cholera, Sql, Fits, Csv, Filter, DataConversion, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, OrbitalPlot, Value, ImageOutput, Table, ToCSV, Composite, CompositePrefab, Data } from '../modules/index.js';
 import { sourceColor, outputColor, processorColor, compositColor } from './colors.js';
 import { LOCAL_DATA_SOURCE } from "./constants.js";
 
@@ -42,6 +42,11 @@ const moduleDataObject = [
         menuData: { icon: 'images/icons/filter.png', text: 'Filter', category: 'Processor' }
     },
     {
+        key: 'Data Conversion',
+        moduleCreationFunction: (category, key) => new DataConversion(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
+        menuData: { icon: 'images/icons/convert.png', text: 'Data Conversion', category: 'Processor' }
+    },
+    {
         key: 'Scatter Plot',
         moduleCreationFunction: (category, key) => new ScatterPlot(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
         menuData: { icon: 'images/icons/scatter-graph-black.png', text: 'Scatter Plot', category: 'Output' }
@@ -60,6 +65,11 @@ const moduleDataObject = [
         key: 'Line Chart',
         moduleCreationFunction: (category, key) => new LineChart(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
         menuData: { icon: 'images/icons/line-chart.png', text: 'Line Chart', category: 'Output' }
+    },
+    {
+        key: 'Orbital Plot',
+        moduleCreationFunction: (category, key) => new OrbitalPlot(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
+        menuData: { icon: 'images/icons/orbital-plot.png', text: 'Orbital Plot', category: 'Output' }
     },
     {
         key: 'To Csv',

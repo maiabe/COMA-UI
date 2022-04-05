@@ -43,23 +43,26 @@ export class InspectorCardMaker {
         const gridCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');
         const tickCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Ticks', 'Ticks');
         const addTraceButton = GM.HF.createNewButton('','', ['axis-card-button'], [], 'button', 'Add Trace');
-        this.inspectorCard.addXAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper, addTraceButton);
-        return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox, addTraceButton: addTraceButton };
+        this.inspectorCard.addXAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper, addTraceButton, undefined);
+        return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox, addTraceButton: addTraceButton, errorDropDown: undefined };
     }
 
-    addNewTraceToInspectorCard(dropdown) {
-        this.inspectorCard.addChartTrace(dropdown);
+    addNewTraceToInspectorCard(dropdown, errorDropDown) {
+        this.inspectorCard.addChartTrace(dropdown, errorDropDown);
     }
 
     addInspectorCardChartYAxisCard(headers, key) {
+        const errorHeaders = [...headers];
+        errorHeaders.unshift('None');
         const title = 'test';
         const dropDown = GM.HF.createNewSelect(`${title}-${key}`, `${title}-${key}`, [], [], headers, headers);
+        const errorDropDown = GM.HF.createNewSelect(`${title}-${key}`, `${title}-${key}`, [], [], errorHeaders, errorHeaders);
         const labelInput = GM.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
         const gridCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');
         const tickCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'Ticks', 'Ticks');
         const addTraceButton = GM.HF.createNewButton('','', ['axis-card-button'], [], 'button', 'Add Trace');
-        this.inspectorCard.addYAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper, addTraceButton);
-        return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox, addTraceButton: addTraceButton };
+        this.inspectorCard.addYAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper, addTraceButton, errorDropDown);
+        return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox, addTraceButton: addTraceButton, errorDropDown: errorDropDown };
     }
 
     addInspectorCardIncludeColumnCard(headers, key) {
@@ -90,7 +93,7 @@ export class InspectorCardMaker {
     }
 
     addInspectorCardGenerateCSVFileButton(key) {
-        const button = GM.HF.createNewButton(`create-CSV-button-${key}`, `create-CSV-button-${key}`, [], [], 'button', 'Genereate', false);
+        const button = GM.HF.createNewButton(`create-CSV-button-${key}`, `create-CSV-button-${key}`, [], [], 'button', 'Generate', false);
         this.#addDynamicInspectorCardFieldWithPrebuiltValueDiv('Generate CSV File: ', button, false);
         return button;
     }
@@ -116,9 +119,19 @@ export class InspectorCardMaker {
     addFilterCards(metadata) {
         const filterArray = [];
         metadata?.columnHeaders.forEach(header => {
-            filterArray.push(this.inspectorCard.addMinMaxCard(header.name, header.min, header.max, header.dataType, header.dataFormat));
+            filterArray.push(this.inspectorCard.addMinMaxCard(header.name, header.min, header.max, header.dataType, header.dataFormat, header.changeDataTypeFunction));
         });
         return filterArray;
+    }
+
+    addCardsToExistingFilter(columnHeaders, filterArray) {
+        columnHeaders.forEach(col => {
+            filterArray.push(this.inspectorCard.addMinMaxCard(col.name, col.min, col.max, col.dataType, col.dataFormat, col.changeDataTypeFunction))
+        });
+    }
+
+    addConversionCard(metadata){
+        return this.inspectorCard.addConversionCard(metadata);
     }
 
     #createInspectorCardKeyText = text => GM.HF.createNewParagraph('', '', ['inspector-card-key-text'], [], text);

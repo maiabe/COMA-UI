@@ -3,10 +3,11 @@ export class ChartDataStorage {
     #dataTable;
     numberOfTraces;
 
-    constructor(chartType) {
+    constructor(chartType, coordinateSystem) {
         this.#dataTable = new Map();
         this.numberOfTraces = 0;
         this.#setData('chartType', chartType);
+        this.#setData('coordinateSystem', coordinateSystem);
     }
 
     set_2D_XAxisListeners(xAxis) {
@@ -18,6 +19,7 @@ export class ChartDataStorage {
 
     set_2D_YAxisListeners(yAxis) {
         this.listenToYAxisDataChanges(yAxis.dropdown);
+        this.listenToYAxisErrorChanges(yAxis.errorDropDown);
         this.listenToYAxisLabelChanges(yAxis.labelInput);
         this.listenToYAxisTickChanges(yAxis.tickCheckbox.checkbox);
         this.listenToYAxisGridChanges(yAxis.gridCheckbox.checkbox);
@@ -25,6 +27,7 @@ export class ChartDataStorage {
 
     listenToXAxisDataChanges(element) { element.addEventListener('change', this.updateXAxisFieldName.bind(this)); }
     listenToYAxisDataChanges(element) { element.addEventListener('change', this.updateYAxisFieldName.bind(this)); }
+    listenToYAxisErrorChanges(element) { element.addEventListener('change', this.updateYAxisErrorFieldName.bind(this)); }
     listenToXAxisLabelChanges(element) { element.addEventListener('change', this.updateXAxisLabel.bind(this)); }
     listenToYAxisLabelChanges(element) { element.addEventListener('change', this.updateYAxisLabel.bind(this)); }
     listenToXAxisTickChanges(element) { element.addEventListener('change', this.updateXAxisTick.bind(this)) };
@@ -41,6 +44,13 @@ export class ChartDataStorage {
         yAxisArray[index] = event.target.value;
         console.log(this.#dataTable);
     }
+
+    updateYAxisErrorFieldName = event => {
+        const yAxisErrorArray = this.#dataTable.get('yAxisErrorField');
+        const index = event.target.id.split('-')[0];
+        yAxisErrorArray[index] = event.target.value;
+        console.log(this.#dataTable);
+    }
     updateXAxisLabel = event => this.#setData('xAxisLabel', event.target.value);
     updateYAxisLabel = event => this.#setData('yAxisLabel', event.target.value);
     updateXAxisTick = event => this.#setData('xAxisTick', event.target.checked);
@@ -55,9 +65,11 @@ export class ChartDataStorage {
         });
     }
 
-    setInitialValues(xAxisField, yAxisField, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick) {
+    setInitialValues(xAxisField, yAxisField, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, yAxisErrorDropdownField) {
         const yAxisFieldArray = new Array(100);
+        const yAxisErrorFieldArray = new Array(100);
         yAxisFieldArray[this.numberOfTraces] = yAxisField;
+        yAxisErrorFieldArray[this.numberOfTraces] = yAxisErrorDropdownField;
         this.#setData('xAxisField', xAxisField);
         this.#setData('yAxisField', yAxisFieldArray);
         this.#setData('xAxisLabel', xAxisLabel);
@@ -66,6 +78,7 @@ export class ChartDataStorage {
         this.#setData('yAxisGrid', yAxisGrid);
         this.#setData('xAxisTick', xAxisTick);
         this.#setData('yAxisTick', yAxisTick);
+        this.#setData('yAxisErrorField', yAxisErrorFieldArray);
         this.numberOfTraces = 1;
     }
 
@@ -91,9 +104,9 @@ export class ChartDataStorage {
         return lables;
     }
 
-    addInitialValueForNewTrace(value, index) {
-        const yAxisArray = this.#dataTable.get('yAxisField');
-        yAxisArray[index] = value;
+    addInitialValueForNewTrace(value, errorValue, index) {
+        this.#dataTable.get('yAxisField')[index] = value;
+        this.#dataTable.get('yAxisErrorField')[index] = errorValue;
         this.numberOfTraces++;
     }
     getChartData() {
@@ -105,7 +118,9 @@ export class ChartDataStorage {
             xAxisGrid: this.#dataTable.get('xAxisGrid'),
             yAxisGrid: this.#dataTable.get('yAxisGrid'),
             xAxisTick: this.#dataTable.get('xAxisTick'),
-            yAxisTick: this.#dataTable.get('yAxisTick')
+            yAxisTick: this.#dataTable.get('yAxisTick'),
+            coordinateSystem: this.#dataTable.get('coordinateSystem'),
+            yAxisErrorField: this.#dataTable.get('yAxisErrorField')
         };
     }
 

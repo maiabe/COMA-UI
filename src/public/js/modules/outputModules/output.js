@@ -32,13 +32,14 @@ export class Chart_2D extends Output {
         this.inspectorCardMaker.addInspectorCardLinkedNodeField(dataKey);
         const xAxis = this.inspectorCardMaker.addInspectorCardChartXAxisCard(data.data.getHeaders(), this.getData('key'));
         const yAxis = this.inspectorCardMaker.addInspectorCardChartYAxisCard(data.data.getHeaders(), this.getData('key'));
-        yAxis.dropdown.id = `${this.chartData.getNumberOfTraces()}-x-axis-dropdown`;
+        yAxis.dropdown.id = `${this.chartData.getNumberOfTraces()}-y-axis-dropdown`;
+        yAxis.errorDropDown.id = `${this.chartData.getNumberOfTraces()}-y-axis-error-dropdown`;
         this.chartData.storeHeaders(data.data.getHeaders());
         this.chartData.set_2D_XAxisListeners(xAxis);
         this.chartData.set_2D_YAxisListeners(yAxis);
         this.chartData.setInitialValues(xAxis.dropdown.value, yAxis.dropdown.value, xAxis.labelInput.value,
             yAxis.labelInput.value, xAxis.gridCheckbox.checkbox.checked, yAxis.gridCheckbox.checkbox.checked,
-            xAxis.tickCheckbox.checkbox.checked, yAxis.tickCheckbox.checkbox.checked);
+            xAxis.tickCheckbox.checkbox.checked, yAxis.tickCheckbox.checkbox.checked, yAxis.errorDropDown.value);
         this.addNewTraceButtonListener(xAxis.addTraceButton);
         this.addNewTraceButtonListener(yAxis.addTraceButton);
         this.addBuildChartEventListener(this.inspectorCardMaker.addInspectorCardGenerateChartButton(this.getData('key')));
@@ -56,16 +57,22 @@ export class Chart_2D extends Output {
             this.getData('key'),
             this.chartData.getChartData(),
             this.getData('plotDiv'),
-            this.getData('chartType'));
+            this.getData('chartType'),
+            this.getData('coordinateSystem'));
     }
 
     addTrace() {
         const title = 'test';
         const dropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], this.chartData.getHeaders(), this.chartData.getHeaders());
-        this.inspectorCardMaker.addNewTraceToInspectorCard(dropDown);
+        const errorHeaders = [...this.chartData.getHeaders()];
+        errorHeaders.unshift('None');
+        const errorDropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], errorHeaders, errorHeaders);
+        this.inspectorCardMaker.addNewTraceToInspectorCard(dropDown, errorDropDown);
         dropDown.id = `${this.chartData.getNumberOfTraces()}-x-axis-dropdown`;
+        errorDropDown.id = `${this.chartData.getNumberOfTraces()}-x-axis-error-dropdown`;
         this.chartData.listenToYAxisDataChanges(dropDown);
-        this.chartData.addInitialValueForNewTrace(dropDown.value, dropDown.id.split('-')[0]);
+        this.chartData.listenToYAxisErrorChanges(errorDropDown);
+        this.chartData.addInitialValueForNewTrace(dropDown.value, errorDropDown.value, dropDown.id.split('-')[0]);
     }
 }
 
@@ -75,7 +82,8 @@ export class ScatterPlot extends Chart_2D {
         this.setPopupContent();
         this.createInspectorCardData();
         this.addData('chartType', 'scatter');
-        this.chartData = new ChartDataStorage('scatter');
+        this.addData('coordinateSystem', 'cartesian2d');
+        this.chartData = new ChartDataStorage('scatter', 'cartesian2d');
     }
 }
 
@@ -85,7 +93,8 @@ export class BarChart extends Chart_2D {
         this.setPopupContent();
         this.createInspectorCardData();
         this.addData('chartType', 'bar');
-        this.chartData = new ChartDataStorage('bar');
+        this.addData('coordinateSystem', 'cartesian2d');
+        this.chartData = new ChartDataStorage('bar', 'cartesian2d');
     }
 }
 
@@ -95,7 +104,19 @@ export class LineChart extends Chart_2D {
         this.setPopupContent();
         this.createInspectorCardData();
         this.addData('chartType', 'line');
-        this.chartData = new ChartDataStorage('line');
+        this.addData('coordinateSystem', 'cartesian2d');
+        this.chartData = new ChartDataStorage('line', 'cartesian2d');
+    }
+}
+
+export class OrbitalPlot extends Chart_2D {
+    constructor(category, color, shape, key) {
+        super(category, color, shape, 'output', 'Orbital Plot', 'images/icons/orbital-plot-white.png', [], key,);
+        this.setPopupContent();
+        this.createInspectorCardData();
+        this.addData('chartType', 'line');
+        this.addData('coordinateSystem', 'polar');
+        this.chartData = new ChartDataStorage('line', 'polar');
     }
 }
 
@@ -177,7 +198,6 @@ export class ToCSV extends Output {
     };
 
     storeTableHeaders(headerRow) {
-        console.log(headerRow);
         this.chartData.storeHeaders(headerRow);
     }
 }

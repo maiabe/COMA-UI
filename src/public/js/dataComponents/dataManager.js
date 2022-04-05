@@ -3,15 +3,21 @@ import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/e
 import { MODULE_MANAGER, DATA_MANAGER, INSPECTOR } from "../sharedVariables/index.js";
 import { InspectorCard } from "../components/inspector/inspectorCard.js";
 import { GM } from "../main.js";
+import { DataTable } from "./tables/dataTable.js";
 
 export class DataManager {
 
     publisher;
     #dataTable;                // Map that stores the data. Keys are the unique keys of the nodes.
+    #conversionTable;
 
     constructor() {
         this.publisher = new Publisher();
         this.#dataTable = new Map();
+        this.#conversionTable = new Map();
+        this.#conversionTable.set('datenumber', this.convertFromDateToNumber);
+        this.#conversionTable.set('numberdate', this.convertFromNumberToDate);
+        this.#conversionTable.set('category', this.convertToCategory);
     };
 
     /**
@@ -31,8 +37,8 @@ export class DataManager {
     getData = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'DataManager', 'getData')) return undefined;
         if (this.#dataTable.has(key)) {
-            let data = this.#dataTable.get(key).data;   
-            if (data.filtered) this.applyDataFilter(data);
+            const data = this.#dataTable.get(key).data;
+            if (data.filtered) data.data.setFilteredData(this.applyDataFilter(data));
             return data;
         }
         else console.log(`ERROR: No data found for key: ${key}. -- Data Manager -> getData`);
@@ -40,8 +46,51 @@ export class DataManager {
     }
 
     applyDataFilter(data) {
-        const filterDetails = data.getFilterDetails();
-        console.log(filterDetails);
+        const filteredData = [];
+        const filterArray = this.buildFilterArray(data.getFilterDetails(), data.data.getHeaders());
+        data.data.getCleanData().forEach((row, index) => {
+            if (index > 0) {
+                let match = true;
+                for (let i = 0; i < row.length; i++) {
+                    const filter = filterArray.find(value => value.columnIndex === i);
+                    let value = row[i];
+                    if (filter) {
+                        if (filter.dataType !== 'string') {
+                            if (filter.dataType === 'date') value = this.convertDateStringToMilliseconds(value);
+                            if (Number(value) < Number(filter.min) || Number(value) > Number(filter.max)) {
+                                match = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (match) filteredData.push(row);
+            } else filteredData.push(row);
+        });
+        return filteredData;
+    }
+
+    buildFilterArray(details, headers) {
+        const array = [];
+        details.forEach(columnFilter => {
+            let min = columnFilter.get('lastValidLeft');
+            let max = columnFilter.get('lastValidRight');
+            const columnIndex = headers.indexOf(columnFilter.get('label'));
+            const dataType = columnFilter.get('dataType');
+            if (dataType === 'date') {
+                min = this.convertDateStringToMilliseconds(min);
+                max = this.convertDateStringToMilliseconds(max);
+            }
+            array.push({ min: min, max: max, columnIndex: columnIndex, dataType: dataType });
+        });
+        return array;
+    }
+
+    convertDateStringToMilliseconds = string => (new Date(string).getTime());
+
+    convertMillisecondsToString(milliseconds) {
+        const conversion = new Date(milliseconds);
+        return `${conversion.getMonth() + 1}/${conversion.getDate()}/${conversion.getFullYear()}`;
     }
 
     /**
@@ -53,7 +102,7 @@ export class DataManager {
     addData = (key, val, local) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(val, 'val', 'object'), varTest(local, 'local', 'boolean')], 'DataManager', 'addData')) return false;
         if (this.#dataTable.has(key)) console.log(`Data Table already has key: ${key} in it. Will Overwrite. -- DataManager -> addData.`);
-        this.#dataTable.set(key, { data: val});
+        this.#dataTable.set(key, { data: val });
         let metadata = undefined;
         if (local) metadata = val.data.setMetadata();
         return true;
@@ -142,17 +191,29 @@ export class DataManager {
                 entry[1].forEach(field => {
                     indicies[entry[0].toString()].push(data[0].indexOf(field));
                 });
+            } else if (entry[0] === 'yAxisErrorField') {
+                indicies[entry[0].toString()] = [];
+                entry[1].forEach(field => {
+                    indicies[entry[0].toString()].push(data[0].indexOf(field));
+                });
             } else indicies[entry[0].toString()] = data[0].indexOf(entry[1]);  // Get Indices of the headers
         });
 
-        const chartData = { type: data.type, data: { x: [], y: [] } }; // Build the arrays to plot.
+        const chartData = { type: data.type, data: { x: [], y: [], e: [] } }; // Build the arrays to plot.
         for (let i = 0; i < indicies.yAxisField.length; i++) {
             chartData.data.y.push([]);
         }
+
+        for (let i = 0; i < indicies.yAxisErrorField.length; i++) {
+            chartData.data.e.push([]);
+        }
         for (let i = 1; i < data.length; i++) {
             chartData.data.x.push(data[i][indicies.xAxisField]);
-            for(let j = 0; j < indicies.yAxisField.length; j++) {
+            for (let j = 0; j < indicies.yAxisField.length; j++) {
                 chartData.data.y[j].push(data[i][indicies.yAxisField[j]]);
+            }
+            for (let j = 0; j < indicies.yAxisErrorField.length; j++) {
+                if (indicies.yAxisErrorField[j] >= 0) chartData.data.e[j].push(data[i][indicies.yAxisErrorField[j]]);
             }
         }
         return chartData;
@@ -172,7 +233,7 @@ export class DataManager {
         const data = this.getData(key).data.getData();
 
         const indicies = {};  // indicies will copy the keys from fields and replace the values with the proper index in the data table.
-        const chartData = { type: 'table', data: {}}; // Build the arrays to plot.
+        const chartData = { type: 'table', data: {} }; // Build the arrays to plot.
 
         fields.forEach(field => {
             if (field.include) {
@@ -189,4 +250,61 @@ export class DataManager {
         return chartData;
     }
 
+    convertData(input, output, fn, key, moduleKey) {
+        const data = JSON.parse(JSON.stringify(this.getData(key).data.getData()));
+        const conversionIndex = data[0].indexOf(input);
+        if (conversionIndex > 0) {
+            const preConvertedData = [];
+            for (let i = 1; i < data.length; i++) {
+                preConvertedData.push(data[i][conversionIndex]);
+            }
+            const convertedData = fn(preConvertedData);
+            data.forEach((row, index) => {
+                const val = index === 0 ? output : convertedData[index - 1];
+                row.push(val);
+            })
+            const table = new DataTable(data);
+            const wrapper = {};
+            wrapper.data = table;
+            return wrapper;
+        } else return undefined;
+    }
+
+    changeDataType(metadata, oldType, newType, dataField, datakey, callbackFN, updateMetadataFN) {
+        console.log(oldType, newType);
+        let row = null;
+        metadata.columnHeaders.forEach(element => {
+            if (element.name === dataField) row = element
+        });
+        let success = false;
+        try {
+            success = this.#conversionTable.get(oldType.toLowerCase() + newType.toLowerCase())(row);
+        } catch (e) {
+            console.log(e);
+        }
+        if (success) {
+            row.dataType = newType;
+            this.getData(datakey).data.replaceMetadata(metadata);
+        }
+        callbackFN({ success: success, row: row });
+        updateMetadataFN(metadata, success);
+    }
+
+
+    convertFromNumberToDate(row) {
+        if (!row) return false;
+        const conversion = new Date(row.min);
+        if (!conversion) return false;
+        return true;
+    }
+
+    convertFromDateToNumber(row) {
+        if (!row) return false;
+        if (Number(row.min)) return true;
+        return false;
+    }
+
+    convertToCategory(row) {
+        return false;
+    }
 }
