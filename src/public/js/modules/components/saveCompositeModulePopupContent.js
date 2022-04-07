@@ -1,8 +1,9 @@
-import { GM } from '../../main.js';
+import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
 import { sourceColor } from '../../sharedVariables/colors.js';
 
 export class SaveCompositeModulePopupContent {
     constructor(groupInfo, saveCallback) {
+        this.HF = new HTMLFactory();
         this.saveCallback = saveCallback;
         this.groupInfo = groupInfo;
         this.contentWrapper = this.createContentWrapper();
@@ -16,24 +17,24 @@ export class SaveCompositeModulePopupContent {
     }
 
     createContentWrapper() {
-        return GM.HF.createNewDiv('', '', ['save-popup-wrapper'], []);
+        return this.HF.createNewDiv('', '', ['save-popup-wrapper'], []);
     }
 
     createNameInput() {
-        return GM.HF.createNewTextInput('', '', [], [], 'text');
+        return this.HF.createNewTextInput('', '', [], [], 'text');
     }
 
     createDescriptionInput() {
-        return GM.HF.createNewTextArea('', '', [], []);
+        return this.HF.createNewTextArea('', '', [], []);
     }
 
     createSaveButton() {
-        return GM.HF.createNewButton('','', ['save-popup-save-button'], [], 'button', 'Save');
+        return this.HF.createNewButton('','', ['save-popup-save-button'], [], 'button', 'Save');
     }
 
     addInputLabel(element, labelText) {
-        const label = GM.HF.createNewParagraph('', '', [], [], labelText);
-        const inputWrapper = GM.HF.createNewDiv('', '', ['save-popup-input-wrapper'], []);
+        const label = this.HF.createNewParagraph('', '', [], [], labelText);
+        const inputWrapper = this.HF.createNewDiv('', '', ['save-popup-input-wrapper'], []);
         inputWrapper.appendChild(label);
         inputWrapper.appendChild(element);
         this.contentWrapper.appendChild(inputWrapper);

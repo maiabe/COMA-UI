@@ -1,8 +1,10 @@
-import { Publisher, Message } from '../communication/index.js';
+import { Publisher, Message, Subscriber } from '../communication/index.js';
 import { invalidVariables, varTest } from '../errorHandling/errorHandlers.js';
 import { GM } from '../main.js';
 import { InspectorCardMaker } from './components/inspectorCardMaker.js';
 import { PopupContentMaker } from './components/popupContentMaker.js';
+import { MODULE_MANAGER, MODULE, INSPECTOR_CARD_MAKER } from '../sharedVariables/constants.js';
+import { HTMLFactory } from '../htmlGeneration/htmlFactory.js';
 
 
 export class Module {
@@ -10,6 +12,7 @@ export class Module {
     #dataTable;
     inspectorCardMaker;
     popupContentMaker;
+    publisher;
 
     constructor(type, color, shape, command, name, imagePath, inports, outports, key, description) {
         this.#dataTable = new Map();
@@ -17,7 +20,23 @@ export class Module {
         this.inspectorCardMaker = new InspectorCardMaker(name, color, key);
         this.popupContentMaker = new PopupContentMaker();
         this.setInitialDataValues(type, color, shape, command, name, imagePath, inports, outports, key, description);
-    };
+        this.HF = new HTMLFactory();
+        this.subscriber = new Subscriber(this.messageHandler.bind(this));
+        this.inspectorCardMaker.publisher.subscribe(this.subscriber);
+        this.popupContentMaker.publisher.subscribe(this.subscriber);
+    }
+
+    /**
+    * Passes messages from the Modules to the Module Manager
+    * @param {Message} msg the message to pass along the chain of command 
+    */
+    messageHandler = msg => {
+        const messageData = msg.readMessage();
+        if (messageData.to !== MODULE) {
+            msg.updateFrom(MODULE);
+            this.sendMessage(msg);
+        }
+    }
 
     /**
      * This data is mostly used by gojs to make the graph node.
@@ -153,5 +172,8 @@ export class Module {
         if (this.#dataTable.has('oldKey')) this.#dataTable.delete('oldKey');
     }
 
+    sendMessage(msg) {
+        this.publisher.publishMessage(msg);
+    }
 
 }

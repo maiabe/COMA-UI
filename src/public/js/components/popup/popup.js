@@ -1,7 +1,12 @@
-import { GM } from '../../main.js';
+import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
+import { Publisher, Message } from '../../communication/index.js';
+import { POPUP_MANAGER, POPUP } from '../../sharedVariables/constants.js';
 
 export class Popup {
     constructor(width, height, initialTop, initialLeft, key, color, content, headerText) {
+
+        this.HF = new HTMLFactory();
+        this.publisher = new Publisher();
         this.content = content;
 
         // HTML elements
@@ -37,9 +42,9 @@ export class Popup {
     }
 
     createHTMLElement = headerText => {
-        this.element = GM.HF.createNewDiv(`popup-${this.key}`, `popup-${this.key}`, ['popup'], []);
+        this.element = this.HF.createNewDiv(`popup-${this.key}`, `popup-${this.key}`, ['popup'], []);
         this.createHeader(headerText);
-        this.body = GM.HF.createNewDiv(`popup-body-${this.key}`, `popup-body-${this.key}`, ['popupBody'], []);
+        this.body = this.HF.createNewDiv(`popup-body-${this.key}`, `popup-body-${this.key}`, ['popupBody'], []);
         this.element.appendChild(this.header);
         this.element.appendChild(this.body);
         this.setBodyContent(this.content);
@@ -48,18 +53,18 @@ export class Popup {
     }
 
     createHeader = headerText => {
-        this.header = GM.HF.createNewDiv(`popup-header-${this.id}`, `popup-header-${this.id}`, ['popupHeader'], [{ style: 'backgroundColor', value: this.headerColor }]);
-        this.headerTitle = GM.HF.createNewParagraph('', '', ['popupHeaderTitle'], [], headerText);
+        this.header = this.HF.createNewDiv(`popup-header-${this.id}`, `popup-header-${this.id}`, ['popupHeader'], [{ style: 'backgroundColor', value: this.headerColor }]);
+        this.headerTitle = this.HF.createNewParagraph('', '', ['popupHeaderTitle'], [], headerText);
         this.header.appendChild(this.headerTitle);
-        const closeIcon = GM.HF.createNewDiv('', '', ['closePopupIcon'], []);
-        const img = GM.HF.createNewIMG('', '', 'images/icons/cancel.png', [], [], 'Close Popup Button');
+        const closeIcon = this.HF.createNewDiv('', '', ['closePopupIcon'], []);
+        const img = this.HF.createNewIMG('', '', 'images/icons/cancel.png', [], [], 'Close Popup Button');
         closeIcon.appendChild(img);
         closeIcon.addEventListener('click', this.close);
         this.header.appendChild(closeIcon);
     }
 
     createResizeDiv = () => {
-        this.resizeDiv = GM.HF.createNewDiv(`popup-resize-${this.id}`, `popup-resize-${this.id}`, ['popupResize'], []);
+        this.resizeDiv = this.HF.createNewDiv(`popup-resize-${this.id}`, `popup-resize-${this.id}`, ['popupResize'], []);
         this.element.appendChild(this.resizeDiv);
     }
 
@@ -176,7 +181,8 @@ export class Popup {
     startResize = () => {
         this.setState(this.resizing);
         this.mousePositions = [];
-        GM.PM.startResizeEventHandler(this.key);
+        const message = new Message(OUTPUT_MANAGER, POPUP, 'Start Resize Popup Event', {moduleKey: this.key});
+        this.sendMessage(message);
     };
 
     endResize = () => {
@@ -198,7 +204,8 @@ export class Popup {
                 this.setWidth();
                 this.setHeight();
             }
-            GM.PM.resizeEventHandler(this.key);
+            const message = new Message(OUTPUT_MANAGER, POPUP, 'Resize Popup Event', {moduleKey: this.key});
+        this.sendMessage(message);
         }
     }
 
@@ -206,10 +213,13 @@ export class Popup {
 
     #updateHeight = xDistanceTraveled => this.height += parseInt(xDistanceTraveled);
 
-    moveToFront = () => this.element.style.zIndex = GM.PM.getNextZIndex();
-
+    moveToFront = () => this.sendMessage(new Message(POPUP_MANAGER, POPUP, 'Request Z Index', {callback: this.moveToFrontHelper.bind(this)}));
+   
+    moveToFrontHelper = index => this.element.style.zIndex = index;
     close = () => {
         document.body.removeChild(this.element);
-        GM.PM.destroyPopup(this.key);
+        this.sendMessage(new Message(POPUP_MANAGER, POPUP, 'Popup Closed Event', { moduleKey: this.key }));
     }
+
+    sendMessage = message => this.publisher.publishMessage(message);
 }

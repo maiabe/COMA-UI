@@ -1,8 +1,5 @@
 import { Publisher, Message } from "../communication/index.js";
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
-import { MODULE_MANAGER, DATA_MANAGER, INSPECTOR } from "../sharedVariables/index.js";
-import { InspectorCard } from "../components/inspector/inspectorCard.js";
-import { GM } from "../main.js";
 import { DataTable } from "./tables/dataTable.js";
 
 export class DataManager {
@@ -227,6 +224,7 @@ export class DataManager {
      * @returns reduced data.
      */
     getTableDataWithFields(key, fields) {
+        console.log(fields);
         /* this.getData(key) returns and object with fields like type: 'table', data: DataTable 
         Then, the DataTable object has keys type: 'table' and data: ....
         To access the data, use getData() because the actual data is a private field. */

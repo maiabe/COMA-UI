@@ -99,6 +99,8 @@ export default class Hub {
         this.messageForInspector.set('Publish Module Inspector Card Event', this.publishModuleInspectorCardEvent.bind(this));
         this.messageForInspector.set('Clear Inspector Event', this.clearInspectorEvent.bind(this));
         this.messageForInspector.set('Node Selected Event', this.nodeSelectedEvent.bind(this));
+        this.messageForInspector.set('Minimize Card Event', this.minimizeCardEvent.bind(this));
+        this.messageForInspector.set('Maximize Card Event', this.maximizeCardEvent.bind(this));
     }
 
     buildMessageForInputManager() {
@@ -247,6 +249,14 @@ export default class Hub {
         GM.MM.getModule(data.moduleKey).getInspectorCard().maximizeCardEnvironmentClick();
     }
 
+    minimizeCardEvent() {
+        GM.INS.minimizeCard();
+    }
+
+    maximizeCardEvent(data) {
+        GM.INS.maximizeCard(data.id);
+    }
+
     clearInspectorEvent() {
         GM.INS.clearInspector(true);
     }
@@ -345,7 +355,14 @@ export default class Hub {
     }
 
     dataTypeChangeEvent(data) {
-        GM.DM.changeDataType(data.metadata, data.oldType, data.newType, data.field, data.dataKey, data.callbackFN, data.updateMetadataFN);
+        GM.DM.changeDataType(
+            data.metadata, 
+            data.oldType, 
+            data.newType, 
+            data.field, 
+            data.dataKey, 
+            data.callback, 
+            data.updateMetadataCallback);
     }
 
     dataRequestEvent(data) {

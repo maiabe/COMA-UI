@@ -1,4 +1,4 @@
-import { Message, Publisher } from '../../communication/index.js';
+import { Message, Publisher, Subscriber } from '../../communication/index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../../errorHandling/errorHandlers.js';
 import { Popup } from './index.js';
 import { OUTPUT_MANAGER, POPUP, POPUP_MANAGER } from '../../sharedVariables/index.js';
@@ -12,10 +12,29 @@ export class PopupManager {
 
     constructor() {
         this.publisher = new Publisher();
+        this.subscriber = new Subscriber(this.messageHandler.bind(this));
         this.#popupList = new Map();       // Popups are indexed with a module Key.
         this.#zIndex = 10001;
         this.#nonModulePopupIndex = 1000001;
+        this.messageHandlerMap = new Map();
+        this.buildMessageHandlerMap();
     };
+
+    buildMessageHandlerMap() {
+        this.messageHandlerMap.set('Popup Closed Event', this.destroyPopup.bind(this));
+        this.messageHandlerMap.set('Request Z Index', this.getNextZIndex.bind(this));
+    }
+
+    messageHandler(msg) {
+        const message = msg.readMessage();
+        if (message.to !== POPUP_MANAGER) {
+            msg.updateFrom(POPUP_MANAGER);
+            this.sendMessage(msg);
+        } else {
+            this.messageHandlerMap.get(message.type)(message.data);
+        }
+
+    }
 
     /** Publishes a message to all subscribers 
      * @param msg -> the message to send. This is a Message object.
@@ -32,7 +51,6 @@ export class PopupManager {
      * @param {number} y -> The y position of the mouse click that generated the popup.
      */
     createModulePopup = (moduleKey, content, x, y) => {
-        console.log(content)
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(content, 'content', 'object')], 'Popup Manager', 'createModulePopup')) return;
         // Only allow one popup for each module at any given time.
         if (!this.#popupList.has(moduleKey)) {
@@ -44,13 +62,13 @@ export class PopupManager {
                 height = 800;
             }
             const p = new Popup(width, height, 0, 0, moduleKey, content.color, content.content, content.headerText);
+            p.publisher.subscribe(this.subscriber);
             this.#popupList.set(moduleKey, { type: 'module', element: p });
             this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Resize Popup Event', { moduleKey: moduleKey }));
         } else console.log(`ERROR: Popup already exists for moduleKey: ${moduleKey}. -- PopupManager -> createModulePopup.`);
     };
 
     createOtherPopup = (content) => {
-        console.log(content)
         if (invalidVariables([varTest(content, 'content', 'object')], 'Popup Manager', 'createOtherPopup')) return;
         const nextIndex = this.incrementNonModulePopupIndex();
         if (!this.#popupList.has(nextIndex)) {
@@ -62,6 +80,7 @@ export class PopupManager {
                 height = 800;
             }
             const p = new Popup(width, height, 0, 0, nextIndex, content.color, content.content, content.headerText);
+            p.publisher.subscribe(this.subscriber);
             this.#popupList.set(nextIndex, { type: 'other', element: p });
             this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Resize Popup Event', { moduleKey: nextIndex }));
         } else console.log(`ERROR: Popup already exists for this key: ${nextIndex}. -- PopupManager -> createModulePopup.`);
@@ -123,36 +142,22 @@ export class PopupManager {
         if (body.classList.contains('chartDiv')) body.querySelector('.plotly').innerHTML = '';
     }
 
-    /**
-     * Called When resize is finished. (startResizeEventHandler is called when the resize begins.) Resize refers to the user stretching the
-     * popup div.
-     * @param {number} key the key identifying the popup. Is also the unique identifier for the module associated with the popup.
-     */
-    resizeEventHandler = key => {
-        if (invalidVariables([varTest(key, 'key', 'number')], 'PopupManager', 'resizeEventHandler')) return;
-        this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Resize Popup Event', { moduleKey: key }));
-    }
-
-    /**
-     * Called When resize begins. (resizeEventHandler is called when the resize ends.) Resize refers to the user stretching the
-     * popup div.
-     * @param {number} key the key identifying the popup. Is also the unique identifier for the module associated with the popup.
-     */
-    startResizeEventHandler = key => {
-        if (invalidVariables([varTest(key, 'key', 'number')], 'PopupManager', 'startResizeEventHandler')) return;
-        this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Start Resize Popup Event', { moduleKey: key }));
-    }
-
     /** Destroys a popup (removes it from the list.)  The actual html element is removed by the 
      * popup class itself.
      * @param {number} key -> this is the index of the popup in the list. (int)
      */
     destroyPopup = key => {
-        if (invalidVariables([varTest(key, 'key', 'number')], 'PopupManager', 'destroyPopup')) return;
         this.#popupList.delete(key);
         this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Popup Closed Event', { moduleKey: key }));
     };
 
-    getNextZIndex = () => this.incrementZIndex();
+    /**
+     * Z index is requested by a popup. Increment Z index and pass it to the callback
+     * @param {{
+     *  callback: (function) the function that needs the next z index -- From a Popup}} args 
+     */
+    getNextZIndex = args => {
+        args.callback(this.incrementZIndex());
+    }
     incrementZIndex = () => this.#zIndex++;
 }

@@ -1,6 +1,6 @@
 import { Module } from "../module.js";
-import {GM} from "../../main.js";
 import { LOCAL_DATA_SOURCE, TABLE_OUTPUT } from "../../sharedVariables/constants.js";
+
 export class Data extends Module {
     #nodeArray;
     #linkArray;
@@ -18,7 +18,7 @@ export class Data extends Module {
     }
 
     setPopupContent = () => {
-        const popupContent = GM.HF.createNewDiv('', '', [], []);
+        const popupContent = this.HF.createNewDiv('', '', [], []);
         this.addData('popupContent', popupContent, false, '', false);
     }
 

@@ -20,4 +20,7 @@ export class Message {
             data: this.#data
         }
     };
+
+    updateTo = to => this.#to = to;
+    updateFrom = from => this.#from = from;
 }

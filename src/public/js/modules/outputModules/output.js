@@ -1,7 +1,7 @@
 import { Module } from "../index.js";
-import { GM } from '../../main.js';
 import { ChartDataStorage } from "./components/chartDataStorage.js";
-import { TABLE_OUTPUT, LOCAL_DATA_SOURCE } from "../../sharedVariables/constants.js";
+import { TABLE_OUTPUT, LOCAL_DATA_SOURCE, MODULE, MODULE_MANAGER } from "../../sharedVariables/constants.js";
+import { Message } from "../../communication/message.js";
 
 export class Output extends Module {
     constructor(category, color, shape, command, name, image, inports, outports, key) {
@@ -52,21 +52,26 @@ export class Chart_2D extends Output {
     addBuildChartEventListener(button) { button.addEventListener('click', this.createNewChartFromButtonClick.bind(this)); }
 
     createNewChartFromButtonClick() {
-        GM.MM.emitLocalChartEvent(
-            this.getData('dataKey'),
-            this.getData('key'),
-            this.chartData.getChartData(),
-            this.getData('plotDiv'),
-            this.getData('chartType'),
-            this.getData('coordinateSystem'));
+        this.sendMessage(new Message(
+            MODULE_MANAGER, MODULE, 'Module Message',
+            {
+            type: 'Emit Local Chart Event',
+            args: {
+                datasetKey: this.getData('dataKey'),
+                moduleKey: this.getData('key'),
+                fieldData: this.chartData.getChartData(),
+                div: this.getData('plotDiv'),
+                type: this.getData('chartType')
+            }
+        }));
     }
 
     addTrace() {
         const title = 'test';
-        const dropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], this.chartData.getHeaders(), this.chartData.getHeaders());
+        const dropDown = this.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], this.chartData.getHeaders(), this.chartData.getHeaders());
         const errorHeaders = [...this.chartData.getHeaders()];
         errorHeaders.unshift('None');
-        const errorDropDown = GM.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], errorHeaders, errorHeaders);
+        const errorDropDown = this.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], errorHeaders, errorHeaders);
         this.inspectorCardMaker.addNewTraceToInspectorCard(dropDown, errorDropDown);
         dropDown.id = `${this.chartData.getNumberOfTraces()}-x-axis-dropdown`;
         errorDropDown.id = `${this.chartData.getNumberOfTraces()}-x-axis-error-dropdown`;
@@ -133,16 +138,7 @@ export class Value extends Output {
     }
 
     setPopupContent = () => {
-        // const popupContent = GM.HF.createNewDiv('', '', [], []);
-        // const setValueWrapper = GM.HF.createNewDiv('', '', ['setValueWrapper'], []);
-        // popupContent.appendChild(setValueWrapper);
-        // const dataArea = GM.HF.createNewDiv('', '', ['numberDataArea'], []);
-        // this.textArea = GM.HF.createNewParagraph('', '', ['popup-text-large'], [], this.data);
-        // dataArea.appendChild(this.textArea);
-        // popupContent.appendChild(dataArea);
-        // this.addData('popupContent', popupContent, false, '', false);
-        // this.addData('themeDD', themeDD, false, '', false);
-        // this.addData('plotDiv', plotDiv, false, '', false);
+
     };
 
     updatePopupText = val => {
@@ -168,28 +164,43 @@ export class ToCSV extends Output {
     }
 
     updateInspectorCardWithNewData(dataModule, data) {
+        this.chartData.storeHeaders(data.data.getHeaders());
         this.inspectorCardMaker.addInspectorCardLinkedNodeField(dataModule.getData('key'));
         const columnCheckboxes = this.inspectorCardMaker.addInspectorCardIncludeColumnCard(data.data.getHeaders(), this.getData('key'));
         this.chartData.listenToCheckboxChanges(columnCheckboxes);
         this.addGenerateTablePreviewEventListener(this.inspectorCardMaker.addInspectorCardGenerateTablePreviewButton(this.getData('key')));
         this.addCreateCSVFileEventListener(this.inspectorCardMaker.addInspectorCardGenerateCSVFileButton(this.getData('key')));
-        console.log(data);
     }
 
     addGenerateTablePreviewEventListener(button) { button.addEventListener('click', this.createNewTableFromButtonClick.bind(this)); }
     addCreateCSVFileEventListener(button) { button.addEventListener('click', this.createCSVFile.bind(this)) };
 
     createCSVFile() {
-        GM.MM.emitCreateCSVEvent(this.getData('linkedDataKey'), this.getData('key'), this.chartData.getTableData());
+        this.sendMessage(new Message(
+            MODULE_MANAGER, MODULE, 'Module Message',
+            {
+            type: 'Emit Create CSV Event',
+            args: {
+                datasetKey: this.getData('dataKey'),
+                moduleKey: this.getData('key'),
+                fieldData: this.chartData.getChartData(),
+            }
+        }));
     }
 
     createNewTableFromButtonClick() {
-        GM.MM.emitLocalTableEvent(
-            this.getData('linkedDataKey'),
-            this.getData('key'),
-            this.chartData.getTableData(),
-            this.getData('plotDiv'),
-            'table');
+        this.sendMessage(new Message(
+            MODULE_MANAGER, MODULE, 'Module Message',
+            {
+            type: 'Emit Local Table Event',
+            args: {
+                datasetKey: this.getData('dataKey'),
+                moduleKey: this.getData('key'),
+                fieldData: this.chartData.getChartData(),
+                div: this.getData('plotDiv'),
+                type: this.getData('chartType')
+            }
+        }));
     }
 
     setPopupContent = () => {

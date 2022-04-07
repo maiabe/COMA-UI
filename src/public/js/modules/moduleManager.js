@@ -1,20 +1,52 @@
 import { ModuleGenerator, SaveCompositeModulePopupContent } from './index.js';
-import { Message, Publisher } from '../communication/index.js';
+import { Message, Publisher, Subscriber } from '../communication/index.js';
 import { invalidVariables, printErrorMessage, varTest } from '../errorHandling/errorHandlers.js';
-import { ENVIRONMENT, MODULE_MANAGER, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR, POPUP_MANAGER, WORKER_MANAGER } from '../sharedVariables/index.js';
+import { ENVIRONMENT, MODULE_MANAGER, MODULE, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR, POPUP_MANAGER, WORKER_MANAGER } from '../sharedVariables/index.js';
 
 export class ModuleManager {
     #MG;          // Module Generator
     publisher;    // Message Publisher
     moduleMap;    // Hash Table that stores modules {module key: module object}
+    subscriber;
     compositePrefabMap;
 
     constructor() {
         this.#MG = new ModuleGenerator();
         this.publisher = new Publisher();
+        this.subscriber = new Subscriber(this.messageHandler.bind(this));
         this.moduleMap = new Map();
         this.compositePrefabMap = new Map();
+        this.messageHandlerMap = new Map();
+        this.#buildMessageHandlerMap();
     };
+
+    #buildMessageHandlerMap = () => {
+        this.messageHandlerMap.set('Emit Data Conversion Event', this.emitDataConversionEvent.bind(this));
+        this.messageHandlerMap.set('Emit Data Type Change Request', this.emitDataTypeChangeRequest.bind(this));
+        this.messageHandlerMap.set('Emit Local Chart Event', this.emitLocalChartEvent.bind(this));
+        this.messageHandlerMap.set('Emit Create CSV Event', this.emitCreateCSVEvent.bind(this));
+        this.messageHandlerMap.set('Emit Local Table Event', this.emitLocalTableEvent.bind(this));
+        this.messageHandlerMap.set('Request List of Objects', this.requestListOfObjects.bind(this));
+    }
+
+    /**
+     * Passes messages from the Modules to the HUB to be executed.
+     * @param {Message} msg the message to pass along the chain of command 
+     */
+    messageHandler = msg => {
+        console.log(msg)
+        const message = msg.readMessage();
+        if (message.to === MODULE_MANAGER) {
+            try {
+                this.messageHandlerMap.get(message.data.type)(message.data.args);
+            } catch(e) {
+                console.log(e);
+            }
+        } else if (message.to !== MODULE_MANAGER && message.from == MODULE) {
+            msg.updateFrom(MODULE_MANAGER);
+            this.#sendMessage(msg);
+        }
+    }
 
     /**
      * Creates a new module by calling the module generator
@@ -27,6 +59,7 @@ export class ModuleManager {
         if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'createNewModule')) return false;
         const module = this.#MG.generateNewModule(name, category, key);
         module.addData('oldKey', oldKey);
+        module.publisher.subscribe(this.subscriber);
         this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.moduleMap.has(key), groupKey: groupKey }));
         this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
         this.#addModule(module, key);
@@ -231,7 +264,7 @@ export class ModuleManager {
      * @param {string} path the path to the file, ie. the div id, or absolute path to the file system.
      * @param {number} key the module key associated with the file upload.
      */
-    readFile = (type, source, path, key) => {
+    readFile = args => {
         if (invalidVariables([varTest(type, 'type', 'string'), varTest(source, 'source', 'string'), varTest(path, 'path', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'readFile')) return false;
         this.publisher.publishMessage(new Message(INPUT_MANAGER, MODULE_MANAGER, 'Read File Event', { type: type, source: source, path: path, moduleKey: key }));
         return true;
@@ -330,33 +363,93 @@ export class ModuleManager {
                 module.processMetadataChange(metadata);
                 try {
                     module.updateInspectorCardForModifiedMetadata(1);
-                } catch(e){}
+                } catch (e) { }
             }
         });
     }
 
-    emitLocalChartEvent(key, moduleKey, chartData, div, type) {
-        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Local Chart Event', { datasetKey: key, moduleKey: moduleKey, fieldData: chartData, div: div, type: type }));
+    /**
+     * This function forwards a message along the chain of command to the HUB
+     * @param {{
+     * datasetKey: (number) the id to reference the data in DataManager,
+     * moduleKey: (number)
+     * fieldData: (object) stores the chart data information
+     * div: (HTML Div) the html element to plot the chart,
+     * type: (string) the type of chart to build
+     * }} args 
+     */
+    emitLocalChartEvent(args) {
+        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Local Chart Event', args));
     }
 
-    emitLocalTableEvent(key, moduleKey, chartData, div, type) {
-        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Local Table Event', { datasetKey: key, moduleKey: moduleKey, fieldData: chartData, div: div, type: type }));
+    /**
+    * This function forwards a message along the chain of command to the HUB
+    * @param {{
+    * datasetKey: (number) the id to reference the data in DataManager,
+    * moduleKey: (number)
+    * fieldData: (object) stores the chart data information
+    * div: (HTML Div) the html element to plot the chart,
+    * type: (string) the type of chart to build -- should be 'table'
+    * }} args 
+    */
+    emitLocalTableEvent(args) {
+        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New Local Table Event', args));
     }
 
-    emitCreateCSVEvent(datasetKey, moduleKey, chartData) {
-        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New CSV File Event', { datasetKey: datasetKey, moduleKey: moduleKey, fieldData: chartData }));
+    /**
+    * This function forwards a message along the chain of command to the HUB
+    * @param {{
+     * datasetKey: (number) the id to reference the data in DataManager,
+     * moduleKey: (number)
+     * fieldData: (object) stores the chart data information
+     * }} args 
+     */
+    emitCreateCSVEvent(args) {
+        console.log(args)
+        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Create New CSV File Event', args));
     }
 
     requestListOfObjects(callbackFunction) {
         this.#sendMessage(new Message(INPUT_MANAGER, MODULE_MANAGER, 'Request List Of Objects Event', { callbackFunction: callbackFunction }));
     }
 
-    emitDataConversionEvent(data, key, moduleKey) {
-        this.#sendMessage(new Message(DATA_MANAGER, MODULE_MANAGER, 'Data Conversion Event', {conversionFunction: data.fn, outputFieldName: data.outputFieldName, inputFieldName: data.input, key: key, moduleKey: moduleKey}));
+    /**
+     * This function passes the message from the Data Converter module to the Hub to the Data Manager.
+     * @param {object: {
+     *  dataKey : number referencing data stored by DataManager
+     *  key     : number module key
+     *  conversionDetails : {
+     *                         fn : function -- the conversion function
+     *                         outputFieldName string -- the new column name after conversion
+     *                         input: string -- the name of the column that is input into the conversion function }
+     * }} args Arguments passed to the data converter stored on the DataManager
+     */
+    emitDataConversionEvent(args) {
+        this.#sendMessage(new Message(DATA_MANAGER, MODULE_MANAGER, 'Data Conversion Event',
+            {
+                conversionFunction: args.conversionDetails.fn,
+                outputFieldName: args.conversionDetails.outputFieldName,
+                inputFieldName: args.conversionDetails.input,
+                key: args.dataKey,
+                moduleKey: args.moduleKey
+            }));
     }
 
-    emitDataTypeChangeRequest(data) {
-        this.#sendMessage(new Message(DATA_MANAGER, MODULE_MANAGER, 'Data Type Change Event', data));
+    /**
+     * This function passes the message from the Filter module to the HUB when a data type is changed in a Filter Module
+     * @param {{
+     * metadata: (object) the metadata for a dataset
+     * dataKey: (number) the id of the data on the DataManager
+     * moduleKey: (number) the id of the filter Module
+     * field: (string) the name of the field to change type
+     * oldType: (string)
+     * newType: (string)
+     * callback: an update function called upon completion.
+     * updateMetadataCallback: (function) forward propogate any changes.
+     * }} args 
+     */
+    emitDataTypeChangeRequest(args) {
+        this.#sendMessage(new Message(DATA_MANAGER, MODULE_MANAGER, 'Data Type Change Event', args));
     }
 
     /**
@@ -443,16 +536,6 @@ export class ModuleManager {
         if (invalidVariables([varTest(key, 'key', 'number')], 'ModuleManager', 'requestInspectorUpdate')) return;
         // Node Selected Event will load data for this node into the inspector.
         this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Node Selected Event', { moduleKey: key }));
-    };
-
-    /**
-     * Sends a message to the Output manager to change the chart theme
-     * @param {number} key 
-     * @returns 
-     */
-    handleEchartThemeChange = (key, theme) => {
-        if (invalidVariables([varTest(key, 'key', 'number')], 'Module Manager', 'handleEchartThemeChange')) return;
-        this.#sendMessage(new Message(OUTPUT_MANAGER, MODULE_MANAGER, 'Change EChart Theme Event', { moduleKey: key, theme: theme }));
     };
 
     /**

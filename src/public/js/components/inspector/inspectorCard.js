@@ -2,11 +2,13 @@ import { printErrorMessage } from '../../errorHandling/errorHandlers.js';
 import { XAxisCard, YAxisCard } from './inspectorCardComponents/axisCard.js';
 import { ObjectSearchCard } from '../../../css/inspector/objectSearchCard.js';
 import { KeyValueCard } from './inspectorCardComponents/keyValueCard.js';
-import { GM } from '../../main.js';
+import { HTMLFactory } from '../../htmlGeneration/index.js';
 import { IncludeColumnCard } from './index.js';
 import { CompositeDetailsCard } from './inspectorCardComponents/compositeDetailsCard.js';
 import { MinMaxFilter } from './inspectorCardComponents/minMaxFilter.js';
 import { ConversionCard } from './inspectorCardComponents/conversionCard.js';
+import { Publisher, Message } from '../../communication/index.js';
+import { INSPECTOR, INSPECTOR_CARD, INSPECTOR_CARD_MAKER, POPUP_MANAGER } from '../../sharedVariables/constants.js';
 
 export class InspectorCard {
     #cardId;
@@ -28,6 +30,7 @@ export class InspectorCard {
 
 
     constructor(title, color, key) {
+        this.HF = new HTMLFactory();
         this.#cardId = key;
         this.resizing = false;
         this.maxExpansion = 200;
@@ -41,6 +44,7 @@ export class InspectorCard {
         this.#title = title;
         this.mousePositions = [];
         this.#createDomNode();
+        this.publisher = new Publisher();
     };
 
     #createDomNode() {
@@ -65,43 +69,43 @@ export class InspectorCard {
     }
 
     #createWrapperNode() {
-        return GM.HF.createNewDiv(`Inspector-card-${this.#cardId}`, `Inspector-card-${this.#cardId}`, ['inspector-card'], []);
+        return this.HF.createNewDiv(`Inspector-card-${this.#cardId}`, `Inspector-card-${this.#cardId}`, ['inspector-card'], []);
     }
 
     #createHeaderNode() {
-        return GM.HF.createNewDiv(`Inspector-card-header-${this.#cardId}`, `Inspector-card-header-${this.#cardId}`, ['inspector-card-header'], [{ style: 'backgroundColor', value: this.#color }]);
+        return this.HF.createNewDiv(`Inspector-card-header-${this.#cardId}`, `Inspector-card-header-${this.#cardId}`, ['inspector-card-header'], [{ style: 'backgroundColor', value: this.#color }]);
     }
 
     #createBodyNode() {
-        return GM.HF.createNewDiv(`Inspector-card-body-${this.#cardId}`, `Inspector-card-body-${this.#cardId}`, ['inspector-card-body'], []);
+        return this.HF.createNewDiv(`Inspector-card-body-${this.#cardId}`, `Inspector-card-body-${this.#cardId}`, ['inspector-card-body'], []);
     }
 
     #createTitleNode() {
-        return GM.HF.createNewH3(`Inspector-card-header-h3-${this.cardId}`, `Inspector-card-header-h3-${this.cardId}`, [], [], this.#title);
+        return this.HF.createNewH3(`Inspector-card-header-h3-${this.cardId}`, `Inspector-card-header-h3-${this.cardId}`, [], [], this.#title);
     }
 
     #createDragElement() {
-        return GM.HF.createNewDiv('', '', ['inspector-card-drag-element'], []);
+        return this.HF.createNewDiv('', '', ['inspector-card-drag-element'], []);
     }
 
 
     #createMaxButton() {
-        const buttonDiv = GM.HF.createNewDiv('', '', ['inspector-card-max-button'], []);
-        const img = GM.HF.createNewIMG('', '', '../../../images/icons/maximize.png', [], [], 'Minimize or Maximize Inspector Card Button');
+        const buttonDiv = this.HF.createNewDiv('', '', ['inspector-card-max-button'], []);
+        const img = this.HF.createNewIMG('', '', '../../../images/icons/maximize.png', [], [], 'Minimize or Maximize Inspector Card Button');
         buttonDiv.appendChild(img);
         return buttonDiv;
     }
 
     #createCollapseButton() {
-        const buttonDiv = GM.HF.createNewDiv('', '', ['inspector-card-collapse-button'], []);
-        const img = GM.HF.createNewIMG('', '', '../../../images/icons/minus.png', [], [], 'Collapse Inspector Card Button');
+        const buttonDiv = this.HF.createNewDiv('', '', ['inspector-card-collapse-button'], []);
+        const img = this.HF.createNewIMG('', '', '../../../images/icons/minus.png', [], [], 'Collapse Inspector Card Button');
         buttonDiv.appendChild(img);
         return buttonDiv;
     }
 
     #createExpandButton() {
-        const buttonDiv = GM.HF.createNewDiv('', '', ['inspector-card-expand-button'], []);
-        const img = GM.HF.createNewIMG('', '', '../../../images/icons/squares.png', [], [], 'Expand Inspector Card Button');
+        const buttonDiv = this.HF.createNewDiv('', '', ['inspector-card-expand-button'], []);
+        const img = this.HF.createNewIMG('', '', '../../../images/icons/squares.png', [], [], 'Expand Inspector Card Button');
         buttonDiv.appendChild(img);
         return buttonDiv;
     }
@@ -136,7 +140,6 @@ export class InspectorCard {
                 this.#updateHeight(distance.y);
                 this.setHeight(this.maxExpansion);
             }
-            GM.PM.resizeEventHandler(this.key);
         }
     }
 
@@ -178,11 +181,13 @@ export class InspectorCard {
 
     maximizeCard() {
         if (this.#maximized) {
-            GM.INS.minimizeCard();
+            const message = new Message(INSPECTOR, INSPECTOR_CARD, 'Minimize Card Event', {});
+            this.sendMessage(message);
             this.minimizeCard();
         }
         else {
-            GM.INS.maximizeCard(this.#cardId);
+            const message = new Message(INSPECTOR, INSPECTOR_CARD, 'Maximize Card Event', { id: this.#cardId });
+            this.sendMessage(message)
             this.bodyElement.style.height = `${this.getParentHeight() - 40}px`;
             this.#maximized = true;
         }
@@ -190,14 +195,18 @@ export class InspectorCard {
     }
 
     maximizeCardEnvironmentClick() {
-        GM.INS.maximizeCard(this.#cardId);
+        const message = new Message(INSPECTOR, INSPECTOR_CARD, 'Maximize Card Event', { id: this.#cardId });
+        this.sendMessage(message)
         this.bodyElement.style.height = `${this.getParentHeight() - 40}px`;
         this.#maximized = true;
         this.showAllElements();
     }
 
     minimizeCard() {
-        if (this.#maximized) GM.INS.minimizeCard();
+        if (this.#maximized) {
+            const message = new Message(INSPECTOR, INSPECTOR_CARD, 'Minimize Card Event', {});
+            this.sendMessage(message);
+        }
         this.#maximized = false;
         this.#expanded = false;
         this.setHeight(this.minHeight);
@@ -206,7 +215,10 @@ export class InspectorCard {
 
     expandCard() {
         if (!this.#expanded) {
-            if (this.#maximized) GM.INS.minimizeCard();
+            if (this.#maximized) {
+                const message = new Message(INSPECTOR, INSPECTOR_CARD, 'Minimize Card Event', {});
+                this.sendMessage(message);
+            }
             this.#expanded = true;
             this.#maximized = false;
             this.setHeight(this.expandSize);
@@ -235,8 +247,6 @@ export class InspectorCard {
     }
 
     updateDynamicField(key, text) {
-        console.log(key);
-        console.log(this.#dynamicFields);
         const keyValueCard = this.#dynamicFields.get(key);
         if (keyValueCard) {
             keyValueCard.updateValue(text);
@@ -301,4 +311,8 @@ export class InspectorCard {
     }
 
     getCard = () => this.#wrapperElement;
+
+    sendMessage = msg => {
+        this.publisher.publishMessage(msg);
+    }
 }

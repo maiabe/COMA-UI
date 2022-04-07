@@ -1,6 +1,5 @@
 import { Module } from "../module.js";
 import { LOCAL_DATA_SOURCE, REMOTE_DATA_TABLE, TABLE_OUTPUT } from "../../sharedVariables/constants.js";
-import { GM } from "../../main.js";
 
 export class Processor extends Module {
     constructor(category, color, shape, command, name, image, inports, outports, key) {
@@ -41,7 +40,20 @@ export class Filter extends Processor {
     }
 
     changeDataType(fieldName, oldDataType, newDataType, callbackFN) {
-        GM.MM.emitDataTypeChangeRequest({metadata: this.getData('metadata'), field: fieldName, oldType: oldDataType, dataKey: this.getData('dataKey'), newType: newDataType, callbackFN: callbackFN, updateMetadataFN: this.updateMetadata.bind(this)});
+        const msg = {
+            type: 'Emit Data Type Change Request',
+            args: {
+                metadata: this.getData('metadata'),
+                dataKey: this.getData('dataKey'),
+                moduleKey: this.getData('key'),
+                field: fieldName, 
+                oldType: oldDataType,
+                newType: newDataType,
+                callback: callbackFN,
+                updateMetadataCallback: this.updateMetadata.bind(this)
+            }
+        }
+        this.sendMessage(msg);
     }
 
     updateInspectorCardForModifiedMetadata(numColumns) {
@@ -85,8 +97,20 @@ export class DataConversion extends Processor {
         return dataArray;
     }
 
+    /**
+     * Notifies the Module Manager that an data conversion event has taken place. Module Manager will
+     * forward the message to the hub.
+     */
     convertDataEvent() { 
-        GM.MM.emitDataConversionEvent(this.getData('conversionCard').getConversionInputAndFunction(), this.getData('dataKey'), this.getData('key'));
+        const msg = {
+            type: 'Emit Data Conversion Event',
+            args: {
+                conversionDetails: this.getData('conversionCard').getConversionInputAndFunction(),
+                dataKey: this.getData('dataKey'),
+                moduleKey: this.getData('key')
+            }
+        }
+        this.sendMessage(msg);
     }
 }
 
