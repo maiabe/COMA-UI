@@ -60,10 +60,9 @@ export default class Hub {
     };
 
     /** Hub subscribes */
-    subscribe = (globalManager) => {
+    subscribe = () => {
         GM.ENV.publisher.subscribe(this.subscriber);
         GM.DM.publisher.subscribe(this.subscriber);
-        GM.MSM.publisher.subscribe(this.subscriber);
         GM.MM.publisher.subscribe(this.subscriber);
         GM.INS.publisher.subscribe(this.subscriber);
         GM.IM.publisher.subscribe(this.subscriber);

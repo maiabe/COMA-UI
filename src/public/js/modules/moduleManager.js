@@ -27,6 +27,7 @@ export class ModuleManager {
         this.messageHandlerMap.set('Emit Create CSV Event', this.emitCreateCSVEvent.bind(this));
         this.messageHandlerMap.set('Emit Local Table Event', this.emitLocalTableEvent.bind(this));
         this.messageHandlerMap.set('Request List of Objects', this.requestListOfObjects.bind(this));
+        this.messageHandlerMap.set('Deploy Module Event', this.deployNewModule.bind(this));
     }
 
     /**
@@ -34,12 +35,12 @@ export class ModuleManager {
      * @param {Message} msg the message to pass along the chain of command 
      */
     messageHandler = msg => {
-        console.log(msg)
         const message = msg.readMessage();
+        console.log(message);
         if (message.to === MODULE_MANAGER) {
             try {
                 this.messageHandlerMap.get(message.data.type)(message.data.args);
-            } catch(e) {
+            } catch (e) {
                 console.log(e);
             }
         } else if (message.to !== MODULE_MANAGER && message.from == MODULE) {
@@ -48,41 +49,73 @@ export class ModuleManager {
         }
     }
 
+    addPublisher = publisherToSubscribeTo => {
+        publisherToSubscribeTo.subscribe(this.subscriber);
+    }
+
     /**
-     * Creates a new module by calling the module generator
+     * Creates a new module by calling the module generator. This function is called by the Environment as a callback after the Request Key Event.
      * @param {string} name name of the module.
      * @param {string} category category of the module (i.e. output, processor, source)
-     * @param {number} key unique identifier of the module.
+     * @param {number} key unique identifier of the module. ()
+     * @param {int} oldKey -- ONLY USED BY COMPOSITE PREFAB NODES -- this is the key that was associted with the module when it was first saved. Must be overridden at creation.
+     * @param {groupKey} -- ONLY USED BY COMPOSITE PREFAB NODES -- 
      * @return true if successful, false if not.
      */
     createNewModule = (name, category, key, oldKey, groupKey) => {
         if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string'), varTest(key, 'key', 'number')], 'ModuleManager', 'createNewModule')) return false;
-        const module = this.#MG.generateNewModule(name, category, key);
-        module.addData('oldKey', oldKey);
-        module.publisher.subscribe(this.subscriber);
-        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.moduleMap.has(key), groupKey: groupKey }));
-        this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
-        this.#addModule(module, key);
-        return true;
+        try {
+            const module = this.#MG.generateNewModule(name, category, key);  // This is the new module Instance.
+            module.addData('oldKey', oldKey); // It is fine if this is undefined
+            module.publisher.subscribe(this.subscriber);
+            this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.moduleMap.has(key), groupKey: groupKey }));
+            this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
+            this.#addModule(module, key);
+            return true;
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
     }
 
+    /**
+     * Creates a new composite Model
+     * @param {number} key unique identifier of the module.
+     * @param {groupData}
+     * @return the new module or undefined if fail.
+     */
     createNewCompositeModule = (key, groupData) => {
-        const module = this.#MG.generateNewModule('Composite', 'Composite', key);
-        this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
-        this.#addModule(module, key);
-        module.setCompositeGroupInfo(groupData);
-        module.setSaveModuleFunction(this.saveCompositeModule.bind(this));
-        return module;
+        try {
+            const module = this.#MG.generateNewModule('Composite', 'Composite', key);
+            this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
+            this.#addModule(module, key);
+            module.setCompositeGroupInfo(groupData);
+            module.setSaveModuleFunction(this.saveCompositeModule.bind(this));
+            return module;
+        } catch (e) {
+            console.log(e);
+            return undefined;
+        }
     }
 
+    /** Creates a new Composite Prefab Model.
+     * @param {number} key unique indentifier of the module.
+     * @param {object} groupData stores a JSON representation of the modules and links of the group.
+     * @param {string} description description of the module written by the user who saved the prefab.
+     */ 
     createNewCompositePrefabModule = (key, groupData, description) => {
-        const module = this.#MG.generateNewModule('CompositePrefab', 'Composite', key);
-        this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
-        this.#addModule(module, key);
-        module.setCompositeGroupInfo(groupData);
-        module.addData('description', description);
-        module.createInspectorCardData();
-        return module;
+        try {
+            const module = this.#MG.generateNewModule('CompositePrefab', 'Composite', key);
+            this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
+            this.#addModule(module, key);
+            module.setCompositeGroupInfo(groupData);
+            module.addData('description', description);
+            module.createInspectorCardData();
+            return module;
+        } catch (e) {
+            console.log(e);
+            return undefined;
+        }
     }
 
     collapseAllInspectorCards() {
@@ -113,21 +146,51 @@ export class ModuleManager {
      * @param {string} category the category of the module (ie. output, processor, source).
      * @return true if successful, false if failure.
      */
-    deployNewModule = (name, category, oldKey, groupKey) => {
-        if (invalidVariables([varTest(name, 'name', 'string'), varTest(category, 'category', 'string')], 'ModuleManager', 'deployNewModule')) return false;
-        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Request Module Key Event', { name: name, category: category, cb: this.createNewModule, oldKey: oldKey, groupKey: groupKey }));
+    // deployNewModule = (name, category, oldKey, groupKey) => {
+    deployNewModule = args => {
+        console.log(args.moduleName);
+        if (args.type === 'non-composite') {
+            this.#sendMessage(
+                new Message(ENVIRONMENT, MODULE_MANAGER, 'Request Module Key Event',
+                    {
+                        name: args.moduleName,
+                        category: args.moduleCategory,
+                        cb: this.createNewModule,
+                        oldKey: args.oldKey,
+                        groupKey: args.groupKey
+                    }));
+        } else {
+            this.#sendMessage(
+                new Message(ENVIRONMENT, MODULE_MANAGER, 'Create Composite Group Event',
+                    {
+                        callback: this.deployCompositeComponentsWithGroupKey.bind(this),
+                        name: args.moduleName
+                    }));
+        }
         return true;
     };
 
-    deployCompositeComponents = name => {
-        this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'Create Composite Group Event', { callback: this.deployCompositeComponentsWithGroupKey.bind(this), name: name }));
-    }
-
+    /**
+     * When a prefab module is deployed, each of the individual modules are deployed as their own independent 
+     * modules, linked with a group key. The information for each of these individual modes is stored in the 
+     * compositePrefabMap under the name of the module. After the individual modules are built and deployed, any
+     * saved links are created by the Environment.
+     * 
+     * @param {number} key this is the group key (originated from gojs) 
+     * @param {*} name the name of the composite module.
+     */
     deployCompositeComponentsWithGroupKey = (key, name) => {
         const data = this.compositePrefabMap.get(name);
         const modulesInGroup = new Map();
         Object.values(data.groupInfo.nodes).forEach(node => {
-            this.deployNewModule(node.type, node.name, node.key, key);
+            const args = {
+                moduleName: node.type,
+                moduleCategory: node.name,
+                oldKey: node.key,
+                groupKey: key,
+                type: 'non-composite'
+            }
+            this.deployNewModule(args);
             modulesInGroup.set(this.getModuleByOldKey(node.key).getData('key'), this.getModuleByOldKey(node.key));
         });
         // Connect Modules with saved links

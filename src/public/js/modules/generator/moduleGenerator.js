@@ -11,7 +11,6 @@ export class ModuleGenerator {
         moduleDataObject.forEach(module => {
             this.generationMap.set(module.key, module.moduleCreationFunction);
         });
-        console.log(this.generationMap);
     }
     /**
      * Generates a new module on demand
@@ -21,10 +20,18 @@ export class ModuleGenerator {
      * @returns the new module if successful, undefined if failure
      */
     generateNewModule = (type, category, key) => {
-        console.log(type)
+        console.log(type, category, key)
         if (category) {
             if (category != '') {
-                return this.generationMap.get(type)(category, key);
+                let module = undefined;
+                try{
+                    console.log(this.generationMap)
+                   module = this.generationMap.get(type)(category, key);
+                } catch (e) {
+                    console.log(e);
+                } finally {
+                    return module;
+                }
             } else console.log(`ERROR: Parameter Error. type: ${type}, category: ${category}. -- ModuleGenerator -> generate new module`);
         } else console.log(`ERROR: Parameter Error. type: ${type}, category: ${category}. -- ModuleGenerator -> generate new module`);
         return undefined;

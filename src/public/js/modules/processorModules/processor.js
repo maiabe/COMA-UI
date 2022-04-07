@@ -46,7 +46,7 @@ export class Filter extends Processor {
                 metadata: this.getData('metadata'),
                 dataKey: this.getData('dataKey'),
                 moduleKey: this.getData('key'),
-                field: fieldName, 
+                field: fieldName,
                 oldType: oldDataType,
                 newType: newDataType,
                 callback: callbackFN,
@@ -101,7 +101,7 @@ export class DataConversion extends Processor {
      * Notifies the Module Manager that an data conversion event has taken place. Module Manager will
      * forward the message to the hub.
      */
-    convertDataEvent() { 
+    convertDataEvent() {
         const msg = {
             type: 'Emit Data Conversion Event',
             args: {
@@ -112,42 +112,4 @@ export class DataConversion extends Processor {
         }
         this.sendMessage(msg);
     }
-}
-
-export class FunctionProcessor extends Processor {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'function', 'Function', 'images/icons/function.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }], key);
-        this.setPopupContent();
-    }
-
-}
-
-export class Gaussian extends Processor {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'gaussianFilter', 'Gaussian Filter', 'images/icons/gaussian-function.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }], key);
-        this.setPopupContent();
-    }
-
-}
-
-export class Laplacian extends Processor {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'laplacianFilter', 'Laplacian Filter', 'images/icons/filter.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }], key);
-        this.setPopupContent();
-    }
-
-}
-export class Sum extends Processor {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'sum', 'Sum', 'images/icons/sum-sign.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }], key);
-        this.setPopupContent();
-    }
-
-}
-export class Subtract extends Processor {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'subtract', 'Subtract', 'images/icons/subtraction-symbol.png', [{ name: 'IN', leftSide: true }], [{ name: 'OUT', leftSide: false }], key);
-        this.setPopupContent();
-    }
-
 }

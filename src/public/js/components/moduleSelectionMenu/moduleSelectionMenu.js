@@ -151,13 +151,21 @@ class SubMenuCard {
     };
 
     createCompositeModel() {
-        const data = { moduleName: this.text, moduleCategory: this.category };
-        const msg = new Message(MODULE_MANAGER, MODULE_SELECTION_MENU, 'Composite Module Creation Event', data);
+        const args = { moduleName: this.text, moduleCategory: this.category, type: 'composite' };
+        const data = {
+            type: 'Deploy Module Event',
+            args: args
+        }
+        const msg = new Message(MODULE_MANAGER, MODULE_SELECTION_MENU, 'Deploy Module Event', data);
         this.#sendMessage(msg);
     }
 
     createNonCompositeModel() {
-        const data = { moduleName: this.text, moduleCategory: this.category };
+        const args = { moduleName: this.text, moduleCategory: this.category, type: 'non-composite' };
+        const data = {
+            type: 'Deploy Module Event',
+            args: args
+        }
         const msg = new Message(MODULE_MANAGER, MODULE_SELECTION_MENU, 'Deploy Module Event', data);
         this.#sendMessage(msg);
     }

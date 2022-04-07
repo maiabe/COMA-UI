@@ -8,6 +8,7 @@ export const debug = true;
 function init() {
     GM = new GlobalManager();
     GM.startEnvironment();
+    GM.MM.addPublisher(GM.MSM.publisher);
 }
 
 window.addEventListener('DOMContentLoaded', init);

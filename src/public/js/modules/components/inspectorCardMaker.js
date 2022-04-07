@@ -4,8 +4,8 @@ import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
 import { INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER } from '../../sharedVariables/constants.js';
 
 export class InspectorCardMaker {
-    constructor (name, color, key) {
-        this.inspectorCard = new InspectorCard(name, color, key);   
+    constructor(name, color, key) {
+        this.inspectorCard = new InspectorCard(name, color, key);
         this.publisher = new Publisher();
         this.subscriber = new Subscriber(this.messageHandler.bind(this));
         this.inspectorCard.publisher.subscribe(this.subscriber);
@@ -41,7 +41,7 @@ export class InspectorCardMaker {
         this.inspectorCard.addKeyValueCard('Module Id', [key.toString()]);
     }
 
-        addInspectorCardDataConnectedField() {
+    addInspectorCardDataConnectedField() {
         this.inspectorCard.addDynamicKeyValueCard('Data Linked', [false]);
     }
 
@@ -50,7 +50,7 @@ export class InspectorCardMaker {
     }
 
     addInspectorCardObjectsDropdown() {
-        const message = new Message(MODULE_MANAGER, INSPECTOR_CARD_MAKER, 'Request List of Objects', {args: {callbackFunction:this.createInspectorCardDropdown.bind(this)}});
+        const message = new Message(MODULE_MANAGER, INSPECTOR_CARD_MAKER, 'Request List of Objects', { args: { callbackFunction: this.createInspectorCardDropdown.bind(this) } });
         this.sendMessage(message);
     }
 
@@ -67,7 +67,7 @@ export class InspectorCardMaker {
         const labelInput = this.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
         const gridCheckbox = this.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');
         const tickCheckbox = this.HF.createNewCheckbox('', '', [], [], 'Ticks', 'Ticks');
-        const addTraceButton = this.HF.createNewButton('','', ['axis-card-button'], [], 'button', 'Add Trace');
+        const addTraceButton = this.HF.createNewButton('', '', ['axis-card-button'], [], 'button', 'Add Trace');
         this.inspectorCard.addXAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper, addTraceButton, undefined);
         return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox, addTraceButton: addTraceButton, errorDropDown: undefined };
     }
@@ -85,7 +85,7 @@ export class InspectorCardMaker {
         const labelInput = this.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
         const gridCheckbox = this.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');
         const tickCheckbox = this.HF.createNewCheckbox('', '', [], [], 'Ticks', 'Ticks');
-        const addTraceButton = this.HF.createNewButton('','', ['axis-card-button'], [], 'button', 'Add Trace');
+        const addTraceButton = this.HF.createNewButton('', '', ['axis-card-button'], [], 'button', 'Add Trace');
         this.inspectorCard.addYAxisCard(dropDown, labelInput, gridCheckbox.wrapper, tickCheckbox.wrapper, addTraceButton, errorDropDown);
         return { dropdown: dropDown, labelInput: labelInput, gridCheckbox: gridCheckbox, tickCheckbox: tickCheckbox, addTraceButton: addTraceButton, errorDropDown: errorDropDown };
     }
@@ -128,7 +128,7 @@ export class InspectorCardMaker {
     }
 
     addInspectorCardDescription(description) {
-        this.inspectorCard.appendToBody(this.HF.createNewParagraph('','',['inspector-card-description'], [], description));
+        this.inspectorCard.appendToBody(this.HF.createNewParagraph('', '', ['inspector-card-description'], [], description));
     }
 
     createInspectorCompositeDetailCard(groupData, saveModuleCallback) {
@@ -155,7 +155,7 @@ export class InspectorCardMaker {
         });
     }
 
-    addConversionCard(metadata){
+    addConversionCard(metadata) {
         return this.inspectorCard.addConversionCard(metadata);
     }
 

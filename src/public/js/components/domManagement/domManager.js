@@ -1,5 +1,5 @@
-import { GM } from "../../main.js";
 import { Publisher } from "../../communication/publisher.js";
+import { HTMLFactory } from "../../htmlGeneration/htmlFactory.js";
 
 export class DomManager {
     publisher;
@@ -7,6 +7,7 @@ export class DomManager {
     constructor() {
         this.#domTable = new Map();
         this.publisher = new Publisher();
+        this.HF = new HTMLFactory();
     }
 
     initializeDomManager() {
@@ -19,25 +20,25 @@ export class DomManager {
     }
 
     #initializeObjectsDiv() {
-        const element = GM.HF.createNewDiv('objectsDiv', 'objectsDiv', ['nav-two-column'], []);
+        const element = this.HF.createNewDiv('objectsDiv', 'objectsDiv', ['nav-two-column'], []);
         this.#domTable.get('navBarDiv').appendChild(element);
         return element;
     }
 
     #initializeRoutesDiv() {
-        const element = GM.HF.createNewDiv('routesDiv', 'routesDiv', ['nav-two-column'], []);
+        const element = this.HF.createNewDiv('routesDiv', 'routesDiv', ['nav-two-column'], []);
         this.#domTable.get('navBarDiv').appendChild(element);
         return element;
     }
 
     #initializeTitle(title) {
-         const element = GM.HF.createNewH1('title', 'title', [], [], title);
+         const element = this.HF.createNewH1('title', 'title', [], [], title);
          this.#domTable.get('navBarDiv').appendChild(element);
          return element;
     }
 
     #initializeLogo() {
-        const element = GM.HF.createNewIMG('logo','logo', '../../../images/logo/COMA-LOGO.png', ['logo'], [], 'COMA logo');
+        const element = this.HF.createNewIMG('logo','logo', '../../../images/logo/COMA-LOGO.png', ['logo'], [], 'COMA logo');
         this.#domTable.get('navBarDiv').appendChild(element);
         return element;
     }
@@ -48,16 +49,16 @@ export class DomManager {
 
     populateObjectsDiv(data) {
         const wrapper = this.#domTable.get('objectsDiv');
-        const paragraph = GM.HF.createNewParagraph('objects-text', 'objects-text', [],[], 'Available Objects: ');
-        const dropDown = GM.HF.createNewSelect('objects-dd', 'objects-dd', [], [], Object.keys(data), Object.values(data));
+        const paragraph = this.HF.createNewParagraph('objects-text', 'objects-text', [],[], 'Available Objects: ');
+        const dropDown = this.HF.createNewSelect('objects-dd', 'objects-dd', [], [], Object.keys(data), Object.values(data));
         wrapper.appendChild(paragraph);
         wrapper.appendChild(dropDown);
     }
 
     populateRoutesDiv(data) {
         const wrapper = this.#domTable.get('routesDiv');
-        const paragraph = GM.HF.createNewParagraph('routes-text', 'routes-text', [],[], 'Available Routes: ');
-        const dropDown = GM.HF.createNewSelect('routes-dd', 'routes-dd', [], [], Object.keys(data), Object.keys(data));
+        const paragraph = this.HF.createNewParagraph('routes-text', 'routes-text', [],[], 'Available Routes: ');
+        const dropDown = this.HF.createNewSelect('routes-dd', 'routes-dd', [], [], Object.keys(data), Object.keys(data));
         wrapper.appendChild(paragraph);
         wrapper.appendChild(dropDown);
     }

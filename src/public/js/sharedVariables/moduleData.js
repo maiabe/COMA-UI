@@ -1,4 +1,4 @@
-import {Cholera, Sql, Fits, Csv, Filter, DataConversion, RandomData, NumberSource, Json, Ephemeris, Mjd, CometAll, FunctionProcessor, Gaussian, Laplacian, Sum, Subtract, LineChart, BarChart, ScatterPlot, OrbitalPlot, Value, ImageOutput, Table, ToCSV, Composite, CompositePrefab, Data } from '../modules/index.js';
+import {Cholera, Sql, Fits, Csv, Filter, DataConversion, LineChart, BarChart, ScatterPlot, OrbitalPlot, Table, ToCSV, Composite, CompositePrefab, Data } from '../modules/index.js';
 import { sourceColor, outputColor, processorColor, compositColor } from './colors.js';
 import { LOCAL_DATA_SOURCE } from "./constants.js";
 
@@ -15,6 +15,12 @@ const shapes = {
     output: 'RoundedRectangle',
     composite: 'Rectangle'
 }
+
+/** This Object Stores the data for creating new modules
+ *  key: (string) used to index into the hash table that stores the moduleCreation function
+ *  moduleCreationFunction: (function) used to create a new instance of the module class
+ *  menuData: (object) icon, text, and category information used to populate the module selection menu. 
+ */
 const moduleDataObject = [
     {
         key: 'SQL',
