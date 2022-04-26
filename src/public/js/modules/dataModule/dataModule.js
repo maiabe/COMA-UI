@@ -31,7 +31,7 @@ export class Data extends Module {
         this.addData('metadata', metadata);
         this.inspectorCardMaker.addMetadataCard(metadata);
         this.popupContentMaker.addMetadataCard(metadata);
-        this.setData('linkedToData', true);
+        this.addData('linkedToData', true);
     }
 
 }

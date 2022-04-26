@@ -638,8 +638,4 @@ export class Environment {
         else node.findObject('SHAPE').fill = color;
     }
 
-    #clearInspector = () => {
-        this.#sendMessage(new Message(INSPECTOR, ENVIRONMENT, 'Clear Inspector Event', {}));
-    }
-
 }

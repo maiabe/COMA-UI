@@ -144,11 +144,11 @@ export class PopupManager {
 
     /** Destroys a popup (removes it from the list.)  The actual html element is removed by the 
      * popup class itself.
-     * @param {number} key -> this is the index of the popup in the list. (int)
+     * @param {Object {moduleKey: (number)}} data -> this is the index of the popup in the list. (int)
      */
-    destroyPopup = key => {
-        this.#popupList.delete(key);
-        this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Popup Closed Event', { moduleKey: key }));
+    destroyPopup = data => {
+        this.#popupList.delete(data.moduleKey);
+        this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Popup Closed Event', data));
     };
 
     /**

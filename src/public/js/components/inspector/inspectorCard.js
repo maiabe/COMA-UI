@@ -10,7 +10,11 @@ import { ConversionCard } from './inspectorCardComponents/conversionCard.js';
 import { Publisher, Message } from '../../communication/index.js';
 import { INSPECTOR, INSPECTOR_CARD, INSPECTOR_CARD_MAKER, POPUP_MANAGER } from '../../sharedVariables/constants.js';
 
+/**
+ * This class should not be called directly but called through the InspectorCardMaker.
+ */
 export class InspectorCard {
+    
     #cardId;
     #wrapperElement;
     #headerElement;
@@ -259,15 +263,15 @@ export class InspectorCard {
         return card;
     }
 
-    addXAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, errorDropDown) {
-        const card = new XAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, errorDropDown);
+    addXAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown) {
+        const card = new XAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown);
         this.appendToBody(card.getCard());
         this.#axisCardMap.set('x', card);
         return card;
     }
 
-    addYAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, errorDropDown) {
-        const card = new YAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, errorDropDown);
+    addYAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown) {
+        const card = new YAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown);
         this.appendToBody(card.getCard());
         this.#axisCardMap.set('y', card);
         return card;

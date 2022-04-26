@@ -8,10 +8,50 @@ import { HTMLFactory } from '../htmlGeneration/htmlFactory.js';
 
 
 export class Module {
-    #command;
+
     #dataTable;
+    /*******************************************************************************
+     * 
+     * All Data is stored in this hash table ( JS Map Object ). 
+     * New Data is added through the addData() function.
+     * 
+     * THE DATA TABLE CAN HAVE THE FOLLOWING FIELDS. NOT ALL MODULES HAVE ALL FIELDS
+     * --------------------------------------------------------------------------------------------
+     * key (number)                             | Unique Identifier for each module
+     * dataKey (Number)                         | Key to Data stored on DataManager
+     * inportType (Number)                      | Identifies Allowed links in Environment
+     * outportType (Number)                     | Identifies Allowed links in Environment 
+     * type (string)                            | Module Type or category, ie. Source
+     * color (string)                           | Module color in Environment
+     * shape (string)                           | Module shape in Environemnt
+     * command (string)                         | Command for server to execute
+     * name (string)                            | Module Name ie. CSV File
+     * imagePath (string)                       | Path to icon
+     * description (string)                     | Module Description
+     * chartType (string)                       | ie. bar, scatter
+     * coordinateSystem (string)                | ie. cartesian_2d, polar
+     * isDataModule (boolean)                   | true if this is a data module
+     * linkedToData (boolean)                   | true if connected to a graph with data
+     * requestMetadataOnCreation (boolean)      | Some Source models will ping server for metadata
+     * popupContent (Object)                    | The HTML to insert into a popup
+     * metadata (Object)                        | Headers, min, max etc.
+     * conversionCard (Object)                  | Object for the DataConversion Module
+     * themeDD (HTML Object)                    | Dropdown for changing echart theme
+     * plotDiv (HTML Div Object)                | Div where plots are inserted.
+     * inports (Object[])                       | Array of information for building Environment ports
+     * outports (Object[])                      | Array of information for building Environment ports
+     * getFilterDetailsFunctionArray (Function) | Array of filter functions
+     * onCreationFunction (Function)            | Function to call on creation of module.
+     * ----------------------------------------------------------------------------------------------
+     */
+
+    /* The InspectorCardMaker is an object that sits between the Module and the Inspector Card. It
+    *  is called by the Module and then calls the InspectorCard */
     inspectorCardMaker;
+
+    /* Works just like the InspectorCardMaker. Module does not directly access the popup. */
     popupContentMaker;
+
     publisher;
 
     constructor(type, color, shape, command, name, imagePath, inports, outports, key, description) {
@@ -62,18 +102,20 @@ export class Module {
             this.addData('key', key);
             this.addData('command', command);
             this.addData('description', description);
+            this.addData('command', command);
         } else console.log(`ERROR: Missing Parameter. type: ${type}, imagePath: ${imagePath}, color: ${color}, shape: ${shape}, command: ${command}, name: ${name}, inports: ${inports}, outports: ${outports}, key: ${key}. -- Module -> setInitialDataValues`);
     };
 
     updateSelectedObject = event => {
-        this.setData('Selected Object', event.target.value);
+        this.addData('Selected Object', event.target.value);
     }
 
     /** Gets the command associated with this module */
     getCommand = () => {
-        if (this.#command) {
-            if (this.#command !== '') return this.#command;
-        } else console.log(`ERROR: command == ${this.#command}. -- Module -> getCommand`);
+        if (this.#dataTable.had('command')) {
+            const command = this.#dataTable.get('command');
+            if (command !== '') return command;
+        } else console.log(`ERROR: command == ${command}. -- Module -> getCommand`);
         return undefined;
     }
 
@@ -87,49 +129,15 @@ export class Module {
     /**
      * Adds data to this modules data hash table.
      * @param {string} key the key for the hash table 
-     * @param {*} value the value to add to the hash table, associated with the key
-     * @param {boolean} allowInspection is this a value that should be added to the inspector for this module (true/false)
-     * @param {string} inspectorText the text to display in the inspector
-     * @param {boolean} modify true if user can modify this value in the inspector, false if it is read only.
+     * @param {any} value to store
      */
     addData = (key, value) => {
-        if (invalidVariables([varTest(key, 'key', 'string'), varTest(value, 'value', 'any')], 'Module', 'addData')) return;
-        else this.#dataTable.set(key, value);
+        this.#dataTable.set(key, value);
     }
 
-    /**
-     * Updates a value for a key in the hash table.
-     * @param {string} key Key for locaing value in hash table
-     * @param {*} data the data value to update
-     * @param {string} inspectorText inspector text to update for this value.
-     */
-    setData = (key, data) => {
-        if (invalidVariables([varTest(key, 'key', 'string'), varTest(data, 'data', 'any')], 'Module', 'setDataValue')) return undefined;
-        this.#dataTable.set(key, data);
-    }
 
     updateMetadata = metadata => {
-        if (this.#dataTable.has('metadata')) this.processMetadataChange(metadata);
-        else this.processNewMetadata(metadata);
-    }
-
-    processMetadataChange(metadata) {
-        this.setDataValue('metadata', metadata);
-    }
-
-    processNewMetadata(metadata) {
-        this.setDataValue('metadata', metadata);
-    }
-    /**
-     * Sets a key value pair in the dataTable hash table.
-     * @param {string} key key for the hash table
-     * @param {*} data value to set in the hash table for this key.
-     * @returns this module.
-     */
-    setDataValue = (key, data) => {
-        if (invalidVariables([varTest(key, 'key', 'string'), varTest(data, 'data', 'any')], 'Module', 'setDataValue')) return undefined;
-        this.#dataTable.set(key, data);
-        return this;
+        this.addData('metadata', metadata);
     }
 
     /**

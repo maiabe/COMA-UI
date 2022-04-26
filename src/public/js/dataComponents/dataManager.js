@@ -220,11 +220,10 @@ export class DataManager {
      * Reduces a data object, getting only the data for specified columns. Users can select a subset of the possible columns
      * when displaying a table or downloading a csv file.
      * @param {number} key The key for the data hash table.
-     * @param {object {xAxisField: string, yAxisField: string}} fields 
+     * @param {Field Information Object} fields 
      * @returns reduced data.
      */
     getTableDataWithFields(key, fields) {
-        console.log(fields);
         /* this.getData(key) returns and object with fields like type: 'table', data: DataTable 
         Then, the DataTable object has keys type: 'table' and data: ....
         To access the data, use getData() because the actual data is a private field. */
@@ -233,7 +232,7 @@ export class DataManager {
         const indicies = {};  // indicies will copy the keys from fields and replace the values with the proper index in the data table.
         const chartData = { type: 'table', data: {} }; // Build the arrays to plot.
 
-        fields.forEach(field => {
+        fields.headers.forEach(field => {
             if (field.include) {
                 indicies[field.label.toString()] = data[0].indexOf(field.label);
                 chartData.data[field.label] = [];
@@ -269,7 +268,6 @@ export class DataManager {
     }
 
     changeDataType(metadata, oldType, newType, dataField, datakey, callbackFN, updateMetadataFN) {
-        console.log(oldType, newType);
         let row = null;
         metadata.columnHeaders.forEach(element => {
             if (element.name === dataField) row = element

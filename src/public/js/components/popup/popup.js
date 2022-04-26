@@ -1,6 +1,6 @@
 import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
 import { Publisher, Message } from '../../communication/index.js';
-import { POPUP_MANAGER, POPUP } from '../../sharedVariables/constants.js';
+import { POPUP_MANAGER, POPUP, OUTPUT_MANAGER } from '../../sharedVariables/constants.js';
 
 export class Popup {
     constructor(width, height, initialTop, initialLeft, key, color, content, headerText) {

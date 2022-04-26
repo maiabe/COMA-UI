@@ -120,7 +120,8 @@ export class ChartDataStorage {
             xAxisTick: this.#dataTable.get('xAxisTick'),
             yAxisTick: this.#dataTable.get('yAxisTick'),
             coordinateSystem: this.#dataTable.get('coordinateSystem'),
-            yAxisErrorField: this.#dataTable.get('yAxisErrorField')
+            yAxisErrorField: this.#dataTable.get('yAxisErrorField'),
+            headers: this.#dataTable.get('headers')
         };
     }
 

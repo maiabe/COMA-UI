@@ -1,6 +1,6 @@
 import { Module } from "../index.js";
 import { ChartDataStorage } from "./components/chartDataStorage.js";
-import { TABLE_OUTPUT, LOCAL_DATA_SOURCE, MODULE, MODULE_MANAGER } from "../../sharedVariables/constants.js";
+import { TABLE_OUTPUT, LOCAL_DATA_SOURCE, MODULE, MODULE_MANAGER, OUTPUT_MANAGER } from "../../sharedVariables/constants.js";
 import { Message } from "../../communication/message.js";
 
 export class Output extends Module {
@@ -9,6 +9,7 @@ export class Output extends Module {
     }
 }
 
+/** All 2D charts inherit from this except Tables */
 export class Chart_2D extends Output {
     constructor(category, color, shape, command, name, image, outports, key) {
         super(category, color, shape, command, name, image, [{ name: 'IN', leftSide: true, type: TABLE_OUTPUT }], outports, key)
@@ -27,45 +28,49 @@ export class Chart_2D extends Output {
         this.inspectorCardMaker.addInspectorCardDataConnectedField();
     }
 
-    updateInspectorCardWithNewData(dataModule, data) {
-        const dataKey = dataModule.getData('dataKey');
+    /** --- PUBLIC ---
+     * Called by the Hub when an output module is connected to a flow with data.
+     * Updates the inspector card and sets up the chartData object.
+     * @param {Number} dataKey key to the dataset on the DataManager 
+     * @param {string[]} headers data headers for loading dropdowns etc.
+     */
+    updateInspectorCardWithNewData(dataKey, headers) {
+        const key = this.getData('key');
         this.inspectorCardMaker.addInspectorCardLinkedNodeField(dataKey);
-        const xAxis = this.inspectorCardMaker.addInspectorCardChartXAxisCard(data.data.getHeaders(), this.getData('key'));
-        const yAxis = this.inspectorCardMaker.addInspectorCardChartYAxisCard(data.data.getHeaders(), this.getData('key'));
+        const xAxis = this.inspectorCardMaker.addInspectorCardChartXAxisCard(headers, key, this.addTrace.bind(this));
+        const yAxis = this.inspectorCardMaker.addInspectorCardChartYAxisCard(headers, key, this.addTrace.bind(this));
         yAxis.dropdown.id = `${this.chartData.getNumberOfTraces()}-y-axis-dropdown`;
         yAxis.errorDropDown.id = `${this.chartData.getNumberOfTraces()}-y-axis-error-dropdown`;
-        this.chartData.storeHeaders(data.data.getHeaders());
+        this.chartData.storeHeaders(headers);
         this.chartData.set_2D_XAxisListeners(xAxis);
         this.chartData.set_2D_YAxisListeners(yAxis);
         this.chartData.setInitialValues(xAxis.dropdown.value, yAxis.dropdown.value, xAxis.labelInput.value,
             yAxis.labelInput.value, xAxis.gridCheckbox.checkbox.checked, yAxis.gridCheckbox.checkbox.checked,
             xAxis.tickCheckbox.checkbox.checked, yAxis.tickCheckbox.checkbox.checked, yAxis.errorDropDown.value);
-        this.addNewTraceButtonListener(xAxis.addTraceButton);
-        this.addNewTraceButtonListener(yAxis.addTraceButton);
-        this.addBuildChartEventListener(this.inspectorCardMaker.addInspectorCardGenerateChartButton(this.getData('key')));
+        this.inspectorCardMaker.addInspectorCardGenerateChartButton(key, this.createNewChartFromButtonClick.bind(this));
     }
 
-    addNewTraceButtonListener(button) {
-        button.addEventListener('click', this.addTrace.bind(this));
-    }
-
-    addBuildChartEventListener(button) { button.addEventListener('click', this.createNewChartFromButtonClick.bind(this)); }
-
+    /** --- PUBLIC --- 
+     * Emits a Create New Local Chart Event.
+     * Attached to a button on the Inspector Card.
+     */
     createNewChartFromButtonClick() {
         this.sendMessage(new Message(
-            MODULE_MANAGER, MODULE, 'Module Message',
+            OUTPUT_MANAGER, MODULE, 'Create New Local Chart Event',
             {
-            type: 'Emit Local Chart Event',
-            args: {
                 datasetKey: this.getData('dataKey'),
                 moduleKey: this.getData('key'),
                 fieldData: this.chartData.getChartData(),
                 div: this.getData('plotDiv'),
                 type: this.getData('chartType')
-            }
-        }));
+            }));
     }
 
+    /** --- Public ---
+     * This function is passed as a callback to the inspector card element and attached to a button.
+     * Adds a new trace to the Axis inspector card and updates the ChartData table with the new data.
+     * A Trace consists of a main data dropdown where the user can select fields and an error dropdown that starts with 'None'.
+     */
     addTrace() {
         const title = 'test';
         const dropDown = this.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], this.chartData.getHeaders(), this.chartData.getHeaders());
@@ -156,6 +161,7 @@ export class ToCSV extends Output {
         this.chartData = new ChartDataStorage('table');
         this.addData('inportType', LOCAL_DATA_SOURCE);
         this.addData('outportType', -1);
+        this.addData('chartType', 'table');
     }
 
     createInspectorCardData() {
@@ -163,44 +169,50 @@ export class ToCSV extends Output {
         this.inspectorCardMaker.addInspectorCardDataConnectedField();
     }
 
-    updateInspectorCardWithNewData(dataModule, data) {
-        this.chartData.storeHeaders(data.data.getHeaders());
-        this.inspectorCardMaker.addInspectorCardLinkedNodeField(dataModule.getData('key'));
-        const columnCheckboxes = this.inspectorCardMaker.addInspectorCardIncludeColumnCard(data.data.getHeaders(), this.getData('key'));
+    /** --- PUBLIC ---
+     * Called by the HUB when a new link is drawn. Updates the inspector card to show the
+     * available data for creating the CSV file.
+     * @param {Number} dataKey key that identifies the dataset on the DataManager 
+     * @param {string[]} headers the names of the fields in the table 
+     */
+    updateInspectorCardWithNewData(dataKey, headers) {
+        const key = this.getData('key');
+        this.chartData.storeHeaders(headers);
+        this.inspectorCardMaker.addInspectorCardLinkedNodeField(dataKey);
+        const columnCheckboxes = this.inspectorCardMaker.addInspectorCardIncludeColumnCard(
+            headers,
+            key);
         this.chartData.listenToCheckboxChanges(columnCheckboxes);
-        this.addGenerateTablePreviewEventListener(this.inspectorCardMaker.addInspectorCardGenerateTablePreviewButton(this.getData('key')));
-        this.addCreateCSVFileEventListener(this.inspectorCardMaker.addInspectorCardGenerateCSVFileButton(this.getData('key')));
+        this.inspectorCardMaker.addInspectorCardGenerateTablePreviewButton(key, this.createNewTableFromButtonClick.bind(this));
+        this.inspectorCardMaker.addInspectorCardGenerateCSVFileButton(key, this.createCSVFile.bind(this));
     }
 
-    addGenerateTablePreviewEventListener(button) { button.addEventListener('click', this.createNewTableFromButtonClick.bind(this)); }
-    addCreateCSVFileEventListener(button) { button.addEventListener('click', this.createCSVFile.bind(this)) };
-
+    /** --- PUBLIC ---
+     * Emits a Create New CSV File Event when the createCSVFile button is clicked in the inspector
+     */
     createCSVFile() {
         this.sendMessage(new Message(
-            MODULE_MANAGER, MODULE, 'Module Message',
+            OUTPUT_MANAGER, MODULE, 'Create New CSV File Event',
             {
-            type: 'Emit Create CSV Event',
-            args: {
                 datasetKey: this.getData('dataKey'),
                 moduleKey: this.getData('key'),
                 fieldData: this.chartData.getChartData(),
-            }
-        }));
+            }));
     }
 
+    /** --- PUBLIC ---
+     * Emits a Create New Local Table Event when the Preview CSV Table Data button is clicked in the inspector.
+     */
     createNewTableFromButtonClick() {
         this.sendMessage(new Message(
-            MODULE_MANAGER, MODULE, 'Module Message',
+            OUTPUT_MANAGER, MODULE, 'Create New Local Table Event',
             {
-            type: 'Emit Local Table Event',
-            args: {
                 datasetKey: this.getData('dataKey'),
                 moduleKey: this.getData('key'),
                 fieldData: this.chartData.getChartData(),
                 div: this.getData('plotDiv'),
                 type: this.getData('chartType')
-            }
-        }));
+            }));
     }
 
     setPopupContent = () => {

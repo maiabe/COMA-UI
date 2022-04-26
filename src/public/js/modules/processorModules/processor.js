@@ -1,5 +1,6 @@
 import { Module } from "../module.js";
-import { LOCAL_DATA_SOURCE, REMOTE_DATA_TABLE, TABLE_OUTPUT } from "../../sharedVariables/constants.js";
+import { LOCAL_DATA_SOURCE, REMOTE_DATA_TABLE, TABLE_OUTPUT, MODULE, MODULE_MANAGER, DATA_MANAGER } from "../../sharedVariables/constants.js";
+import { Message } from "../../communication/message.js";
 
 export class Processor extends Module {
     constructor(category, color, shape, command, name, image, inports, outports, key) {
@@ -27,7 +28,8 @@ export class Filter extends Processor {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
     }
 
-    processNewMetadata(metadata) {
+    processMetadata(metadata) {
+        // Bind the changeDataType function to each element in the metadata. This function will be passed to the filter card in the inspector.
         metadata.columnHeaders.forEach(header => header.changeDataTypeFunction = this.changeDataType.bind(this));
         this.addData('metadata', metadata);
         this.addData('getFilterDetailsFunctionArray', this.inspectorCardMaker.addFilterCards(this.getData('metadata')));
@@ -39,10 +41,17 @@ export class Filter extends Processor {
         return dataArray;
     }
 
+    /** --- PUBLIC ---
+     * This function was bound to the metadata and passed to the min/max filter card. It is called by the inspector card.
+     * @param {string} fieldName the column to change type 
+     * @param {string} oldDataType the current data type
+     * @param {string} newDataType change to this data type
+     * @param {function} callbackFN the Hub will notify the min max filter card that the type was changed.
+     */
     changeDataType(fieldName, oldDataType, newDataType, callbackFN) {
-        const msg = {
-            type: 'Emit Data Type Change Request',
-            args: {
+        const message = new Message(
+            DATA_MANAGER, MODULE, 'Data Type Change Event',
+            {
                 metadata: this.getData('metadata'),
                 dataKey: this.getData('dataKey'),
                 moduleKey: this.getData('key'),
@@ -52,8 +61,8 @@ export class Filter extends Processor {
                 callback: callbackFN,
                 updateMetadataCallback: this.updateMetadata.bind(this)
             }
-        }
-        this.sendMessage(msg);
+        );
+        this.sendMessage(message);
     }
 
     updateInspectorCardForModifiedMetadata(numColumns) {
@@ -85,7 +94,7 @@ export class DataConversion extends Processor {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
     }
 
-    processNewMetadata(metadata) {
+    processMetadata(metadata) {
         this.addData('metadata', metadata);
         this.addData('conversionCard', this.inspectorCardMaker.addConversionCard(this.getData('metadata')));
         this.getData('conversionCard').getButton().addEventListener('click', this.convertDataEvent.bind(this));
@@ -98,18 +107,18 @@ export class DataConversion extends Processor {
     }
 
     /**
-     * Notifies the Module Manager that an data conversion event has taken place. Module Manager will
-     * forward the message to the hub.
+     * Emits a Data Conversion Event. This message will be forwarded to the Hub where the conversion will be
+     * processed on the DataManager.
      */
     convertDataEvent() {
-        const msg = {
-            type: 'Emit Data Conversion Event',
-            args: {
-                conversionDetails: this.getData('conversionCard').getConversionInputAndFunction(),
-                dataKey: this.getData('dataKey'),
+        const conversionDetails = this.getData('conversionCard').getConversionInputAndFunction();
+        this.sendMessage(new Message(DATA_MANAGER, MODULE, 'Data Conversion Event',
+            {
+                conversionFunction: conversionDetails.fn,
+                outputFieldName: conversionDetails.outputFieldName,
+                inputFieldName: conversionDetails.input,
+                key: this.getData('dataKey'),
                 moduleKey: this.getData('key')
-            }
-        }
-        this.sendMessage(msg);
+            }));
     }
 }
