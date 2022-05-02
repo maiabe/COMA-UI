@@ -54,7 +54,7 @@ export class ModuleManager {
             module.addData('oldKey', oldKey); // It is fine if this is undefined
             module.publisher.subscribe(this.subscriber);
             this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.#moduleMap.has(key), groupKey: groupKey }));
-            this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
+            this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorCard().getCard()  }));
             this.#addModule(module, key);
             return true;
         } catch (e) {
@@ -72,7 +72,7 @@ export class ModuleManager {
     #createNewCompositePrefabModule = (key, groupData, description) => {
         try {
             const module = this.#MG.generateNewModule('CompositePrefab', 'Composite', key);
-            this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
+            this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorCard().getCard()  }));
             this.#addModule(module, key);
             module.setCompositeGroupInfo(groupData);
             module.addData('description', description);
@@ -189,7 +189,7 @@ export class ModuleManager {
     createNewCompositeModule = (key, groupData) => {
         try {
             const module = this.#MG.generateNewModule('Composite', 'Composite', key);
-            this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorContent() }));
+            this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorCard().getCard() }));
             this.#addModule(module, key);
             module.setCompositeGroupInfo(groupData);
             module.setSaveModuleFunction(this.#saveCompositeModule.bind(this));

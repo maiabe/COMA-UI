@@ -46,58 +46,15 @@ export class Sql extends Source {
 
 }
 
-export class Fits extends Source {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'remote', 'querySql', 'FITS', 'images/icons/files-white.png', [], [{ name: 'OUT', leftSide: false, type: LOCAL_DATA_SOURCE }], key, 'This module will retrieve fits files for an object.');
-        this.setPopupContent();
-        this.createInspectorCardData();
-    }
-
-    createInspectorCardData() {
-        this.inspectorCardMaker.addInspectorCardDescription('This module will retrieve fits files for an object.');
-        // this.inspectorCardMaker.addInspectorCardObjectsDropdown();
-    }
-}
 
 
-export class RandomData extends Source {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'remote', 'getRandomData', 'Random Data', 'images/icons/data-random-squares.png', [], [{ name: 'OUT', leftSide: false }], key);
-        this.setPopupContent();
-        this.createInspectorCardData();
-    }
-    createInspectorCardData() {
-        this.addInspectorCardDescription('This module will retrieve two random arrays of integers.');
-        this.addInspectorCardIDField();
-    }
-}
 
-export class Json extends Source {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'local', 'processJSONData', 'JSON Data', 'images/icons/json-file.png', [], [{ name: 'OUT', leftSide: false }], key);
-        this.setPopupContent();
-    }
 
-}
 
-export class Ephemeris extends Source {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'remote', 'querySql', 'Ephemeris', 'images/icons/axis.png', [], [{ name: 'OUT', leftSide: false }], key);
-        this.setPopupContent();
-    }
 
-}
 
-export class Mjd extends Source {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'remote', 'querySql', 'MJD', 'images/icons/calendar.png', [], [{ name: 'OUT', leftSide: false }], key);
-        this.setPopupContent();
-    }
-}
 
-export class CometAll extends Source {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'remote', 'querySql', 'All Data', 'images/icons/truck.png', [], [{ name: 'OUT', leftSide: false }], key);
-        this.setPopupContent();
-    }
-}
+
+
+
+

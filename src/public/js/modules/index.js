@@ -1,10 +1,8 @@
 export { Module } from './module.js';
 export { Source } from './sourceModules/source.js';
 export { Sql } from './sourceModules/source.js';
-export { Fits } from './sourceModules/source.js';
 export { Csv } from './sourceModules/csvSource.js';
 export { Cholera } from './sourceModules/source.js';
-export { CometAll } from './sourceModules/source.js';
 export { Processor } from './processorModules/processor.js';
 export { Filter } from './processorModules/processor.js';
 export { DataConversion } from './processorModules/processor.js';

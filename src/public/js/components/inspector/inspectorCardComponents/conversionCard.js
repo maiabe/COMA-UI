@@ -85,6 +85,10 @@ export class ConversionCard {
 
     getButton = () => this.convertButton;
 
+    /** --- PUBLIC ---
+     * This function will return the input fields, the outpfield name, and the function to apply to the specific column.
+     * @returns 
+     */
     getConversionInputAndFunction = () => ({input: this.inputDropdown.value, fn: this.getConversionFunction(), outputFieldName: this.getConversionFieldName()});
 
     getCard = () => this.card;

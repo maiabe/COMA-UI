@@ -1,9 +1,8 @@
 import { Publisher, Message, Subscriber } from '../communication/index.js';
-import { invalidVariables, varTest } from '../errorHandling/errorHandlers.js';
 import { GM } from '../main.js';
 import { InspectorCardMaker } from './components/inspectorCardMaker.js';
 import { PopupContentMaker } from './components/popupContentMaker.js';
-import { MODULE_MANAGER, MODULE, INSPECTOR_CARD_MAKER } from '../sharedVariables/constants.js';
+import { MODULE } from '../sharedVariables/constants.js';
 import { HTMLFactory } from '../htmlGeneration/htmlFactory.js';
 
 
@@ -106,10 +105,6 @@ export class Module {
         } else console.log(`ERROR: Missing Parameter. type: ${type}, imagePath: ${imagePath}, color: ${color}, shape: ${shape}, command: ${command}, name: ${name}, inports: ${inports}, outports: ${outports}, key: ${key}. -- Module -> setInitialDataValues`);
     };
 
-    updateSelectedObject = event => {
-        this.addData('Selected Object', event.target.value);
-    }
-
     /** Gets the command associated with this module */
     getCommand = () => {
         if (this.#dataTable.had('command')) {
@@ -126,7 +121,7 @@ export class Module {
         this.addData('popupContent', popupContent, false, '', false);
     }
 
-    /**
+    /** --- PUBLIC ---
      * Adds data to this modules data hash table.
      * @param {string} key the key for the hash table 
      * @param {any} value to store
@@ -135,12 +130,16 @@ export class Module {
         this.#dataTable.set(key, value);
     }
 
-
+    /** --- PUBLIC ---
+     * Stores the entire metadata object in the data table. Will overwrite if there is already data there and
+     * new data is sent through this function.
+     * @param {Object} metadata the metadata object 
+     */
     updateMetadata = metadata => {
         this.addData('metadata', metadata);
     }
 
-    /**
+    /** --- PUBLIC ---
      * Gets a value associated with a key from this module's datatable.
      * @param {string} key 
      * @returns the value if found.
@@ -153,17 +152,18 @@ export class Module {
         return undefined;
     }
 
+    /** --- PUBLIC ---
+     * When a module is removed, the inspector card must be deleted.
+     * This removes the HTML element from the dom.
+     */
     deleteInspectorCard = () => this.inspectorCardMaker.deleteInspectorCard();
 
-    /**
-     * Iterates the data table and returns all data that is flagged as allowInspection
-     * @returns the inspector Content if found. Empty Map if not.
+    /** --- PUBLIC ---
+     * Gets the inspector card html element.
+     * @returns the HTML Inspector Card
      */
-    getInspectorContent = () => this.inspectorCardMaker.getCard();
-
     getInspectorCard = () => this.inspectorCardMaker.inspectorCard;
 
-    getInspectorCardMaker = () => this.inspectorCardMaker;
     /**
      * Gets the content to populate a popup associated with this module.
      * @returns the content to populate the popup associated with this module
@@ -172,10 +172,10 @@ export class Module {
         return { color: this.getData('color'), content: this.getData('popupContent'), headerText: this.getData('name') };
     }
 
-    updatePopupData = field => {
-        console.log(`Update Popup for ${field} has not been implemented for this module.`);
-    }
-
+    /** --- PUBLIC ---
+     * After the old key is used to identify the modules that were part of the saved prefab module, the old
+     * keys are removed from the data table.
+     */
     destroyOldKey() {
         if (this.#dataTable.has('oldKey')) this.#dataTable.delete('oldKey');
     }

@@ -198,6 +198,9 @@ export class InspectorCard {
         this.showAllElements();
     }
 
+    /** --- PUBLIC ---
+     * When a user selects a Node in the GOJS environment, the associated inspector card is maximized.
+     */
     maximizeCardEnvironmentClick() {
         const message = new Message(INSPECTOR, INSPECTOR_CARD, 'Maximize Card Event', { id: this.#cardId });
         this.sendMessage(message)
@@ -250,6 +253,11 @@ export class InspectorCard {
         if (!this.#maximized && !this.#expanded) element.style.display = 'none';
     }
 
+    /** --- PUBLIC ---
+     * Dynamic fields are key, values that can be changed. 
+     * @param {string} key key identifying the field 
+     * @param {string} text value to change in the card. 
+     */
     updateDynamicField(key, text) {
         const keyValueCard = this.#dynamicFields.get(key);
         if (keyValueCard) {
@@ -257,12 +265,29 @@ export class InspectorCard {
         } else printErrorMessage(`Undefined or Null Variable`, `data: ${data}. -- Inspector Card -> updateDynamicField`);
     }
 
+    /** --- PUBLIC ---
+     * This builds a card for including columns of a data table. It is a row of checkboxes that can be toggled on or off.
+     * @param {*} checkboxes 
+     * @returns 
+     */
     addIncludeColumnCard(checkboxes) {
         const card = new IncludeColumnCard(checkboxes);
         this.appendToBody(card.getCard());
         return card;
     }
 
+    /** --- PUBLIC ---
+     * This passes HTML elements and generates a field in the inspector card where user can select options for the x axis of a chart.
+     * When adding options in the future, pass them through this function and add them to the axis card.
+     * @param {HTML Select Object} dropdown dropdown for selecting main field to chart 
+     * @param {HTML p Object} labelInput label for the dropdown 
+     * @param {HTML Checkbox Object} gridCheckbox Checkbox to toggle background grid
+     * @param {HTML Checkbox Object} tickCheckbox Checkbox to toggle ticks
+     * @param {HTML Button Object} addTraceButton Button that can be clicked to add a new trace
+     * @param {function} addTraceFunction function that can be called to add a trace to the chart when add trace button is clicked
+     * @param {HTML Select Object} errorDropDown dropdown to choose error field
+     * @returns the card
+     */
     addXAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown) {
         const card = new XAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown);
         this.appendToBody(card.getCard());
@@ -270,6 +295,18 @@ export class InspectorCard {
         return card;
     }
 
+    /** --- PUBLIC ---
+     * This passes HTML elements and generates a field in the inspector card where user can select options for the x axis of a chart.
+     * When adding options in the future, pass them through this function and add them to the axis card.
+     * @param {HTML Select Object} dropdown dropdown for selecting main field to chart 
+     * @param {HTML p Object} labelInput label for the dropdown 
+     * @param {HTML Checkbox Object} gridCheckbox Checkbox to toggle background grid
+     * @param {HTML Checkbox Object} tickCheckbox Checkbox to toggle ticks
+     * @param {HTML Button Object} addTraceButton Button that can be clicked to add a new trace
+     * @param {function} addTraceFunction function that can be called to add a trace to the chart when add trace button is clicked
+     * @param {HTML Select Object} errorDropDown dropdown to choose error field
+     * @returns the card
+     */
     addYAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown) {
         const card = new YAxisCard(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown);
         this.appendToBody(card.getCard());
@@ -289,6 +326,17 @@ export class InspectorCard {
         return card;
     }
 
+    /** --- PUBLIC ---
+     * Min Max Cards are elements of the filter inspector card. Each field gets a single min/max card where the user can apply the filters
+     * to a data field based on the metadata for that field.
+     * @param {string} label the name of the column
+     * @param {Number} min the min value in the metadata
+     * @param {Number} max the max value in the metadata
+     * @param {string} dataType the data type
+     * @param {string} dataFormat the format of the data (useful for floats/ints or dates etc.)
+     * @param {function} changeDataTypeFunction function called when user wants to change an incorrectly assigned datatype
+     * @returns a function that gets the data from this card for applying the filters.
+     */
     addMinMaxCard(label, min, max, dataType, dataFormat, changeDataTypeFunction) {
         const card = new MinMaxFilter(label, min, max, dataType, dataFormat, changeDataTypeFunction);
         this.appendToBody(card.getHTML());
@@ -303,11 +351,21 @@ export class InspectorCard {
         this.#axisCardMap.get('y').addTraceDropdown(dropdown, errorDropdown);
     }
 
+    /** --- PUBLIC ---
+     * Creates a Composite Details Card (This is not really implemented yet, except for the option to save the modules)
+     * @param {Object} groupData Details of the group
+     * @param {function} saveModuleCallback Function that is bound to the group card where user can save the group to be used later as a prefab
+     */
     addCompositeDetailsCard(groupData, saveModuleCallback) {
         const card = new CompositeDetailsCard(groupData, saveModuleCallback);
         this.appendToBody(card.getCard());
     }
 
+    /** --- PUBLIC ---
+     * This is the card that is used for the Data Conversion. Metadata is passed to the card and the options are generated there.
+     * @param {Metadata Object} metadata object containing full set of metadata for a dataset
+     * @returns The card object (not just the HTML element)
+     */
     addConversionCard(metadata) {
         const cardObject = new ConversionCard(metadata);
         this.appendToBody(cardObject.getCard());

@@ -3,6 +3,11 @@ import { Publisher, Message } from '../../communication/index.js';
 import { POPUP_MANAGER, POPUP, OUTPUT_MANAGER } from '../../sharedVariables/constants.js';
 
 export class Popup {
+
+    static idle = 0;
+    static dragging = 1;
+    static resizing = 2;
+
     constructor(width, height, initialTop, initialLeft, key, color, content, headerText) {
 
         this.HF = new HTMLFactory();
@@ -28,12 +33,9 @@ export class Popup {
 
         // State Variables
         this.state;
-        this.idle = 0;
-        this.dragging = 1;
-        this.resizing = 2;
 
-        this.setState(this.idle);
-        this.createHTMLElement(headerText);
+        this.setState(Popup.idle);
+        this.#createHTMLElement(headerText);
         this.setInitialValues();
         this.setEventListeners();
 
@@ -41,18 +43,26 @@ export class Popup {
         this.mousePositions = [];
     }
 
-    createHTMLElement = headerText => {
+    /** --- PRIVATE --- 
+     * Creates the HTML element for the popup
+     * @param {string} headerText text to display in popup header.
+     */
+    #createHTMLElement = headerText => {
         this.element = this.HF.createNewDiv(`popup-${this.key}`, `popup-${this.key}`, ['popup'], []);
-        this.createHeader(headerText);
+        this.#createHeader(headerText);
         this.body = this.HF.createNewDiv(`popup-body-${this.key}`, `popup-body-${this.key}`, ['popupBody'], []);
         this.element.appendChild(this.header);
         this.element.appendChild(this.body);
-        this.setBodyContent(this.content);
+        this.#setBodyContent(this.content);
         document.body.appendChild(this.element);
-        this.createResizeDiv();
+        this.#createResizeDiv();
     }
 
-    createHeader = headerText => {
+    /** --- PRIVATE ---
+     * Creates the header element of the popup
+     * @param {string} headerText ext to display in popup header.
+     */
+    #createHeader = headerText => {
         this.header = this.HF.createNewDiv(`popup-header-${this.id}`, `popup-header-${this.id}`, ['popupHeader'], [{ style: 'backgroundColor', value: this.headerColor }]);
         this.headerTitle = this.HF.createNewParagraph('', '', ['popupHeaderTitle'], [], headerText);
         this.header.appendChild(this.headerTitle);
@@ -63,16 +73,26 @@ export class Popup {
         this.header.appendChild(closeIcon);
     }
 
-    createResizeDiv = () => {
+    /** --- PRIVATE ---
+     * Creates the HTML element that goes in the corner of the popup. User places cursor in this area to begin resize.
+     */
+    #createResizeDiv = () => {
         this.resizeDiv = this.HF.createNewDiv(`popup-resize-${this.id}`, `popup-resize-${this.id}`, ['popupResize'], []);
         this.element.appendChild(this.resizeDiv);
     }
 
-    setBodyContent = content => {
+    /** --- PRIVATE ---
+     * The content is passed to the popup through the manager. This content is appended to the body.
+     * @param {HTML element} content the HTML element to add to the popup
+     */
+    #setBodyContent = content => {
         this.#clearBodyContent();
         this.body.appendChild(content);
     };
 
+    /** --- PRIVATE ---
+     * Clear the innerHTML in case this is new content on an existing popup
+     */
     #clearBodyContent = () => {
         this.body.innerHTML = '';
     }
@@ -124,6 +144,10 @@ export class Popup {
         this.element.addEventListener('mousedown', this.moveToFront);
     };
 
+    /** --- PUBLIC ---
+     * Possible states are dragging, idle, or resizing. These are Numbers.
+     * @param {Number} state of the popup. (These states are defined as member variables.)
+     */
     setState = state => {
         this.state = state;
     }
@@ -132,18 +156,22 @@ export class Popup {
 
     //  DRAG AND DROP FUNCTIONS
     startDrag = () => {
-        this.setState(this.dragging);
+        this.setState(Popup.dragging);
         this.mousePositions = [];
     };
     endDrag = () => {
-        if (this.getState() === this.dragging) {
-            this.setState(this.idle);
+        if (this.getState() === Popup.dragging) {
+            this.setState(Popup.idle);
             this.mousePositions = [];
         }
     };
 
+    /** --- PUBLIC ---
+     * Drag Event --- Moves the popup around the DOM
+     * @param {event} e DOM event
+     */
     drag = e => {
-        if (this.getState() === this.dragging) {
+        if (this.getState() === Popup.dragging) {
             const pos = { x: e.screenX, y: e.screenY };
             this.mousePositions.push(pos);
             if (this.mousePositions.length > 1) {
@@ -179,21 +207,25 @@ export class Popup {
 
     // RESIZE FUNCTIONS
     startResize = () => {
-        this.setState(this.resizing);
+        this.setState(Popup.resizing);
         this.mousePositions = [];
         const message = new Message(OUTPUT_MANAGER, POPUP, 'Start Resize Popup Event', {moduleKey: this.key});
         this.sendMessage(message);
     };
 
     endResize = () => {
-        if (this.getState() === this.resizing) {
+        if (this.getState() === Popup.resizing) {
             this.setState(this.idle);
             this.mousePositions = [];
         }
     };
 
+    /** --- PUBLIC ---
+     * Resizes the popup.
+     * @param {HTML Event} e 
+     */
     resize = e => {
-        if (this.getState() === this.resizing) {
+        if (this.getState() === Popup.resizing) {
             const pos = { x: e.screenX, y: e.screenY };
             this.mousePositions.push(pos);
             if (this.mousePositions.length > 1) {
@@ -213,9 +245,13 @@ export class Popup {
 
     #updateHeight = xDistanceTraveled => this.height += parseInt(xDistanceTraveled);
 
+    /** --- Public ---
+     * The popup is moved to the front of the screen when it is clicked. It requests a z index value which is strictly increasing from the manager which is passed to the callback.
+     */
     moveToFront = () => this.sendMessage(new Message(POPUP_MANAGER, POPUP, 'Request Z Index', {callback: this.moveToFrontHelper.bind(this)}));
    
     moveToFrontHelper = index => this.element.style.zIndex = index;
+
     close = () => {
         document.body.removeChild(this.element);
         this.sendMessage(new Message(POPUP_MANAGER, POPUP, 'Popup Closed Event', { moduleKey: this.key }));

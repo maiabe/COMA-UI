@@ -19,72 +19,45 @@ export class Inspector {
         this.#moduleCards = new Map();
     }
 
+    /** --- PUBLIC ---
+     * This function is called by the global manager when the application starts.
+     */
     createInspectorDomNode() {
         this.#createInspectorModuleCardContainer();
     }
 
+    /** --- PRIVATE ---
+     * Creates the HTML element and stores it in the domNodes object.
+     */
     #createInspectorModuleCardContainer() {
         this.domNodes.moduleCardContainer = GM.HF.createNewDiv('inspector-module-card-container', 'inspector-card-container', ['inspector-card-container'], []);
         this.domNodes.container.appendChild(this.domNodes.moduleCardContainer);
-        return this;
     }
 
-
-    #createInspectorHeader() {
-        this.domNodes.inspectorHeaderContainer = GM.HF.createNewDiv('inspector-header', 'inspector-header', ['inspector-header'], []);
-        this.domNodes.container.appendChild(this.domNodes.inspectorHeaderContainer);
-        return this;
-    }
-
+    /** --- PUBLIC ---
+     * Gets an inspector card linked to the module whos id is passed
+     * @param {Number} id the key of the module linked to the inspector card
+     * @returns a module card from the map
+     */
     getCard(id) {
         return this.#moduleCards.get(id);
     }
 
-    #appendHeaderButtons() {
-        Object.values(this.domNodes.headerButtons).forEach(button => {
-            this.domNodes.inspectorHeaderContainer.appendChild(button.element);
-        });
-        return this;
-    }
-
-    #createHeaderButton(title, index) {
-        const identifier = index === 0 ? 'Module' : 'data';
-        const classlist = index === 0 ? ['inspector-header-button', 'active-header-button'] : ['inspector-header-button'];
-        return GM.HF.createNewButton(`inspector-header-${identifier}-button`, `inspector-header-${identifier}-button`, classlist, [], 'button', title, false);
-    }
-
+    /** --- PUBLIC ---
+     * Called by the Hub when a new module is generated and added to the environment
+     * @param {Number} key The id of the module
+     * @param {HTML element} card the HTML element of the inspector card
+     */
     addModuleCard(key, card) {
+        console.log(card)
         this.domNodes.moduleCardContainer.append(card);
         this.#moduleCards.set(key, card);
     }
 
-    updateContent = (key, content) => {
-        if (this.#currentModuleKey === key) {
-            this.createContent(content);
-        }
-    };
-
-    createAlt = (type, text, field) => {
-        switch (type) {
-            case 'text input':
-                const e = GM.HF.createNewTextInput(`${this.#currentModuleKey}_${text}_text`, `${this.#currentModuleKey}_${text}_text`, [], [], 'text', false);
-                e.value = text;
-                e.addEventListener('change', () => {
-                    const data = {
-                        type: 'Value Change Event',
-                        args: {
-                            moduleKey: this.#currentModuleKey,
-                            newValue: e.value,
-                            field: field
-                        }
-                    };
-                    const msg = new Message(MODULE_MANAGER, INSPECTOR, 'Value Change Event', data);
-                    this.#sendMessage(msg);
-                });
-                return e;
-        }
-    };
-
+    /** --- PUBLIC ---
+     * Maximizes a single card that matches the key, hides all other elements
+     * @param {Number} cardId the module mey to identify the inspector card 
+     */
     maximizeCard(cardId) {
         this.#moduleCards.forEach((card, key) => {
             if (key !== cardId) card.style.display = 'none';
@@ -95,14 +68,7 @@ export class Inspector {
     minimizeCards() {
         this.#moduleCards.forEach(card => card.style.display = 'flex');
     }
-
-    clearInspector = clearCurrentModuleKey => {
-        this.contentArea.innerHTML = '';
-        if (clearCurrentModuleKey) {
-            this.#currentModuleKey = -1;
-        }
-    };
-
+    
     #sendMessage = msg => {
         this.publisher.publishMessage(msg);
     };

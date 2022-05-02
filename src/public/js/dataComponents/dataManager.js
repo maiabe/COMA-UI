@@ -5,16 +5,16 @@ import { DataTable } from "./tables/dataTable.js";
 export class DataManager {
 
     publisher;
-    #dataTable;                // Map that stores the data. Keys are the unique keys of the nodes.
-    #conversionTable;
+    #dataTable;        // Map that stores the data. Keys are the unique keys of the nodes.
+    #conversionTable;  // Map holding the functions for converting data types
 
     constructor() {
         this.publisher = new Publisher();
         this.#dataTable = new Map();
         this.#conversionTable = new Map();
-        this.#conversionTable.set('datenumber', this.convertFromDateToNumber);
-        this.#conversionTable.set('numberdate', this.convertFromNumberToDate);
-        this.#conversionTable.set('category', this.convertToCategory);
+        this.#conversionTable.set('datenumber', this.#convertFromDateToNumber);
+        this.#conversionTable.set('numberdate', this.#convertFromNumberToDate);
+        this.#conversionTable.set('category', this.#convertToCategory);
     };
 
     /**
@@ -35,16 +35,22 @@ export class DataManager {
         if (invalidVariables([varTest(key, 'key', 'number')], 'DataManager', 'getData')) return undefined;
         if (this.#dataTable.has(key)) {
             const data = this.#dataTable.get(key).data;
-            if (data.filtered) data.data.setFilteredData(this.applyDataFilter(data));
+            if (data.filtered) data.data.setFilteredData(this.#applyDataFilter(data));
             return data;
         }
         else console.log(`ERROR: No data found for key: ${key}. -- Data Manager -> getData`);
         return undefined;
     }
 
-    applyDataFilter(data) {
+    /** --- PRIVATE ---
+     * Applies filters to the data table
+     * @param {DataTable object} data the data to filter
+     * @returns the array of filtered data
+     */
+    #applyDataFilter(data) {
         const filteredData = [];
-        const filterArray = this.buildFilterArray(data.getFilterDetails(), data.data.getHeaders());
+        const filterArray = this.#buildFilterArray(data.getFilterDetails(), data.data.getHeaders());
+        // Make sure the data that is returned is not already filtered
         data.data.getCleanData().forEach((row, index) => {
             if (index > 0) {
                 let match = true;
@@ -67,13 +73,20 @@ export class DataManager {
         return filteredData;
     }
 
-    buildFilterArray(details, headers) {
+    /** --- PRIVATE ---
+     * Builds an array of the necessary data needed to apply the filter to the data.
+     * @param {Object[]} details this array contains the data from the filter card for all of the data columns in the table.
+     * @param {string[]} headers array of the column headers of the data table
+     * @returns array of relevant data [min value, max value, column index, data type]
+     */
+    #buildFilterArray(details, headers) {
         const array = [];
         details.forEach(columnFilter => {
             let min = columnFilter.get('lastValidLeft');
             let max = columnFilter.get('lastValidRight');
             const columnIndex = headers.indexOf(columnFilter.get('label'));
             const dataType = columnFilter.get('dataType');
+            // If it is a date datatype, store min and max as numbers
             if (dataType === 'date') {
                 min = this.convertDateStringToMilliseconds(min);
                 max = this.convertDateStringToMilliseconds(max);
@@ -105,15 +118,27 @@ export class DataManager {
         return true;
     }
 
+    /** --- PUBLIC ---
+     * Adds a filter to the data when a filter module is linked to the pipeline
+     * @param {function} getFilterFunction function that can be called to get all filter information from the filter module
+     * @param {Number} dataKey the key to the dataset that will be filtered.
+     */
     addFilterToDataTable(getFilterFunction, dataKey) {
-        if (this.getData(dataKey).filtered) {
-            console.log(`Data at key: ${dataKey} is already filtered.`);
-            return;
+        if (this.getData(dataKey).filtered) console.log(`Data at key: ${dataKey} is already filtered.`);
+        else {
+            this.getData(dataKey).getFilterDetails = getFilterFunction;
+            this.getData(dataKey).filtered = true;
         }
-        this.getData(dataKey).getFilterDetails = getFilterFunction;
-        this.getData(dataKey).filtered = true;
+
     }
 
+    /** --- PUBLIC ---
+     * Called When a filter is removed from the data table
+     * 
+     * ************* THIS NEEDS TO BE IMPLEMENTED ****************
+     * 
+     * @param {Number} dataKey the key to the data set
+     */
     removeFilter(dataKey) {
         const data = this.getData(dataKey);
         if (data?.filtered) {
@@ -247,8 +272,17 @@ export class DataManager {
         return chartData;
     }
 
+    /** --- PUBLIC ---
+     * Converts a column of data using a user supplied function
+     * @param {string} input the field to convert
+     * @param {string} output the name of the output field to add to the data table
+     * @param {function} fn the function to map to the column of data
+     * @param {Number} key the key to the dataset
+     * @param {Number} moduleKey the key to the module that called the conversion
+     * @returns the data
+     */
     convertData(input, output, fn, key, moduleKey) {
-        const data = JSON.parse(JSON.stringify(this.getData(key).data.getData()));
+        const data = JSON.parse(JSON.stringify(this.getData(key).data.getData())); // Deep Copy the data
         const conversionIndex = data[0].indexOf(input);
         if (conversionIndex > 0) {
             const preConvertedData = [];
@@ -267,6 +301,16 @@ export class DataManager {
         } else return undefined;
     }
 
+    /** --- PUBLIC ---
+     * Changes the data type of a field in the data table
+     * @param {metadata object} metadata metadata
+     * @param {string} oldType type to change from
+     * @param {string} newType type to change to
+     * @param {string} dataField name of the field
+     * @param {Number} datakey key to the dataset
+     * @param {function} callbackFN Callback to the filter card that changed the data type
+     * @param {function} updateMetadataFN Callback that will update the metadata for this dataset
+     */
     changeDataType(metadata, oldType, newType, dataField, datakey, callbackFN, updateMetadataFN) {
         let row = null;
         metadata.columnHeaders.forEach(element => {
@@ -286,21 +330,51 @@ export class DataManager {
         updateMetadataFN(metadata, success);
     }
 
-
-    convertFromNumberToDate(row) {
+    /** --- PRIVATE ---
+     * Tries to convert a field from number to date
+     * @param {{
+     * name (string): the name of the data field,
+     * dataType (string): current data type,
+     * dataFormat (string): the format of the data,
+     * min (any): the min value from the metadata,
+     * max (any): the max value from the metadata}} row 
+     * @returns true if successful, false if not
+     */
+    #convertFromNumberToDate(row) {
+        console.log(row)
         if (!row) return false;
         const conversion = new Date(row.min);
         if (!conversion) return false;
         return true;
     }
 
-    convertFromDateToNumber(row) {
+    /** --- PRIVATE ---
+     * Tries to convert a data field from date to a number
+     * @param {{
+     * name (string): the name of the data field,
+     * dataType (string): current data type,
+     * dataFormat (string): the format of the data,
+     * min (any): the min value from the metadata,
+     * max (any): the max value from the metadata}} row 
+     * @returns true if successful, false if not
+     */
+    #convertFromDateToNumber(row) {
         if (!row) return false;
         if (Number(row.min)) return true;
         return false;
     }
 
-    convertToCategory(row) {
+    /** --- PRIVATE ---
+     * NOT YET IMPLEMENTED
+     * @param {{
+     * name (string): the name of the data field,
+     * dataType (string): current data type,
+     * dataFormat (string): the format of the data,
+     * min (any): the min value from the metadata,
+     * max (any): the max value from the metadata}} row 
+     * @returns 
+     */
+    #convertToCategory(row) {
         return false;
     }
 }

@@ -7,7 +7,7 @@ export class Processor extends Module {
         super(category, color, shape, command, name, image, inports, outports, key);
     }
 }
-
+/* Module that can apply min and max filters or change data types on a dataset */
 export class Filter extends Processor {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'filter', 'Filter', 'images/icons/filter-white.png', [{ name: 'IN', leftSide: true, type: REMOTE_DATA_TABLE }, { name: 'IN', leftSide: true, type: TABLE_OUTPUT }], [{ name: 'OUT', leftSide: false, type: REMOTE_DATA_TABLE }, { name: 'OUT', leftSide: false, type: TABLE_OUTPUT }], key);
@@ -64,14 +64,6 @@ export class Filter extends Processor {
         );
         this.sendMessage(message);
     }
-
-    updateInspectorCardForModifiedMetadata(numColumns) {
-        this.getData('metadata').columnHeaders.slice(-numColumns).forEach(header => {
-            header.changeDataTypeFunction = this.changeDataType.bind(this);
-        });
-        this.getInspectorCardMaker().addCardsToExistingFilter(this.getData('metadata').columnHeaders.slice(-numColumns), this.getData('getFilterDetailsFunctionArray'));
-    }
-
 }
 
 export class DataConversion extends Processor {
@@ -94,16 +86,15 @@ export class DataConversion extends Processor {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
     }
 
+    /** --- PUBLIC --- 
+     * When attached to a pipeline containing metadata, the headers must be added to the inspector card 
+     * for conversions.
+     * @param {Metadata Object} metadata the metadata object
+     */
     processMetadata(metadata) {
         this.addData('metadata', metadata);
         this.addData('conversionCard', this.inspectorCardMaker.addConversionCard(this.getData('metadata')));
         this.getData('conversionCard').getButton().addEventListener('click', this.convertDataEvent.bind(this));
-    }
-
-    getFilterDataFunction() {
-        const dataArray = [];
-        this.getData('getFilterDetailsFunctionArray').forEach(fn => dataArray.push(fn()));
-        return dataArray;
     }
 
     /**
