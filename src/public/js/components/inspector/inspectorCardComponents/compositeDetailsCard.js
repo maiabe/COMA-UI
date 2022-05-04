@@ -1,9 +1,11 @@
 import {GM} from '../../../main.js';
 export class CompositeDetailsCard {
+    
     #wrapper;
     #header;
     #nodesRow;
     #saveButton;
+    
     constructor(groupData, saveModuleCallback) {
         this.#wrapper = this.createWrapperElement();
         this.#header = this.createHeader();

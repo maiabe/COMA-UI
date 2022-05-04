@@ -125,8 +125,8 @@ export class AxisCard {
 
     /** --- PUBLIC ---
      * Adds a new trace dropdown and error dropdown when user clicks add trace button
-     * @param {*} dropdown 
-     * @param {*} errorDropdown 
+     * @param {HTML Select} dropdown 
+     * @param {HTML Select} errorDropdown 
      */
     addTraceDropdown(dropdown, errorDropdown) {
         const dropdownsWrapper = GM.HF.createNewDiv('', '', ['axis-card-dropdown-card-wrapper'], []);
