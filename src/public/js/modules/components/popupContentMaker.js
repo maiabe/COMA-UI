@@ -14,11 +14,20 @@ export class PopupContentMaker {
         this.publisher = new Publisher();
     }
 
+    /** --- PUBLIC ---
+     * Appends the description string to the popup content wraper.
+     * @param {string} text a description of the module associated with the popup.
+     */
     addDescriptionText(text) {
         this.getPopupContentWrapper()
             .appendChild(this.HF.createNewParagraph('', '', ['popup-module-description'], [], text));
     }
 
+    /** --- PUBLIC ---
+     * Creates the HTML elements for the file upload section and binds a callback function to the button.
+     * @param {function} callback validates the file on the CSV module
+     * @param {number} key id of the CSV module that created this. 
+     */
     createFileUploadField(callback, key) {
         const uploadWrapper = this.HF.createNewDiv('', '', ['uploadWrapper'], []);
         this.getPopupContentWrapper().appendChild(uploadWrapper);
@@ -38,16 +47,29 @@ export class PopupContentMaker {
         });
     }
 
+    /** --- PUBLIC ---
+     * Not Yet Implemented --- 
+     * Should display information about the metadata for a data set.
+    */
     addMetadataCard(metadata) {
         console.log(metadata);
     }
 
+    /** --- PUBLIC ---
+     * Called by the CSV source. This will create a DIV where data about the csv file can be inserted.
+     * @returns HTML div
+     */
     addDataArea() {
         this.dataTable.set('dataArea', this.HF.createNewDiv('csvDataArea', 'csvDataArea', [], []));
         this.getPopupContentWrapper().appendChild(this.dataTable.get('dataArea'));
         return this.getField('dataArea');
     }
 
+    /** --- PUBLIC ---
+     * 
+     * @param {*} key 
+     * @returns 
+     */
     addPlotDiv(key) {
         this.dataTable.set('plotDiv', this.HF.createNewDiv(`plot_${key}`, `plot_${key}`, ['plot1'], ['chartDiv']));
         this.getPopupContentWrapper().appendChild(this.getField('plotDiv'));

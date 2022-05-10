@@ -1,3 +1,8 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
 import { GM } from "../../../main.js";
 
 export class IncludeColumnCard {

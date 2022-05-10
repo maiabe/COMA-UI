@@ -1,9 +1,23 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
+
 export class CsvWriter {
     constructor() {
         this.delimiter = ',';
     }
 
+    /** --- PUBLIC ---
+     * Creates a csv file using a comma as delimiter.  
+     * @param {string} fileName the name of the file (not including extension)
+     * @param {{
+     *  key (string): value (1D array of data)
+     * }} data the data to write to file
+     */
     createCsvFileFromData(fileName, data) {
+        console.log(data)
         let csvString = '';
         let maxArrayLength = 0;
         csvString += Object.keys(data.data).join(',') + '\n';

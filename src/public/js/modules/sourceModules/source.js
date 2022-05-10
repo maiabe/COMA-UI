@@ -1,3 +1,8 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
 import { Module } from "../index.js";
 import { LOCAL_DATA_SOURCE, REMOTE_DATA_TABLE } from "../../sharedVariables/constants.js";
 
@@ -8,6 +13,8 @@ export class Source extends Module {
     }
 }
 
+/** This Class pulls data off the server that I used for testing. 
+ */
 export class Cholera extends Source {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'remote', 'getCholeraData', 'Cholera', 'images/icons/skull-white.png', [], [{ name: 'OUT', leftSide: false, type: REMOTE_DATA_TABLE }], key);

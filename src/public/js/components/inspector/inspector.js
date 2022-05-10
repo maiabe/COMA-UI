@@ -1,7 +1,10 @@
-import { Message, Publisher } from '../../communication/index.js';
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
+import { Publisher } from '../../communication/index.js';
 import { GM } from '../../main.js';
-import { INSPECTOR, MODULE_MANAGER } from '../../sharedVariables/index.js';
-import { InspectorCard } from './inspectorCard.js';
 
 export class Inspector {
 
@@ -20,15 +23,13 @@ export class Inspector {
     }
 
     /** --- PUBLIC ---
-     * This function is called by the global manager when the application starts.
-     */
+     * This function is called by the global manager when the application starts. */
     createInspectorDomNode() {
         this.#createInspectorModuleCardContainer();
     }
 
     /** --- PRIVATE ---
-     * Creates the HTML element and stores it in the domNodes object.
-     */
+     * Creates the HTML element and stores it in the domNodes object. */
     #createInspectorModuleCardContainer() {
         this.domNodes.moduleCardContainer = GM.HF.createNewDiv('inspector-module-card-container', 'inspector-card-container', ['inspector-card-container'], []);
         this.domNodes.container.appendChild(this.domNodes.moduleCardContainer);
@@ -65,6 +66,8 @@ export class Inspector {
         });
     }
 
+    /** --- PUBLIC ---
+     * Minimizes all Cards */
     minimizeCards() {
         this.#moduleCards.forEach(card => card.style.display = 'flex');
     }

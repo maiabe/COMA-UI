@@ -77,7 +77,7 @@ export class Module {
         }
     }
 
-    /**
+    /** --- PUBLIC ---
      * This data is mostly used by gojs to make the graph node.
      * @param {string} type type of module
      * @param {string} color color of module
@@ -105,7 +105,9 @@ export class Module {
         } else console.log(`ERROR: Missing Parameter. type: ${type}, imagePath: ${imagePath}, color: ${color}, shape: ${shape}, command: ${command}, name: ${name}, inports: ${inports}, outports: ${outports}, key: ${key}. -- Module -> setInitialDataValues`);
     };
 
-    /** Gets the command associated with this module */
+    /** --- PUBLIC ---
+     * Gets the command that the server will use to identify the action that should be taken for this module in the pipeline.
+     * @returns the command associated with this module. */
     getCommand = () => {
         if (this.#dataTable.had('command')) {
             const command = this.#dataTable.get('command');
@@ -114,7 +116,8 @@ export class Module {
         return undefined;
     }
 
-    /** Sets the popup content associated with this module. This is the generic function and will likely be overriden in the child classes. */
+    /** --- PUBLIC ---
+     * Sets the popup content associated with this module. This is the generic function and will likely be overriden in the child classes. */
     setPopupContent = () => {
         const popupContent = GM.HF.createNewDiv('', '', [], []);
         popupContent.appendChild(GM.HF.createNewParagraph('', '', [], [], this.getData('name')));
@@ -142,8 +145,7 @@ export class Module {
     /** --- PUBLIC ---
      * Gets a value associated with a key from this module's datatable.
      * @param {string} key 
-     * @returns the value if found.
-     */
+     * @returns the value if found.*/
     getData = key => {
         if (key != undefined && key !== '') {
             if (this.#dataTable.has(key)) return this.#dataTable.get(key);
@@ -154,20 +156,17 @@ export class Module {
 
     /** --- PUBLIC ---
      * When a module is removed, the inspector card must be deleted.
-     * This removes the HTML element from the dom.
-     */
+     * This removes the HTML element from the dom.*/
     deleteInspectorCard = () => this.inspectorCardMaker.deleteInspectorCard();
 
     /** --- PUBLIC ---
      * Gets the inspector card html element.
-     * @returns the HTML Inspector Card
-     */
+     * @returns the HTML Inspector Card*/
     getInspectorCard = () => this.inspectorCardMaker.inspectorCard;
 
-    /**
+    /** --- PUBLIC ---
      * Gets the content to populate a popup associated with this module.
-     * @returns the content to populate the popup associated with this module
-     */
+     * @returns the content to populate the popup associated with this module*/
     getPopupContent = () => {
         return { color: this.getData('color'), content: this.getData('popupContent'), headerText: this.getData('name') };
     }

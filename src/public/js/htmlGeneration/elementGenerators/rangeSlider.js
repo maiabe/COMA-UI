@@ -1,3 +1,8 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
 export class RangeSlider {
     constructor(id, name, classList, customstyles, callback, updateSliderFunction) {
         updateSliderFunction(this.updateFunction.bind(this));
@@ -128,6 +133,7 @@ export class RangeSlider {
     getBarWidth = () => this.backgroundBar.getBoundingClientRect().width;
     getBarLeft = () => this.backgroundBar.getBoundingClientRect().left + window.pageXOffset || document.documentElement.scrollLeft;
     getBallLeft = ball => ball.getBoundingClientRect().left + window.pageXOffset || document.documentElement.scrollLeft;
+    
     setParentPercentWidths() {
         this.slideBalls.forEach(ball => {
             ball.parentWidth = this.getBarWidth();
@@ -148,24 +154,29 @@ export class RangeSlider {
         }
     }
 
-    calculateLeftBallPositionFromPercentage(percentage) {
+    #calculateLeftBallPositionFromPercentage(percentage) {
         const ball = this.getBallOnLeftSide();
         const left = ball.parentPercentWidth * percentage;
         ball.percent = percentage;
         this.moveBallToPosition(ball.element, left);
     }
 
-    calculateRightBallPositionFromPercentage(percentage) {
+    #calculateRightBallPositionFromPercentage(percentage) {
         const ball = this.getBallOnRightSide();
         const right = ball.parentPercentWidth * percentage + ball.width;
         ball.percent = percentage;
         this.moveBallToPosition(ball.element, right);
     }
 
+    /** --- PUBLIC ---
+     * This function will position the left and right slide balls a percentage distance from their 
+     * respective endpoints. 
+     * @param {Number} min the percent distance traveled from the left endpoint 
+     * @param {Number} max the percent distance traveled from the right endpoint */
     updateFunction(min, max) {
         this.setParentPercentWidths();
-        this.calculateLeftBallPositionFromPercentage(min);
-        this.calculateRightBallPositionFromPercentage(max);
+        this.#calculateLeftBallPositionFromPercentage(min);
+        this.#calculateRightBallPositionFromPercentage(max);
     }
 
     getWrappper = () => this.wrapper;

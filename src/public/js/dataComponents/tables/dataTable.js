@@ -1,3 +1,9 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
+
 // So Far, all data has been stored as this type of object. Data is encapsulated here and accessed through functions
 export class DataTable {
 
@@ -13,16 +19,14 @@ export class DataTable {
 
     /** --- PUBLIC ---
      * gets the number of rows
-     * @returns the number of rows in the table
-     */
+     * @returns the number of rows in the table */
     getRows = () => {
         return this.#data.length;
     }
 
     /** --- PUBLIC ---
      * Gets the number of columns in the table
-     * @returns the number of columns in the table
-     */
+     * @returns the number of columns in the table */
     getColumns = () => {
         return this.#data[0].length;
     }
@@ -38,23 +42,20 @@ export class DataTable {
 
     /** --- PUBLIC ---
      * Gets data that is guaranteed to not be filtered
-     * @returns array of unfiltered data
-     */
+     * @returns array of unfiltered data */
     getCleanData = () => {
         return this.#data;
     }
 
     /** --- PUBLIC ---
      * Stores the filtered dataset
-     * @param {2D data table} data 
-     */
+     * @param {2D data table} data  */
     setFilteredData = (data) => {
         this.#filteredData = data;
     }
 
     /** --- PUBLIC ---
-     * @returns the total number of elements in the data set
-     */
+     * @returns the total number of elements in the data set */
     getNumElements = () => {
         let sum = 0;
         for (let i = 0; i < this.#data.length; i++) {

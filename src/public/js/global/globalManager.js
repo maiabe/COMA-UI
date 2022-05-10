@@ -1,3 +1,8 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
 import { ModuleManager } from '../modules/index.js';
 import { PipelineManager, Environment } from '../components/environment/index.js';
 import { DataManager, InputManager, OutputManager } from '../dataComponents/index.js';
@@ -9,6 +14,9 @@ import { ModuleSelectionMenu } from "../components/moduleSelectionMenu/index.js"
 import Hub from '../servers/hub.js';
 import { DomManager } from '../components/domManagement/domManager.js';
 
+/** The Global Manager has direct access to all Manager Instances. It should only be used
+ * by the HUB to call functions directly on the managers.
+ */
 export class GlobalManager {
 
     HUB;                // EnvironmentDataTable (Central Message HUB)
@@ -41,6 +49,11 @@ export class GlobalManager {
         this.DOM = new DomManager();
     };
 
+    /** --- PUBLIC ---
+     * Initializes the Environment by subscribing to the HUB publisher, creating the GOjs Environemnt,
+     * creating the inspector, initializing initial DOM elements, and initializing contact with the 
+     * server to get any necessary information for startup.
+     */
     startEnvironment = () => {
         this.HUB.subscribe(this);
         this.ENV.setUpEnvironment();
@@ -50,14 +63,23 @@ export class GlobalManager {
         this.#initialServerContact();
     };
 
+    /** --- PRIVATE ---
+     * Contacts the server to get any data necessary to start client environment.
+     */
     #initialServerContact = () => this.HUB.makeInitialContactWithServer();
 
+    /** --- PRIVATE ---
+     * Sets any event listeners, such as the run button.
+     */
     #setEventListeners = () => {
         document.getElementById('runButton').addEventListener('click', () => {
             this.HUB.run();
         });
     }
 
+    /** --- PRIVATE ---
+     * Creates the inspector DOM Node.
+     */
     #createInspector = () => {
         this.INS.createInspectorDomNode();
     }

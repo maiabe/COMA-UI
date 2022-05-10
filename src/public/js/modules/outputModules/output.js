@@ -1,3 +1,8 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
 import { Module } from "../index.js";
 import { ChartDataStorage } from "./components/chartDataStorage.js";
 import { TABLE_OUTPUT, LOCAL_DATA_SOURCE, MODULE, MODULE_MANAGER, OUTPUT_MANAGER } from "../../sharedVariables/constants.js";
@@ -15,6 +20,8 @@ export class Chart_2D extends Output {
         super(category, color, shape, command, name, image, [{ name: 'IN', leftSide: true, type: TABLE_OUTPUT }], outports, key)
     };
 
+    /** --- PUBLIC ---
+     * Creates the HTML content to be inserted into the Popup in the DOM. */
     setPopupContent = () => {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
         this.addData('themeDD', this.popupContentMaker.addEChartThemeDropdown(this.getData('key')), false, '', false);
@@ -23,6 +30,8 @@ export class Chart_2D extends Output {
         this.addData('outportType', -1);
     }
 
+    /** --- PUBLIC ---
+     * Creates the Inspector Card data */
     createInspectorCardData() {
         this.inspectorCardMaker.addInspectorCardIDField(this.getData('key'));
         this.inspectorCardMaker.addInspectorCardDataConnectedField();
@@ -32,8 +41,7 @@ export class Chart_2D extends Output {
      * Called by the Hub when an output module is connected to a flow with data.
      * Updates the inspector card and sets up the chartData object.
      * @param {Number} dataKey key to the dataset on the DataManager 
-     * @param {string[]} headers data headers for loading dropdowns etc.
-     */
+     * @param {string[]} headers data headers for loading dropdowns etc.*/
     updateInspectorCardWithNewData(dataKey, headers) {
         const key = this.getData('key');
         this.inspectorCardMaker.addInspectorCardLinkedNodeField(dataKey);
@@ -52,8 +60,7 @@ export class Chart_2D extends Output {
 
     /** --- PUBLIC --- 
      * Emits a Create New Local Chart Event.
-     * Attached to a button on the Inspector Card.
-     */
+     * Attached to a button on the Inspector Card. */
     createNewChartFromButtonClick() {
         this.sendMessage(new Message(
             OUTPUT_MANAGER, MODULE, 'Create New Local Chart Event',
@@ -69,8 +76,7 @@ export class Chart_2D extends Output {
     /** --- Public ---
      * This function is passed as a callback to the inspector card element and attached to a button.
      * Adds a new trace to the Axis inspector card and updates the ChartData table with the new data.
-     * A Trace consists of a main data dropdown where the user can select fields and an error dropdown that starts with 'None'.
-     */
+     * A Trace consists of a main data dropdown where the user can select fields and an error dropdown that starts with 'None'. */
     addTrace() {
         const title = 'test';
         const dropDown = this.HF.createNewSelect(`${title}-${this.getData('key')}`, `${title}-${this.getData('key')}`, [], [], this.chartData.getHeaders(), this.chartData.getHeaders());
@@ -130,29 +136,6 @@ export class OrbitalPlot extends Chart_2D {
     }
 }
 
-export class ImageOutput extends Output {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'Image', 'images/icons/image.png', [], key);
-        this.setPopupContent();
-    }
-}
-export class Value extends Output {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'Value', 'images/icons/equal.png', [], key);
-        this.setPopupContent();
-    }
-
-    setPopupContent = () => {
-
-    };
-
-    updatePopupText = val => {
-        this.textArea.innerHTML = val;
-    };
-
-
-}
-
 export class ToCSV extends Output {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'output', 'To CSV', 'images/icons/csv-file-format-extension-white.png', [{ name: 'IN', leftSide: true, type: TABLE_OUTPUT }], [], key);
@@ -164,6 +147,8 @@ export class ToCSV extends Output {
         this.addData('chartType', 'table');
     }
 
+    /** --- PUBLIC ---
+    * Creates the Inspector Card data */
     createInspectorCardData() {
         this.inspectorCardMaker.addInspectorCardIDField(this.getData('key'));
         this.inspectorCardMaker.addInspectorCardDataConnectedField();
@@ -173,8 +158,7 @@ export class ToCSV extends Output {
      * Called by the HUB when a new link is drawn. Updates the inspector card to show the
      * available data for creating the CSV file.
      * @param {Number} dataKey key that identifies the dataset on the DataManager 
-     * @param {string[]} headers the names of the fields in the table 
-     */
+     * @param {string[]} headers the names of the fields in the table */
     updateInspectorCardWithNewData(dataKey, headers) {
         const key = this.getData('key');
         this.chartData.storeHeaders(headers);
@@ -188,8 +172,7 @@ export class ToCSV extends Output {
     }
 
     /** --- PUBLIC ---
-     * Emits a Create New CSV File Event when the createCSVFile button is clicked in the inspector
-     */
+     * Emits a Create New CSV File Event when the createCSVFile button is clicked in the inspector */
     createCSVFile() {
         this.sendMessage(new Message(
             OUTPUT_MANAGER, MODULE, 'Create New CSV File Event',
@@ -201,8 +184,7 @@ export class ToCSV extends Output {
     }
 
     /** --- PUBLIC ---
-     * Emits a Create New Local Table Event when the Preview CSV Table Data button is clicked in the inspector.
-     */
+     * Emits a Create New Local Table Event when the Preview CSV Table Data button is clicked in the inspector. */
     createNewTableFromButtonClick() {
         this.sendMessage(new Message(
             OUTPUT_MANAGER, MODULE, 'Create New Local Table Event',
@@ -215,11 +197,16 @@ export class ToCSV extends Output {
             }));
     }
 
+    /** --- PUBLIC ---
+     * Creates the HTML content to be inserted into the Popup in the DOM. */
     setPopupContent = () => {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
         this.addData('plotDiv', this.popupContentMaker.addPlotDiv(), false, '', false);
     };
 
+    /** --- PUBLIC ---
+     * stores an array of strings, 1 for each column name, on the chartData table.
+     * @param {string[]} headerRow */
     storeTableHeaders(headerRow) {
         this.chartData.storeHeaders(headerRow);
     }

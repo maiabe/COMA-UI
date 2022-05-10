@@ -1,3 +1,8 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
 import { Module } from "../module.js";
 import { LOCAL_DATA_SOURCE, TABLE_OUTPUT } from "../../sharedVariables/constants.js";
 
@@ -27,6 +32,9 @@ export class Data extends Module {
         this.inspectorCardMaker.addInspectorDataCard();
     }
 
+    /** --- PUBLIC ---
+     * Stores the metadata and updates the linkedToData field.
+     * @param {JSON Object} metadata */
     setMetadata = metadata => {
         this.addData('metadata', metadata);
         this.inspectorCardMaker.addMetadataCard(metadata);

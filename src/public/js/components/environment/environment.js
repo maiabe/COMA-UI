@@ -1,3 +1,9 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
+
 import { Publisher, Message } from '../../communication/index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../../errorHandling/errorHandlers.js';
 import { ENVIRONMENT, MODULE_MANAGER, POPUP_MANAGER, INSPECTOR, compositIcon, sourceColor, outputColor, processorColor, compositColor, typeColorArray } from '../../sharedVariables/index.js';
@@ -6,12 +12,12 @@ export class Environment {
     // Communication Variables
     publisher;              // Sends Messages through the HUB
 
-    #divID;     // HTML div for the environment
-    #myDiagram; // The GO JS diagram object
-    #model;     // The Gojs Model
-    #nodeKey;   // Identifies individual Nodes. Keys are unique and icremented each time a node is added.
-    #contextMenu;
-    #nextGroupKey;
+    #divID;        // HTML div for the environment
+    #myDiagram;    // The GO JS diagram object
+    #model;        // The Gojs Model
+    #nodeKey;      // Identifies individual Nodes. Keys are unique and icremented each time a node is added.
+    #contextMenu;  // The menu that appears when a node is right clicked.
+    #nextGroupKey; // Unique Key (negative number) that is decremented each time a group is created.
 
     constructor(divID) {
         this.publisher = new Publisher();
@@ -35,12 +41,11 @@ export class Environment {
             }
         });
     }
-    /**
-     * Creats the gojs environment objects.
+
+    /** Creats the gojs environment objects.
      * Creates the New Model
      * Loads the model into the environment.
-     * Adds interaction event listeners.
-     */
+     * Adds interaction event listeners. */
     setUpEnvironment = () => {
         this.#startGoJsEnvironment();
         this.#defineGroupTemplate(this.#getGOJSMakeObject());
@@ -54,8 +59,7 @@ export class Environment {
     #getGOJSMakeObject = () => go.GraphObject.make;
 
     /** --- PRIVATE ---
-     * Creates the diagram and sets off a chain of functions that build the environment
-     */
+     * Creates the diagram and sets off a chain of functions that build the environment */
      #startGoJsEnvironment = () => {
         this.#myDiagram = this.#createNewDiagram(this.#getGOJSMakeObject());
         this.#setGridVisibility(true); // Toggles the grid in the background of the environment DOM element
@@ -155,8 +159,7 @@ export class Environment {
 
     /**
      * Creates a new node template.
-     * @param {object (Module)} module The module object that will be represented as a node in the graph
-     */
+     * @param {object (Module)} module The module object that will be represented as a node in the graph */
     #createTemplate = module => {
         if (invalidVariables([varTest(module, 'module', 'object')], 'Environment', '#createTemplate')) return;
         this.#makeTemplate(module.getData('name'), module.getData('image'), module.getData('color'), module.getData('shape'), this.#unpackPortArray(module, 'inports'), this.#unpackPortArray(module, 'outports'), module.getData('inportType'), module.getData('outportType'));
@@ -164,8 +167,7 @@ export class Environment {
 
     /** --- PRIVATE ---
      * Creates the menu that appears then user right clicks on a graph element
-     * @returns the menu
-     */
+     * @returns the menu */
     #createContextMenu = () => {
         const gojs = this.#getGOJSMakeObject();
         return gojs("ContextMenu",
@@ -726,8 +728,7 @@ export class Environment {
 
     /** --- PRIVATE ---
      * This function is called when a group is made in the Environmnt by the user highlighting nodes, right clicking, and selecting group.
-     * Creates an object representation of the group and sends it to the module manager.
-     */
+     * Creates an object representation of the group and sends it to the module manager. */
     #handleNewGroup() {
         // When a new group is made, it should be the only thing selected on the diagram.
         if (this.#myDiagram.selection.count != 1) {
@@ -758,9 +759,8 @@ export class Environment {
 
     /** --- PRIVATE ---
      * Called when user manually ungroups a group of nodes in the environment. The group node must be deleted.
-     * Module Manager is Notified with keys so that their datatables can be updated.
-     * @param {*} event 
-     */
+     * Module Manager is Notified with an array of all effected module keys so that their datatables can be updated.
+     * @param {GOJS object} event Gojs event */
     #handleUngrouping(event) {
         const groupKeys = [];
         event.subject.iterator.each(node => groupKeys.push(node.data.key));

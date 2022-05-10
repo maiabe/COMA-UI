@@ -271,33 +271,4 @@ document.addEventListener('keyup', e => {
     }
 });
 
-/**
- * If user presses f, all workers are destroyed.
- */
-// document.addEventListener('keyup', e => {
-//     if (e.code === 'KeyM') {
-//         const worker = GM.WM.startWorker();
-//         const workerIndex = GM.WM.addWorkerToDataTable(worker);
-//         GM.WM.notifyWorkerOfId(workerIndex)
-//             .setStopWorkerFunction(workerIndex)
-//             .setHandleReturnFunction(workerIndex)
-//             .setWorkerMessageHandler(workerIndex)
-//             .sendGetRequest(workerIndex);
-//     }
-// });
 
-/**
- * 
- * If user presses f, all workers are destroyed.
- */
-document.addEventListener('keyup', e => {
-    if (e.code === 'KeyN') {
-        const worker = GM.WM.startWorker();
-        const workerIndex = GM.WM.addWorkerToDataTable(worker);
-        GM.WM.notifyWorkerOfId(workerIndex)
-            .setStopWorkerFunction(workerIndex)
-            .setHandleReturnFunction(workerIndex)
-            .setWorkerMessageHandler(workerIndex)
-            .requestNewJob(workerIndex, 'POST', 'https://localhost:8080/');
-    }
-});

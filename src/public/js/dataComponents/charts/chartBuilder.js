@@ -1,3 +1,9 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
+
 export class ChartBuilder {
 
     #optionGenerationMap;
@@ -6,7 +12,7 @@ export class ChartBuilder {
     constructor() {
         this.#optionGenerationMap = new Map();
         this.#optionGenerationMap.set('polar', this.#generatePolarOptions.bind(this));
-        this.#optionGenerationMap.set('cartesian2d', this.#generat2dCartesianOptions.bind(this));
+        this.#optionGenerationMap.set('cartesian2d', this.#generate2dCartesianOptions.bind(this));
 
         this.#planetaryRadii = new Map();
         this.#planetaryRadii.set('mercury', 0.38);
@@ -35,8 +41,7 @@ export class ChartBuilder {
      * @param {boolean} xAxisTick true if include tick marks
      * @param {boolean} yAxisTick true if include tick marks
      * @param {string} coordinateSystem polar or cartesian2d
-     * @returns chart object
-     */
+     * @returns chart object  */
     plotData = (data, type, pdiv, width, height, framework, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
         switch (framework) {
             case 'plotly':
@@ -157,8 +162,7 @@ export class ChartBuilder {
     /** --- PRIVATE ---
      * Polar charts are created using data that is in the form of [x, y]
      * @param {{e: any[], x: any[]}, y: any[]} data Arrays of the data for the x axis, y axis, and error trace
-     * @returns the new array of merged data
-     */
+     * @returns the new array of merged data */
     #mergeXYDataForPolarPlot(data) {
         const mergedData = [];
         if (data.data.x.length === data.data.y[0].length) {
@@ -181,7 +185,7 @@ export class ChartBuilder {
      * @param {string} coordinateSystem polar or cartesian2d
      * @returns object wil all settings
      */
-    #generat2dCartesianOptions(data, type, coordinateSystem, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick) {
+    #generate2dCartesianOptions(data, type, coordinateSystem, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick) {
         return {
             toolbox: {
                 feature: {
@@ -321,8 +325,7 @@ export class ChartBuilder {
     /** --- PRIVATE ---
      * Gets the details for the planet that will be charted in the polar graph
      * @param {string} planet the name of the planet is a key to the radius 
-     * @returns polar chart series
-     */
+     * @returns polar chart series */
     #getPlanet(planet) {
         const r = this.#planetaryRadii.get(planet);
         const data = [];
@@ -437,8 +440,7 @@ export class ChartBuilder {
     /** --- PRIVATE ---
      * Creates the settings for the table header. Add the names for the columns
      * @param {Data Object} data 
-     * @returns the settings for the table header
-     */
+     * @returns the settings for the table header */
     #getPlotlyTableHeaderObject = data => {
 
         const header = {
@@ -463,8 +465,7 @@ export class ChartBuilder {
     /** --- PRIVATE ---
      * creates the settings for the cells
      * @param {Data Object} data 
-     * @returns settings for the cells
-     */
+     * @returns settings for the cells */
     #getPlotlyTableCellsObject = data => {
         const cellObject = {
             values: [],

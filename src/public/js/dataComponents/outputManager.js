@@ -1,9 +1,15 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
+
 import { Publisher, Message } from '../communication/index.js';
 import { ChartBuilder, CsvWriter } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
 export class OutputManager {
     publisher;
-    #outputMap;
+    #outputMap;         // When a chart is created, parameters are stored here. If popup is closed, it can be recreatd from this data.
     #chartBuilder;
     #activeChartMap;
     #csvWriter;
@@ -16,7 +22,7 @@ export class OutputManager {
         this.#csvWriter = new CsvWriter();
     };
 
-    /**
+    /** --- PUBLIC ---
      * Stores the chart information and data into the outputmap hash table.
      * @param {number} key key identifying the location in the hash table. it is also the id of the module associated with this chart.
      * @param {object} data the data that is used for the chart
@@ -24,23 +30,20 @@ export class OutputManager {
      * @param {string} type the type of chart. ie. 'bar', 'scatter'
      * @param {string} xAxisLabel (Optional)
      * @param {string} yAxisLabel (Optional)
-     * 
-     * @returns true if successful, false if failure
-     */
-    storeChartData = (key, data, div, type, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
+     * @returns true if successful, false if failure  */
+     storeChartData = (key, data, div, type, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(div, 'div', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
         this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark', xAxisLabel: xAxisLabel, yAxisLabel: yAxisLabel, xAxisGrid: xAxisGrid, yAxisGrid: yAxisGrid, xAxisTick: xAxisTick, yAxisTick: yAxisTick, coordinateSystem: coordinateSystem });
         return true;
     }
 
-    /**
+    /** --- PUBLIC ---
      * Generates data for a chart and calls the chart builder.
      * @param {number} key the key to the chart data.
      * @param {HTML element} div the html element that we will place the chart
      * @param {number} width width of the div in pixels. (number only)
      * @param {number} height height of the div in pixels. (number only)
-     * @param {string} framework 'echart' or 'plotly'
-     */
+     * @param {string} framework 'echart' or 'plotly' */
     drawChart = (key, div, width, height) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(div, 'div', 'object'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'OutputManager', 'drawChart')) return;
         if (this.#outputMap.has(key)) {
@@ -50,11 +53,10 @@ export class OutputManager {
         else printErrorMessage(`Missing Data.`, `key: ${key} - OutputManager -> drawChart`);
     }
 
-    /**
+    /** --- PUBLIC ---
      * Removes a chart from the data table.
      * @param {number} key module key
-     * @returns true if successful false if not
-     */
+     * @returns true if successful false if not */
     removeChart = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'OutputManager', 'removeChart')) return false;
         if (this.#activeChartMap.has(key)) {
@@ -65,11 +67,10 @@ export class OutputManager {
         } else return false;
     }
 
-    /**
+    /** --- PUBLIC ---
      * Checks to see if chart data exists for a specific module.
      * @param {number} key key into the hash table/
-     * @returns true if there is a chart for this module, false if not.
-     */
+     * @returns true if there is a chart for this module, false if not. */
     popupHasAChart = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'OutputManager', 'popupHasAChart')) return false;
         if (this.#outputMap.has(key)) {
@@ -78,23 +79,21 @@ export class OutputManager {
         return false;
     }
 
-    /**
+    /** --- PUBLIC ---
      * Checks to see if a popup has an active chart to resize.
      * @param {number} key module key
-     * @returns true or false
-     */
+     * @returns true or false */
     popupHasActiveChart = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'OutputManager', 'popupHasActiveChart')) return false;
         if (this.#activeChartMap.has(key)) return true;
         else return false;
     }
 
-    /**
+    /** --- PUBLIC ---
      * @param {number} key 
      * @param {number} width 
      * @param {number} height 
-     * @returns true if successful, false if not
-     */
+     * @returns true if successful, false if not */
     resizeChart = (key, width, height) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'Output Mangaer', 'resizeChart')) return false;
         if (this.popupHasActiveChart(key)) {
@@ -133,21 +132,20 @@ export class OutputManager {
         }
     }
 
-    /**
-     * @param {number} key 
-     * @returns the framework
-     */
+    /** --- PRIVATE ---
+     * Retrieves the framework of the chart (ie. 'echarts')
+     * @param {number} key id of the module that created the chart.
+     * @returns (string) the framework */
     #getActiveChartFramework = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'OutputManager', '#getActiveChartFramework')) return undefined;
         if (this.#activeChartMap.has(key)) return this.#outputMap.get(key).framework;
         return undefined;
     }
 
-    /**
+    /** --- PUBLIC ---
      * Changes the theme of an echarts instance.
      * @param {number} key chart identifier
-     * @param {string} theme the name of the theme
-     */
+     * @param {string} theme the name of the theme  */
     changeEchartTheme = (key, theme) => {
         if (invalidVariables([varTest(theme, 'theme', 'string'), varTest(key, 'key', 'number')], 'OutputManager', '#changeChartTheme')) return false;
         if (this.#outputMap.has(key)) {
@@ -158,12 +156,10 @@ export class OutputManager {
         } else return false;
     };
 
-    /**
+    /** --- PUBLIC ---
      * @param {number} key module key associated with chart
      * @param {number} width width of the chart div
-     * @param {number} height height of the chart div
-     * @returns 
-     */
+     * @param {number} height height of the chart div */
     redrawEChart = (key, width, height) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'Output Manager', 'redrawEchart')) return;
         if (this.#activeChartMap.has(key)) {
@@ -171,10 +167,16 @@ export class OutputManager {
         }
     }
 
+    /** --- PUBLIC --
+     * Creates a new CSV file by calling the csvWriter instance.
+     * @param {Object} data the datatable to create a chart from */
     generateCsvFile = data => {
         this.#csvWriter.createCsvFileFromData('comaCSVFile', data);
     };
 
+    /** --- PUBLIC ---
+     * Removes data from the outputMap
+     * @param {Number} key key to the data table. */
     removeOutputData(key) {
         if (this.#outputMap.has(key)) this.#outputMap.delete(key);
     }

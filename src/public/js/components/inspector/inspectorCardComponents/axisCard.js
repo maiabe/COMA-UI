@@ -1,3 +1,8 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
 import { GM } from "../../../main.js";
 
 export class AxisCard {
@@ -145,6 +150,8 @@ export class AxisCard {
         this.elementTable.get('addTraceButton').addEventListener('click', fn);
     }
 
+    /** --- PUBLIC ---
+     * @returns the HTML wrapper containing all child nodes. */
     getCard = () => this.elementTable.get('wrapperElement');
 
     storeElement(key, value) {

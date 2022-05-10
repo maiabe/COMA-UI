@@ -26,7 +26,7 @@ export class DataManager {
         else this.publisher.publishMessage(msg);
     }
 
-    /**
+    /** --- PRIVATE ---
      * Gets data associated with a key from the hash table if it exists.
      * @param {number} key the key to the data associated with a module
      * @returns the data associated with the key if found.
@@ -103,7 +103,7 @@ export class DataManager {
         return `${conversion.getMonth() + 1}/${conversion.getDate()}/${conversion.getFullYear()}`;
     }
 
-    /**
+    /** --- PUBLIC ---
      * Adds to the data table. If the specified key is in the table, it will be overwritten.
      * @param {number} key key into the data table. It is also the key to the module associated with this data.
      * @param {object} val the value linked to the key. This is the "data".

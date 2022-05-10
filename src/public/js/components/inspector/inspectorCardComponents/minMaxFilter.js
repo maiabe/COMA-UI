@@ -142,8 +142,7 @@ export class MinMaxFilter {
 
     /** --- PUBLIC ---
      * When the user changes a value in the input boxes, the range slider must be updated to reflect this change.
-     * Find the percentage from bounds of the range and send it to the slider.
-     */
+     * Find the percentage from bounds of the range and send it to the slider. */
     updateRangeSlider() {
         if (this.isValueInput(this.dataTable.get('Min Input').value, 'left') && this.isValueInput(this.dataTable.get('Max Input').value, 'right')) {
             const min = Number(this.dataTable.get('Min Input').value);
@@ -157,8 +156,7 @@ export class MinMaxFilter {
     /** --- PUBLIC ---
      * Callback attached to the flip min max button.
      * Sets the isFlipped flag and swaps the min and max inputs.
-     * is Flipped tag is used to identify which value to update when the slider is changed.
-     */
+     * is Flipped tag is used to identify which value to update when the slider is changed.  */
     flipMinMax() {
         this.dataTable.set('isFlipped', !this.dataTable.get('isFlipped'));
         if (this.dataTable.get('isFlipped')) this.#moveMaxLeft();
@@ -186,9 +184,9 @@ export class MinMaxFilter {
     }
 
     /** --- PUBLIC ---
-     * When the slider is moved, the slider passes 
-     * @param {{left (number), right{number}}} sliderData decimal representing fraction of distance from the bounds of left and right
-     */
+     * When the slider is moved, the slider passes the left percentage and right percentage of the slide balls from their respective endpoints.
+     * This information is used to update the current min and max values.
+     * @param {{left (number), right{number}}} sliderData decimal representing fraction of distance from the bounds of left and right */
     sliderCallback(sliderData) {
         console.log(sliderData)
         const left = this.dataTable.get('isFlipped') ? sliderData.right : sliderData.left;
@@ -201,11 +199,26 @@ export class MinMaxFilter {
         this.dataTable.set('lastValidRight', rightValue);
     }
 
+    /** --- PUBLIC ---
+     * This is a callback bound to the changeDataType dropdown. It gets the new type from the dropdown.
+     * This function is working but not totally finished. Currently there are only a few datatypes that can 
+     * be switched. This function will notify the DataManager to change the data type if possible. More validation
+     * is also needed on the DataManager end. Also, the dropdown does not currently update its value to the current type but 
+     * always shows Number regardless. */
     changeDataType() {
         const newType = this.dataTable.get('changeTypeDropdown').value;
         this.changeDataTypeFunction(this.dataTable.get('label'), this.dataTable.get('dataType'), newType, this.handleChangeDataTypeReturn.bind(this));
     }
 
+    /** --- PUBLIC ---
+     * Handles the return of a data type change. 
+     * @param {
+     * changeDataTypeFunction
+     * dataFormat (string)
+     * dataType (string)
+     * max (string or number)
+     * min (string or number)
+     * name (string)} result */
     handleChangeDataTypeReturn(result) {
         if (result.success) {
             const old = this.dataTable.get('dataType');
@@ -242,7 +255,7 @@ export class MinMaxFilter {
 
     /** --- PRIVATE---
      * Calculates the a value based on the position of the slider
-     * @param {Number} percentage The percentage if the range
+     * @param {Number} percentage The percentage of the range
      * @returns the value
      */
     #calcValue = percentage => {

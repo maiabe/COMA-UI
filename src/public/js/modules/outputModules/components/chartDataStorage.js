@@ -1,3 +1,8 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
 export class ChartDataStorage {
 
     #dataTable;
@@ -36,8 +41,14 @@ export class ChartDataStorage {
     listenToYAxisGridChanges(element) { element.addEventListener('change', this.updateYAxisGrid.bind(this)) };
 
 
-
+    /** --- PUBLIC ---
+     * Updates the X Axis field name
+     * @param {DOM Event} event a change event when user changes the X axis dropdown  */
     updateXAxisFieldName = event => this.#setData('xAxisField', event.target.value);
+
+    /** --- PUBLIC ---
+     * Updates the Y Axis field name
+     * @param {DOM Event} event a change event when user changes one of the Y axis drop downs  */
     updateYAxisFieldName = event => {
         const yAxisArray = this.#dataTable.get('yAxisField');
         const index = event.target.id.split('-')[0];
@@ -45,12 +56,17 @@ export class ChartDataStorage {
         console.log(this.#dataTable);
     }
 
+    /** --- PUBLIC ---
+     * Updates the Y Axis error field name
+     * @param {DOM Event} event a change event when user changes one of the Y axis error drop downs  */
     updateYAxisErrorFieldName = event => {
         const yAxisErrorArray = this.#dataTable.get('yAxisErrorField');
         const index = event.target.id.split('-')[0];
         yAxisErrorArray[index] = event.target.value;
         console.log(this.#dataTable);
     }
+
+
     updateXAxisLabel = event => this.#setData('xAxisLabel', event.target.value);
     updateYAxisLabel = event => this.#setData('yAxisLabel', event.target.value);
     updateXAxisTick = event => this.#setData('xAxisTick', event.target.checked);
@@ -65,6 +81,17 @@ export class ChartDataStorage {
         });
     }
 
+    /** --- PUBLIC ---
+     * Sets the initial values for the object
+     * @param {string} xAxisField name of the column to use for the x axis data
+     * @param {string} yAxisField name of the column to use for the y axis data
+     * @param {string} xAxisLabel x axis label
+     * @param {string} yAxisLabel y axis label
+     * @param {boolean} xAxisGrid turn grid lines on or off
+     * @param {boolean} yAxisGrid turn grid lines on or off
+     * @param {boolean} xAxisTick turn tick lines on or off
+     * @param {boolean} yAxisTick turn tick lines on or off
+     * @param {string} yAxisErrorDropdownField name of the column to use for the y axis error data */
     setInitialValues(xAxisField, yAxisField, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, yAxisErrorDropdownField) {
         const yAxisFieldArray = new Array(100);
         const yAxisErrorFieldArray = new Array(100);
@@ -82,6 +109,9 @@ export class ChartDataStorage {
         this.numberOfTraces = 1;
     }
 
+    /** --- PUBLIC ---
+     * Users can uncheck boxes which will remove a field from consideration when a table is built.
+     * @param {DOM Event} event event when a checkbox is clicked */
     toggleIncludeHeader(event) {
         const headerArray = this.#dataTable.get('headers');
         headerArray.forEach(header => {
@@ -89,6 +119,9 @@ export class ChartDataStorage {
         });
     }
 
+    /** --- PUBLIC ---
+     * Stores the list of column headers
+     * @param {string[]} headers array of header name strings */
     storeHeaders(headers) {
         const headerArray = [];
         headers.forEach(header => {
@@ -97,6 +130,9 @@ export class ChartDataStorage {
         this.#setData('headers', headerArray);
     }
 
+    /** --- PUBLIC ---
+     * returns the array of headers
+     * @returns array of strings, one for each header (column name)  */
     getHeaders = () => {
         const headers = this.#dataTable.get('headers');
         const lables = [];
@@ -104,11 +140,21 @@ export class ChartDataStorage {
         return lables;
     }
 
+    /** --- PUBLIC ---
+     * When a new trace is added, the output Manager will call this function to add
+     * initial values for the trace. They will be the first options in the drop downs.
+     * @param {string} value The default value in the y axis data dropdown
+     * @param {string} errorValue the default value in the y axis error dropdown
+     * @param {number} index The index into the array of Y axis traces */
     addInitialValueForNewTrace(value, errorValue, index) {
         this.#dataTable.get('yAxisField')[index] = value;
         this.#dataTable.get('yAxisErrorField')[index] = errorValue;
         this.numberOfTraces++;
     }
+
+    /** --- PUBLIC ---
+     * Gets necessary data to build a chart.
+     * @returns xAxisField, yAxisField, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, coordinateSystem, headers, yAxisErrorField */
     getChartData() {
         return {
             xAxisField: this.#dataTable.get('xAxisField'),
@@ -125,12 +171,12 @@ export class ChartDataStorage {
         };
     }
 
-    getTableData() {
-        return this.#dataTable.get('headers');
-    }
-
     getNumberOfTraces = () => this.numberOfTraces;
-
+    
+    /** --- PRIVATE ---
+    * Sets key value pair in the dataTable
+    * @param {string} key 
+    * @param {any} value  */
     #setData(key, value) {
         this.#dataTable.set(key, value);
     }

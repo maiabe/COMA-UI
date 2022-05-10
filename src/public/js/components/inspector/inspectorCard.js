@@ -1,3 +1,8 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
 import { printErrorMessage } from '../../errorHandling/errorHandlers.js';
 import { XAxisCard, YAxisCard } from './inspectorCardComponents/axisCard.js';
 import { ObjectSearchCard } from '../../../css/inspector/objectSearchCard.js';
@@ -8,7 +13,7 @@ import { CompositeDetailsCard } from './inspectorCardComponents/compositeDetails
 import { MinMaxFilter } from './inspectorCardComponents/minMaxFilter.js';
 import { ConversionCard } from './inspectorCardComponents/conversionCard.js';
 import { Publisher, Message } from '../../communication/index.js';
-import { INSPECTOR, INSPECTOR_CARD, INSPECTOR_CARD_MAKER, POPUP_MANAGER } from '../../sharedVariables/constants.js';
+import { INSPECTOR, INSPECTOR_CARD } from '../../sharedVariables/constants.js';
 
 /**
  * This class should not be called directly but called through the InspectorCardMaker.
@@ -314,12 +319,21 @@ export class InspectorCard {
         return card;
     }
 
+    /** --- PUBLIC ---
+     * Creates a KeyValueCard instance and appends it to the DOM.
+     * @param {string} key The id of the field and the label for the card.
+     * @param {*} value The value of the card.
+     * @returns The KeyValue Card object. */
     addKeyValueCard(key, value) {
         const card = new KeyValueCard(key, value);
         this.appendToBody(card.getCard());
         return card;
     }
 
+    /** --- PUBLIC ---
+     * Creates a card with a dropdown populated with available object names.
+     * @param {string[]} objects array of strings with the object names
+     * @returns The ObjectSearchCard object */
     addObjectsSearchCard(objects) {
         const card = new ObjectSearchCard(objects);
         this.appendToBody(card.getCard().wrapper);
@@ -335,8 +349,7 @@ export class InspectorCard {
      * @param {string} dataType the data type
      * @param {string} dataFormat the format of the data (useful for floats/ints or dates etc.)
      * @param {function} changeDataTypeFunction function called when user wants to change an incorrectly assigned datatype
-     * @returns a function that gets the data from this card for applying the filters.
-     */
+     * @returns a function that gets the data from this card for applying the filters. */
     addMinMaxCard(label, min, max, dataType, dataFormat, changeDataTypeFunction) {
         const card = new MinMaxFilter(label, min, max, dataType, dataFormat, changeDataTypeFunction);
         this.appendToBody(card.getHTML());

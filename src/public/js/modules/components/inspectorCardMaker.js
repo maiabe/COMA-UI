@@ -1,3 +1,9 @@
+/*************************************************************
+ * COPYRIGHT University of Hawaii - COMA Project / Lava Lab  *
+ * Author: James Hutchison                                   *
+ * Date: 5/5/2022                                            *
+ *************************************************************/
+
 import { InspectorCard } from '../../components/inspector/inspectorCard.js';
 import { Publisher, Message, Subscriber } from '../../communication/index.js';
 import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
@@ -19,7 +25,7 @@ export class InspectorCardMaker {
     }
 
     buildMessageHandlerMap() {
-       // TODO: Handle messages if necessary
+        // TODO: Handle messages if necessary
     }
 
     messageHandler = msg => {
@@ -31,40 +37,39 @@ export class InspectorCardMaker {
     }
 
     /** --- PUBLIC ---
-     * Alerts Inspector to maximize Card
-     */
+     * Alerts Inspector to maximize Card */
     maximizeCard() {
         this.inspectorCard.maximizeCard();
     }
 
     /** --- PUBLIC ---
-     * Adds a Module Id Field to the Inspector Card
-     * @param {Number} key the module key 
-     */
+     * Adds a Module Id Field Key Value Card to the Inspector Card
+     * Key: 'Module Id', value: key
+     * @param {Number} key the module key */
     addInspectorCardIDField(key) {
         this.inspectorCard.addKeyValueCard('Module Id', [key.toString()]);
     }
 
     /** --- PUBLIC ---
-     * Adds a Card to the inspector card called Data Linked. Starts as False but changed to true when a link is made in 
-     * the GOJS Environment
-     */
-    addInspectorCardDataConnectedField() {
-        this.inspectorCard.addDynamicKeyValueCard('Data Linked', [false]);
-    }
-
-    /** --- PUBLIC ---
      * Adds a Card to the Inspector Card for any linked nodes. Starts with a single key because it is created at first link.
-     * @param {Number} key the key to the linked node 
-     */
+     * Key: 'Linked Node(s), value: array of keys that are linked
+     * @param {Number} key the key to the linked node */
     addInspectorCardLinkedNodeField(key) {
         this.inspectorCard.addDynamicKeyValueCard('Linked Node(s)', [`(${key})`]);
     }
 
     /** --- PUBLIC ---
+     * Adds a Card to the inspector card called Data Linked. Starts as False but changed to true when a link is made in 
+     * the GOJS Environment */
+    addInspectorCardDataConnectedField() {
+        this.inspectorCard.addDynamicKeyValueCard('Data Linked', [false]);
+    }
+
+
+
+    /** --- PUBLIC ---
      * Emits a Request List of Objects Event for the Input Manager. The HUB will call the callback function when it
-     * gets the list of objects.
-     */
+     * gets the list of objects. */
     addInspectorCardObjectsDropdown() {
         const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Request List of Objects', { callbackFunction: this.createInspectorCardDropdown.bind(this) });
         this.sendMessage(message);
@@ -94,8 +99,7 @@ export class InspectorCardMaker {
      * gridCheckbox: HTML checkbox, 
      * tickCheckbox: HTML checkbox, 
      * addTraceButton: HTML button, 
-     * errorDropDown: undefined } This data is passed to the ChartData object and event listeners are applied.
-     */
+     * errorDropDown: undefined } This data is passed to the ChartData object and event listeners are applied. */
     addInspectorCardChartXAxisCard(headers, key, addTraceFunction) {
         const title = 'test'; // Change this is this element ever needs to be found by id
         const dropDown = this.HF.createNewSelect(`${title}-${key}`, `${title}-${key}`, [], [], headers, headers);
@@ -192,11 +196,10 @@ export class InspectorCardMaker {
     }
 
     /** --- PUBLIC ---
-     * Creates a Generate CSV File Button with a callback
+     * Creates a Generate CSV File Button with a callback. Button is passed ot the 
      * @param {Nuber} key Module Key 
      * @param {*} callbackFN Function that emits a Create New CSV File Event
-     * @returns the button
-     */
+     * @returns the button */
     addInspectorCardGenerateCSVFileButton(key, callbackFN) {
         const button = this.HF.createNewButton(`create-CSV-button-${key}`, `create-CSV-button-${key}`, [], [], 'button', 'Generate', false);
         button.addEventListener('click', callbackFN);
@@ -211,8 +214,7 @@ export class InspectorCardMaker {
 
     /** --- PUBLIC ---
      * Appends a HTML p with description text to the inspector card
-     * @param {string} description description of the module
-     */
+     * @param {string} description description of the module */
     addInspectorCardDescription(description) {
         this.inspectorCard.appendToBody(this.HF.createNewParagraph('', '', ['inspector-card-description'], [], description));
     }
@@ -220,8 +222,7 @@ export class InspectorCardMaker {
     /** --- PUBLIC ---
      * Creates a card for a Composite Module. 
      * @param {Object} groupData JSON representation of the group of modules
-     * @param {function} saveModuleCallback this function is called when a module is saved.
-     */
+     * @param {function} saveModuleCallback this function is called when a module is saved. */
     createInspectorCompositeDetailCard(groupData, saveModuleCallback) {
         this.inspectorCard.addCompositeDetailsCard(groupData, saveModuleCallback);
     }
@@ -230,8 +231,7 @@ export class InspectorCardMaker {
      * Creates a card for the metadata that has the name, datatype, and format. 
      * This card should not be used in production unless a lot of changes are made. The CSS is bad and
      * I'm not sure its that useful
-     * @param {Object[]} metadata Object containing all metadata for a dataset.
-     */
+     * @param {Object[]} metadata Object containing all metadata for a dataset. */
     addMetadataCard(metadata) {
         metadata.columnHeaders.forEach(header => {
             this.inspectorCard.addKeyValueCard(header.name, [header.dataType, header.dataFormat]);
@@ -242,8 +242,7 @@ export class InspectorCardMaker {
      * Creates all of the filter cards for a set of data. A filter card is a min/max card and has a range slider.
      * In the future, an additional type of card is necessary for categorical data. 
      * @param {Object} metadata Object containing all metadata for a Data set 
-     * @returns Array of functions that can be used to access the data on each specific filter card.
-     */
+     * @returns Array of functions that can be used to access the data on each specific filter card. */
     addFilterCards(metadata) {
         const filterArray = [];
         metadata?.columnHeaders.forEach(header => {
@@ -255,8 +254,7 @@ export class InspectorCardMaker {
     /** --- PUBLIC ---
      * This can add a new columns to the filter card in the inspector.
      * @param {object[]} columnHeaders array of data fields to add to the filter card.
-     * @param {function[]} filterArray Existing array of functions that get data from the filter cards
-     */
+     * @param {function[]} filterArray Existing array of functions that get data from the filter cards */
     addCardsToExistingFilter(columnHeaders, filterArray) {
         columnHeaders.forEach(col => {
             filterArray.push(this.inspectorCard.addMinMaxCard(col.name, col.min, col.max, col.dataType, col.dataFormat, col.changeDataTypeFunction))
@@ -266,8 +264,7 @@ export class InspectorCardMaker {
     /** --- PUBLIC ---
      * Adds a card for converting data fields.
      * @param {Object} metadata Object representing all metadata for the dataset 
-     * @returns the conversion card
-     */
+     * @returns the conversion card */
     addConversionCard(metadata) {
         return this.inspectorCard.addConversionCard(metadata);
     }
@@ -276,8 +273,7 @@ export class InspectorCardMaker {
      * This generates a flex container and appends a text field followed by an HTML element. The HTML element is already
      * generated before calling and passed as an argument.
      * @param {string} text the label
-     * @param {HTML element} valueDiv the HTML element to add to the inspector card. i.e. button or select
-     */
+     * @param {HTML element} valueDiv the HTML element to add to the inspector card. i.e. button or select */
     #addDynamicInspectorCardFieldWithPrebuiltValueDiv(text, valueDiv) {
         const container = this.#createInspectorCardHorizontalFlexContainer();
         const keyDiv = this.HF.createNewParagraph('', '', ['inspector-card-key-text'], [], text);
@@ -289,8 +285,7 @@ export class InspectorCardMaker {
     /** --- PUBLIC ---
      * Calls the InspectorCard and updates a key value pair with a new value and changes the card.
      * @param {string} key the key in the dataTable
-     * @param {any} value the new value
-     */
+     * @param {any} value the new value */
     updateInspectorCardDynamicField(key, value) {
         this.inspectorCard.updateDynamicField(key, value);
     }
