@@ -1,0 +1,3 @@
+C:\Users\m1mai\OneDrive\Documents\GitHub\COMA-UI\obj\Debug\ComaUI.njsproj.AssemblyReference.cache
+C:\Users\m1mai\OneDrive\Documents\GitHub\COMA-UI\obj\Debug\ComaUI.njsproj.CoreCompileInputs.cache
+C:\Users\m1mai\OneDrive\Documents\GitHub\COMA-UI\bin\Microsoft.NodejsTools.WebRole.dll

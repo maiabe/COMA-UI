@@ -1,1 +1,249 @@
-{"Test":{"groupInfo":{"nodes":[{"key":1,"type":"CSV File","name":"Source","__gohashid":561,"group":-3},{"key":2,"type":"Line Chart","name":"Output","__gohashid":644,"group":-3}],"links":[]},"description":"Test Descro[topm"},"Test 2":{"groupInfo":{"nodes":[{"key":3,"type":"Line Chart","name":"Output","__gohashid":9581,"group":-7},{"key":4,"type":"CSV File","name":"Source","__gohashid":13673,"group":-7},{"key":6,"type":"Scatter Plot","name":"Output","__gohashid":13901,"group":-7}],"links":[]},"description":"Description 2"},"Test 3":{"groupInfo":{"nodes":[{"key":1,"type":"Line Chart","name":"Output","__gohashid":561,"group":-3},{"key":2,"type":"CSV File","name":"Source","__gohashid":664,"group":-3}],"links":[]},"description":"Test 3 Descripition"},"composite 123":{"groupInfo":{"nodes":[{"key":1,"type":"FITS","name":"Source","__gohashid":561,"group":-3},{"key":2,"type":"Cholera","name":"Source","__gohashid":642,"group":-3}],"links":[]},"description":"Description of Composite 123"},"Composite Example":{"groupInfo":{"nodes":[{"key":1,"type":"CSV File","name":"Source","__gohashid":561,"group":-4},{"key":2,"type":"Filter","name":"Processor","__gohashid":654,"group":-4},{"key":3,"type":"Orbital Plot","name":"Output","__gohashid":1058,"group":-4}],"links":[{"__gohashid":1316,"from":2,"to":3,"frompid":"OUT","topid":"IN"}]},"description":"This is an example of a composite node"},"abc":{"groupInfo":{"nodes":[{"key":1,"type":"CSV File","name":"Source","__gohashid":561,"group":-3},{"key":2,"type":"FITS","name":"Source","__gohashid":640,"group":-3}],"links":[]},"description":"edr"},"prepworkertest":{"groupInfo":{"nodes":[{"key":1,"type":"CSV File","name":"Source","__gohashid":561,"group":-5},{"key":2,"type":"Data","name":"","__gohashid":657,"group":-5},{"key":5,"type":"Line Chart","name":"Output","__gohashid":1507,"group":-5},{"key":7,"type":"Bar Chart","name":"Output","__gohashid":1689,"group":-5}],"links":[{"from":1,"to":2,"__gohashid":704}]},"description":"abcde"},"test1234512345":{"groupInfo":{"nodes":[{"key":3,"type":"DataConversion","name":"Processor","__gohashid":10880,"group":-5},{"key":4,"type":"Filter","name":"Processor","__gohashid":12796,"group":-5}],"links":[]},"description":"12345"},"prep worker test":{"groupInfo":{"nodes":[{"key":1,"type":"FITS","name":"Source","__gohashid":561,"group":-3},{"key":2,"type":"Cholera","name":"Source","__gohashid":640,"group":-3}],"links":[]},"description":"23455"}}
+{
+    "Test": {
+        "groupInfo": {
+            "nodes": [
+                {
+                    "key": 1,
+                    "type": "CSV File",
+                    "name": "Source",
+                    "__gohashid": 561,
+                    "group": -3
+                },
+                {
+                    "key": 2,
+                    "type": "Line Chart",
+                    "name": "Output",
+                    "__gohashid": 644,
+                    "group": -3
+                }
+            ],
+            "links": [
+            ]
+        },
+        "description": "Test Descro[topm"
+    },
+    "Test 2": {
+        "groupInfo": {
+            "nodes": [
+                {
+                    "key": 3,
+                    "type": "Line Chart",
+                    "name": "Output",
+                    "__gohashid": 9581,
+                    "group": -7
+                },
+                {
+                    "key": 4,
+                    "type": "CSV File",
+                    "name": "Source",
+                    "__gohashid": 13673,
+                    "group": -7
+                },
+                {
+                    "key": 6,
+                    "type": "Scatter Plot",
+                    "name": "Output",
+                    "__gohashid": 13901,
+                    "group": -7
+                }
+            ],
+            "links": [
+            ]
+        },
+        "description": "Description 2"
+    },
+    "Test 3": {
+        "groupInfo": {
+            "nodes": [
+                {
+                    "key": 1,
+                    "type": "Line Chart",
+                    "name": "Output",
+                    "__gohashid": 561,
+                    "group": -3
+                },
+                {
+                    "key": 2,
+                    "type": "CSV File",
+                    "name": "Source",
+                    "__gohashid": 664,
+                    "group": -3
+                }
+            ],
+            "links": [
+            ]
+        },
+        "description": "Test 3 Descripition"
+    },
+    "composite 123": {
+        "groupInfo": {
+            "nodes": [
+                {
+                    "key": 1,
+                    "type": "FITS",
+                    "name": "Source",
+                    "__gohashid": 561,
+                    "group": -3
+                },
+                {
+                    "key": 2,
+                    "type": "Cholera",
+                    "name": "Source",
+                    "__gohashid": 642,
+                    "group": -3
+                }
+            ],
+            "links": [
+            ]
+        },
+        "description": "Description of Composite 123"
+    },
+    "Composite Example": {
+        "groupInfo": {
+            "nodes": [
+                {
+                    "key": 1,
+                    "type": "CSV File",
+                    "name": "Source",
+                    "__gohashid": 561,
+                    "group": -4
+                },
+                {
+                    "key": 2,
+                    "type": "Filter",
+                    "name": "Processor",
+                    "__gohashid": 654,
+                    "group": -4
+                },
+                {
+                    "key": 3,
+                    "type": "Orbital Plot",
+                    "name": "Output",
+                    "__gohashid": 1058,
+                    "group": -4
+                }
+            ],
+            "links": [
+                {
+                    "__gohashid": 1316,
+                    "from": 2,
+                    "to": 3,
+                    "frompid": "OUT",
+                    "topid": "IN"
+                }
+            ]
+        },
+        "description": "This is an example of a composite node"
+    },
+    "abc": {
+        "groupInfo": {
+            "nodes": [
+                {
+                    "key": 1,
+                    "type": "CSV File",
+                    "name": "Source",
+                    "__gohashid": 561,
+                    "group": -3
+                },
+                {
+                    "key": 2,
+                    "type": "FITS",
+                    "name": "Source",
+                    "__gohashid": 640,
+                    "group": -3
+                }
+            ],
+            "links": [
+            ]
+        },
+        "description": "edr"
+    },
+    "prepworkertest": {
+        "groupInfo": {
+            "nodes": [
+                {
+                    "key": 1,
+                    "type": "CSV File",
+                    "name": "Source",
+                    "__gohashid": 561,
+                    "group": -5
+                },
+                {
+                    "key": 2,
+                    "type": "Data",
+                    "name": "",
+                    "__gohashid": 657,
+                    "group": -5
+                },
+                {
+                    "key": 5,
+                    "type": "Line Chart",
+                    "name": "Output",
+                    "__gohashid": 1507,
+                    "group": -5
+                },
+                {
+                    "key": 7,
+                    "type": "Bar Chart",
+                    "name": "Output",
+                    "__gohashid": 1689,
+                    "group": -5
+                }
+            ],
+            "links": [
+                {
+                    "from": 1,
+                    "to": 2,
+                    "__gohashid": 704
+                }
+            ]
+        },
+        "description": "abcde"
+    },
+    "test1234512345": {
+        "groupInfo": {
+            "nodes": [
+                {
+                    "key": 3,
+                    "type": "DataConversion",
+                    "name": "Processor",
+                    "__gohashid": 10880,
+                    "group": -5
+                },
+                {
+                    "key": 4,
+                    "type": "Filter",
+                    "name": "Processor",
+                    "__gohashid": 12796,
+                    "group": -5
+                }
+            ],
+            "links": [
+            ]
+        },
+        "description": "12345"
+    },
+    "prep worker test": {
+        "groupInfo": {
+            "nodes": [
+                {
+                    "key": 1,
+                    "type": "FITS",
+                    "name": "Source",
+                    "__gohashid": 561,
+                    "group": -3
+                },
+                {
+                    "key": 2,
+                    "type": "Cholera",
+                    "name": "Source",
+                    "__gohashid": 640,
+                    "group": -3
+                }
+            ],
+            "links": [
+            ]
+        },
+        "description": "23455"
+    }
+}

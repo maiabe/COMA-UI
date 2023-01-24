@@ -6,7 +6,7 @@ import { moduleDataObject } from '../../sharedVariables/moduleData.js';
 
 /************************************************************************************************
  * This file creates the HTML and JS interactions for the module selection menu on the left side of the UI.
- * The menu is a series oof sections.
+ * The menu is a series of sections.
  * The outer layer is the Module Selection Menu.
  * The module top button is the heading that says Composite or source etc. This is a button that when clicked expands the sub menu.
  * Module sub menu is the inner menus that have the buttons for actually choosing a module 
