@@ -65,7 +65,7 @@ export default class Hub {
             if (this.#messageHandlerMap.get(msgContents.to).has(msgContents.type)) {
                 this.#messageHandlerMap.get(msgContents.to).get(msgContents.type)(msgContents.data)
             }
-        } else console('Cannot Read Message to ' + msgContents.to);
+        } else console.log('Cannot Read Message to ' + msgContents.to);
 
     };
 
@@ -113,6 +113,7 @@ export default class Hub {
         this.#messageForInputManager.set('Objects Loaded Event', this.#objectsLoadedEvent.bind(this));
         this.#messageForInputManager.set('Routes Loaded Event', this.#routesLoadedEvent.bind(this));
         this.#messageForInputManager.set('Read File Event', this.#readFileEvent.bind(this));
+        this.#messageForInputManager.set('Search Form Submit Event', this.#searchFormSubmit.bind(this));
     }
 
     #buildMessageForWorkerManagerMap() {
@@ -141,6 +142,8 @@ export default class Hub {
         this.#messageForOutputManager.set('Change EChart Theme Event', this.#eChartThemeEvent.bind(this));
         this.#messageForOutputManager.set('Popup Closed Event', this.#popupClosedEvent.bind(this));
         this.#messageForOutputManager.set('Resize Popup Event', this.#resizePopupEvent.bind(this));
+
+        this.#messageForOutputManager.set('New Table Event', this.#newTableEvent.bind(this));
     }
 
     /** --- PRIVATE --- MESSAGE FOR ENVIRONMENT
@@ -157,11 +160,11 @@ export default class Hub {
      */
     #newModuleCreatedEvent(data) {
         if (invalidVariables([varTest(data.module, 'module', 'object'), varTest(data.templateExists, 'templateExists', 'boolean')], 'HUB', '#messageForEnvironment (New Module Created Event)')) return;
+        console.log(data);
         GM.ENV.insertModule(data.module, data.templateExists, data.groupKey);
         try {
             if (data.module.getData('requestMetadataOnCreation') === true) {
-                this.#makeMetadataRequest(this.#getNewWorkerIndex(), data.module.getData('name'), data.module.getData('onCreationFunction'))
-
+                this.#makeMetadataRequest(this.#getNewWorkerIndex(), data.module.getData('name'), data.module.getData('onCreationFunction'));
             }
         } catch (e) {
             console.log(e);
@@ -198,6 +201,7 @@ export default class Hub {
     #requestModuleKeyEvent(data) {
         if (invalidVariables([varTest(data.cb, 'cb', 'function'), varTest(data.name, 'name', 'string'), varTest(data.category, 'category', 'string')], 'HUB', '#messageForEnvironment (Request Module Key Event')) return;
         data.cb(data.name, data.category, GM.ENV.getNextNodeKey(), data.oldKey, data.groupKey);
+        console.log(data);
     }
 
     /** --- PUBLIC --- MESSAGE FOR ENVIRONMENT
@@ -428,6 +432,28 @@ export default class Hub {
     #readFileEvent(data) {
         if (invalidVariables([varTest(data.type, 'type', 'string'), varTest(data.source, 'source', 'string'), varTest(data.path, 'path', 'string'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Read File Event)')) return;
         else GM.IM.readFile(data.type, data.source, data.path, data.moduleKey);
+    }
+
+
+    #searchFormSubmit(data) {
+        if (invalidVariables([varTest(data.type, 'type', 'string'), varTest(data.formdata, 'formdata', 'object'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Search Form Submit Event)')) return;
+        //else GM.IM.searchFormSubmit(data.type, data.formdata, data.moduleKey); --> only prints input keys for now
+        const workerId = this.#getNewWorkerIndex();
+        GM.WM.notifyWorkerOfId(workerId)
+            .setStopWorkerFunction(workerId)
+            .setHandleReturnFunction(workerId) // pass callback function of a new table event?
+            .setWorkerMessageHandler(workerId)
+            .setWorkerReturnMessageRecipient(workerId, OUTPUT_MANAGER)
+            .setWorkerReturnMessage(workerId, 'New Table Event', data.moduleKey)
+            .queryDatabase(workerId, data.formdata);
+
+        //this.#setSearchData(data);
+
+        /*const workerId = this.#getNewWorkerIndex();
+         GM.WM.queryDatabase(workerId, data.formdata)*/
+
+        //console.log(returnData);
+        
     }
 
     /** --- PRIVATE --- MESSAGE FOR INPUT MANAGER
@@ -727,6 +753,44 @@ export default class Hub {
         }
     }
 
+    #newTableEvent(data) {
+        if (invalidVariables([varTest(data.id, 'id', 'number'), varTest(data.val, 'val', 'object'), varTest(data.linkDataNode, 'linkDataNode', 'boolean'), varTest(data.local, 'local', 'boolean')], 'HUB', ' #messageForOutputManager. (new table event)')) return;
+        //console.log(data);
+        //if (GM.OM.addData(data.id, data.val, data.local)) {
+            try {
+                // moduleCategory is Composite, but this node is actually a non-composite data node. Still using that category for color characteristics only.
+
+                // oncreation of module, add dataTable in this module, then create popup card
+
+                GM.MM.deployNewModule({ moduleName: 'Table', moduleCategory: 'Output', type: 'non-composite' });
+                const module = GM.MM.connectTableModule(data.id);
+                if (data.local) {
+                    module.setData(data);
+                }
+                else {
+                    module.setRemoteData(data.val.data);
+                    //module.getData('data');
+                }
+                if (module && data.linkDataNode) {
+                    // Connect the source module and the newly generated data module
+                    GM.ENV.drawLinkBetweenNodes(module.getData('link'), module.getData('key'));
+
+                    // The data belongs to the data module, not the source module.
+                    //GM.DM.swapDataKeys(module.getData('link'), module.getData('key'));
+                    const data = { moduleKey: module.getData('key') };
+                    this.#nodeSelectedEvent(data);
+                    // open popup
+                    console.log(module);
+                }
+            } catch (e) {
+                console.log('ERROR CREATING NEW TABLE MODULE');
+                console.log(e);
+            }
+        //}
+        // outputmanager draw chart
+
+    }
+
     /** --- PUBLIC ---
      * At application start, server is pinged to get routes and available objects.
      */
@@ -790,7 +854,7 @@ export default class Hub {
     /** --- PRIVATE ---
      * Initializes a new worker and sets necessary variables.
      * @param {Number} workerIndex id of the worker that will handle the task
-     * @param {Number} messageRecipient id of the recipient of the return message (ie OUTPUT_MANATER)
+     * @param {Number} messageRecipient id of the recipient of the return message (ie OUTPUT_MANAGER)
      *                             This can be undefined if no message needs to be directed to a specific component.
      * @param {string} returnMessage the message to send upon return 
      *                          This can be undefined if no message needs to be directed to a specific component.
@@ -803,7 +867,8 @@ export default class Hub {
                 .setHandleReturnFunction(workerIndex)
                 .setWorkerMessageHandler(workerIndex)
                 .setWorkerReturnMessageRecipient(workerIndex, messageRecipient)
-                .setWorkerReturnMessage(workerIndex, returnMessage)
+                // moduleId = -1 since this worker does not originate from a specific module
+                .setWorkerReturnMessage(workerIndex, returnMessage, -1)
         } else {
             return GM.WM.notifyWorkerOfId(workerIndex)
                 .setStopWorkerFunction(workerIndex)

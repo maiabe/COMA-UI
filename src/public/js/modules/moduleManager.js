@@ -252,20 +252,20 @@ export class ModuleManager {
         if (args.type === 'non-composite') {
             this.#sendMessage(
                 new Message(ENVIRONMENT, MODULE_MANAGER, 'Request Module Key Event',
-                    {
-                        name: args.moduleName,
-                        category: args.moduleCategory,
-                        cb: this.#createNewModule,
-                        oldKey: args.oldKey,
-                        groupKey: args.groupKey
-                    }));
+                {
+                    name: args.moduleName,
+                    category: args.moduleCategory,
+                    cb: this.#createNewModule,
+                    oldKey: args.oldKey,
+                    groupKey: args.groupKey
+                }));
         } else {
             this.#sendMessage(
                 new Message(ENVIRONMENT, MODULE_MANAGER, 'Create Composite Group Event',
-                    {
-                        callback: this.deployCompositeComponentsWithGroupKey.bind(this),
-                        name: args.moduleName
-                    }));
+                {
+                    callback: this.deployCompositeComponentsWithGroupKey.bind(this),
+                    name: args.moduleName
+                }));
         }
         return true;
     };
@@ -342,6 +342,28 @@ export class ModuleManager {
         });
         return returnModule;
     }
+
+    /** --- PUBLIC ---
+     * When a data module is generated, it connects to the table module that generated the data. 
+     * Search the module hash table and locate the unconnected module, then link them.
+     * This is called by the Hub during a 'New Table Event'.
+     * @param {number} key identifies the module that generated the data.
+     * @return {Module} the module that was modified or undefined.
+     */
+    connectTableModule(key) {
+        let returnModule = undefined
+        this.#moduleMap.forEach(module => {
+            if (key !== -1) { // Verify that this module exists in the environment
+                if (module.getData('link') === -1) { // Varify that no link exists already
+                    module.addData('link', key);
+                    returnModule = module;
+                    return; // Break the Loop
+                }
+            }
+        });
+        return returnModule;
+    }
+
 
     /** --- PUBLIC ---
      * Retrieves the module from the hash table.

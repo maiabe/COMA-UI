@@ -1,7 +1,8 @@
 
 let id = -1;
 let messageDataObject = {};
-const baseUrl = 'http://localhost:8080/';
+//const baseUrl = 'http://localhost:8080/';
+const baseUrl = 'http://localhost:1368/';
 
 
 const onMessageTable = new Map();
@@ -12,9 +13,28 @@ onMessageTable.set('Get Routes', getRoutes);
 onMessageTable.set('Get Metadata', getMetadata);
 onMessageTable.set('Save Module', saveModule);
 onMessageTable.set('Load Saved Modules', loadSavedModules);
-
+onMessageTable.set('Query COMA Engine', queryDatabase);
 
 onmessage = e => onMessageTable.get(e.data.type)(e);
+
+function queryDatabase(e) {
+    //console.log(e.data);
+    const message = { message: 'Query COMA Engine', data: e.data }
+    postCOMAData('https://coma.ifa.hawaii.edu/api/lightcurve', message.data)
+        .then(data => {
+            // Promise fulfilled
+            //console.log(data);
+            handleDatabaseQueryReturn(data);
+        },
+        // Promise rejected
+        reason => {
+            console.log(reason);
+            return reason;
+        }
+    );
+}
+
+
 
 function loadSavedModules(e) {
     const message = { message: 'Get Saved Modules' };
@@ -37,8 +57,8 @@ function saveModule(e) {
 function getMetadata(e) {
     const message = { message: 'Get Metadata', moduleName: e.data.moduleName }
     postData(baseUrl, message)
-    .then(data => {
-       handleReturn(data);
+        .then(data => {
+            handleReturn(data);
     });
 }
 
@@ -88,16 +108,23 @@ const handleReturnTable = new Map();
 
 handleReturnTable.set('InitialResponse', handleInitialResponseReturn);
 handleReturnTable.set('Status Check', handleStatusCheckReturn);
-handleReturnTable.set('Saved Modules', handleSavedModulesReturn)
+handleReturnTable.set('Saved Modules', handleSavedModulesReturn);
 handleReturnTable.set('Metadata Return', handleMetadataReturn);
+handleReturnTable.set('Database Query Return', handleDatabaseQueryReturn);
+
+function handleDatabaseQueryReturn(data) {
+    //console.log(data);
+    postMessage({ type: 'Database Query Return', clientId: id, data: data });
+}
 
 function handleMetadataReturn(data) {
-    postMessage({type: 'Metadata Return', clientId: id, data: data.returnData});
+    postMessage({ type: 'Metadata Return', clientId: id, data: data.returnData });
 }
 
 function handleSavedModulesReturn(responseJson) {
     postMessage({ type: 'Saved Modules Return', clientId: id, data: responseJson.returnData });
 }
+
 function handleInitialResponseReturn(data) {
     console.log(`Handle Initial Response: ${data}`);
 }
@@ -163,7 +190,7 @@ async function getRequest(url) {
 
 // Example POST method implementation:
 async function postData(url, data) {
-    //console.log(JSON.stringify(data));
+    console.log(JSON.stringify(data));
     // Default options are marked with *
     const response = await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -174,9 +201,72 @@ async function postData(url, data) {
             'Content-Type': 'application/json'
             // 'Content-Type': 'application/x-www-form-urlencoded',
         },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        //redirect: 'follow', // manual, *follow, error
+        //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: JSON.stringify(data) // body data type must match "Content-Type" header
     });
     return response.json(); // parses JSON response into native JavaScript objects
+}
+
+// Example POST method implementation:
+async function postCOMAData(url, body) {
+    console.log(body.data);
+    // Default options are marked with *
+    const response = await fetch(url, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        //cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'omit', // include, *same-origin, omit
+        headers: {
+            //'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            // 'Access-Control-Allow-Origin': '*'
+        },
+        //redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: body.data // body data type must match "Content-Type" header
+    });
+    const r = await response.json();
+    //console.log(r);
+
+    const result = getCOMATaskResults(r.task.id);
+    console.log(result);
+    //return JSON.stringify(result); // parses JSON response into native JavaScript objects
+    return result
+}
+
+
+
+// Example POST method implementation:
+async function getCOMATaskResults(id) {
+    const url = `https://coma.ifa.hawaii.edu/api/task/result/${id}`;
+    console.log(url);
+    // Default options are marked with *
+    const response = await fetch(url, {
+        method: 'GET', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        //cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'omit', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json',
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+            // 'Access-Control-Allow-Origin': '*'
+        },
+        //redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    });
+    const r = await response.json();
+    //console.log(r)
+    var counter = 0;
+    while ((r.status === "error") && (counter < 10)) {
+        getCOMATaskResults(id)
+        counter++;
+    }
+    const result = JSON.stringify(r);
+    //console.log(r);
+    if ((result == undefined) || (counter >= 10)) {
+        console.log("GET Failed: Maximum number of requests attempted");
+    }
+
+    return result; // parses JSON response into native JavaScript objects
 }

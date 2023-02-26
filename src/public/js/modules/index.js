@@ -1,6 +1,6 @@
 export { Module } from './module.js';
 export { Source } from './sourceModules/source.js';
-export { Sql } from './sourceModules/source.js';
+export { Search } from './sourceModules/searchSource.js';
 export { Csv } from './sourceModules/csvSource.js';
 export { Cholera } from './sourceModules/source.js';
 export { Processor } from './processorModules/processor.js';

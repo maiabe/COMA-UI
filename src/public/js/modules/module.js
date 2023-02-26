@@ -91,7 +91,7 @@ export class Module {
      */
     setInitialDataValues = (type, color, shape, command, name, imagePath, inports, outports, key, description) => {
         if (type && color && shape && command && name && imagePath && inports && outports && key) {
-            this.addData('type', type,);
+            this.addData('type', type);
             this.addData('image', imagePath);
             this.addData('color', color);
             this.addData('shape', shape);

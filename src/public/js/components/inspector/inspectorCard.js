@@ -14,6 +14,7 @@ import { MinMaxFilter } from './inspectorCardComponents/minMaxFilter.js';
 import { ConversionCard } from './inspectorCardComponents/conversionCard.js';
 import { Publisher, Message } from '../../communication/index.js';
 import { INSPECTOR, INSPECTOR_CARD } from '../../sharedVariables/constants.js';
+import { QueryCard } from './inspectorCardComponents/queryCard.js';
 
 /**
  * This class should not be called directly but called through the InspectorCardMaker.
@@ -384,6 +385,9 @@ export class InspectorCard {
         this.appendToBody(cardObject.getCard());
         return cardObject;
     }
+
+
+
 
     getCard = () => this.#wrapperElement;
 

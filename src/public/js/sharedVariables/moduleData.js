@@ -1,4 +1,4 @@
-import {Cholera, Sql, Csv, Filter, DataConversion, LineChart, BarChart, ScatterPlot, OrbitalPlot, Table, ToCSV, Composite, CompositePrefab, Data } from '../modules/index.js';
+import { Cholera, Search, Csv, Filter, DataConversion, LineChart, BarChart, ScatterPlot, OrbitalPlot, Table, ToCSV, Composite, CompositePrefab, Data } from '../modules/index.js';
 import { sourceColor, outputColor, processorColor, compositColor } from './colors.js';
 import { LOCAL_DATA_SOURCE } from "./constants.js";
 
@@ -23,9 +23,9 @@ const shapes = {
  */
 const moduleDataObject = [
     {
-        key: 'SQL',
-        moduleCreationFunction: (category, key) => new Sql(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
-        menuData: { icon: 'images/icons/sql-open-file-format.png', text: 'SQL', category: 'Source' }
+        key: 'Search',
+        moduleCreationFunction: (category, key) => new Search(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
+        menuData: { icon: 'images/icons/sql-open-file-format.png', text: 'Search', category: 'Source' }
     },
     {
         key: 'CSV File',

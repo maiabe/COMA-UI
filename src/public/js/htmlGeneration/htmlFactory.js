@@ -1,5 +1,5 @@
 
-import { TextAreaGenerator, H3Generator, H1Generator, DivGenerator, ParagraphGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider } from "./index.js";
+import { FormGenerator, TextAreaGenerator, H3Generator, H1Generator, DivGenerator, ParagraphGenerator, LabelGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider } from "./index.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
 export class HTMLFactory {
 
@@ -9,24 +9,28 @@ export class HTMLFactory {
     #divGenerator;            // Class that builds HTML divs with various features;
     #imgGenerator;            // Class that builds HTML imgs with various features;
     #paragraphGenerator;      // Class that builds HTML p with various features;
+    #labelGenerator;          // Class that builds HTML label with various features;
     #inputGenerator;          // Class that builds HTML inputs with various features;
     #selectGenerator;
     #h3Generator;
     #h1Generator;
     #checkboxGenerator;
     #textAreaGenerator;
+    #formGenerator;
 
     constructor() {
         this.#tableGenerator = new HTMLTableGenerator();
         this.#divGenerator = new DivGenerator();
         this.#imgGenerator = new ImgGenerator();
         this.#paragraphGenerator = new ParagraphGenerator();
+        this.#labelGenerator = new LabelGenerator();
         this.#inputGenerator = new InputGenerator();
         this.#selectGenerator = new SelectGenerator();
         this.#h3Generator = new H3Generator();
         this.#h1Generator = new H1Generator();
         this.#checkboxGenerator = new CheckboxGenerator();
         this.#textAreaGenerator = new TextAreaGenerator();
+        this.#formGenerator = new FormGenerator();
     };
 
     createNewTable(dataTable, rowLimit) {
@@ -73,6 +77,20 @@ export class HTMLFactory {
      */
     createNewParagraph(id, name, classlist, customStyles, text) {
         return this.#paragraphGenerator.generateNewParagraph(id, name, classlist, customStyles, text);
+    }
+
+    /** Creates a new HTML label element
+     * @param id -> the id of the element (if not adding id, use empty string '')
+     * @param name -> the name of the element (if not adding name, use empty string '')
+     * @param classlist -> Array of strings, each string is a css classname
+     * @param customStyles -> array of objects in the following format
+     *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
+     *                         value: 'green;}
+     * @param text -> a string to display in the p element.
+     * @return the new p
+     */
+    createNewLabel(id, name, $for, classlist, customStyles, text) {
+        return this.#labelGenerator.generateNewLabel(id, name, $for, classlist, customStyles, text);
     }
 
     /** Creates a new HTML h3 element
@@ -162,6 +180,21 @@ export class HTMLFactory {
     createNewTextArea(id, name, classlist, customStyles,) {
         return this.#textAreaGenerator.generateTextArea(id, name, classlist, customStyles);
     }
+    
+    /** Creates a new HTML form element
+             * @param id -> the id of the element (if not adding id, use empty string '')
+             * @param name -> the name of the element (if not adding name, use empty string '')
+             * @param classlist -> Array of strings, each string is a css classname
+             * @param customStyles -> array of objects in the following format
+             *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
+             *                         value: 'green;}
+             * @return the new button
+             */
+    createNewForm(id, name, classlist, customStyles,) {
+        return this.#formGenerator.generateForm(id, name, classlist, customStyles);
+    }
+
+
 
     /**
      * Creates a new Drop Down

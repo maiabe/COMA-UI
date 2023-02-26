@@ -162,6 +162,7 @@ export class Environment {
      * @param {object (Module)} module The module object that will be represented as a node in the graph */
     #createTemplate = module => {
         if (invalidVariables([varTest(module, 'module', 'object')], 'Environment', '#createTemplate')) return;
+        //console.log(module);
         this.#makeTemplate(module.getData('name'), module.getData('image'), module.getData('color'), module.getData('shape'), this.#unpackPortArray(module, 'inports'), this.#unpackPortArray(module, 'outports'), module.getData('inportType'), module.getData('outportType'));
     }
 
@@ -548,7 +549,7 @@ export class Environment {
      * @returns 
      */
     #createPortObject = (gojs, name, type) => {
-        console.log(name)
+        console.log(name);
         return gojs(go.Shape, "Rectangle",
             {
                 fill: typeColorArray[type], stroke: null,

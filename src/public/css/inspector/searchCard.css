@@ -1,0 +1,49 @@
+
+.search-form-wrapper {
+    width: 100%;
+
+}
+
+.search-form {
+    width: 100%;
+}
+
+.search-object-wrapper,
+.search-buttons-wrapper
+{
+    width: 100%;
+    flex-flow: column;
+}
+
+ .date-range-min-wrapper,
+ .date-range-max-wrapper,
+ .search-object-input-wrapper,
+ .search-buttons-inner-wrapper
+{
+    padding-top: 3%;
+    padding-bottom: 3%;
+    padding-left: 5%;
+    padding-right: 5%;
+ }
+
+.date-range-min-wrapper label,
+.date-range-max-wrapper label,
+.search-object-input-wrapper label {
+    vertical-align: -webkit-baseline-middle;
+}
+
+.date-range-min-wrapper input,
+.date-range-max-wrapper input,
+.search-object-input-wrapper input {
+    width: 75%;
+    height: 1.5rem;
+    float: right;
+}
+
+
+#searchBtn {
+     float: right;
+     padding: 3px;
+     font-size: 110%;
+ }
+

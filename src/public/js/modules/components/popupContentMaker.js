@@ -26,7 +26,7 @@ export class PopupContentMaker {
     /** --- PUBLIC ---
      * Creates the HTML elements for the file upload section and binds a callback function to the button.
      * @param {function} callback validates the file on the CSV module
-     * @param {number} key id of the CSV module that created this. 
+     * @param {number} key id of the CSV module that created this.
      */
     createFileUploadField(callback, key) {
         const uploadWrapper = this.HF.createNewDiv('', '', ['uploadWrapper'], []);
@@ -53,6 +53,15 @@ export class PopupContentMaker {
     */
     addMetadataCard(metadata) {
         console.log(metadata);
+    }
+
+    addDataCard(data) {
+        // create table elements
+        // display headers
+        // display content
+        //console.log(data);
+
+        return this.HF.createNewTable(data, 1000);
     }
 
     /** --- PUBLIC ---

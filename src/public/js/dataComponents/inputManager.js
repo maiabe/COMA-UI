@@ -1,7 +1,7 @@
 import { Message, Publisher } from '../communication/index.js';
 import { CsvReader, DataTable } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
-import { DATA_MANAGER, INPUT_MANAGER } from '../sharedVariables/index.js';
+import { DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER } from '../sharedVariables/index.js';
 
 export class InputManager {
 
@@ -46,10 +46,31 @@ export class InputManager {
                 linkDataNode: true,
                 local: true
             }
-            const msg = new Message(DATA_MANAGER, INPUT_MANAGER, 'New Data Event', data);
+            const msg = new Message(OUTPUT_MANAGER, INPUT_MANAGER, 'New Table Event', data);
             this.publisher.publishMessage(msg);
         }
     }
+
+
+    searchFormSubmit = (type, formdata, moduleKey) => {
+        // validate search input, then send input to worker manager for api call
+        // send message to output manager with the json response from worker manager
+        const keys = formdata.keys();
+        for (let value of keys) {
+            console.log(value)
+        }
+        // Validate input
+        // send message to Worker Manager
+
+
+        // store json result in variable
+        // send message to output manager with json result data
+
+
+        console.log("inside searchFormSubmit in Input Manager");
+    }
+
+
 
     addRoutes = routes => this.#dataTable.set('routes', routes);
     addObjects = objects => this.#dataTable.set('objects', objects);

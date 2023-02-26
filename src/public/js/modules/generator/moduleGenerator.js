@@ -1,4 +1,3 @@
-
 import { moduleDataObject } from "../../sharedVariables/moduleData.js";
 
 export class ModuleGenerator {

@@ -13,6 +13,7 @@ export class OutputManager {
     #chartBuilder;
     #activeChartMap;
     #csvWriter;
+    #dataTable;
 
     constructor() {
         this.publisher = new Publisher();
@@ -20,6 +21,7 @@ export class OutputManager {
         this.#chartBuilder = new ChartBuilder();
         this.#activeChartMap = new Map();
         this.#csvWriter = new CsvWriter();
+        this.#dataTable = new Map();
     };
 
     /** --- PUBLIC ---
@@ -180,4 +182,22 @@ export class OutputManager {
     removeOutputData(key) {
         if (this.#outputMap.has(key)) this.#outputMap.delete(key);
     }
+
+
+
+    /** --- PUBLIC ---
+     * Adds to the data table. If the specified key is in the table, it will be overwritten.
+     * @param {number} key key into the data table. It is also the key to the module associated with this data.
+     * @param {object} val the value linked to the key. This is the "data".
+     * @param {boolean} local true if the data was generated locally (creates metadata)
+     */
+    addData = (key, val, local) => {
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(val, 'val', 'object'), varTest(local, 'local', 'boolean')], 'OutputManager', 'addData')) return false;
+        if (this.#dataTable.has(key)) console.log(`Data Table already has key: ${key} in it. Will Overwrite. -- DataManager -> addData.`);
+        this.#dataTable.set(key, { data: val });
+        let metadata = undefined;
+        if (local) metadata = val.data.setMetadata();
+        return true;
+    }
+
 }

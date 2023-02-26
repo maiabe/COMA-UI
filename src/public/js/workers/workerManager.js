@@ -1,6 +1,6 @@
 import { Message, Publisher } from '../communication/index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
-import { ENVIRONMENT, DATA_MANAGER, WORKER_MANAGER } from '../sharedVariables/constants.js';
+import { ENVIRONMENT, DATA_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER } from '../sharedVariables/constants.js';
 import { GM } from '../main.js';
 
 export class WorkerManager {
@@ -71,13 +71,14 @@ export class WorkerManager {
     setWorkerReturnMessageRecipient = (id, recipient) => {
         if (invalidVariables([varTest(id, 'id', 'number'), varTest(recipient, 'recipient', 'number')], 'WorkerManager', 'setReturnMessageRecipient')) return undefined;
         if (this.#workers.has(id)) this.#workers.get(id).returnMessageRecipient = recipient;
+        console.log(recipient);
         return this;
     }
 
-    setWorkerReturnMessage = (id, message) => {
-        if (invalidVariables([varTest(id, 'id', 'number'), varTest(message, 'message', 'string')], 'WorkerManager', 'setReturnMessage')) return undefined;
+    setWorkerReturnMessage = (id, message, moduleId) => {
+        if (invalidVariables([varTest(id, 'id', 'number'), varTest(message, 'message', 'string'), varTest(moduleId, 'moduleId', 'number')], 'WorkerManager', 'setReturnMessage')) return undefined;
         if (this.#workers.has(id)) {
-            this.#workers.get(id).returnMessage = message;
+            this.#workers.get(id).returnMessage = { moduleId: moduleId, message: message };
             return this;
         } else return undefined;
     }
@@ -91,6 +92,7 @@ export class WorkerManager {
         if (invalidVariables([varTest(id, 'id', 'number')], 'WorkerManager', 'setWorkerMessageHandler')) return undefined;
         if (this.#workers.has(id)) {
             const workerObject = this.#workers.get(id);
+            console.log(workerObject);
             workerObject.worker.onmessage = event => {
                 switch (event.data.type) {
                     case 'Text Only':
@@ -106,14 +108,28 @@ export class WorkerManager {
                         workerObject.handleReturnFunction(event.data.data, 'incomplete');
                         break;
                     case 'Server Return Event':
-                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage, event.data));
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, event.data));
                         workerObject.stopWorkerFunction(id);
                         break;
                     case 'Saved Modules Return':
-                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage, event.data));
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, event.data));
                         break;
                     case 'Metadata Return':
-                        workerObject.handleReturnFunction(event.data.data)
+                        workerObject.handleReturnFunction(event.data.data);
+                        break;
+                    case 'Database Query Return':
+                        const newTableData = {
+                            val: {
+                                type: 'table',
+                                data: event.data.data
+                            },
+                            id: workerObject.returnMessage.moduleId,
+                            linkDataNode: true,
+                            local: false
+                        }
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, newTableData));
+                        //workerObject.handleReturnFunction(event.data.data);
+                        //console.log(event);
                         break;
                 }
             }
@@ -222,6 +238,7 @@ export class WorkerManager {
     }
 
     #sendMessage = msg => {
+        console.log(msg);
         this.publisher.publishMessage(msg);
     };
 
@@ -230,7 +247,7 @@ export class WorkerManager {
      * @param {object} results Results object varies based on event status. If Complete, contains data, if incomplete, contains array of completed keys.
      */
     handleReturn = (results) => {
-        if (invalidVariables([varTest(results, 'results', 'object'), varTest(event, 'event', 'string')], 'WorkerManager', 'handleReturn')) retur;
+        if (invalidVariables([varTest(results, 'results', 'object'), varTest(event, 'event', 'string')], 'WorkerManager', 'handleReturn')) return false;
         // let msg;
         // switch (event) {
         //     case 'complete':
@@ -260,6 +277,40 @@ export class WorkerManager {
         console.log('Die Minions');
         for (let key of this.#workers.keys()) this.stopWorker(key);
     }
+
+
+    // make API call to query database
+    queryDatabase(workerId, formdata) {
+        /*console.log(workerId);
+        for (let value of formdata.values()) {
+            console.log(value);
+        }*/
+
+
+        // make api call
+        if (this.#workers.has(workerId)) {
+            const entries = {};
+            formdata.forEach((value, key) => { entries[key] = value });
+
+            this.#workers.get(workerId).worker.postMessage({ type: 'Query COMA Engine', data: formatQuery(entries) });
+        }
+
+        // stop worker after setting data to module
+
+        // return json result
+        console.log(this.#workers.get(workerId));
+    }
+    
+
+}
+
+// format body of the query
+function formatQuery(query) {
+    let body = "";
+    Object.keys(query).forEach((key) => (body += `${key}=${query[key]}&`));
+    body = body.slice(0, body.length - 1);
+    //console.log(body);
+    return body;
 }
 
 /**
@@ -270,5 +321,7 @@ document.addEventListener('keyup', e => {
         GM.WM.destroyAllWorkers();
     }
 });
+
+
 
 

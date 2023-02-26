@@ -17,6 +17,7 @@ class DatabaseSimulator {
     }
 
     setFilePaths() {
+        this.#files.set('Search', './localFileStorage/searchModule.json');
         this.#files.set('Cholera', './localFileStorage/cholera.json');
     }
 
@@ -35,6 +36,7 @@ class DatabaseSimulator {
             returnData: this.#db.get(name).metadata,
             type: 'Metadata Return'
         }
+
         return JSON.stringify(object);
     }
 

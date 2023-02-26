@@ -45,13 +45,12 @@ export class Cholera extends Source {
     }
 }
 
-export class Sql extends Source {
+/*export class Sql extends Source {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'remote', 'querySql', 'SQL Query', 'images/icons/sql-open-file-format.png', [], [{ name: 'OUT', leftSide: false }], key);
         this.setPopupContent();
     }
-
-}
+}*/
 
 
 

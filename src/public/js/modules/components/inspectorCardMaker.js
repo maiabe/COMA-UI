@@ -7,14 +7,16 @@
 import { InspectorCard } from '../../components/inspector/inspectorCard.js';
 import { Publisher, Message, Subscriber } from '../../communication/index.js';
 import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
-import { INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER } from '../../sharedVariables/constants.js';
+import { INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER } from '../../sharedVariables/constants.js';
 
 /**
  * This class is an intermediary between the Insepctor Card and the Modules. This Object has specific function
  * names that I think were easier to read and understand when creating elements.
  */
 export class InspectorCardMaker {
+    dataTable;
     constructor(name, color, key) {
+        this.dataTable = new Map();
         this.inspectorCard = new InspectorCard(name, color, key);
         this.publisher = new Publisher();
         this.subscriber = new Subscriber(this.messageHandler.bind(this));
@@ -302,6 +304,71 @@ export class InspectorCardMaker {
      * @returns the HTML element
      */
     #createInspectorCardHorizontalFlexContainer = () => this.HF.createNewDiv('', '', ['inspector-card-horizontal-flex-container'], []);
+
+    addSearchFormFields(key) {
+        //this.addFilterCards(metadata);
+
+        const searchWrapper = this.HF.createNewDiv('', '', ['search-form-wrapper'], []);
+        this.dataTable.set('searchForm', this.HF.createNewForm('search-form-' + key.toString(), '', ['search-form'], []));
+        const searchForm = this.getField('searchForm');
+
+
+        const dateRangeWrapper = this.HF.createNewDiv('', '', ['search-date-range-wrapper'], []);
+        const dateRangeMinWrapper = this.HF.createNewDiv('', '', ['date-range-min-wrapper'], []);
+        const dateRangeMaxWrapper = this.HF.createNewDiv('', '', ['date-range-max-wrapper'], []);
+
+        const dateRangeMinLabel = this.HF.createNewLabel('', '', ['begin'], [], [], ['Min Date: ']);
+        const dateRangeMaxLabel = this.HF.createNewLabel('', '', ['end'], [], [], ['Max Date: ']);
+        const dateRangeMinInput = this.HF.createNewTextInput('date-range-min-input', 'begin', ['date-range-min-input'], [], '', '');
+        const dateRangeMaxInput = this.HF.createNewTextInput('date-range-max-input', 'end', ['date-range-max-input'], [], '', '');
+
+        const objectWrapper = this.HF.createNewDiv('', '', ['search-object-input-wrapper'], []);
+        const objectLabel = this.HF.createNewLabel('', '', 'object', [], [], ['Comet: ']);
+        const objectTextInput = this.HF.createNewTextInput('object-input', 'object', ['object-input'], [], '', '');
+
+        //const buttonsWrapper = this.HF.createNewDiv('', '', ['search-buttons-wrapper'], []);
+        const buttonsInnerWrapper = this.HF.createNewDiv('', '', ['search-buttons-inner-wrapper'], []);
+        // ************************** need to append module id to searchBtn id?
+        this.dataTable.set('searchFormButton', this.HF.createNewButton('searchBtn', '', ['search-button'], ['border-radius: 3px'], 'submit', 'Search', false));
+
+        this.inspectorCard.appendToBody(searchWrapper);
+        searchWrapper.appendChild(searchForm);
+        searchForm.appendChild(dateRangeWrapper);
+        searchForm.appendChild(objectWrapper);
+        searchForm.appendChild(buttonsInnerWrapper);
+
+        dateRangeWrapper.appendChild(dateRangeMinWrapper);
+        dateRangeWrapper.appendChild(dateRangeMaxWrapper);
+        dateRangeMinWrapper.appendChild(dateRangeMinLabel);
+        dateRangeMinWrapper.appendChild(dateRangeMinInput);
+        dateRangeMaxWrapper.appendChild(dateRangeMaxLabel);
+        dateRangeMaxWrapper.appendChild(dateRangeMaxInput);
+
+        objectWrapper.appendChild(objectLabel);
+        objectWrapper.appendChild(objectTextInput);
+
+        //this.inspectorCard.appendToBody(buttonsWrapper);
+        //buttonsWrapper.appendChild(buttonsInnerWrapper);
+        buttonsInnerWrapper.appendChild(this.getField('searchFormButton'));
+
+        this.getField('searchFormButton').addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const data = new FormData(searchForm);
+            //console.log(data.get('object-input'));
+            const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Search Form Submit Event', {
+                type: 'form',
+                formdata: data,
+                moduleKey: key
+            });
+            this.sendMessage(message);
+        });
+
+    }
+
+
+    getField = key => this.dataTable.get(key);
+
 
     /** --- PUBLIC ---
      * Gets the wrapper element of the card
