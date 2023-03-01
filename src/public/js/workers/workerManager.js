@@ -118,16 +118,16 @@ export class WorkerManager {
                         workerObject.handleReturnFunction(event.data.data);
                         break;
                     case 'Database Query Return':
-                        const newTableData = {
+                        const searchResultData = {
                             val: {
                                 type: 'table',
                                 data: event.data.data
                             },
-                            id: workerObject.returnMessage.moduleId,
+                            moduleId: workerObject.returnMessage.moduleId,
                             linkDataNode: true,
                             local: false
                         }
-                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, newTableData));
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, searchResultData));
                         //workerObject.handleReturnFunction(event.data.data);
                         //console.log(event);
                         break;

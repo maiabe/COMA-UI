@@ -99,6 +99,7 @@ export default class Hub {
         this.#messageForModuleManager.set('Nodes Deleted Event', this.#nodesDeletedEvent.bind(this));
         this.#messageForModuleManager.set('Link Drawn Event', this.#linkDrawnEvent.bind(this));
 
+        this.#messageForModuleManager.set('Set Search Result Content', this.#setSearchResultContent.bind(this));
     }
 
     #buildMessageForInspector() {
@@ -443,17 +444,24 @@ export default class Hub {
             .setStopWorkerFunction(workerId)
             .setHandleReturnFunction(workerId) // pass callback function of a new table event?
             .setWorkerMessageHandler(workerId)
-            .setWorkerReturnMessageRecipient(workerId, OUTPUT_MANAGER)
-            .setWorkerReturnMessage(workerId, 'New Table Event', data.moduleKey)
-            .queryDatabase(workerId, data.formdata);
+            .setWorkerReturnMessageRecipient(workerId, MODULE_MANAGER)
+            .setWorkerReturnMessage(workerId, 'Set Search Result Content', data.moduleKey)
+            .queryDatabase(workerId, data.formdata)
+    }
 
-        //this.#setSearchData(data);
+    /***************** Mai 022823 ******************/
+    /**
+     * Updates a popup content for this search module with the search result
+     *  @param {number} data.moduleId moduleId
+     *  @param {Object} data.val search result data
+     * */
+    #setSearchResultContent(data) {
+        console.log(data.id);
+        if (invalidVariables([varTest(data.val, 'val', 'object'), varTest(data.moduleId, 'moduleId', 'number'), varTest(data.linkDataNode, 'linkDataNode', 'boolean'), varTest(data.local, 'local', 'boolean')], 'HUB', '#messageForPopupManager (Set Search Result Content)')) return;
+        GM.MM.updatePopupContentForModule(data.moduleId, data.val);
 
-        /*const workerId = this.#getNewWorkerIndex();
-         GM.WM.queryDatabase(workerId, data.formdata)*/
-
-        //console.log(returnData);
-        
+        // Open popup if not opened yet
+        if (!GM.PM.isPopupOpen(data.moduleId)) this.#openModulePopup(data.moduleId, 0, 0);
     }
 
     /** --- PRIVATE --- MESSAGE FOR INPUT MANAGER
@@ -753,6 +761,15 @@ export default class Hub {
         }
     }
 
+    /** --- PRIVATE --- Message For Output Manager
+     * Draws a Table to a module popup. Uses Plotly to create the chart instead of ECharts.
+     * @param {{
+     * id (Number): module id,
+     * val (Object): values of the data response
+     * linkDataNode (Boolean): Draw a link to the module or not
+     * local (Boolean): Data comes from local or remote.
+     * }} data 
+     */
     #newTableEvent(data) {
         if (invalidVariables([varTest(data.id, 'id', 'number'), varTest(data.val, 'val', 'object'), varTest(data.linkDataNode, 'linkDataNode', 'boolean'), varTest(data.local, 'local', 'boolean')], 'HUB', ' #messageForOutputManager. (new table event)')) return;
         //console.log(data);

@@ -55,13 +55,14 @@ export class PopupContentMaker {
         console.log(metadata);
     }
 
-    addDataCard(data) {
+    addDataCard(data, tableId) {
         // create table elements
         // display headers
         // display content
         //console.log(data);
 
-        return this.HF.createNewTable(data, 1000);
+        // change to plotly data display instead of HTML
+        return this.HF.createNewTable(data, 10, tableId);
     }
 
     /** --- PUBLIC ---
@@ -72,6 +73,19 @@ export class PopupContentMaker {
         this.dataTable.set('dataArea', this.HF.createNewDiv('csvDataArea', 'csvDataArea', [], []));
         this.getPopupContentWrapper().appendChild(this.dataTable.get('dataArea'));
         return this.getField('dataArea');
+    }
+
+    /***************** Mai 022823 ******************/
+    /** --- PUBLIC ---
+     * Called from Search Module when data is queried. This will create a search result data table
+     * @params {Object} data to update content with 
+     * @returns HTML div (content of the popup to be updated)
+     */
+    setSearchResultTable(data) {
+        // parse json result to headers object and tableContent object
+        // create table div with parsed data
+        const newTable = this.HF.createNewTable(data, 10);
+        return this.getPopupContentWrapper().appendChild(newTable);
     }
 
     /** --- PUBLIC ---

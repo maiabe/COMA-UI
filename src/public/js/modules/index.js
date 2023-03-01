@@ -19,3 +19,4 @@ export { ModuleManager } from './moduleManager.js';
 export { ModuleGenerator } from './generator/moduleGenerator.js';
 export { Data } from './dataModule/dataModule.js';
 export { SaveCompositeModulePopupContent } from './components/saveCompositeModulePopupContent.js';
+export { PopupContentMaker } from './components/popupContentMaker.js';

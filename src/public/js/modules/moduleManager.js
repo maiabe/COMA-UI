@@ -1,4 +1,4 @@
-import { ModuleGenerator, SaveCompositeModulePopupContent } from './index.js';
+import { ModuleGenerator, SaveCompositeModulePopupContent, PopupContentMaker } from './index.js';
 import { Message, Publisher, Subscriber } from '../communication/index.js';
 import { invalidVariables, printErrorMessage, varTest } from '../errorHandling/errorHandlers.js';
 import { ENVIRONMENT, MODULE_MANAGER, MODULE, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR, POPUP_MANAGER, WORKER_MANAGER } from '../sharedVariables/index.js';
@@ -9,6 +9,7 @@ export class ModuleManager {
     #MG;                  // Module Generator
     #moduleMap;           // Hash Table that stores modules {module key: module object}
     #compositePrefabMap;  // Stores the makeup of the prefabricated (ie. User created and saved) composite modules.
+    #PCM;                 // Popup Content Maker
 
     constructor() {
         this.#MG = new ModuleGenerator();
@@ -18,6 +19,7 @@ export class ModuleManager {
         this.#compositePrefabMap = new Map();
         this.messageHandlerMap = new Map();
         this.#buildMessageHandlerMap();
+        this.#PCM = new PopupContentMaker();
     };
 
     /* ########################## PRIVATE CLASS METHODS ##############################  */
@@ -405,6 +407,32 @@ export class ModuleManager {
         } else printErrorMessage('module is undefined', `key: ${key}. -- ModuleManager -> getPopupContentForModule`);
         return content;
     }
+
+
+    /***************** Mai 022823 ******************/
+    /** --- PUBLIC ---
+     * Create updated popup content and update popup for this module. 
+     * @param {number} key the key of the module to get.
+     * @param {string} type the type of the resulting display.
+     * @param {object} data data to update to.
+     */
+    updatePopupContentForModule(moduleKey, data) {
+        const module = this.getModule(moduleKey);
+        let content = undefined;
+        if (module) {
+            // switch statement for each type of display (data.type)
+
+            // create content for this module
+            content = this.#PCM.setSearchResultTable(data.data);
+            console.log(data.data);
+
+            // update module with this content
+            module.updatePopupContent(content);
+        } else printErrorMessage('module is undefined', `key: ${key}. -- ModuleManager -> setPopupContentForModule`);
+    }
+
+
+
 
     /** --- PUBLIC ---
      * When a new link is drawn between 2 modules, this function checks to see if the link is drawn between a composite data module and some

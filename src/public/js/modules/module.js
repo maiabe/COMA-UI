@@ -124,6 +124,10 @@ export class Module {
         this.addData('popupContent', popupContent, false, '', false);
     }
 
+    updatePopupContent = (content) => {
+        this.addData('popupContent', content, false, '', false);
+    }
+
     /** --- PUBLIC ---
      * Adds data to this modules data hash table.
      * @param {string} key the key for the hash table 

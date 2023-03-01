@@ -21,10 +21,10 @@ export class Table extends Output {
     }
 
     setPopupContent = () => {
-        const popupContent = this.HF.createNewDiv('', '', [], []);
-        const tablePopup = this.HF.createNewDiv(`table-popup`, `table-popup`, ['table-popup'], []);
+        const popupContent = this.HF.createNewDiv('table-popup', 'table-popup', ['table-popup'], []);
+        //const tablePopup = this.HF.createNewDiv(`table-popup`, `table-popup`, ['table-popup'], []);
 
-        popupContent.appendChild(tablePopup);
+        //popupContent.appendChild(tablePopup);
         this.addData('popupContent', popupContent, false, '', false);
         //this.addData('plotDiv', plotDiv, false, '', false);
 
@@ -71,7 +71,7 @@ export class Table extends Output {
         // add headers
         this.addData('data', data);
         const wrapper = this.getData('popupContent');
-        const content = this.popupContentMaker.addDataCard(data);
+        const content = this.popupContentMaker.addDataCard(data, 'remote-data-' + this.getData('key'));
         wrapper.appendChild(content);
 
         this.addData('linkedToData', true);
