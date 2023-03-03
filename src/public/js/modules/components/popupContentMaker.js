@@ -110,7 +110,7 @@ export class PopupContentMaker {
 
         //console.log(content);
 
-        this.chartBuilder.plotData(data, 'table', content, 2000, 1000, 'plotly');
+        this.chartBuilder.plotData(data, 'table', content, 1800, 800, 'plotly');
 
     }
 

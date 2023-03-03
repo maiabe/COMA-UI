@@ -41,6 +41,9 @@
     <Content Include="src\public\css\inspector\searchCard.css">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\public\css\plotlyChart.css">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\public\index.html" />
     <Content Include="src\public\css\main.css" />
     <Content Include="src\public\css\moduleSelectionMenu.css" />

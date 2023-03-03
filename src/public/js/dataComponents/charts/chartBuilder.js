@@ -358,38 +358,61 @@ export class ChartBuilder {
     * @returns Plotly chart object
     */
     #drawPlotlyChart = (data, type, pdiv, width, height) => {
-        console.log(data);
-
-        //data = data.data;
         data = this.#getPlotlyType(data, type);
-        const chart = Plotly.newPlot(pdiv, [data], {
-            margin: {
-                t: 40,
-            },
-            width: width,
-            height: height,
-            xaxis: {
-                title: {
-                    text: 'x Axis',
-                    font: {
-                        family: 'Arial, monospace',
-                        size: 18,
-                        color: '#7f7f7f'
+        let result = undefined;
+        switch (type) {
+            case 'line':
+                result = Plotly.newPlot(pdiv, [data], {
+                    margin: {
+                        t: 40,
+                    },
+                    width: width,
+                    height: height,
+                    xaxis: {
+                        title: {
+                            text: 'x Axis',
+                            font: {
+                                family: 'Arial, monospace',
+                                size: 18,
+                                color: '#7f7f7f'
+                            }
+                        },
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'y Axis',
+                            font: {
+                                family: 'Arial, monospace',
+                                size: 18,
+                                color: '#7f7f7f'
+                            }
+                        }
                     }
-                },
-            },
-            yaxis: {
-                title: {
-                    text: 'y Axis',
-                    font: {
-                        family: 'Arial, monospace',
-                        size: 18,
-                        color: '#7f7f7f'
+                });
+                break;
+            case 'table':
+                result = Plotly.newPlot(pdiv, [data], {
+                    margin: {
+                        t: 20,
+                        l: 20,
+                        r: 20,
+                        b: 20
+                    },
+                    width: width,
+                    height: height,
+                    yaxis: {
+                        //range: [0, 50]
+                        autorange: true,
+                        auto_width: true
+                    },
+                    xaxis: {
+                        autorange: true,
+                        auto_width: true
                     }
-                }
-            }
-        });
-        return chart;
+                });
+                break;
+        }
+        return result;
     }
 
     /** --- PRIVATE ---
@@ -447,11 +470,14 @@ export class ChartBuilder {
 
         const header = {
             values: [],
-            align: "center",
-            line: { width: 0.5, color: "#383838" },
+            align: ['center', 'center'],
+            line: { width: 0.5, color: 'white' },
             fill: { color: "#383838" },
             font: { family: "Arial", size: 18, color: "white" },
-            height: 50
+            height: 50,
+            style: { 'text-align': 'center', 'translate': 'transform(2%, 2%)' },
+            width: 'auto',
+            auto_width: true,
         };
 
         data.headerNames = [];
@@ -472,10 +498,13 @@ export class ChartBuilder {
     #getPlotlyTableCellsObject = data => {
         const cellObject = {
             values: [],
-            align: "right",
-            line: { color: "#001c30", width: 0.5 },
-            font: { family: "Arial", size: 18, color: ["#171717"] },
-            height: 45
+            align: ['center', 'center'],
+            line: { color: "#737373", width: 0.5 },
+            font: { family: "Arial", size: 16, color: ["#171717"] },
+            height: 35,
+            width: 'auto',
+            auto_width: true,
+            //style: { 'text-align': 'center' }
         };
         data.headerNames.forEach(header => {
             cellObject.values.push(data[header]);

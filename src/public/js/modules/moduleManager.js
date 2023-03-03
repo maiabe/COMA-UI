@@ -444,7 +444,6 @@ export class ModuleManager {
                 );
             });*/
 
-
             headers.forEach(function (item) {
                 Object.assign(cells,
                     {
@@ -452,9 +451,6 @@ export class ModuleManager {
                     }
                 );
             });
-
-            // get popup div for this module
-
             // create content for this module
             this.#PCM.setSearchResultTable(cells, content.content);
 
