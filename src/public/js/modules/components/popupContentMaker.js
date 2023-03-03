@@ -1,5 +1,6 @@
 import { HTMLFactory } from "../../htmlGeneration/htmlFactory.js";
 import chartThemes from '../../dataComponents/charts/echarts/theme/echartsThemes.js';
+import { ChartBuilder } from '../../dataComponents/charts/chartBuilder.js';
 import { Message, Publisher } from "../../communication/index.js";
 import { POPUP_CONTENT_MAKER, INPUT_MANAGER, OUTPUT_MANAGER } from "../../sharedVariables/constants.js";
 
@@ -12,6 +13,7 @@ export class PopupContentMaker {
         this.HF = new HTMLFactory();
         this.dataTable.set('popupContentWrapper', this.HF.createNewDiv('', '', [], []));
         this.publisher = new Publisher();
+        this.chartBuilder = new ChartBuilder();
     }
 
     /** --- PUBLIC ---
@@ -59,10 +61,12 @@ export class PopupContentMaker {
         // create table elements
         // display headers
         // display content
-        //console.log(data);
+        // console.log(data);
 
         // change to plotly data display instead of HTML
         return this.HF.createNewTable(data, 10, tableId);
+
+        
     }
 
     /** --- PUBLIC ---
@@ -75,17 +79,39 @@ export class PopupContentMaker {
         return this.getField('dataArea');
     }
 
+
+    /** --- PUBLIC ---
+     * Stores the chart information and data into the outputmap hash table.
+     * @param {number} key key identifying the location in the hash table. it is also the id of the module associated with this chart.
+     * @param {object} data the data that is used for the chart
+     * @param {object} div the html div to inject the chart
+     * @param {string} type the type of chart. ie. 'bar', 'scatter'
+     * @param {string} xAxisLabel (Optional)
+     * @param {string} yAxisLabel (Optional)
+     * @returns true if successful, false if failure  *//*
+    storeChartData = (key, data, div, type, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(div, 'div', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
+        this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark', xAxisLabel: xAxisLabel, yAxisLabel: yAxisLabel, xAxisGrid: xAxisGrid, yAxisGrid: yAxisGrid, xAxisTick: xAxisTick, yAxisTick: yAxisTick, coordinateSystem: coordinateSystem });
+        return true;
+    }*/
+
+
     /***************** Mai 022823 ******************/
     /** --- PUBLIC ---
      * Called from Search Module when data is queried. This will create a search result data table
      * @params {Object} data to update content with 
      * @returns HTML div (content of the popup to be updated)
      */
-    setSearchResultTable(data) {
+    setSearchResultTable(data, content) {
         // parse json result to headers object and tableContent object
         // create table div with parsed data
-        const newTable = this.HF.createNewTable(data, 10);
-        return this.getPopupContentWrapper().appendChild(newTable);
+        /*const newTable = this.HF.createNewTable(data, 10);
+        return this.getPopupContentWrapper().appendChild(newTable);*/
+
+        //console.log(content);
+
+        this.chartBuilder.plotData(data, 'table', content, 2000, 1000, 'plotly');
+
     }
 
     /** --- PUBLIC ---

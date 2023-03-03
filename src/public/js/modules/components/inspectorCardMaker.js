@@ -326,6 +326,10 @@ export class InspectorCardMaker {
         const objectLabel = this.HF.createNewLabel('', '', 'object', [], [], ['Comet: ']);
         const objectTextInput = this.HF.createNewTextInput('object-input', 'object', ['object-input'], [], '', '');
 
+        dateRangeMinInput.value = "2018-01-01";
+        dateRangeMaxInput.value = "2022-12-31";
+        objectTextInput.value = "C_2017_K2";
+
         //const buttonsWrapper = this.HF.createNewDiv('', '', ['search-buttons-wrapper'], []);
         const buttonsInnerWrapper = this.HF.createNewDiv('', '', ['search-buttons-inner-wrapper'], []);
         // ************************** need to append module id to searchBtn id?
@@ -364,6 +368,8 @@ export class InspectorCardMaker {
             this.sendMessage(message);
         });
 
+
+        this.inspectorCard.maximizeCard();
     }
 
 

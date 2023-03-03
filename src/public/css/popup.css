@@ -3,13 +3,14 @@
 /* For All Devices */
 .popup {
   position: absolute;
-  height: 500px;
-  width: 400px;
+  /*height: 500px;*/
+  /*width: 400px;*/
+  width: fit-content;
   background-color: white;
   opacity: 1;
   z-index: 10000;
-  top: 0;
-  left: 0;
+  top: 2%;
+  left: 2%;
   min-width: 300px;
   border-radius: 10px 10px 10px 10px;
 }
@@ -81,11 +82,11 @@
 
 }
 /* 4k Plus */
-@media (min-width: 2049px) {
+/*@media (min-width: 2049px) {
   .popup {
     position: absolute;
     height: 600px;
     width: 800px;
 
   }
-}
+}*/

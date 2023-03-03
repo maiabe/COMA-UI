@@ -238,7 +238,7 @@ export class WorkerManager {
     }
 
     #sendMessage = msg => {
-        console.log(msg);
+        //console.log(msg);
         this.publisher.publishMessage(msg);
     };
 

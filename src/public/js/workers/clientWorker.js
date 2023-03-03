@@ -2,7 +2,7 @@
 let id = -1;
 let messageDataObject = {};
 //const baseUrl = 'http://localhost:8080/';
-const baseUrl = 'http://localhost:1368/';
+const baseUrl = 'http://localhost:1520/';
 
 
 const onMessageTable = new Map();
@@ -18,7 +18,6 @@ onMessageTable.set('Query COMA Engine', queryDatabase);
 onmessage = e => onMessageTable.get(e.data.type)(e);
 
 function queryDatabase(e) {
-    //console.log(e.data);
     const message = { message: 'Query COMA Engine', data: e.data }
     postCOMAData('https://coma.ifa.hawaii.edu/api/lightcurve', message.data)
         .then(data => {
@@ -113,8 +112,7 @@ handleReturnTable.set('Metadata Return', handleMetadataReturn);
 handleReturnTable.set('Database Query Return', handleDatabaseQueryReturn);
 
 function handleDatabaseQueryReturn(data) {
-    //console.log(data);
-    postMessage({ type: 'Database Query Return', clientId: id, data: data });
+    postMessage({ type: 'Database Query Return', clientId: id, data: data.data });
 }
 
 function handleMetadataReturn(data) {
@@ -230,8 +228,10 @@ async function postCOMAData(url, body) {
     //console.log(r);
 
     const result = getCOMATaskResults(r.task.id);
-    console.log(result);
+    //console.log(result);
     //return JSON.stringify(result); // parses JSON response into native JavaScript objects
+
+    // Promise as result
     return result
 }
 
@@ -240,7 +240,7 @@ async function postCOMAData(url, body) {
 // Example POST method implementation:
 async function getCOMATaskResults(id) {
     const url = `https://coma.ifa.hawaii.edu/api/task/result/${id}`;
-    console.log(url);
+    // console.log(url);
     // Default options are marked with *
     const response = await fetch(url, {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
@@ -262,11 +262,11 @@ async function getCOMATaskResults(id) {
         getCOMATaskResults(id)
         counter++;
     }
-    const result = JSON.stringify(r);
-    //console.log(r);
-    if ((result == undefined) || (counter >= 10)) {
+    //const result = JSON.stringify(r);
+    console.log(r);
+    if ((r == undefined) || (counter >= 10)) {
         console.log("GET Failed: Maximum number of requests attempted");
     }
 
-    return result; // parses JSON response into native JavaScript objects
+    return r; // parses JSON response into native JavaScript objects
 }

@@ -422,12 +422,44 @@ export class ModuleManager {
         if (module) {
             // switch statement for each type of display (data.type)
 
+            content = module.getPopupContent();
+
+
+
+            //******************** for table type ********************/
+            // parse json into headers and cells
+            const jsonData = JSON.parse(data);
+            const headers = Object.keys(jsonData.data[0]);
+            let cells = {
+                type: 'table',
+                //headers: [],
+                cells: []
+            };
+
+            /*headers.forEach(function (item) {
+                cells.push(
+                    {
+                        [item]: jsonData.data.map(function (jsonDataItem) { return jsonDataItem[item]; })
+                    }
+                );
+            });*/
+
+
+            headers.forEach(function (item) {
+                Object.assign(cells,
+                    {
+                        [item]: jsonData.data.map(function (jsonDataItem) { return jsonDataItem[item]; }),
+                    }
+                );
+            });
+
+            // get popup div for this module
+
             // create content for this module
-            content = this.#PCM.setSearchResultTable(data.data);
-            console.log(data.data);
+            this.#PCM.setSearchResultTable(cells, content.content);
 
             // update module with this content
-            module.updatePopupContent(content);
+            module.updatePopupContent(content.content);
         } else printErrorMessage('module is undefined', `key: ${key}. -- ModuleManager -> setPopupContentForModule`);
     }
 

@@ -456,9 +456,9 @@ export default class Hub {
      *  @param {Object} data.val search result data
      * */
     #setSearchResultContent(data) {
-        console.log(data.id);
+        //console.log(data.val.data);
         if (invalidVariables([varTest(data.val, 'val', 'object'), varTest(data.moduleId, 'moduleId', 'number'), varTest(data.linkDataNode, 'linkDataNode', 'boolean'), varTest(data.local, 'local', 'boolean')], 'HUB', '#messageForPopupManager (Set Search Result Content)')) return;
-        GM.MM.updatePopupContentForModule(data.moduleId, data.val);
+        GM.MM.updatePopupContentForModule(data.moduleId, data.val.data);
 
         // Open popup if not opened yet
         if (!GM.PM.isPopupOpen(data.moduleId)) this.#openModulePopup(data.moduleId, 0, 0);

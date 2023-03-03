@@ -358,7 +358,9 @@ export class ChartBuilder {
     * @returns Plotly chart object
     */
     #drawPlotlyChart = (data, type, pdiv, width, height) => {
-        data = data.data;
+        console.log(data);
+
+        //data = data.data;
         data = this.#getPlotlyType(data, type);
         const chart = Plotly.newPlot(pdiv, [data], {
             margin: {
@@ -446,9 +448,10 @@ export class ChartBuilder {
         const header = {
             values: [],
             align: "center",
-            line: { width: 1, color: 'black' },
-            fill: { color: "black" },
-            font: { family: "Arial", size: 18, color: "white" }
+            line: { width: 0.5, color: "#383838" },
+            fill: { color: "#383838" },
+            font: { family: "Arial", size: 18, color: "white" },
+            height: 50
         };
 
         data.headerNames = [];
@@ -470,8 +473,9 @@ export class ChartBuilder {
         const cellObject = {
             values: [],
             align: "right",
-            line: { color: "black", width: 1 },
-            font: { family: "Arial", size: 11, color: ["black"] }
+            line: { color: "#001c30", width: 0.5 },
+            font: { family: "Arial", size: 18, color: ["#171717"] },
+            height: 45
         };
         data.headerNames.forEach(header => {
             cellObject.values.push(data[header]);
