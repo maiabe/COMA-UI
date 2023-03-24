@@ -1309,6 +1309,9 @@
     <Content Include="src\public\js\sharedVariables\colors.js" />
     <Content Include="src\public\js\sharedVariables\constants.js" />
     <Content Include="src\public\js\sharedVariables\conversionFunctions.js" />
+    <Content Include="src\public\js\sharedVariables\formatValues.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\public\js\sharedVariables\index.js" />
     <Content Include="src\public\js\sharedVariables\moduleData.js" />
     <Content Include="src\public\js\workers\clientWorker.js" />

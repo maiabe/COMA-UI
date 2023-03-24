@@ -11,7 +11,7 @@ export class PopupContentMaker {
     constructor() {
         this.dataTable = new Map();
         this.HF = new HTMLFactory();
-        this.dataTable.set('popupContentWrapper', this.HF.createNewDiv('', '', [], []));
+        this.dataTable.set('popupContentWrapper', this.HF.createNewDiv('', '', ['popup-content'], []));
         this.publisher = new Publisher();
         this.chartBuilder = new ChartBuilder();
     }
@@ -65,8 +65,6 @@ export class PopupContentMaker {
 
         // change to plotly data display instead of HTML
         return this.HF.createNewTable(data, 10, tableId);
-
-        
     }
 
     /** --- PUBLIC ---
@@ -88,7 +86,9 @@ export class PopupContentMaker {
      * @param {string} type the type of chart. ie. 'bar', 'scatter'
      * @param {string} xAxisLabel (Optional)
      * @param {string} yAxisLabel (Optional)
-     * @returns true if successful, false if failure  *//*
+     * @returns true if successful, false if failure  
+     */
+    /*
     storeChartData = (key, data, div, type, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(div, 'div', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
         this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark', xAxisLabel: xAxisLabel, yAxisLabel: yAxisLabel, xAxisGrid: xAxisGrid, yAxisGrid: yAxisGrid, xAxisTick: xAxisTick, yAxisTick: yAxisTick, coordinateSystem: coordinateSystem });
@@ -99,19 +99,29 @@ export class PopupContentMaker {
     /***************** Mai 022823 ******************/
     /** --- PUBLIC ---
      * Called from Search Module when data is queried. This will create a search result data table
-     * @params {Object} data to update content with 
+     * @params {Object} data to update content with. The data contains columns array and tabledata array of jsonData
      * @returns HTML div (content of the popup to be updated)
      */
-    setSearchResultTable(data, content) {
-        // parse json result to headers object and tableContent object
-        // create table div with parsed data
-        /*const newTable = this.HF.createNewTable(data, 10);
-        return this.getPopupContentWrapper().appendChild(newTable);*/
+    setSearchResultTable(moduleKey, data, content) {
+        content.style.height = "90%"; // set height to fit content
 
-        //console.log(content);
+        var downloadBtn = this.HF.createNewButton('', [], ['download-csv-button'], ['border-radius: 3px'], 'button', 'Download CSV');
+        this.dataTable.set('downloadControls', this.HF.createNewDiv('download-wrapper', '', ['download-wrapper'], ['width: 100%']));
+        this.getField('downloadControls').appendChild(downloadBtn);
+        content.appendChild(this.getField('downloadControls'));
 
-        this.chartBuilder.plotData(data, 'table', content, 1800, 800, 'plotly');
+        var tableWrapper = this.HF.createNewDiv('table-wrapper', '', ['table-wrapper'], ['height: 100%']);
+        this.dataTable.set('searchTableDiv', tableWrapper);
 
+        content.appendChild(this.getField('searchTableDiv'));
+        var table = this.chartBuilder.plotData(data, 'table', tableWrapper, '', '', 'tabulator');
+
+        // add download csv event listener
+        var popupBody = document.getElementById('popup-body-' + moduleKey);
+        popupBody.addEventListener('click', function () {
+            var filename = 'search-results-' + moduleKey;
+            table.download('csv', filename + '.csv');
+        });
     }
 
     /** --- PUBLIC ---

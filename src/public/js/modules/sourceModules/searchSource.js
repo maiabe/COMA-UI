@@ -15,7 +15,7 @@ export class Search extends Source {
         super(category, color, shape, 'local', 'getSearchData', 'Search', 'images/icons/sql-open-file-format.png', [], [{ name: 'OUT', leftSide: false, type: LOCAL_DATA_SOURCE }], key);
         this.addData('inportType', -1);
         this.addData('outportType', LOCAL_DATA_SOURCE);
-        this.addData('description', 'This module lets users query the COMA database')
+        this.addData('description', '- Search COMA Database -')
         this.addData('onCreationFunction', this.onCreation.bind(this));
         this.addData('requestMetadataOnCreation', true);
         //this.addData('linkedToData', false);

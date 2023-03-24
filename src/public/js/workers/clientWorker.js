@@ -2,7 +2,7 @@
 let id = -1;
 let messageDataObject = {};
 //const baseUrl = 'http://localhost:8080/';
-const baseUrl = 'http://localhost:1520/';
+const baseUrl = 'http://localhost:1694/ ';
 
 
 const onMessageTable = new Map();
@@ -22,7 +22,8 @@ function queryDatabase(e) {
     postCOMAData('https://coma.ifa.hawaii.edu/api/lightcurve', message.data)
         .then(data => {
             // Promise fulfilled
-            //console.log(data);
+            //console.log(data.status);
+
             handleDatabaseQueryReturn(data);
         },
         // Promise rejected
@@ -208,7 +209,7 @@ async function postData(url, data) {
 
 // Example POST method implementation:
 async function postCOMAData(url, body) {
-    console.log(body.data);
+    //console.log(body.data);
     // Default options are marked with *
     const response = await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -240,7 +241,6 @@ async function postCOMAData(url, body) {
 // Example POST method implementation:
 async function getCOMATaskResults(id) {
     const url = `https://coma.ifa.hawaii.edu/api/task/result/${id}`;
-    // console.log(url);
     // Default options are marked with *
     const response = await fetch(url, {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
@@ -256,17 +256,16 @@ async function getCOMATaskResults(id) {
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
     });
     const r = await response.json();
-    //console.log(r)
     var counter = 0;
-    while ((r.status === "error") && (counter < 10)) {
+    while ((r.status == "error") && (counter < 50)) {
         getCOMATaskResults(id)
         counter++;
     }
     //const result = JSON.stringify(r);
-    console.log(r);
     if ((r == undefined) || (counter >= 10)) {
         console.log("GET Failed: Maximum number of requests attempted");
     }
+    //console.log(r);
 
-    return r; // parses JSON response into native JavaScript objects
+    return r;
 }

@@ -1,6 +1,44 @@
 
-#header g.cell-text-holder {
+/*#header g.cell-text-holder {
     transform: translate(50px, 5px) !important;
-}
+}*/
+
+/*.svg-container {
+    overflow-x: hidden;*/
+    /*width: 100% !important;*/
+/*}*/
+/*
+.main-svg .table {
+    width: 100%;
+}*/
+
+/*.column-cell, .cell-rect {
+    padding: 5px;
+}*/
+
+/*g.plotly {
+    transform: scaleX(0.8);
+}*/
+
+/*g.table {
+    table-layout: fixed;
+    overflow-x: hidden;
+    white-space: nowrap;*/
+/*    width: 100% !important;*/
+    /*width: calc(100% - 10px) !important;*/
+/*}*/
+
+/*g.table-control-view {
+    max-width: 100%;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}*/
+
+/*.column-cell .cell-rect {
+    width: 100% !important;
+}*/
+
+
 
 

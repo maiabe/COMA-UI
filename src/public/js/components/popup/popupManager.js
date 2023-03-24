@@ -61,6 +61,7 @@ export class PopupManager {
                 width = 1800;
                 height = 1000;
             }
+            console.log(content.color);
             const p = new Popup(width, height, 0, 0, moduleKey, content.color, content.content, content.headerText);
             p.publisher.subscribe(this.subscriber);
             this.#popupList.set(moduleKey, { type: 'module', element: p });

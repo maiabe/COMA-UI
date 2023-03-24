@@ -16,7 +16,7 @@
 }
 
 .popup > .popupHeader {
-  height: 50px;
+  height: 5%;
   width: 100%;
   position: relative;
   background-color: blue;
@@ -29,6 +29,11 @@
   position: relative;
   color: white;
   margin-left: 2vw;
+}
+
+.popupBody {
+    height: 95%;
+    padding: 3%;
 }
 
 .closePopupIcon {
@@ -55,7 +60,7 @@
   width: 50px;
   z-index: 10001;
   background-color: #d3d3d3;
-  opacity: 0.2;
+  opacity: 0.4;
   transition: opacity 0.3s ease-in;
   cursor:nwse-resize;
 }

@@ -4,10 +4,14 @@
  * Date: 5/5/2022                                            *
  *************************************************************/
 
+import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
+
+
 export class ChartBuilder {
 
     #optionGenerationMap;
     #planetaryRadii;
+    #HF;
 
     constructor() {
         this.#optionGenerationMap = new Map();
@@ -23,6 +27,7 @@ export class ChartBuilder {
         this.#planetaryRadii.set('saturn', 9.54);
         this.#planetaryRadii.set('uranus', 19.22);
         this.#planetaryRadii.set('neptune', 30.06);
+        this.#HF = new HTMLFactory();
     };
 
     /** --- PUBLIC ---
@@ -44,6 +49,8 @@ export class ChartBuilder {
      * @returns chart object  */
     plotData = (data, type, pdiv, width, height, framework, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
         switch (framework) {
+            case 'tabulator':
+                return this.#drawTabulatorTable(data, type, pdiv, width, height);
             case 'plotly':
                 return this.#drawPlotlyChart(data, type, pdiv, width, height);
             case 'echart':
@@ -218,7 +225,8 @@ export class ChartBuilder {
                 minorSplitLine: {
                     show: yAxisGrid
                 }
-            }, dataZoom: [
+            },
+            dataZoom: [
                 {
                     type: 'slider',
                 }
@@ -349,6 +357,35 @@ export class ChartBuilder {
     }
 
     /** --- PRIVATE ---
+    * Creates a tabulator table.
+    * @param {{e: any[], x: any[]}, y: any[][]} data Arrays of the data for the data columns
+    * @param {string} type chart type, ie 'bar'
+    * @param {HTML div} pdiv the plot div is the location to inject the chart in the dom 
+    * @param {Number} width width of the chart
+    * @param {Number} height height of the chart
+    * @returns Tabulator Object
+    */
+    #drawTabulatorTable = (data, type, tablediv, width, height) => {
+        let result = undefined;
+        //console.log(data.tabledata);
+        switch (type) {
+            case 'table':
+                result = new Tabulator(tablediv,
+                    {
+                        columns: data.columns,
+                        data: data.tabledata,
+                        pagination: 'local',
+                        paginationSize: 100,
+                        paginationSizeSelector: [10, 50, 100, 250, 500],
+                        paginationCounter: "rows",
+                        height: "85%",
+                    }
+                );
+                break;
+        }
+        return result;
+    }
+    /** --- PRIVATE ---
     * Creates a plotly chart. Currently this is only used to create tables.
     * @param {{e: any[], x: any[]}, y: any[][]} data Arrays of the data for the x axis, y axis, and error trace
     * @param {string} type chart type, ie 'bar'
@@ -391,25 +428,71 @@ export class ChartBuilder {
                 });
                 break;
             case 'table':
-                result = Plotly.newPlot(pdiv, [data], {
-                    margin: {
-                        t: 20,
-                        l: 20,
-                        r: 20,
-                        b: 20
-                    },
-                    width: width,
-                    height: height,
-                    yaxis: {
-                        //range: [0, 50]
-                        autorange: true,
-                        auto_width: true
-                    },
-                    xaxis: {
-                        autorange: true,
-                        auto_width: true
+                // Calculate the total width of the table
+                var columnWidths = [];
+                for (var i = 0; i < data[0].cells.values.length; i++) {
+                    var maxWidth = 0;
+                    for (var j = 0; j < data[0].cells.values[i].length; j++) {
+                        var cellWidth = data[0].cells.values[i][j].length * 10; // set width based on number of characters
+                        if (cellWidth > maxWidth) {
+                            console.log(data[0].cells.values[i][j].length);
+                            maxWidth = cellWidth;
+                        }
                     }
-                });
+                    columnWidths.push(maxWidth);
+                }
+                var totalWidth = columnWidths.reduce(function (a, b) { return a + b; }, 0);
+
+                var layout = {
+                    title: 'Query Result',
+                    margin: {
+                        t: 30,
+                        l: 30,
+                        r: 30,
+                        b: 30
+                    },
+                    autosize: true,
+                    height: 500,
+                };
+                var config = {
+                    modeBarButtonsToAdd: [
+                        {
+                            name: 'zoom-in',
+                            icon: Plotly.Icons.zoom_plus,
+                            click: function (gd) {
+                                var update = {
+                                    'width': layout.width * 1.1,
+                                    'height': layout.height * 1.1
+                                };
+                                Plotly.update(gd, {}, update);
+                            }
+                        },
+                        {
+                            name: 'zoom-out',
+                            icon: Plotly.Icons.zoom_minus,
+                            click: function (gd) {
+                                var update = {
+                                    'width': layout.width * 0.9, 
+                                    'height': layout.height * 0.9, 
+                                };
+                                Plotly.update(gd, {}, update);
+                            }
+                        },
+                        {
+                            name: 'Auto Scale',
+                            icon: Plotly.Icons.zoombox,
+                            click: function (gd) {
+                                Plotly.relayout(gd, {'xaxis.autorange': true, 'yaxis.autorange': true });
+                            }
+                        }
+                    ],
+                    displaylogo: false,
+                    autosize: true,
+                    columnwidth: "auto"
+                };
+
+                result = Plotly.newPlot(pdiv, data, layout, config);
+                console.log(result);
                 break;
         }
         return result;
@@ -454,9 +537,10 @@ export class ChartBuilder {
                 data.mode = 'lines';
                 break;
             case 'table':
-                data.type = 'table';
-                data.header = this.#getPlotlyTableHeaderObject(data);
-                data.cells = this.#getPlotlyTableCellsObject(data);
+                data[0].type = 'table';
+                data[0].header = this.#getPlotlyTableHeaderObject(data[0]);
+                data[0].cells = this.#getPlotlyTableCellsObject(data[0]);
+                data[0].columnwidth = new Array(data[0].cells.values.length + 1).fill(150);
                 break;
         }
         return data;
@@ -467,27 +551,15 @@ export class ChartBuilder {
      * @param {Data Object} data 
      * @returns the settings for the table header */
     #getPlotlyTableHeaderObject = data => {
-
+        //console.log(data);
         const header = {
-            values: [],
-            align: ['center', 'center'],
+            values: data.headers,
+            align: 'center',
             line: { width: 0.5, color: 'white' },
             fill: { color: "#383838" },
             font: { family: "Arial", size: 18, color: "white" },
-            height: 50,
-            style: { 'text-align': 'center', 'translate': 'transform(2%, 2%)' },
-            width: 'auto',
-            auto_width: true,
+            height: 50
         };
-
-        data.headerNames = [];
-        Object.keys(data).forEach(key => {
-            if (key !== 'type' && key !== 'headerNames' && key !== 'header' && key !== 'cells') {
-                header.values.push([`<br>${key}<br>`]);
-                data.headerNames.push(key);
-            }
-
-        });
         return header;
     };
 
@@ -497,18 +569,12 @@ export class ChartBuilder {
      * @returns settings for the cells */
     #getPlotlyTableCellsObject = data => {
         const cellObject = {
-            values: [],
-            align: ['center', 'center'],
+            values: data.cellvalues,
+            align: 'left',
             line: { color: "#737373", width: 0.5 },
             font: { family: "Arial", size: 16, color: ["#171717"] },
             height: 35,
-            width: 'auto',
-            auto_width: true,
-            //style: { 'text-align': 'center' }
         };
-        data.headerNames.forEach(header => {
-            cellObject.values.push(data[header]);
-        });
         return cellObject;
     };
 }

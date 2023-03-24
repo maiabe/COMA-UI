@@ -118,6 +118,7 @@ export class WorkerManager {
                         workerObject.handleReturnFunction(event.data.data);
                         break;
                     case 'Database Query Return':
+                        console.log(event);
                         const searchResultData = {
                             val: {
                                 type: 'table',

@@ -2,6 +2,7 @@ import { ModuleGenerator, SaveCompositeModulePopupContent, PopupContentMaker } f
 import { Message, Publisher, Subscriber } from '../communication/index.js';
 import { invalidVariables, printErrorMessage, varTest } from '../errorHandling/errorHandlers.js';
 import { ENVIRONMENT, MODULE_MANAGER, MODULE, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR, POPUP_MANAGER, WORKER_MANAGER } from '../sharedVariables/index.js';
+import { format_mapping } from '../sharedVariables/formatValues.js';
 
 export class ModuleManager {
 
@@ -420,46 +421,38 @@ export class ModuleManager {
         const module = this.getModule(moduleKey);
         let content = undefined;
         if (module) {
-            // switch statement for each type of display (data.type)
-
             content = module.getPopupContent();
+            if (data !== undefined) {
+                //******************** for table type ********************/
+                // parse json into headers and cells
+                const jsonData = JSON.parse(data);
+                const headers = Object.keys(jsonData.data[0]);
+                let columns = [];
+                //let tabledata = [];
+                headers.forEach(function (headeritem) {
+                    columns.push({ title: headeritem, field: headeritem });
+                    jsonData.data.forEach(function (item) {
+                        if (Object.keys(format_mapping).includes(headeritem)) {
+                            item[headeritem] = Number(item[headeritem]).toFixed(format_mapping[headeritem]);
+                        }
+                    });
+                        /*jsonData.data.map(function (jsonDataItem) {
+                        if (Object.keys(format_mapping).includes(item)) {
+                            //console.log(Number(jsonDataItem[item]).toFixed(format_mapping[item]));
+                            return Number(jsonDataItem[item]).toFixed(format_mapping[item]);
+                        }
+                        return jsonDataItem[item];
+                    }));*/
+                });
 
+                // create content for this module
+                this.#PCM.setSearchResultTable(moduleKey, { columns: columns, tabledata: jsonData.data }, content.content);
 
-
-            //******************** for table type ********************/
-            // parse json into headers and cells
-            const jsonData = JSON.parse(data);
-            const headers = Object.keys(jsonData.data[0]);
-            let cells = {
-                type: 'table',
-                //headers: [],
-                cells: []
-            };
-
-            /*headers.forEach(function (item) {
-                cells.push(
-                    {
-                        [item]: jsonData.data.map(function (jsonDataItem) { return jsonDataItem[item]; })
-                    }
-                );
-            });*/
-
-            headers.forEach(function (item) {
-                Object.assign(cells,
-                    {
-                        [item]: jsonData.data.map(function (jsonDataItem) { return jsonDataItem[item]; }),
-                    }
-                );
-            });
-            // create content for this module
-            this.#PCM.setSearchResultTable(cells, content.content);
-
-            // update module with this content
-            module.updatePopupContent(content.content);
+                // update module with this content
+                module.updatePopupContent(content.content);
+            } else printErrorMessage('queried data is undefined', 'ModuleManager -> setPopupContentForModule');
         } else printErrorMessage('module is undefined', `key: ${key}. -- ModuleManager -> setPopupContentForModule`);
     }
-
-
 
 
     /** --- PUBLIC ---
