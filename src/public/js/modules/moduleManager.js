@@ -430,7 +430,28 @@ export class ModuleManager {
                 let columns = [];
                 //let tabledata = [];
                 headers.forEach(function (headeritem) {
-                    columns.push({ title: headeritem, field: headeritem });
+                    columns.push({
+                        title: headeritem, field: headeritem, hozAlign: 'right',
+                        /*formatter: function (cell) {
+                            var value = cell.getValue();
+                            var columnName = cell.getElement().getAttribute("tabulator-field");
+
+                            if (value.includes('.')) {
+                                var leftValue = value.split('.')[0];
+                                var rightValue = value.split('.')[1];
+
+                                // set width in % according to the left value length
+                                var leftWidth = Math.round((leftValue.length) / (leftValue.length + rightValue.length) * 100);
+                                var rightWidth = 100 - leftWidth;
+
+                                var leftSpan = '<span class="left-span" style="width: ' + leftWidth + '%;">' + leftValue + '</span>';
+                                var rightSpan = '<span class="right-span" style="width: ' + rightWidth + '%;">.' + rightValue + '</span>';
+
+                                return leftSpan + rightSpan;
+                            }
+                            return value;
+                        }*/
+                    });
                     jsonData.data.forEach(function (item) {
                         if (Object.keys(format_mapping).includes(headeritem)) {
                             item[headeritem] = Number(item[headeritem]).toFixed(format_mapping[headeritem]);
@@ -453,6 +474,8 @@ export class ModuleManager {
             } else printErrorMessage('queried data is undefined', 'ModuleManager -> setPopupContentForModule');
         } else printErrorMessage('module is undefined', `key: ${key}. -- ModuleManager -> setPopupContentForModule`);
     }
+
+    
 
 
     /** --- PUBLIC ---

@@ -333,7 +333,8 @@ export class ChartBuilder {
     /** --- PRIVATE ---
      * Gets the details for the planet that will be charted in the polar graph
      * @param {string} planet the name of the planet is a key to the radius 
-     * @returns polar chart series */
+     * @returns polar chart series 
+     * */
     #getPlanet(planet) {
         const r = this.#planetaryRadii.get(planet);
         const data = [];
@@ -379,6 +380,7 @@ export class ChartBuilder {
                         paginationSizeSelector: [10, 50, 100, 250, 500],
                         paginationCounter: "rows",
                         height: "85%",
+                        ajaxLoader: true,
                     }
                 );
                 break;
@@ -577,4 +579,50 @@ export class ChartBuilder {
         };
         return cellObject;
     };
+
+
+    /** --- PUBLIC ---
+     * There are a lot of options passed to the function from the HUB.
+     * @param {{e: any[], x: any[]}, y: any[]} data Arrays of the data for the x axis, y axis, and error trace
+     * @param {string} type chart type, ie 'bar'
+     * @param {HTML div} pdiv the plot div is the location to inject the chart in the dom 
+     * @param {Number} width width of the chart
+     * @param {Number} height height of the chart
+     * @param {string} framework echart makes all charts except table. plotly makes the table 
+     * @param {string} theme echart color theme 
+     * @param {string} xAxisLabel user defined label for the x axis 
+     * @param {string} yAxisLabel user defined label for the y axis 
+     * @param {boolean} xAxisGrid true if include grid
+     * @param {boolean} yAxisGrid true if include grid
+     * @param {boolean} xAxisTick true if include tick marks
+     * @param {boolean} yAxisTick true if include tick marks
+     * @param {string} coordinateSystem polar or cartesian2d
+     * @returns chart object  */
+    //updateData = (data, type, pdiv, width, height, framework, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
+    updatePlotData = (moduleKey, data, type, pdiv, width, height, framework) => {
+        switch (framework) {
+            case 'tabulator':
+                return this.#updateTabulatorTable(moduleKey, data, type, pdiv, width, height);
+            /*case 'plotly':
+                return this.#updatePlotlyChart(data, type, pdiv, width, height);*/
+            /*case 'echart':
+                return this.#updateEChartChart(data, type, pdiv, width, height, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem);*/
+        }
+    }
+
+    #updateTabulatorTable(moduleKey, data, type, pdiv, width, height) {
+        let result = undefined;
+        // get the target table to update
+        var tableElement = pdiv;
+        var table = Tabulator.prototype.findTable(tableElement);
+        if (table) {
+            table.setOptions({
+                columns: data.columns,
+                data: data.tabledata
+            });
+            result = table;
+        } else printErrorMessage('tabulator table not found', 'chartBuilder -> updateTabulatorTable');
+        
+        return result;
+    }
 }

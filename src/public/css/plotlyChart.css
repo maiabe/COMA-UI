@@ -42,3 +42,19 @@
 
 
 
+/***************************** Tabulator Style ********************************/
+
+.tabulator-table span.left-span {
+    float: left;
+    text-align: right;
+}
+.tabulator-table span.right-span {
+    float: right;
+    text-align: left;
+
+}
+
+button.tabulator-page {
+    width: 3vw;
+}
+

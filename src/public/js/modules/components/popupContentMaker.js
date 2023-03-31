@@ -99,29 +99,36 @@ export class PopupContentMaker {
     /***************** Mai 022823 ******************/
     /** --- PUBLIC ---
      * Called from Search Module when data is queried. This will create a search result data table
-     * @params {Object} data to update content with. The data contains columns array and tabledata array of jsonData
+     * @params {Object} data to update the content with. The data contains columns array and tabledata array of jsonData
      * @returns HTML div (content of the popup to be updated)
      */
     setSearchResultTable(moduleKey, data, content) {
-        content.style.height = "90%"; // set height to fit content
+        // Create table
+        if (content.querySelector('.tabulator') == null) {
+            content.style.height = "calc(100% - 2rem)"; // set height to fit content
 
-        var downloadBtn = this.HF.createNewButton('', [], ['download-csv-button'], ['border-radius: 3px'], 'button', 'Download CSV');
-        this.dataTable.set('downloadControls', this.HF.createNewDiv('download-wrapper', '', ['download-wrapper'], ['width: 100%']));
-        this.getField('downloadControls').appendChild(downloadBtn);
-        content.appendChild(this.getField('downloadControls'));
+            var downloadBtn = this.HF.createNewButton('', [], ['download-csv-button'], ['border-radius: 3px'], 'button', 'Download CSV');
+            this.dataTable.set('downloadControls', this.HF.createNewDiv('download-wrapper', '', ['download-wrapper'], ['width: 100%']));
+            this.getField('downloadControls').appendChild(downloadBtn);
+            content.appendChild(this.getField('downloadControls'));
 
-        var tableWrapper = this.HF.createNewDiv('table-wrapper', '', ['table-wrapper'], ['height: 100%']);
-        this.dataTable.set('searchTableDiv', tableWrapper);
+            var tableWrapper = this.HF.createNewDiv('table-wrapper-' + moduleKey, '', ['table-wrapper'], ['height: 100%']);
+            this.dataTable.set('searchTableDiv', tableWrapper);
 
-        content.appendChild(this.getField('searchTableDiv'));
-        var table = this.chartBuilder.plotData(data, 'table', tableWrapper, '', '', 'tabulator');
+            content.appendChild(this.getField('searchTableDiv'));
+            var table = this.chartBuilder.plotData(data, 'table', tableWrapper, '', '', 'tabulator');
 
-        // add download csv event listener
-        var popupBody = document.getElementById('popup-body-' + moduleKey);
-        popupBody.addEventListener('click', function () {
-            var filename = 'search-results-' + moduleKey;
-            table.download('csv', filename + '.csv');
-        });
+            // add download csv event listener
+            downloadBtn.addEventListener('click', function () {
+                var filename = 'search-results-' + moduleKey;
+                table.download('csv', filename + '.csv');
+            });
+        }
+        // Update table content
+        else {
+            var pdiv = content.querySelector('.table-wrapper');
+            this.chartBuilder.updatePlotData(data, 'table', pdiv, '', '', 'tabulator');
+        }
     }
 
     /** --- PUBLIC ---
