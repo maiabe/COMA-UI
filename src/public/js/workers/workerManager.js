@@ -71,7 +71,6 @@ export class WorkerManager {
     setWorkerReturnMessageRecipient = (id, recipient) => {
         if (invalidVariables([varTest(id, 'id', 'number'), varTest(recipient, 'recipient', 'number')], 'WorkerManager', 'setReturnMessageRecipient')) return undefined;
         if (this.#workers.has(id)) this.#workers.get(id).returnMessageRecipient = recipient;
-        console.log(recipient);
         return this;
     }
 
@@ -118,10 +117,10 @@ export class WorkerManager {
                         workerObject.handleReturnFunction(event.data.data);
                         break;
                     case 'Database Query Return':
-                        console.log(event);
                         const searchResultData = {
                             val: {
                                 type: 'table',
+                                status: event.data.status,
                                 data: event.data.data
                             },
                             moduleId: workerObject.returnMessage.moduleId,
@@ -131,6 +130,14 @@ export class WorkerManager {
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, searchResultData));
                         //workerObject.handleReturnFunction(event.data.data);
                         //console.log(event);
+                        break;
+                    case 'Handle Fetch Error':
+                        const data = {
+                            clientId: event.data.clientId,
+                            message: event.data.message
+                        }
+                        workerObject.returnMessage.message = 'Handle Fetch Error';
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, data));
                         break;
                 }
             }
@@ -299,7 +306,7 @@ export class WorkerManager {
         // stop worker after setting data to module
 
         // return json result
-        console.log(this.#workers.get(workerId));
+        // console.log(this.#workers.get(workerId));
     }
     
 

@@ -1,0 +1,18 @@
+
+
+/*************************** Error Message Style ****************************/
+.errorWrapper {
+    border: inset;
+}
+
+.error-header {
+    background-color: #761d1d;
+    color: ghostwhite;
+    padding: 0 2%;
+    line-height: 0.7rem;
+}
+
+.error-body {
+    padding: 0 2%;
+}
+

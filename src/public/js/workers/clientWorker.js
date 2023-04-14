@@ -2,7 +2,7 @@
 let id = -1;
 let messageDataObject = {};
 //const baseUrl = 'http://localhost:8080/';
-const baseUrl = 'http://localhost:1694/ ';
+const baseUrl = 'http://localhost:1547/ ';
 
 
 const onMessageTable = new Map();
@@ -19,16 +19,19 @@ onmessage = e => onMessageTable.get(e.data.type)(e);
 
 function queryDatabase(e) {
     const message = { message: 'Query COMA Engine', data: e.data }
+    console.log(message);
     postCOMAData('https://coma.ifa.hawaii.edu/api/lightcurve', message.data)
+        // Promise fulfilled
         .then(data => {
-            // Promise fulfilled
             //console.log(data.status);
-
+            // status error
             handleDatabaseQueryReturn(data);
         },
         // Promise rejected
         reason => {
             console.log(reason);
+            handleFetchError(reason);
+            // api call fail 
             return reason;
         }
     );
@@ -111,9 +114,16 @@ handleReturnTable.set('Status Check', handleStatusCheckReturn);
 handleReturnTable.set('Saved Modules', handleSavedModulesReturn);
 handleReturnTable.set('Metadata Return', handleMetadataReturn);
 handleReturnTable.set('Database Query Return', handleDatabaseQueryReturn);
+handleReturnTable.set('Handle Fetch Error', handleFetchError);
+
+function handleFetchError(reason) {
+    console.log(reason);
+    postMessage({ type: 'Handle Fetch Error', clientId: id, message: reason });
+}
 
 function handleDatabaseQueryReturn(data) {
-    postMessage({ type: 'Database Query Return', clientId: id, data: data.data });
+    //console.log(data);
+    postMessage({ type: 'Database Query Return', clientId: id, status: data.status, data: data.data });
 }
 
 function handleMetadataReturn(data) {
@@ -225,6 +235,7 @@ async function postCOMAData(url, body) {
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: body.data // body data type must match "Content-Type" header
     });
+    console.log(body);
     const r = await response.json();
     //console.log(r);
 
@@ -265,7 +276,7 @@ async function getCOMATaskResults(id) {
     if ((r == undefined) || (counter >= 10)) {
         console.log("GET Failed: Maximum number of requests attempted");
     }
-    //console.log(r);
 
+    //console.log(r);
     return r;
 }

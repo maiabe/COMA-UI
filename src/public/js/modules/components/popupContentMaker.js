@@ -103,16 +103,16 @@ export class PopupContentMaker {
      * @returns HTML div (content of the popup to be updated)
      */
     setSearchResultTable(moduleKey, data, content) {
-        // Create table
+        // Organize data for the tabulator data
         if (content.querySelector('.tabulator') == null) {
             content.style.height = "calc(100% - 2rem)"; // set height to fit content
 
             var downloadBtn = this.HF.createNewButton('', [], ['download-csv-button'], ['border-radius: 3px'], 'button', 'Download CSV');
-            this.dataTable.set('downloadControls', this.HF.createNewDiv('download-wrapper', '', ['download-wrapper'], ['width: 100%']));
+            this.dataTable.set('downloadControls', this.HF.createNewDiv('download-wrapper', '', ['download-wrapper'], []));
             this.getField('downloadControls').appendChild(downloadBtn);
             content.appendChild(this.getField('downloadControls'));
 
-            var tableWrapper = this.HF.createNewDiv('table-wrapper-' + moduleKey, '', ['table-wrapper'], ['height: 100%']);
+            var tableWrapper = this.HF.createNewDiv('table-wrapper-' + moduleKey, '', ['table-wrapper'], []);
             this.dataTable.set('searchTableDiv', tableWrapper);
 
             content.appendChild(this.getField('searchTableDiv'));
@@ -129,6 +129,37 @@ export class PopupContentMaker {
             var pdiv = content.querySelector('.table-wrapper');
             this.chartBuilder.updatePlotData(data, 'table', pdiv, '', '', 'tabulator');
         }
+    }
+
+
+    /***************** Mai 040523 ******************/
+    /** --- PUBLIC ---
+     * Sets error message in the popup content.
+     * @params {number} key the keyof the parent module for this popup.
+     * @returns HTML div (content of the popup to be updated displayed)
+     */
+    setErrorDisplay(moduleKey, messages, content) {
+        // if it doesnt exist in the dataTable already, set the errorwrapper to dataTable
+        if (this.getField('errorWrapper') === undefined) {
+            this.dataTable.set('errorWrapper',
+                this.HF.createNewDiv('error-wrapper-' + moduleKey, '', ['error-wrapper'],
+                    [{ style: 'width', value: '60%' }, { style: 'display', value: 'flex' },
+                     { style: 'margin', value: 'auto' }, { style: 'flex-flow', value: 'column' }]));
+        }
+        var errorWrapper = this.getField('errorWrapper');
+
+        var errorHeader = this.HF.createNewDiv('', '', ['error-header'], [{ style: 'height', value: '2rem' }]);
+        var errorBody = this.HF.createNewDiv('', '', ['error-body'], [{ style: 'height', value: '70%' }]);
+        var errorTitle = this.HF.createNewH1('', '', ['error-title'], [], 'Oops!');
+        errorWrapper.appendChild(errorHeader);
+        errorWrapper.appendChild(errorBody);
+        errorHeader.appendChild(errorTitle);
+
+        messages.forEach((message) => {
+            let errorMessage = this.HF.createNewParagraph('', '', ['error-message'], [], message);
+            errorBody.appendChild(errorMessage);
+        });
+        content.appendChild(errorWrapper); 
     }
 
     /** --- PUBLIC ---

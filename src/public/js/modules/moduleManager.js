@@ -2,7 +2,6 @@ import { ModuleGenerator, SaveCompositeModulePopupContent, PopupContentMaker } f
 import { Message, Publisher, Subscriber } from '../communication/index.js';
 import { invalidVariables, printErrorMessage, varTest } from '../errorHandling/errorHandlers.js';
 import { ENVIRONMENT, MODULE_MANAGER, MODULE, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR, POPUP_MANAGER, WORKER_MANAGER } from '../sharedVariables/index.js';
-import { format_mapping } from '../sharedVariables/formatValues.js';
 
 export class ModuleManager {
 
@@ -417,61 +416,69 @@ export class ModuleManager {
      * @param {string} type the type of the resulting display.
      * @param {object} data data to update to.
      */
-    updatePopupContentForModule(moduleKey, data) {
+    updatePopupContentForModule(moduleKey, queryStatus, data) {
         const module = this.getModule(moduleKey);
         let content = undefined;
         if (module) {
             content = module.getPopupContent();
-            if (data !== undefined) {
-                //******************** for table type ********************/
-                // parse json into headers and cells
-                const jsonData = JSON.parse(data);
-                const headers = Object.keys(jsonData.data[0]);
-                let columns = [];
-                //let tabledata = [];
-                headers.forEach(function (headeritem) {
-                    columns.push({
-                        title: headeritem, field: headeritem, hozAlign: 'right',
-                        /*formatter: function (cell) {
-                            var value = cell.getValue();
-                            var columnName = cell.getElement().getAttribute("tabulator-field");
+            if (queryStatus === 'error') {
+                // send message to hub, PCM to display error
+                const messages = ['Query to database failed. Please try again.', 'Please contact the system administrator if error persists.'];
+                this.#PCM.setErrorDisplay(moduleKey, messages, content.content);
+            }
+            else {
+                if (data !== undefined) {
+                    //******************** for table type ********************/
+                    // parse json into headers and cells
+                    /*const jsonData = JSON.parse(data);
+                    const headers = Object.keys(jsonData.data[0]);
+                    let columns = [];
+                    //let tabledata = [];
+                    headers.forEach(function (headeritem) {
+                        columns.push({
+                            title: headeritem, field: headeritem, hozAlign: 'right',
+                            *//*formatter: function (cell) {
+                        var value = cell.getValue();
+                        var columnName = cell.getElement().getAttribute("tabulator-field");
 
-                            if (value.includes('.')) {
-                                var leftValue = value.split('.')[0];
-                                var rightValue = value.split('.')[1];
+                        if (value.includes('.')) {
+                            var leftValue = value.split('.')[0];
+                            var rightValue = value.split('.')[1];
 
-                                // set width in % according to the left value length
-                                var leftWidth = Math.round((leftValue.length) / (leftValue.length + rightValue.length) * 100);
-                                var rightWidth = 100 - leftWidth;
+                            // set width in % according to the left value length
+                            var leftWidth = Math.round((leftValue.length) / (leftValue.length + rightValue.length) * 100);
+                            var rightWidth = 100 - leftWidth;
 
-                                var leftSpan = '<span class="left-span" style="width: ' + leftWidth + '%;">' + leftValue + '</span>';
-                                var rightSpan = '<span class="right-span" style="width: ' + rightWidth + '%;">.' + rightValue + '</span>';
+                            var leftSpan = '<span class="left-span" style="width: ' + leftWidth + '%;">' + leftValue + '</span>';
+                            var rightSpan = '<span class="right-span" style="width: ' + rightWidth + '%;">.' + rightValue + '</span>';
 
-                                return leftSpan + rightSpan;
-                            }
-                            return value;
-                        }*/
+                            return leftSpan + rightSpan;
+                        }
+                        return value;
+                    }*//*
                     });
                     jsonData.data.forEach(function (item) {
                         if (Object.keys(format_mapping).includes(headeritem)) {
                             item[headeritem] = Number(item[headeritem]).toFixed(format_mapping[headeritem]);
                         }
                     });
-                        /*jsonData.data.map(function (jsonDataItem) {
+                        *//*jsonData.data.map(function (jsonDataItem) {
                         if (Object.keys(format_mapping).includes(item)) {
                             //console.log(Number(jsonDataItem[item]).toFixed(format_mapping[item]));
                             return Number(jsonDataItem[item]).toFixed(format_mapping[item]);
                         }
                         return jsonDataItem[item];
-                    }));*/
-                });
+                    }));*//*
+                    });*/
 
-                // create content for this module
-                this.#PCM.setSearchResultTable(moduleKey, { columns: columns, tabledata: jsonData.data }, content.content);
+                    this.#PCM.setSearchResultTable(moduleKey, data, content.content);
 
-                // update module with this content
-                module.updatePopupContent(content.content);
-            } else printErrorMessage('queried data is undefined', 'ModuleManager -> setPopupContentForModule');
+                    // update module with this content
+                    module.updatePopupContent(content.content);
+
+                    //module.setSearchResultTable(content.content, data, construct);
+                } else printErrorMessage('queried data is undefined', 'ModuleManager -> setPopupContentForModule');
+            }
         } else printErrorMessage('module is undefined', `key: ${key}. -- ModuleManager -> setPopupContentForModule`);
     }
 

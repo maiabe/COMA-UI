@@ -38,12 +38,17 @@
     <Content Include="customModules\jobManager\lib\jobManager.js" />
     <Content Include="customModules\jobManager\lib\workerFiles\workerScript.js" />
     <Content Include="customModules\savedModuleManager\lib\savedModuleManager.js" />
+    <Content Include="src\public\css\displayMessage.css">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\public\css\inspector\searchCard.css">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\css\plotlyChart.css">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\public\images\background\error_bg.jpeg" />
+    <Content Include="src\public\images\background\error_bg.png" />
     <Content Include="src\public\index.html" />
     <Content Include="src\public\css\main.css" />
     <Content Include="src\public\css\moduleSelectionMenu.css" />
@@ -1436,6 +1441,7 @@
     <Folder Include="src\public\images" />
     <Folder Include="src\public\images\icons" />
     <Folder Include="src\public\images\logo" />
+    <Folder Include="src\public\images\background\" />
     <Folder Include="src\public\js" />
     <Folder Include="src\public\js\communication" />
     <Folder Include="src\public\js\components" />

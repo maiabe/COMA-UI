@@ -2,6 +2,8 @@ import { Publisher, Subscriber } from "../communication/index.js";
 import { GM } from '../main.js';
 import { ENVIRONMENT, MODULE_MANAGER, INSPECTOR, POPUP_MANAGER, INPUT_MANAGER, DATA_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER, DOM_MANAGER } from '../sharedVariables/constants.js';
 import { invalidVariables, printErrorMessage, varTest } from "../errorHandling/errorHandlers.js";
+import { format_mapping } from '../sharedVariables/formatValues.js';
+
 /* Envionment Data Table is the central communication hub of the application. All Messages
 are routed through this singleton class. */
 export default class Hub {
@@ -24,8 +26,7 @@ export default class Hub {
         this.publisher = new Publisher();
         this.subscriber = new Subscriber(this.messageHandler);
         this.#messageHandlerMap = new Map();
-        this.#buildMessageHandlerMap()
-
+        this.#buildMessageHandlerMap();
     };
 
     #buildMessageHandlerMap() {
@@ -53,7 +54,6 @@ export default class Hub {
         this.#messageHandlerMap.set(DATA_MANAGER, this.#messageForDataManager);
         this.#messageHandlerMap.set(WORKER_MANAGER, this.#messageForWorkerManager);
         this.#messageHandlerMap.set(OUTPUT_MANAGER, this.#messageForOutputManager);
-
     }
 
     /* All Messages from one component to another are handled here. The proper manager is notified through
@@ -66,7 +66,6 @@ export default class Hub {
                 this.#messageHandlerMap.get(msgContents.to).get(msgContents.type)(msgContents.data)
             }
         } else console.log('Cannot Read Message to ' + msgContents.to);
-
     };
 
     /** Hub subscribes */
@@ -115,6 +114,8 @@ export default class Hub {
         this.#messageForInputManager.set('Routes Loaded Event', this.#routesLoadedEvent.bind(this));
         this.#messageForInputManager.set('Read File Event', this.#readFileEvent.bind(this));
         this.#messageForInputManager.set('Search Form Submit Event', this.#searchFormSubmit.bind(this));
+
+        this.#messageForInputManager.set('Handle Fetch Error', this.#handleFetchError.bind(this));
     }
 
     #buildMessageForWorkerManagerMap() {
@@ -439,6 +440,7 @@ export default class Hub {
     #searchFormSubmit(data) {
         if (invalidVariables([varTest(data.type, 'type', 'string'), varTest(data.formdata, 'formdata', 'object'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Search Form Submit Event)')) return;
         //else GM.IM.searchFormSubmit(data.type, data.formdata, data.moduleKey); --> only prints input keys for now
+        console.log(data);
         const workerId = this.#getNewWorkerIndex();
         GM.WM.notifyWorkerOfId(workerId)
             .setStopWorkerFunction(workerId)
@@ -449,16 +451,41 @@ export default class Hub {
             .queryDatabase(workerId, data.formdata)
     }
 
+    #handleFetchError(data) {
+        console.log(data);
+        console.log('test test');
+    }
+
     /***************** Mai 022823 ******************/
-    /**
+    /*
      * Updates a popup content for this search module with the search result
      *  @param {number} data.moduleId moduleId
      *  @param {Object} data.val search result data
      * */
     #setSearchResultContent(data) {
-        //console.log(data.val.data);
         if (invalidVariables([varTest(data.val, 'val', 'object'), varTest(data.moduleId, 'moduleId', 'number'), varTest(data.linkDataNode, 'linkDataNode', 'boolean'), varTest(data.local, 'local', 'boolean')], 'HUB', '#messageForPopupManager (Set Search Result Content)')) return;
-        GM.MM.updatePopupContentForModule(data.moduleId, data.val.data);
+
+        let tableData = undefined;
+
+        // if error, display error
+        if (data.val.data !== undefined) {
+            // Organize tableData for Tabulator
+            const jsonData = JSON.parse(data.val.data);
+            const headers = Object.keys(jsonData.data[0]);
+            let columns = [];
+            headers.forEach(function (headeritem) {
+                columns.push({
+                    title: headeritem, field: headeritem, hozAlign: 'right',
+                });
+                jsonData.data.forEach(function (item) {
+                    if (Object.keys(format_mapping).includes(headeritem)) {
+                        item[headeritem] = Number(item[headeritem]).toFixed(format_mapping[headeritem]);
+                    }
+                });
+            });
+            tableData = { columns: columns, tabledata: jsonData.data };
+        }
+        GM.MM.updatePopupContentForModule(data.moduleId, data.val.status, tableData);
 
         // Open popup if not opened yet
         if (!GM.PM.isPopupOpen(data.moduleId)) this.#openModulePopup(data.moduleId, 0, 0);
