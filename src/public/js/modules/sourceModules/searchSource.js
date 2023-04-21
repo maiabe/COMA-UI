@@ -36,8 +36,6 @@ export class Search extends Source {
         this.addData('metadata', metadata);
         this.inspectorCardMaker.addSearchFormFields(this.getData('key'));
 
-        
-
         //this.inspectorCardMaker.addSearchFormFields(metadata)
         // --> Add Date Range Field Min Max = date picker? (too many dates can be chosen from, slider may not be very useful)
         // --> Add Object (Comet) text input

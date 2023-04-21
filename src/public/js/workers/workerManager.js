@@ -121,6 +121,7 @@ export class WorkerManager {
                             val: {
                                 type: 'table',
                                 status: event.data.status,
+                                query: query,
                                 data: event.data.data
                             },
                             moduleId: workerObject.returnMessage.moduleId,
@@ -128,16 +129,19 @@ export class WorkerManager {
                             local: false
                         }
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, searchResultData));
+                        workerObject.stopWorkerFunction(id);
                         //workerObject.handleReturnFunction(event.data.data);
                         //console.log(event);
                         break;
                     case 'Handle Fetch Error':
                         const data = {
-                            clientId: event.data.clientId,
+                            moduleId: workerObject.returnMessage.moduleId,
+                            query: event.data.query,
                             message: event.data.message
                         }
                         workerObject.returnMessage.message = 'Handle Fetch Error';
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, data));
+                        workerObject.stopWorkerFunction(id);
                         break;
                 }
             }
@@ -294,32 +298,18 @@ export class WorkerManager {
             console.log(value);
         }*/
 
-
         // make api call
         if (this.#workers.has(workerId)) {
             const entries = {};
             formdata.forEach((value, key) => { entries[key] = value });
-
-            this.#workers.get(workerId).worker.postMessage({ type: 'Query COMA Engine', data: formatQuery(entries) });
+            this.#workers.get(workerId).worker.postMessage({ type: 'Query COMA Engine', query: entries });
         }
-
-        // stop worker after setting data to module
-
-        // return json result
-        // console.log(this.#workers.get(workerId));
     }
     
 
 }
 
-// format body of the query
-function formatQuery(query) {
-    let body = "";
-    Object.keys(query).forEach((key) => (body += `${key}=${query[key]}&`));
-    body = body.slice(0, body.length - 1);
-    //console.log(body);
-    return body;
-}
+
 
 /**
  * If user presses f, all workers are destroyed.

@@ -58,8 +58,8 @@ export class PopupManager {
             let width = 400;
             let height = 500;
             if (window.innerWidth > 2048) {
-                width = 1800;
-                height = 1000;
+                width = 800;
+                height = 500;
             }
             console.log(content.color);
             const p = new Popup(width, height, 0, 0, moduleKey, content.color, content.content, content.headerText);

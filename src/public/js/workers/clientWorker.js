@@ -2,7 +2,7 @@
 let id = -1;
 let messageDataObject = {};
 //const baseUrl = 'http://localhost:8080/';
-const baseUrl = 'http://localhost:1547/ ';
+const baseUrl = 'http://localhost:1876/ ';
 
 
 const onMessageTable = new Map();
@@ -18,25 +18,31 @@ onMessageTable.set('Query COMA Engine', queryDatabase);
 onmessage = e => onMessageTable.get(e.data.type)(e);
 
 function queryDatabase(e) {
-    const message = { message: 'Query COMA Engine', data: e.data }
-    console.log(message);
+    const message = { message: 'Query COMA Engine', data: formatQuery(e.data.query) }
     postCOMAData('https://coma.ifa.hawaii.edu/api/lightcurve', message.data)
         // Promise fulfilled
         .then(data => {
             //console.log(data.status);
-            // status error
-            handleDatabaseQueryReturn(data);
+            // e.data = form query
+            handleDatabaseQueryReturn(e.data.query, data);
         },
         // Promise rejected
         reason => {
-            console.log(reason);
-            handleFetchError(reason);
-            // api call fail 
+            handleFetchError(e.data.query, reason);
+            // api call fail
             return reason;
         }
     );
 }
 
+// format body of the query
+function formatQuery(query) {
+    let body = "";
+    Object.keys(query).forEach((key) => (body += `${key}=${query[key]}&`));
+    body = body.slice(0, body.length - 1);
+    //console.log(body);
+    return body;
+}
 
 
 function loadSavedModules(e) {
@@ -116,14 +122,14 @@ handleReturnTable.set('Metadata Return', handleMetadataReturn);
 handleReturnTable.set('Database Query Return', handleDatabaseQueryReturn);
 handleReturnTable.set('Handle Fetch Error', handleFetchError);
 
-function handleFetchError(reason) {
+function handleFetchError(query, reason) {
     console.log(reason);
-    postMessage({ type: 'Handle Fetch Error', clientId: id, message: reason });
+    postMessage({ type: 'Handle Fetch Error', clientId: id, query: query, message: reason });
 }
 
-function handleDatabaseQueryReturn(data) {
-    //console.log(data);
-    postMessage({ type: 'Database Query Return', clientId: id, status: data.status, data: data.data });
+function handleDatabaseQueryReturn(query, data) {
+    console.log(query);
+    postMessage({ type: 'Database Query Return', clientId: id, status: data.status, query: query, data: data.data });
 }
 
 function handleMetadataReturn(data) {

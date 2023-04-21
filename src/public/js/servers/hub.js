@@ -29,6 +29,9 @@ export default class Hub {
         this.#buildMessageHandlerMap();
     };
 
+
+
+
     #buildMessageHandlerMap() {
         this.#messageForOutputManager = new Map();
         this.#buildMessageForOutputManagerMap();
@@ -99,6 +102,7 @@ export default class Hub {
         this.#messageForModuleManager.set('Link Drawn Event', this.#linkDrawnEvent.bind(this));
 
         this.#messageForModuleManager.set('Set Search Result Content', this.#setSearchResultContent.bind(this));
+        this.#messageForModuleManager.set('Handle Fetch Error', this.#handleFetchError.bind(this));
     }
 
     #buildMessageForInspector() {
@@ -115,7 +119,6 @@ export default class Hub {
         this.#messageForInputManager.set('Read File Event', this.#readFileEvent.bind(this));
         this.#messageForInputManager.set('Search Form Submit Event', this.#searchFormSubmit.bind(this));
 
-        this.#messageForInputManager.set('Handle Fetch Error', this.#handleFetchError.bind(this));
     }
 
     #buildMessageForWorkerManagerMap() {
@@ -452,8 +455,12 @@ export default class Hub {
     }
 
     #handleFetchError(data) {
-        console.log(data);
-        console.log('test test');
+        if (invalidVariables([varTest(data.moduleId, 'moduleId', 'number'), varTest(data.query, 'query', 'object'), varTest(data.message, 'message', 'object')], 'HUB', '#messageForPopupManager (Handle Fetch Error)')) return;
+
+        GM.MM.updatePopupContent(data.moduleId, 'error', data.query, data.message);
+
+        // Open popup if not opened yet
+        if (!GM.PM.isPopupOpen(data.moduleId)) this.#openModulePopup(data.moduleId, 0, 0);
     }
 
     /***************** Mai 022823 ******************/
@@ -485,7 +492,7 @@ export default class Hub {
             });
             tableData = { columns: columns, tabledata: jsonData.data };
         }
-        GM.MM.updatePopupContentForModule(data.moduleId, data.val.status, tableData);
+        GM.MM.updatePopupContent(data.moduleId, data.val.status, data.query, tableData);
 
         // Open popup if not opened yet
         if (!GM.PM.isPopupOpen(data.moduleId)) this.#openModulePopup(data.moduleId, 0, 0);

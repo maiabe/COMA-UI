@@ -2,6 +2,9 @@ import { ModuleGenerator, SaveCompositeModulePopupContent, PopupContentMaker } f
 import { Message, Publisher, Subscriber } from '../communication/index.js';
 import { invalidVariables, printErrorMessage, varTest } from '../errorHandling/errorHandlers.js';
 import { ENVIRONMENT, MODULE_MANAGER, MODULE, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR, POPUP_MANAGER, WORKER_MANAGER } from '../sharedVariables/index.js';
+import { Popup } from '../components/popup/popup.js';
+import { HTMLFactory } from "../htmlGeneration/htmlFactory.js";
+
 
 export class ModuleManager {
 
@@ -10,6 +13,7 @@ export class ModuleManager {
     #moduleMap;           // Hash Table that stores modules {module key: module object}
     #compositePrefabMap;  // Stores the makeup of the prefabricated (ie. User created and saved) composite modules.
     #PCM;                 // Popup Content Maker
+    #HF;                  // HTML Factory
 
     constructor() {
         this.#MG = new ModuleGenerator();
@@ -20,6 +24,7 @@ export class ModuleManager {
         this.messageHandlerMap = new Map();
         this.#buildMessageHandlerMap();
         this.#PCM = new PopupContentMaker();
+        this.#HF = new HTMLFactory();
     };
 
     /* ########################## PRIVATE CLASS METHODS ##############################  */
@@ -411,20 +416,58 @@ export class ModuleManager {
 
     /***************** Mai 022823 ******************/
     /** --- PUBLIC ---
-     * Create updated popup content and update popup for this module. 
+     * Create/update popup content for search module. 
      * @param {number} key the key of the module to get.
      * @param {string} type the type of the resulting display.
      * @param {object} data data to update to.
      */
-    updatePopupContentForModule(moduleKey, queryStatus, data) {
+    updatePopupContent(moduleKey, queryStatus, query, data) {
         const module = this.getModule(moduleKey);
         let content = undefined;
         if (module) {
             content = module.getPopupContent();
             if (queryStatus === 'error') {
-                // send message to hub, PCM to display error
-                const messages = ['Query to database failed. Please try again.', 'Please contact the system administrator if error persists.'];
+                //---------------------------------- create query specific error 
+                const messages = [];
+                let errorMessage = this.#HF.createNewParagraph('', '', ['error-message'], [], 'The following query failed:');
+                messages.push(errorMessage);
+                let queryFields = this.#HF.createNewDiv('', '', ['error-message'], [{ key: 'display', value: 'grid' }, { key: 'grid-template-columns', value: 'repeat(3, 1fr)' }]);
+                let queryKeys = Object.keys(query);
+
+                // Find the longest string in queryKeys
+                let longestText = '';
+                queryKeys.forEach(text => {
+                    if (text.length > longestText.length) {
+                        longestText = text;
+                    }
+                });
+
+                // Fields of the query that failed
+                queryKeys.forEach((key) => {
+                    let wrapper = this.#HF.createNewParagraph('', '', ['error-query-wrapper'], [], '');
+                    let keySpan = this.#HF.createNewSpan('', '', ['error-query-key'],
+                        [{ style: 'width', value: longestText.length + 'ch' }, { style: 'text-align', value: 'right' }], key + ':');
+                    keySpan.innerHTML += '&nbsp;&nbsp;';
+                    let valueSpan = this.#HF.createNewSpan('', '', ['error-query-value'], [], query[key]);
+                    wrapper.appendChild(keySpan);
+                    wrapper.appendChild(valueSpan);
+                    queryFields.appendChild(wrapper);
+                });
+                messages.push(queryFields);
+
+                // error contact message sentence organized into span and anchor elements
+                let errorContact = this.#HF.createNewParagraph('', '', ['error-contact-wrapper'], [], '');
+                let firstspan = this.#HF.createNewSpan('', '', ['error-contact'], [], 'Please contact the ');
+                let anchor = this.#HF.createNewAnchor('mailto:admin@comaifa.com', '', '', ['error-contact'], [], 'admin@comaifa.com');
+                let lastspan = this.#HF.createNewSpan('', '', ['error-contact'], [], ' if error persists.');
+                errorContact.appendChild(firstspan);
+                errorContact.appendChild(anchor);
+                errorContact.appendChild(lastspan);
+                messages.push(errorContact);
                 this.#PCM.setErrorDisplay(moduleKey, messages, content.content);
+
+                // update module with this content
+                /*module.updatePopupContent(content.content);*/
             }
             else {
                 if (data !== undefined) {

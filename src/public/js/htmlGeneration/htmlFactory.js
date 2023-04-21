@@ -1,5 +1,5 @@
 
-import { FormGenerator, TextAreaGenerator, H3Generator, H1Generator, DivGenerator, ParagraphGenerator, LabelGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider } from "./index.js";
+import { FormGenerator, TextAreaGenerator, H3Generator, H1Generator, DivGenerator, ParagraphGenerator, SpanGenerator, LabelGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider, AnchorGenerator } from "./index.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
 export class HTMLFactory {
 
@@ -9,6 +9,7 @@ export class HTMLFactory {
     #divGenerator;            // Class that builds HTML divs with various features;
     #imgGenerator;            // Class that builds HTML imgs with various features;
     #paragraphGenerator;      // Class that builds HTML p with various features;
+    #spanGenerator;           // Class that builds HTML span with various features;
     #labelGenerator;          // Class that builds HTML label with various features;
     #inputGenerator;          // Class that builds HTML inputs with various features;
     #selectGenerator;
@@ -17,12 +18,14 @@ export class HTMLFactory {
     #checkboxGenerator;
     #textAreaGenerator;
     #formGenerator;
+    #anchorGenerator;
 
     constructor() {
         this.#tableGenerator = new HTMLTableGenerator();
         this.#divGenerator = new DivGenerator();
         this.#imgGenerator = new ImgGenerator();
         this.#paragraphGenerator = new ParagraphGenerator();
+        this.#spanGenerator = new SpanGenerator();
         this.#labelGenerator = new LabelGenerator();
         this.#inputGenerator = new InputGenerator();
         this.#selectGenerator = new SelectGenerator();
@@ -31,6 +34,7 @@ export class HTMLFactory {
         this.#checkboxGenerator = new CheckboxGenerator();
         this.#textAreaGenerator = new TextAreaGenerator();
         this.#formGenerator = new FormGenerator();
+        this.#anchorGenerator = new AnchorGenerator();
     };
 
     createNewTable(dataTable, rowLimit) {
@@ -77,6 +81,20 @@ export class HTMLFactory {
      */
     createNewParagraph(id, name, classlist, customStyles, text) {
         return this.#paragraphGenerator.generateNewParagraph(id, name, classlist, customStyles, text);
+    }
+
+    /** Creates a new HTML span element
+     * @param id -> the id of the element (if not adding id, use empty string '')
+     * @param name -> the name of the element (if not adding name, use empty string '')
+     * @param classlist -> Array of strings, each string is a css classname
+     * @param customStyles -> array of objects in the following format
+     *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
+     *                         value: 'green;}
+     * @param text -> a string to display in the span element.
+     * @return the new span
+     */
+    createNewSpan(id, name, classlist, customStyles, text) {
+        return this.#spanGenerator.generateNewSpan(id, name, classlist, customStyles, text);
     }
 
     /** Creates a new HTML label element
@@ -228,6 +246,21 @@ export class HTMLFactory {
     createNewRangeSlider(id, name, classlist, customStyles, callback, updateSliderFunction) {
         const slider = new RangeSlider(id, name, classlist, customStyles, callback, updateSliderFunction);
         return slider.getWrappper();
+    }
+
+    /** Creates a new HTML a element
+     * @param href -> the href link of the element
+     * @param id -> the id of the element (if not adding id, use empty string '')
+     * @param name -> the name of the element (if not adding name, use empty string '')
+     * @param classlist -> Array of strings, each string is a css classname
+     * @param customStyles -> array of objects in the following format
+     *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
+     *                         value: 'green;}
+     * @param text -> a string to display in the a element.
+     * @return the new span
+     */
+    createNewAnchor(href, id, name, classlist, customStyles, text) {
+        return this.#anchorGenerator.generateNewAnchor(href, id, name, classlist, customStyles, text);
     }
 
     /** Takes an array of style objects and applies them to an element

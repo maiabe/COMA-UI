@@ -132,10 +132,11 @@ export class PopupContentMaker {
     }
 
 
-    /***************** Mai 040523 ******************/
+    /***************** Mai 041923 ******************/
     /** --- PUBLIC ---
      * Sets error message in the popup content.
      * @params {number} key the keyof the parent module for this popup.
+     * @params {array} array of error message elements (string or span element)
      * @returns HTML div (content of the popup to be updated displayed)
      */
     setErrorDisplay(moduleKey, messages, content) {
@@ -144,22 +145,33 @@ export class PopupContentMaker {
             this.dataTable.set('errorWrapper',
                 this.HF.createNewDiv('error-wrapper-' + moduleKey, '', ['error-wrapper'],
                     [{ style: 'width', value: '60%' }, { style: 'display', value: 'flex' },
-                     { style: 'margin', value: 'auto' }, { style: 'flex-flow', value: 'column' }]));
+                    { style: 'margin', value: 'auto' }, { style: 'flex-flow', value: 'column' }]));
+
+            var errorWrapper = this.getField('errorWrapper');
+            var errorHeader = this.HF.createNewDiv('', '', ['error-header'], [{ style: 'height', value: '2rem' }]);
+            var errorBody = this.HF.createNewDiv('', '', ['error-body'], [{ style: 'height', value: '70%' }]);
+            var errorTitle = this.HF.createNewH1('', '', ['error-title'], [], 'Error');
+            errorWrapper.appendChild(errorHeader);
+            errorWrapper.appendChild(errorBody);
+            errorHeader.appendChild(errorTitle);
+
+            messages.forEach((message) => {
+                errorBody.appendChild(message);
+            });
+            content.appendChild(errorWrapper);
         }
-        var errorWrapper = this.getField('errorWrapper');
-
-        var errorHeader = this.HF.createNewDiv('', '', ['error-header'], [{ style: 'height', value: '2rem' }]);
-        var errorBody = this.HF.createNewDiv('', '', ['error-body'], [{ style: 'height', value: '70%' }]);
-        var errorTitle = this.HF.createNewH1('', '', ['error-title'], [], 'Oops!');
-        errorWrapper.appendChild(errorHeader);
-        errorWrapper.appendChild(errorBody);
-        errorHeader.appendChild(errorTitle);
-
-        messages.forEach((message) => {
-            let errorMessage = this.HF.createNewParagraph('', '', ['error-message'], [], message);
-            errorBody.appendChild(errorMessage);
-        });
-        content.appendChild(errorWrapper); 
+        // Update the error message
+        else {
+            var errorWrapper = this.getField('errorWrapper');
+            var errorBody = errorWrapper.querySelector('.error-body');
+            while (errorBody.firstChild) {
+                errorBody.removeChild(errorBody.firstChild);
+            }
+            messages.forEach((message) => {
+                errorBody.appendChild(message);
+            });
+            errorWrapper.appendChild(errorBody);
+        }
     }
 
     /** --- PUBLIC ---

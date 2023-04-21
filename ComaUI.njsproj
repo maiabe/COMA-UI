@@ -48,7 +48,6 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\images\background\error_bg.jpeg" />
-    <Content Include="src\public\images\background\error_bg.png" />
     <Content Include="src\public\index.html" />
     <Content Include="src\public\css\main.css" />
     <Content Include="src\public\css\moduleSelectionMenu.css" />
@@ -67,10 +66,14 @@
     <Content Include="src\public\js\components\inspector\inspectorCardComponents\queryCard.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\public\js\htmlGeneration\elementGenerators\anchorGenerator.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\public\js\htmlGeneration\elementGenerators\formGenerator.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\js\htmlGeneration\elementGenerators\labelGenerator.js" />
+    <Content Include="src\public\js\htmlGeneration\elementGenerators\spanGenerator.js" />
     <Content Include="src\public\js\main.js" />
     <Content Include="src\public\css\inspector\axisCard.css" />
     <Content Include="src\public\css\inspector\conversionCard.css" />
