@@ -139,7 +139,6 @@ export class RangeSlider {
             ball.parentWidth = this.getBarWidth();
             ball.width = ball.element.getBoundingClientRect().width;
             ball.parentPercentWidth = ball.parentWidth - (2 * ball.width);
-
         });
     }
     calculatePercentageFromEdge(ballObject) {

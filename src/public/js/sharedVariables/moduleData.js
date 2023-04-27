@@ -91,4 +91,44 @@ const moduleDataObject = [
     },
 ]
 
-export {moduleDataObject}
+/** This Object Stores the data for search module fields
+ *  type: (array) list of strings that describes the types of a query
+ *  field: (array) list of strings that describtes the form field options
+ *  data-representation: (object) list of objects that stores the query data representation options
+ *                          type: (string) type of query operation
+ *                          data: (string) type of data representation to configure
+ *                          option: (array) list of numbers to represent the data with
+ */
+const SearchFields = {
+    "types": [
+        "lightcurve",
+        "geometry",
+        "photometry",
+        "objects"
+    ],
+    "fields": {
+        object: "Object",
+        date: "Date",
+        begin: "Begin",
+        end: "End",
+        JDbegin: "JD begin",
+        JDend: "JD end",
+        filter: "Filter",
+        telescope: "Telescope"
+    },
+    "data-representation": [
+        {
+            "type": "photometry",
+            "data": "radius aperture",
+            "option": [5, 10, 20]
+        },
+        {
+            "type": "objects",
+            "data": "au",
+            "option": [5, 10, 20]
+        }
+    ]
+}
+
+export { moduleDataObject }
+export { SearchFields }

@@ -100,7 +100,7 @@ export default class Hub {
         this.#messageForModuleManager.set('New Group Created', this.#newGroupCreated.bind(this));
         this.#messageForModuleManager.set('Nodes Deleted Event', this.#nodesDeletedEvent.bind(this));
         this.#messageForModuleManager.set('Link Drawn Event', this.#linkDrawnEvent.bind(this));
-
+        /****** mai ******/
         this.#messageForModuleManager.set('Set Search Result Content', this.#setSearchResultContent.bind(this));
         this.#messageForModuleManager.set('Handle Fetch Error', this.#handleFetchError.bind(this));
     }
@@ -443,7 +443,7 @@ export default class Hub {
     #searchFormSubmit(data) {
         if (invalidVariables([varTest(data.type, 'type', 'string'), varTest(data.formdata, 'formdata', 'object'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Search Form Submit Event)')) return;
         //else GM.IM.searchFormSubmit(data.type, data.formdata, data.moduleKey); --> only prints input keys for now
-        console.log(data);
+        //console.log(data);
         const workerId = this.#getNewWorkerIndex();
         GM.WM.notifyWorkerOfId(workerId)
             .setStopWorkerFunction(workerId)

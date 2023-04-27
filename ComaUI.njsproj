@@ -16,6 +16,9 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Content Include="localFileStorage\SearchFields.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="localFileStorage\searchModule.json">
       <SubType>Code</SubType>
     </Content>
@@ -48,6 +51,7 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\images\background\error_bg.jpeg" />
+    <Content Include="src\public\images\icons\plus.png" />
     <Content Include="src\public\index.html" />
     <Content Include="src\public\css\main.css" />
     <Content Include="src\public\css\moduleSelectionMenu.css" />
@@ -63,7 +67,10 @@
     <Content Include="src\public\gojs\package.json" />
     <Content Include="src\public\gojs\site.11tydata.json" />
     <Content Include="src\public\gojs\README.md" />
-    <Content Include="src\public\js\components\inspector\inspectorCardComponents\queryCard.js">
+    <Content Include="src\public\js\components\inspector\inspectorCardComponents\formCard.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\public\js\components\inspector\inspectorCardComponents\formFieldAppendCard.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\js\htmlGeneration\elementGenerators\anchorGenerator.js">
@@ -81,7 +88,7 @@
     <Content Include="src\public\css\inspector\inspectorCard.css" />
     <Content Include="src\public\css\inspector\minMaxFilter.css" />
     <Content Include="src\public\css\inspector\objectSearchCard.css" />
-    <Content Include="src\public\css\inspector\objectSearchCard.js" />
+    <Content Include="src\public\js\components\inspector\inspectorCardComponents\objectSearchCard.js" />
     <Content Include="src\public\gojs\api\index.html" />
     <Content Include="src\public\gojs\extensions\Arranging.html" />
     <Content Include="src\public\gojs\extensions\BalloonLink.html" />
@@ -1364,7 +1371,7 @@
     <Content Include="src\public\js\htmlGeneration\elementGenerators\imgGenerator.js" />
     <Content Include="src\public\js\htmlGeneration\elementGenerators\inputGenerator.js" />
     <Content Include="src\public\js\htmlGeneration\elementGenerators\paragraphGenerator.js" />
-    <Content Include="src\public\js\htmlGeneration\elementGenerators\rangeSlider.js" />
+    <Content Include="src\public\js\htmlGeneration\componentGenerator\rangeSlider.js" />
     <Content Include="src\public\js\htmlGeneration\elementGenerators\selectGenerator.js" />
     <Content Include="src\public\js\htmlGeneration\elementGenerators\textAreaGenerator.js" />
     <Content Include="src\public\js\modules\components\inspectorCardMaker.js" />
@@ -1464,6 +1471,7 @@
     <Folder Include="src\public\js\global" />
     <Folder Include="src\public\js\htmlGeneration" />
     <Folder Include="src\public\js\htmlGeneration\elementGenerators" />
+    <Folder Include="src\public\js\htmlGeneration\componentGenerator\" />
     <Folder Include="src\public\js\modules" />
     <Folder Include="src\public\js\modules\components" />
     <Folder Include="src\public\js\modules\compositModule" />

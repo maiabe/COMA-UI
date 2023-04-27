@@ -8,6 +8,7 @@ import { InspectorCard } from '../../components/inspector/inspectorCard.js';
 import { Publisher, Message, Subscriber } from '../../communication/index.js';
 import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
 import { INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER } from '../../sharedVariables/constants.js';
+import { SearchFields } from '../../sharedVariables/moduleData.js';
 
 /**
  * This class is an intermediary between the Insepctor Card and the Modules. This Object has specific function
@@ -306,58 +307,41 @@ export class InspectorCardMaker {
     #createInspectorCardHorizontalFlexContainer = () => this.HF.createNewDiv('', '', ['inspector-card-horizontal-flex-container'], []);
 
     addSearchFormFields(key) {
-        //this.addFilterCards(metadata);
+        // Create Search Card Wrapper
+        const searchCardWrapper = this.HF.createNewDiv('', '', ['search-card-wrapper'],
+                                        [{ style: 'display', value: 'flex' },
+                                        { style: 'flex-direction', value: 'column' },
+                                        { style: 'width', value: '100%' },
+                                        { style: 'padding', value: '5%' }
+                                        ]);
 
-        const searchWrapper = this.HF.createNewDiv('', '', ['search-form-wrapper'], []);
-        this.dataTable.set('searchForm', this.HF.createNewForm('search-form-' + key.toString(), '', ['search-form'], []));
-        const searchForm = this.getField('searchForm');
+        // Create Form Field Append elements
+        const addFormFieldAppend = this.inspectorCard.addFormFieldAppend({ key: 'add-field', value: 'Add Field: ' }, SearchFields.fields);
+        searchCardWrapper.appendChild(addFormFieldAppend);
+
+        // Create initial search form fields
+        const formName = { name: 'search-form-' + key, className: 'search-form' };
+        const fields = [
+            { labelName: 'Begin', fieldName: 'begin' },
+            { labelName: 'End', fieldName: 'end' },
+            { labelName: 'Object', fieldName: 'object' }
+        ];
+        this.dataTable.set('SearchFormCard', this.inspectorCard.addFormCard(formName, fields));
+        const searchFormCard = this.getField('SearchFormCard');
+        searchCardWrapper.appendChild(searchFormCard);
+
+        this.inspectorCard.appendToBody(searchCardWrapper);
 
 
-        const dateRangeWrapper = this.HF.createNewDiv('', '', ['search-date-range-wrapper'], []);
-        const dateRangeMinWrapper = this.HF.createNewDiv('', '', ['date-range-min-wrapper'], []);
-        const dateRangeMaxWrapper = this.HF.createNewDiv('', '', ['date-range-max-wrapper'], []);
+        /********************************** js events ***********************************/
+        // field addd event .. inprogress
+        this.getField('searchFieldAddButton').addEventListener('click', (e) => {
+            console.log(e);
+        });
 
-        const dateRangeMinLabel = this.HF.createNewLabel('', '', ['begin'], [], [], ['Min Date: ']);
-        const dateRangeMaxLabel = this.HF.createNewLabel('', '', ['end'], [], [], ['Max Date: ']);
-        const dateRangeMinInput = this.HF.createNewTextInput('date-range-min-input', 'begin', ['date-range-min-input'], [], '', '');
-        const dateRangeMaxInput = this.HF.createNewTextInput('date-range-max-input', 'end', ['date-range-max-input'], [], '', '');
-
-        const objectWrapper = this.HF.createNewDiv('', '', ['search-object-input-wrapper'], []);
-        const objectLabel = this.HF.createNewLabel('', '', 'object', [], [], ['Comet: ']);
-        const objectTextInput = this.HF.createNewTextInput('object-input', 'object', ['object-input'], [], '', '');
-
-        dateRangeMinInput.value = "2018-01-01";
-        dateRangeMaxInput.value = "2022-12-31";
-        objectTextInput.value = "C_2017_K2";
-
-        //const buttonsWrapper = this.HF.createNewDiv('', '', ['search-buttons-wrapper'], []);
-        const buttonsInnerWrapper = this.HF.createNewDiv('', '', ['search-buttons-inner-wrapper'], []);
-        // ************************** need to append module id to searchBtn id?
-        this.dataTable.set('searchFormButton', this.HF.createNewButton('searchBtn', '', ['search-button'], ['border-radius: 3px'], 'submit', 'Search', false));
-
-        this.inspectorCard.appendToBody(searchWrapper);
-        searchWrapper.appendChild(searchForm);
-        searchForm.appendChild(dateRangeWrapper);
-        searchForm.appendChild(objectWrapper);
-        searchForm.appendChild(buttonsInnerWrapper);
-
-        dateRangeWrapper.appendChild(dateRangeMinWrapper);
-        dateRangeWrapper.appendChild(dateRangeMaxWrapper);
-        dateRangeMinWrapper.appendChild(dateRangeMinLabel);
-        dateRangeMinWrapper.appendChild(dateRangeMinInput);
-        dateRangeMaxWrapper.appendChild(dateRangeMaxLabel);
-        dateRangeMaxWrapper.appendChild(dateRangeMaxInput);
-
-        objectWrapper.appendChild(objectLabel);
-        objectWrapper.appendChild(objectTextInput);
-
-        //this.inspectorCard.appendToBody(buttonsWrapper);
-        //buttonsWrapper.appendChild(buttonsInnerWrapper);
-        buttonsInnerWrapper.appendChild(this.getField('searchFormButton'));
-
-        this.getField('searchFormButton').addEventListener('click', (e) => {
+        // search form submit event
+       /* this.getField('searchFormButton').addEventListener('click', (e) => {
             e.preventDefault();
-
             const data = new FormData(searchForm);
             //console.log(data.get('object-input'));
             const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Search Form Submit Event', {
@@ -366,9 +350,9 @@ export class InspectorCardMaker {
                 moduleKey: key
             });
             this.sendMessage(message);
-        });
+        });*/
 
-
+        // Expand the size of the inspector card
         this.inspectorCard.maximizeCard();
     }
 

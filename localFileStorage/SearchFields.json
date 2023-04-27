@@ -1,0 +1,30 @@
+{
+    "type": [
+        "lightcurve",
+        "geometry",
+        "photometry",
+        "objects"
+    ],
+    "field": [
+        "object",
+        "date",
+        "begin",
+        "end",
+        "JDbegin",
+        "JDend",
+        "filter",
+        "telescope"
+    ],
+    "data-representation": [
+        {
+            "type": "photometry",
+            "data": "radius aperture",
+            "option": [ 5, 10, 20 ]
+        },
+        {
+            "type": "objects",
+            "data": "au",
+            "option": [ 5, 10, 20 ]
+        }
+    ]
+}

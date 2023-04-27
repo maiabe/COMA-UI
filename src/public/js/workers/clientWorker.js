@@ -2,7 +2,7 @@
 let id = -1;
 let messageDataObject = {};
 //const baseUrl = 'http://localhost:8080/';
-const baseUrl = 'http://localhost:1876/ ';
+const baseUrl = 'http://localhost:1674/ ';
 
 
 const onMessageTable = new Map();
@@ -19,6 +19,7 @@ onmessage = e => onMessageTable.get(e.data.type)(e);
 
 function queryDatabase(e) {
     const message = { message: 'Query COMA Engine', data: formatQuery(e.data.query) }
+    console.log(formatQuery(e.data.query));
     postCOMAData('https://coma.ifa.hawaii.edu/api/lightcurve', message.data)
         // Promise fulfilled
         .then(data => {

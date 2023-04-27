@@ -5,16 +5,17 @@
  *************************************************************/
 import { printErrorMessage } from '../../errorHandling/errorHandlers.js';
 import { XAxisCard, YAxisCard } from './inspectorCardComponents/axisCard.js';
-import { ObjectSearchCard } from '../../../css/inspector/objectSearchCard.js';
+import { ObjectSearchCard } from './inspectorCardComponents/objectSearchCard.js';
 import { KeyValueCard } from './inspectorCardComponents/keyValueCard.js';
 import { HTMLFactory } from '../../htmlGeneration/index.js';
 import { IncludeColumnCard } from './index.js';
 import { CompositeDetailsCard } from './inspectorCardComponents/compositeDetailsCard.js';
 import { MinMaxFilter } from './inspectorCardComponents/minMaxFilter.js';
+import { FormCard } from './inspectorCardComponents/formCard.js';
+import { FormFieldAppendCard } from './inspectorCardComponents/formFieldAppendCard.js';
 import { ConversionCard } from './inspectorCardComponents/conversionCard.js';
 import { Publisher, Message } from '../../communication/index.js';
 import { INSPECTOR, INSPECTOR_CARD } from '../../sharedVariables/constants.js';
-import { QueryCard } from './inspectorCardComponents/queryCard.js';
 
 /**
  * This class should not be called directly but called through the InspectorCardMaker.
@@ -387,6 +388,25 @@ export class InspectorCard {
     }
 
 
+    /** --- PUBLIC ---
+     * This is the elements for the Search module. The default form fields are added as the initial load.
+     * @param { Object options }  
+     * @returns The card object (not just the HTML element)
+     */
+    addFormCard(name, fields) {
+        const card = new FormCard(name, fields);
+        return card.getCard().wrapper;
+    }
+
+    /** --- PUBLIC ---
+     * This is the elements for the Search module. The default form fields are added as the initial load.
+     * @param { Object} 
+     * @returns The card object (not just the HTML element)
+     */
+    addFormFieldAppend(label, options) {
+        const card = new FormFieldAppendCard(label, options);
+        return card.getCard().wrapper;
+    }
 
 
     getCard = () => this.#wrapperElement;

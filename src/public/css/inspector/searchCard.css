@@ -1,7 +1,61 @@
 
-.search-form-wrapper {
+/********************* Form Style *************************/
+.form-field-append-wrapper {
+    display: flex;
     width: 100%;
+    margin: 2%;
+    align-items: stretch;
+}
+.form-field-append-wrapper .label {
+    align-self: center;
+    white-space: nowrap;
+}
+.form-field-append-wrapper .dropdown {
+    inline-size: -webkit-fill-available;
+    margin: 0 3%;
+}
 
+.form-wrapper {
+    width: 100%;
+    margin: 2%;
+}
+.search-form .field-wrapper {
+    margin: 2%;
+    text-align-last: justify;
+}
+.search-form .field-input {
+    width: 75%;
+}
+.search-card-wrapper .form-wrapper .button-wrapper {
+    float: right;
+}
+
+.search-form-wrapper {
+    display: table-row !important;
+    width: 100%;
+}
+
+.search-dropdown-wrapper {
+    width: 100%;
+    /*text-align: center;*/
+    display: flex;
+    margin: 2%;
+    align-items: baseline;
+}
+.search-dropdown {
+    width: 65%;
+    text-align: left;
+    font-size: large;
+    padding: 0.5% 2%;
+    border: ridge;
+}
+.search-form-wrapper .add-icon-wrapper {
+    margin-bottom: auto;
+}
+.search-form-wrapper .add-icon {
+    width: 25px;
+    vertical-align: top;
+    border: outset;
 }
 
 .search-form {

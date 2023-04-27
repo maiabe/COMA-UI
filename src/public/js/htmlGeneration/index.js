@@ -13,5 +13,5 @@ export { H3Generator } from './elementGenerators/h3Generator.js';
 export { CheckboxGenerator } from './elementGenerators/checkboxGenerator.js';
 export { TextAreaGenerator } from './elementGenerators/textAreaGenerator.js';
 export { FormGenerator } from './elementGenerators/formGenerator.js';
-export { RangeSlider } from './elementGenerators/rangeSlider.js';
 export { AnchorGenerator } from './elementGenerators/anchorGenerator.js';
+export { RangeSlider } from './componentGenerator/rangeSlider.js';

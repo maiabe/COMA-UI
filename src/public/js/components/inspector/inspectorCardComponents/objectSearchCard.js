@@ -1,4 +1,4 @@
-import { GM } from "../../js/main.js";
+import { GM } from "../../../main.js";
 export class ObjectSearchCard {
 
     #wrapper;
