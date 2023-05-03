@@ -2,7 +2,7 @@
 let id = -1;
 let messageDataObject = {};
 //const baseUrl = 'http://localhost:8080/';
-const baseUrl = 'http://localhost:1674/ ';
+const baseUrl = 'http://localhost:1500/ ';
 
 
 const onMessageTable = new Map();
@@ -19,12 +19,13 @@ onmessage = e => onMessageTable.get(e.data.type)(e);
 
 function queryDatabase(e) {
     const message = { message: 'Query COMA Engine', data: formatQuery(e.data.query) }
-    console.log(formatQuery(e.data.query));
-    postCOMAData('https://coma.ifa.hawaii.edu/api/lightcurve', message.data)
+    //console.log(formatQuery(e.data.query));
+    postCOMAData('https://coma.ifa.hawaii.edu/api/lightcurve', message)
         // Promise fulfilled
         .then(data => {
             //console.log(data.status);
             // e.data = form query
+            // console.log(e.data.query);
             handleDatabaseQueryReturn(e.data.query, data);
         },
         // Promise rejected
@@ -129,7 +130,6 @@ function handleFetchError(query, reason) {
 }
 
 function handleDatabaseQueryReturn(query, data) {
-    console.log(query);
     postMessage({ type: 'Database Query Return', clientId: id, status: data.status, query: query, data: data.data });
 }
 
@@ -226,7 +226,8 @@ async function postData(url, data) {
 
 // Example POST method implementation:
 async function postCOMAData(url, body) {
-    //console.log(body.data);
+    /*console.log(body);
+    console.log(url);*/
     // Default options are marked with *
     const response = await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -239,10 +240,10 @@ async function postCOMAData(url, body) {
             // 'Access-Control-Allow-Origin': '*'
         },
         //redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: body.data // body data type must match "Content-Type" header
     });
-    console.log(body);
+    //console.log(body);
     const r = await response.json();
     //console.log(r);
 
@@ -279,11 +280,11 @@ async function getCOMATaskResults(id) {
         getCOMATaskResults(id)
         counter++;
     }
+    // console.log(r);
     //const result = JSON.stringify(r);
     if ((r == undefined) || (counter >= 10)) {
         console.log("GET Failed: Maximum number of requests attempted");
     }
 
-    //console.log(r);
     return r;
 }

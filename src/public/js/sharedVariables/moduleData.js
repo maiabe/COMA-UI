@@ -116,6 +116,24 @@ const SearchFields = {
         filter: "Filter",
         telescope: "Telescope"
     },
+    "fieldsDict": [
+        {
+            "type": "lightcurve",
+            "fields": ["object", "date", "begin", "end", "JDbegin", "JDend", "filter", "telescope"]
+        },
+        {
+            "type": "geometry",
+            "fields": ["object", "date", "begin", "end", "JDbegin", "JDend", "filter", "telescope"]
+        },
+        {
+            "type": "photometry",
+            "fields": ["object", "date", "begin", "end", "JDbegin", "JDend", "filter", "telescope"]
+        },
+        {
+            "type": "objects",
+            "fields": ["date", "begin", "end", "JDbegin", "JDend", "filter", "telescope"]
+        }
+    ],
     "data-representation": [
         {
             "type": "photometry",

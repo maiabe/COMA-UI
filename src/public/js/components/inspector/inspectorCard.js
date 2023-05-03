@@ -12,7 +12,7 @@ import { IncludeColumnCard } from './index.js';
 import { CompositeDetailsCard } from './inspectorCardComponents/compositeDetailsCard.js';
 import { MinMaxFilter } from './inspectorCardComponents/minMaxFilter.js';
 import { FormCard } from './inspectorCardComponents/formCard.js';
-import { FormFieldAppendCard } from './inspectorCardComponents/formFieldAppendCard.js';
+import { FormSelectCard } from './inspectorCardComponents/formSelectCard.js';
 import { ConversionCard } from './inspectorCardComponents/conversionCard.js';
 import { Publisher, Message } from '../../communication/index.js';
 import { INSPECTOR, INSPECTOR_CARD } from '../../sharedVariables/constants.js';
@@ -390,24 +390,59 @@ export class InspectorCard {
 
     /** --- PUBLIC ---
      * This is the elements for the Search module. The default form fields are added as the initial load.
-     * @param { Object options }  
+     * @param { string } name of form the name
+     * @param { Object } fields of the initial form format
      * @returns The card object (not just the HTML element)
      */
     addFormCard(name, fields) {
         const card = new FormCard(name, fields);
-        return card.getCard().wrapper;
+        return card;
     }
 
     /** --- PUBLIC ---
-     * This is the elements for the Search module. The default form fields are added as the initial load.
-     * @param { Object} 
-     * @returns The card object (not just the HTML element)
+     * This adds the form field to the target FormCard element.
+     * @param { Object } formCard object to append the field to
+     * @param { Object } field of the form to append to target form
      */
-    addFormFieldAppend(label, options) {
-        const card = new FormFieldAppendCard(label, options);
-        return card.getCard().wrapper;
+    appendFormField(formCard, field) {
+        formCard.appendFormField(field);
     }
 
+    /** --- PUBLIC ---
+     * This adds the form field to the target FormCard element.
+     * @param { Object } formSelectCard FormSelect object to update the options of
+     * @param { Object } options of the dropdown to update to
+     */
+    updateFormField(formSelectCard, options) {
+        formSelectCard.updateDropdown(options);
+    }
+
+
+    /** --- PUBLIC ---
+     * This is the elements for the Search module. The default form fields are added as the initial load.
+     * @param { Object } label of the select element. key is the class name and value is the label text
+     * @param { Object } options of the select element
+     * @returns The card object (not just the HTML element)
+     */
+    addFormFieldAppend(wrapper, label, options) {
+        const card = new FormSelectCard(label, options);
+        // add a addButton to the card
+        card.createAddButton(label);
+        wrapper.appendChild(card.getCard().wrapper);
+        return card;
+    }
+
+    /** --- PUBLIC ---
+     * This adds the select element to select the type of the query
+     * @param { Object } label of the select element. key is the class name and value is the label text
+     * @param { Object } options of the select element
+     */
+    addQueryTypeSelect(wrapper, label, options) {
+        console.log(options);
+        const card = new FormSelectCard(label, options);
+        wrapper.appendChild(card.getCard().wrapper);
+        return card;
+    }
 
     getCard = () => this.#wrapperElement;
 

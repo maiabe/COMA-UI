@@ -228,6 +228,10 @@ export class HTMLFactory {
         return this.#selectGenerator.generateNewSelect(id, name, classlist, customStyles, options, optionText);
     }
 
+    updateSelectOptions(dropdown, options) {
+        return this.#selectGenerator.updateOptions(dropdown, options);
+    }
+
     /**
      * Creates a checkbox with label wrapped in a div.
      * @param {string} id 

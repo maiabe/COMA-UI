@@ -443,7 +443,7 @@ export default class Hub {
     #searchFormSubmit(data) {
         if (invalidVariables([varTest(data.type, 'type', 'string'), varTest(data.formdata, 'formdata', 'object'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Search Form Submit Event)')) return;
         //else GM.IM.searchFormSubmit(data.type, data.formdata, data.moduleKey); --> only prints input keys for now
-        //console.log(data);
+        console.log(data);
         const workerId = this.#getNewWorkerIndex();
         GM.WM.notifyWorkerOfId(workerId)
             .setStopWorkerFunction(workerId)
@@ -457,6 +457,7 @@ export default class Hub {
     #handleFetchError(data) {
         if (invalidVariables([varTest(data.moduleId, 'moduleId', 'number'), varTest(data.query, 'query', 'object'), varTest(data.message, 'message', 'object')], 'HUB', '#messageForPopupManager (Handle Fetch Error)')) return;
 
+        console.log(data);
         GM.MM.updatePopupContent(data.moduleId, 'error', data.query, data.message);
 
         // Open popup if not opened yet
@@ -492,7 +493,7 @@ export default class Hub {
             });
             tableData = { columns: columns, tabledata: jsonData.data };
         }
-        GM.MM.updatePopupContent(data.moduleId, data.val.status, data.query, tableData);
+        GM.MM.updatePopupContent(data.moduleId, data.val.status, data.val.query, tableData);
 
         // Open popup if not opened yet
         if (!GM.PM.isPopupOpen(data.moduleId)) this.#openModulePopup(data.moduleId, 0, 0);

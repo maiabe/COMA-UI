@@ -70,7 +70,7 @@
     <Content Include="src\public\js\components\inspector\inspectorCardComponents\formCard.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="src\public\js\components\inspector\inspectorCardComponents\formFieldAppendCard.js">
+    <Content Include="src\public\js\components\inspector\inspectorCardComponents\formSelectCard.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\js\htmlGeneration\elementGenerators\anchorGenerator.js">

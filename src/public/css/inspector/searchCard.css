@@ -1,44 +1,68 @@
 
 /********************* Form Style *************************/
-.form-field-append-wrapper {
+
+
+.select-field-wrapper {
     display: flex;
-    width: 100%;
+    /*width: 100%;*/
     margin: 2%;
-    align-items: stretch;
+    /*align-items: stretch;*/
 }
-.form-field-append-wrapper .label {
-    align-self: center;
-    white-space: nowrap;
-}
-.form-field-append-wrapper .dropdown {
-    inline-size: -webkit-fill-available;
-    margin: 0 3%;
-}
+    .select-field-wrapper .select-field-label {
+        align-self: center;
+        white-space: nowrap;
+    }
+    .select-field-wrapper .select-field-dropdown {
+        inline-size: -webkit-fill-available;
+        margin: 0 3%;
+        border: ridge;
+    }
+    .select-field-wrapper .select-field-button:active {
+        transform: translateY(1.5px);
+    }
+    .search-card-wrapper select {
+        height: 2.2rem;
+    }
 
 .form-wrapper {
-    width: 100%;
     margin: 2%;
 }
 .search-form .field-wrapper {
-    margin: 2%;
+    margin: 2% 8%;
     text-align-last: justify;
 }
 .search-form .field-input {
     width: 75%;
+    height: 1.2rem;
 }
-.search-card-wrapper .form-wrapper .button-wrapper {
+.search-card-wrapper .button-wrapper {
     float: right;
 }
+.search-card-wrapper .button-wrapper .form-submit-btn {
+    border: outset;
+}
+.search-card-wrapper .button-wrapper .form-submit-btn:active {
+    transform: translateY(1.5px);
+}
 
-.search-form-wrapper {
+@media screen and (max-width: 1500px) {
+    .search-form .field-input {
+        width: 60%;
+    }
+}
+
+
+
+
+
+/*.search-form-wrapper {
     display: table-row !important;
     width: 100%;
 }
-
 .search-dropdown-wrapper {
-    width: 100%;
+    width: 100%;*/
     /*text-align: center;*/
-    display: flex;
+    /*display: flex;
     margin: 2%;
     align-items: baseline;
 }
@@ -99,5 +123,5 @@
      float: right;
      padding: 3px;
      font-size: 110%;
- }
+ }*/
 

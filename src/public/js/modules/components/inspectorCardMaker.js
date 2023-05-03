@@ -306,54 +306,94 @@ export class InspectorCardMaker {
      */
     #createInspectorCardHorizontalFlexContainer = () => this.HF.createNewDiv('', '', ['inspector-card-horizontal-flex-container'], []);
 
+    /** --- PUBLIC ---
+     * Adds a Search Form to the Search module inspector card
+     * @param {key number} key of the search module
+     */
     addSearchFormFields(key) {
         // Create Search Card Wrapper
         const searchCardWrapper = this.HF.createNewDiv('', '', ['search-card-wrapper'],
-                                        [{ style: 'display', value: 'flex' },
-                                        { style: 'flex-direction', value: 'column' },
-                                        { style: 'width', value: '100%' },
-                                        { style: 'padding', value: '5%' }
+                                            [{ style: 'display', value: 'flex' },
+                                            { style: 'flex-direction', value: 'column' },
+                                            { style: 'width', value: '100%' },
+                                            { style: 'padding', value: '5%' }
                                         ]);
-
-        // Create Form Field Append elements
-        const addFormFieldAppend = this.inspectorCard.addFormFieldAppend({ key: 'add-field', value: 'Add Field: ' }, SearchFields.fields);
-        searchCardWrapper.appendChild(addFormFieldAppend);
-
-        // Create initial search form fields
+        // Search form information
         const formName = { name: 'search-form-' + key, className: 'search-form' };
         const fields = [
-            { labelName: 'Begin', fieldName: 'begin' },
-            { labelName: 'End', fieldName: 'end' },
-            { labelName: 'Object', fieldName: 'object' }
+            { type: 'input', labelName: 'Begin', fieldName: 'begin', value: '2018-01-01' },
+            { type: 'input', labelName: 'End', fieldName: 'end', value: '2022-12-31' },
+            { type: 'input', labelName: 'Object', fieldName: 'object', value: 'C_2017_K2' }
         ];
+
         this.dataTable.set('SearchFormCard', this.inspectorCard.addFormCard(formName, fields));
-        const searchFormCard = this.getField('SearchFormCard');
-        searchCardWrapper.appendChild(searchFormCard);
+
+
+        // Create Query Type Options elements
+        this.dataTable.set('QueryTypeSelectCard', this.inspectorCard.addQueryTypeSelect(searchCardWrapper, { key: 'query-type', value: 'Query Type: ' }, SearchFields.types));
+        // searchCardWrapper.appendChild(queryTypeSelect);
+
+        // Create Form Field Append elements
+        var formFieldOptions = SearchFields.fieldsDict[0].fields;
+        this.dataTable.set('FormFieldAppendSelectCard', this.inspectorCard.addFormFieldAppend(searchCardWrapper, { key: 'add-search-field', value: 'Add Field: ' }, formFieldOptions));
+        // searchCardWrapper.appendChild(addFormFieldAppend);
+
+
+        // Create Search Form
+        var searchFormCard = this.getField('SearchFormCard');
+        searchCardWrapper.appendChild(searchFormCard.getCard().wrapper);
 
         this.inspectorCard.appendToBody(searchCardWrapper);
 
-
-        /********************************** js events ***********************************/
-        // field addd event .. inprogress
-        this.getField('searchFieldAddButton').addEventListener('click', (e) => {
-            console.log(e);
-        });
-
-        // search form submit event
-       /* this.getField('searchFormButton').addEventListener('click', (e) => {
-            e.preventDefault();
+        /********************************** onclick events ***********************************/
+        // Search Form Submit Event
+        document.querySelector('#' + formName.name + '-btn').addEventListener('click', (e) => {
+            var searchForm = document.querySelector('#' + formName.name);
+            /*e.preventDefault();*/
             const data = new FormData(searchForm);
-            //console.log(data.get('object-input'));
+
             const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Search Form Submit Event', {
                 type: 'form',
                 formdata: data,
                 moduleKey: key
             });
             this.sendMessage(message);
-        });*/
+        });
+
+        // Add Form Field Event
+        document.getElementById('add-search-field-btn').addEventListener('click', (e) => {
+            var dropdown = document.getElementById('add-search-field-dropdown');
+            var field = { type: 'input', labelName: dropdown.options[dropdown.selectedIndex].text, fieldName: dropdown.value };
+            console.log(field);
+            this.inspectorCard.appendFormField(searchFormCard, field);
+
+            // update the search options (remove the newly added field from the options)
+
+
+        });
+
+        document.querySelector('#query-type-dropdown').addEventListener('change', (e) => {
+
+            // change the default form field elements
+            
+
+
+            //var searchForm = this.getField('SearchFormCard');
+            var queryTypeIndex = e.target.options[e.target.selectedIndex].value;
+            var options = SearchFields.fieldsDict[queryTypeIndex].fields;
+
+            // update form field options
+            var formFieldAppendCard = this.getField('FormFieldAppendSelectCard');  
+            this.inspectorCard.updateFormField(formFieldAppendCard, options);
+        });
 
         // Expand the size of the inspector card
         this.inspectorCard.maximizeCard();
+    }
+
+    // helper function to filter out the select options of the target form
+    filterOptions(formName, options) {
+        
     }
 
 

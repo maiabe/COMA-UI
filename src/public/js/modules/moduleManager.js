@@ -471,48 +471,6 @@ export class ModuleManager {
             }
             else {
                 if (data !== undefined) {
-                    //******************** for table type ********************/
-                    // parse json into headers and cells
-                    /*const jsonData = JSON.parse(data);
-                    const headers = Object.keys(jsonData.data[0]);
-                    let columns = [];
-                    //let tabledata = [];
-                    headers.forEach(function (headeritem) {
-                        columns.push({
-                            title: headeritem, field: headeritem, hozAlign: 'right',
-                            *//*formatter: function (cell) {
-                        var value = cell.getValue();
-                        var columnName = cell.getElement().getAttribute("tabulator-field");
-
-                        if (value.includes('.')) {
-                            var leftValue = value.split('.')[0];
-                            var rightValue = value.split('.')[1];
-
-                            // set width in % according to the left value length
-                            var leftWidth = Math.round((leftValue.length) / (leftValue.length + rightValue.length) * 100);
-                            var rightWidth = 100 - leftWidth;
-
-                            var leftSpan = '<span class="left-span" style="width: ' + leftWidth + '%;">' + leftValue + '</span>';
-                            var rightSpan = '<span class="right-span" style="width: ' + rightWidth + '%;">.' + rightValue + '</span>';
-
-                            return leftSpan + rightSpan;
-                        }
-                        return value;
-                    }*//*
-                    });
-                    jsonData.data.forEach(function (item) {
-                        if (Object.keys(format_mapping).includes(headeritem)) {
-                            item[headeritem] = Number(item[headeritem]).toFixed(format_mapping[headeritem]);
-                        }
-                    });
-                        *//*jsonData.data.map(function (jsonDataItem) {
-                        if (Object.keys(format_mapping).includes(item)) {
-                            //console.log(Number(jsonDataItem[item]).toFixed(format_mapping[item]));
-                            return Number(jsonDataItem[item]).toFixed(format_mapping[item]);
-                        }
-                        return jsonDataItem[item];
-                    }));*//*
-                    });*/
 
                     this.#PCM.setSearchResultTable(moduleKey, data, content.content);
 
