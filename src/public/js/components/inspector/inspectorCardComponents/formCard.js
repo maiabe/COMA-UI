@@ -1,6 +1,7 @@
 import { GM } from "../../../main.js";
 
-/** Creates Form element
+/** 
+ * Creates Form elements
  * @param {formName Object} formName contains the 'name' of the form used as id of HTML elements in the form and
  *                                            the 'className'' of the form used as the class name of the HTML elements in the form
  * @param {fields Object} fields contains the 'type' of the field HTML element, 'labelName' for the label of the field, and
@@ -19,7 +20,6 @@ export class FormCard {
         this.#buildCard(formName);
     }
 
-
     #createElements(formName, fields) {
         this.#createWrapper();
         this.#createForm(formName, fields);
@@ -36,9 +36,9 @@ export class FormCard {
     }
 
     /** --- PRIVATE ---
-     * Creates the fields of the form
+     * Creates the initial form
      * @param {name string} formName of the form
-     * @param {fields Object} fields object contains labelName, type and fieldName data
+     * @param {fields Array} fields array of objects containing labelName, type and fieldName data
      * @returns {form Object} form html element
      */
     #createForm(formName, fields) {
@@ -47,21 +47,10 @@ export class FormCard {
             const fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], []);
 
             // create field label
-            const fieldLabel = GM.HF.createNewLabel('', '', [field.labelName], [], [], field.labelName + ': ');
+            const fieldLabel = GM.HF.createNewLabel('', '', [field.type + '-' + field.fieldName], [], [], field.labelName + ': ');
 
             // create fields
-            var formField;
-            switch (field.type) {
-                case 'input':
-                    formField = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], '', false);
-                    if (field.value) {
-                        formField.value = field.value;
-                        console.log(formField);
-                    }
-                    break;
-                default:
-                    formField = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], '', false);
-            }
+            var formField = this.#createFormField(field);
             // append to fieldWrapper
             fieldWrapper.appendChild(fieldLabel);
             fieldWrapper.appendChild(formField);
@@ -71,15 +60,66 @@ export class FormCard {
         });
     }
 
+    /** --- PRIVATE ---
+     * Creates the form field
+     * @param {field Object} field object contains labelName, type, and fieldName data 
+     * */
+    #createFormField(field) {
+        var fieldNameUnique = field.type + '-' + field.fieldName;
+        var formField;
+        switch (field.type) {
+            case 'text':
+                formField = GM.HF.createNewTextInput(fieldNameUnique, field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                if (field.value) {
+                    formField.value = field.value;
+                }
+                break;
+            case 'date':
+                formField = GM.HF.createNewTextInput(fieldNameUnique, field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                // set default value
+                if (field.value) {
+                    formField.value = field.value;
+                }
+                else {
+                    formField.value = '2000-01-01';
+                }
+                formField._datepicker = flatpickr(formField, {
+                    dateFormat: 'Y-m-d',
+                    allowInput: true,
+                });
+                if (field.fieldName === 'begin' || field.fieldName === 'end') {
+                    formField.classList.add('date-range');
+                }
+                break;
+            case 'dropdown':
+                const options = field.options;
+                formField = GM.HF.createNewSelect('dropdown-' + field.fieldName, field.fieldName, ['field-input'], [], Object.keys(options), Object.values(options));
+                break;
+            default:
+                formField = GM.HF.createNewTextInput(fieldNameUnique, field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                if (field.value) {
+                    formField.value = field.value;
+                    console.log(formField);
+                }
+        }
+        return formField;
+    }
+
+    /** --- PRIVATE ---
+     * Creates the submit button of the existing form
+     * @param {formName String} formName of the form to attach the submit button
+     * */
     #createSubmitButton(formName) {
         const submitButtonWrapper = GM.HF.createNewDiv('', '', ['button-wrapper'], []);
-        const submitButton = GM.HF.createNewButton(formName.name + '-btn', '', ['form-submit-btn'], [], 'submit', 'Search', false);
+        const submitButton = GM.HF.createNewButton(formName.name + '-btn', '', ['btn', 'form-submit-btn'], [], 'button', 'Search', false);
         //submitButton.setAttribute('form', formName.name);
         submitButtonWrapper.appendChild(submitButton);
         this.#submitButton = submitButtonWrapper;
     }
 
-    /** addFormField adds the field to this form card.
+    
+    /** --- PUBLIC ---
+     * addFormField adds the field to this form card.
      * @param {Object} field has the 'type' element as the html element type,
      *                      'labelName' as the display name for this html element type,
      *                      and the 'fieldName' as the value for this html element type.
@@ -89,7 +129,10 @@ export class FormCard {
         // create field elements for this field
         var fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], []);
         var label = GM.HF.createNewLabel('', '', [field.labelName], [], [], field.labelName + ': ');
-        var input = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], '', false);
+        var input = this.#createFormField(field);
+        if (field.value) {
+            input.value = field.value;
+        }
 
         fieldWrapper.appendChild(label);
         fieldWrapper.appendChild(input);
@@ -99,16 +142,85 @@ export class FormCard {
         //return fieldWrapper;
     }
 
-    /** appendRmvFormField appends the remove buttons to each of the form
+    /** updateFormFields updates the fields of this form card.
+     * @param {fields Array} fields array of field objects containing the labelName and fieldName of the fields to be updated.
+     * */
+    updateFormFields(fields) {
+        var form = this.getCard().form;
+
+        // Clear the form fields
+        while (form.firstChild) {
+            form.removeChild(form.firstChild);
+        }
+
+        // Append the form fields passed
+        for (var i = 0; i < fields.length; i++) {
+            var field = fields[i];
+            // create field elements
+            var fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], []);
+            var label = GM.HF.createNewLabel('', '', [field.labelName], [], [], field.labelName + ': ');
+            var input = this.#createFormField(field);
+            if (field.value) {
+                input.value = field.value;
+            }
+
+            fieldWrapper.appendChild(label);
+            fieldWrapper.appendChild(input);
+
+            form.appendChild(fieldWrapper);
+        }
+    }
+
+
+    // In progress
+    /** appendRemoveField appends the remove buttons to each of the form
      *                      with the remove event from the form
      * */
-    appendRmvFormField() {
+    appendRemoveField() {
         // find the current form
-        console.log(this.getCard().wrapper);
+        var formWrapper = this.getCard().wrapper;
+        var fieldWrappers = formWrapper.querySelectorAll('.field-wrapper');
+        
+        fieldWrappers.forEach((field) => {
+            // Create remove btn
+            var removeFieldIcon = GM.HF.createNewSpan('', '', ['remove-field-btn'], [], '', 'x', false);
 
-        // append to the field wrapper
-        // remove event
+            // append remove icon to the field wrapper
+            field.appendChild(removeFieldIcon);
+        }); 
+
+        // Remove field event
+          // add id for each form field
+          // remove that field-wrapper div
     }
+
+
+    /** --- PUBLIC ---
+     * Creates the form field tooltip
+     * @param {fieldinfo String} fieldinfo tooltip
+     * */
+    appendFormFieldToolTip(fieldinfo) {
+        var tooltipDiv = GM.HF.createNewDiv('', '', ['tooltip-div'], []);
+        var tooltipIcon = GM.HF.createNewIMG('', '', '../../../images/icons/info.png', ['tooltip-img'], [{ style: 'width', value: '30px' }], 'form field format');
+        var tooltipText = GM.HF.createNewSpan('', '', ['tooltip-text'], [], fieldinfo);
+        tooltipDiv.appendChild(tooltipIcon);
+        tooltipDiv.appendChild(tooltipText);
+
+        tooltipDiv.addEventListener('mouseenter', () => {
+            const tooltipDivRect = tooltipDiv.getBoundingClientRect();
+            const right = window.innerWidth - tooltipDivRect.x;
+            tooltipText.style.top = `${tooltipDivRect.top}px`; // Adjust the vertical position
+            tooltipText.style.right = `${right}px`; // Position it right next to the tooltip-div
+        });
+
+        return tooltipDiv;
+    }
+
+    appendMessage(wrapper, message) {
+        var formMessage = GM.HF.createNewParagraph('', '', ['form-message'], [], message);
+        wrapper.insertBefore(formMessage, wrapper.firstChild);
+    }
+
 
 
 /*
@@ -160,7 +272,12 @@ export class FormCard {
     getHTML = () => this.dataTable.get('wrapper');
 
     getCard() {
-        return { wrapper: this.#wrapper, formName: this.#formName, form: this.#form, submitButton: this.#submitButton, appendFormField: this.appendFormField };
+        return { wrapper: this.#wrapper, formName: this.#formName, form: this.#form, submitButton: this.#submitButton };
+    }
+
+    getFormFields() {
+        var form = this.#form;
+        return form.children;
     }
 
 }

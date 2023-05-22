@@ -1,6 +1,7 @@
 import { Cholera, Search, Csv, Filter, DataConversion, LineChart, BarChart, ScatterPlot, OrbitalPlot, Table, ToCSV, Composite, CompositePrefab, Data } from '../modules/index.js';
 import { sourceColor, outputColor, processorColor, compositColor } from './colors.js';
 import { LOCAL_DATA_SOURCE } from "./constants.js";
+import { telescope_options, filter_options } from "./defaultData.js"; 
 
 const colors = {
     source: sourceColor,
@@ -116,22 +117,95 @@ const SearchFields = {
         filter: "Filter",
         telescope: "Telescope"
     },
+    "fieldFormat": [
+        {
+            field: "object",
+            format: "Name of the comet.\r\nexample) C/2017/K2"
+        },
+        {
+            field: "begin",
+            format: "ISO standard date format.\r\nexample) 2018-01-01"
+        },
+        {
+            field: "end",
+            format: "ISO standard date format.\r\nexample) 2022-12-31"
+        },
+        {
+            field: "test",
+            format: "test format.\r\nex) test"
+        },
+    ],
     "fieldsDict": [
         {
             "type": "lightcurve",
-            "fields": ["object", "date", "begin", "end", "JDbegin", "JDend", "filter", "telescope"]
+            "fields": [
+                { labelName: "Object", fieldName: "object", type: 'text', value: 'C/2017/K2' },
+                { labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
+                { labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                {
+                    labelName: "Telescope", fieldName: "telescope", type: 'dropdown',
+                    options: telescope_options,
+                },
+                {
+                    labelName: "Filter", fieldName: "filter", type: 'dropdown',
+                    options: filter_options,
+                },
+                { labelName: "Test1", fieldName: "test", type: 'text' },
+                { labelName: "Test1", fieldName: "test", type: 'text' }
+            ]
         },
         {
             "type": "geometry",
-            "fields": ["object", "date", "begin", "end", "JDbegin", "JDend", "filter", "telescope"]
+            "fields": [
+                { labelName: "Object", fieldName: "object", type: 'text' },
+                { labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
+                { labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                {
+                    labelName: "Telescope", fieldName: "telescope", type: 'dropdown',
+                    options: telescope_options,
+                },
+                {
+                    labelName: "Filter", fieldName: "filter", type: 'dropdown',
+                    options: filter_options,
+                },
+                { labelName: "Test2", fieldName: "test", type: 'text' },
+                { labelName: "Test2", fieldName: "test", type: 'text' }
+            ]
         },
         {
             "type": "photometry",
-            "fields": ["object", "date", "begin", "end", "JDbegin", "JDend", "filter", "telescope"]
+            "fields": [
+                { labelName: "Object", fieldName: "object", type: 'text' },
+                { labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
+                { labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                {
+                    labelName: "Telescope", fieldName: "telescope", type: 'dropdown',
+                    options: telescope_options,
+                },
+                {
+                    labelName: "Filter", fieldName: "filter", type: 'dropdown',
+                    options: filter_options,
+                },
+                { labelName: "Test3", fieldName: "test", type: 'text' },
+                { labelName: "Test3", fieldName: "test", type: 'text' }
+            ]
         },
         {
             "type": "objects",
-            "fields": ["date", "begin", "end", "JDbegin", "JDend", "filter", "telescope"]
+            "fields": [
+                { labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
+                { labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                {
+                    labelName: "Telescope", fieldName: "telescope", type: 'dropdown',
+                    options: telescope_options,
+                },
+                {
+                    labelName: "Filter", fieldName: "filter", type: 'dropdown',
+                    options: filter_options,
+                },
+                { labelName: "Test4", fieldName: "test", type: 'text' },
+                { labelName: "Test4", fieldName: "test", type: 'text' }
+            ]
         }
     ],
     "data-representation": [
@@ -147,6 +221,7 @@ const SearchFields = {
         }
     ]
 }
+
 
 export { moduleDataObject }
 export { SearchFields }

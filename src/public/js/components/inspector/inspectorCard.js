@@ -388,38 +388,94 @@ export class InspectorCard {
     }
 
 
+    //------------------------------------------- SEARCH MODULE ------------------------------------------------
     /** --- PUBLIC ---
-     * This is the elements for the Search module. The default form fields are added as the initial load.
-     * @param { string } name of form the name
-     * @param { Object } fields of the initial form format
-     * @returns The card object (not just the HTML element)
+     * This adds the select element to select the type of the query
+     * @param { Object } label of the select element. key is the class name and value is the label text
+     * @param { Object } options of the select element
      */
-    addFormCard(name, fields) {
-        const card = new FormCard(name, fields);
+    addQueryTypeSelect(wrapper, label, options) {
+        const card = new FormSelectCard(label, options);
+        wrapper.appendChild(card.getCard().wrapper);
         return card;
     }
 
     /** --- PUBLIC ---
-     * This adds the form field to the target FormCard element.
-     * @param { Object } formCard object to append the field to
-     * @param { Object } field of the form to append to target form
+     * This adds the form fields to the Search Form. This is the initial load where the default fields are added.
+     * @param { string } name of form to add
+     * @param { Object } fields of the initial form format
+     * @returns The card object (not just the HTML element)
      */
-    appendFormField(formCard, field) {
-        formCard.appendFormField(field);
+    addSearchFormCard(name, fields, fieldsFormat) {
+        const card = new FormCard(name, fields);
+        //card.appendRemoveField();
+
+        // Append form field tooltips
+        const formFields = card.getFormFields();
+        formFields.forEach((formField) => {
+            const fieldElement = formField.lastChild;
+            if (fieldElement) {
+                const fieldName = fieldElement.getAttribute('name');
+                const match = fieldsFormat.filter(x => x.field == fieldName);
+                if (match.length > 0) {
+                    let tooltip = card.appendFormFieldToolTip(match[0].format);
+                    formField.insertBefore(tooltip, formField.firstChild);
+                }
+
+                // Set datepicker configuration for begin and end dates
+                /*var dateBegin = document.querySelector('#' + name + ' #' + 'date-begin');
+                var dateEnd = document.querySelector('#' + name + ' #' + 'date-end');
+*/
+                /*if (fieldName === 'begin') {
+                    let datepicker = fieldElement._datepicker;
+                    datepicker.set('mode', 'range');
+                    datepicker.set('onClose', (selectedDates) => {
+
+                    });
+                }*/
+            }
+        });
+
+        // Set datepicker configuration for begin and end dates
+
+
+        // Append form message
+        const btnWrapper = card.getCard().submitButton;
+        card.appendMessage(btnWrapper, 'Empty fields will not be searched.');
+
+        return card;
     }
 
     /** --- PUBLIC ---
-     * This adds the form field to the target FormCard element.
-     * @param { Object } formSelectCard FormSelect object to update the options of
-     * @param { Object } options of the dropdown to update to
+     * This updates the form fields of the specified Search Form.
+     * @param { string } fromCard object to update
+     * @param { Object } fields of the form to update with
+     * @returns The card object (not just the HTML element)
      */
-    updateFormField(formSelectCard, options) {
-        formSelectCard.updateDropdown(options);
+    updateSearchFormFields(formCard, fields, fieldsFormat) {
+        formCard.updateFormFields(fields);
+        const formFields = formCard.getFormFields();
+        formFields.forEach((formField) => {
+            const fieldElement = formField.lastChild;
+            if (fieldElement) {
+                const fieldName = fieldElement.getAttribute('name');
+                const match = fieldsFormat.filter(x => x.field == fieldName);
+                if (match.length > 0) {
+                    var tooltip = formCard.appendFormFieldToolTip(match[0].format);
+                    formField.insertBefore(tooltip, formField.firstChild);
+                }
+            }
+        });
     }
 
 
+
+
+
+
+    /////////////////////////////////////////////// temp removed ///////////////////////////////////////////////////
     /** --- PUBLIC ---
-     * This is the elements for the Search module. The default form fields are added as the initial load.
+     * This adds the dynamical field append element to the inspector card.
      * @param { Object } label of the select element. key is the class name and value is the label text
      * @param { Object } options of the select element
      * @returns The card object (not just the HTML element)
@@ -433,16 +489,34 @@ export class InspectorCard {
     }
 
     /** --- PUBLIC ---
-     * This adds the select element to select the type of the query
-     * @param { Object } label of the select element. key is the class name and value is the label text
-     * @param { Object } options of the select element
+     * Updates the options of the formFieldAppend select element depending on the query type.
+     * @param { Object } formSelectCard FormSelect object to update the options of
+     * @param { Object } options of the dropdown to update to
      */
-    addQueryTypeSelect(wrapper, label, options) {
-        console.log(options);
-        const card = new FormSelectCard(label, options);
-        wrapper.appendChild(card.getCard().wrapper);
-        return card;
+    updateFormFieldAppend(formSelectCard, options) {
+        formSelectCard.updateDropdown(options);
     }
+
+    /** --- PUBLIC ---
+     * This adds the form field to the target FormCard element.
+     * @param { Object } formCard object to append the field to
+     * @param { Object } field of the form to append to target form
+     */
+    appendFormField(formCard, field) {
+        formCard.appendFormField(field);
+    }
+
+    /** --- PUBLIC ---
+     * This adds the form field remove function to each form fields of the target FormCard element.
+     * @param { Object } formCard object to append the field to
+     */
+    appendFormFieldRemove(formCard) {
+        formCard.appendRemoveField();
+    }
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
     getCard = () => this.#wrapperElement;
 

@@ -28,7 +28,7 @@ body {
 }
 
 input {
-  cursor: pointer;
+  cursor: auto;
 }
 button {
   padding: 1vw;
@@ -47,6 +47,8 @@ h2 {
   font-weight: 600;
 }
 
+select,
+.btn,
 .pointer {
   cursor: pointer;
 }

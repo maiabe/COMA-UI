@@ -311,57 +311,60 @@ export class InspectorCardMaker {
      * @param {key number} key of the search module
      */
     addSearchFormFields(key) {
-        // Create Search Card Wrapper
+        //---------- Create Search Card Wrapper
         const searchCardWrapper = this.HF.createNewDiv('', '', ['search-card-wrapper'],
                                             [{ style: 'display', value: 'flex' },
                                             { style: 'flex-direction', value: 'column' },
                                             { style: 'width', value: '100%' },
                                             { style: 'padding', value: '5%' }
                                         ]);
-        // Search form information
+
+        //---------- Create Search Form Card
         const formName = { name: 'search-form-' + key, className: 'search-form' };
-        const fields = [
-            { type: 'input', labelName: 'Begin', fieldName: 'begin', value: '2018-01-01' },
-            { type: 'input', labelName: 'End', fieldName: 'end', value: '2022-12-31' },
-            { type: 'input', labelName: 'Object', fieldName: 'object', value: 'C_2017_K2' }
-        ];
+        const defaultFields = SearchFields.fieldsDict[0].fields;
+        const fieldsFormat = SearchFields.fieldFormat;
+        this.dataTable.set('SearchFormCard_' + key, this.inspectorCard.addSearchFormCard(formName, defaultFields, fieldsFormat));
 
-        this.dataTable.set('SearchFormCard', this.inspectorCard.addFormCard(formName, fields));
-
-
-        // Create Query Type Options elements
+        //---------- Create Query Type Options
         this.dataTable.set('QueryTypeSelectCard', this.inspectorCard.addQueryTypeSelect(searchCardWrapper, { key: 'query-type', value: 'Query Type: ' }, SearchFields.types));
-        // searchCardWrapper.appendChild(queryTypeSelect);
+        
+        // Create Form Field Append
+        /*var formFieldOptions = SearchFields.fieldsDict[0].fields;
+        this.dataTable.set('FormFieldAppendSelectCard', this.inspectorCard.addFormFieldAppend(searchCardWrapper, { key: 'add-search-field', value: 'Add Field: ' }, formFieldOptions));*/
 
-        // Create Form Field Append elements
-        var formFieldOptions = SearchFields.fieldsDict[0].fields;
-        this.dataTable.set('FormFieldAppendSelectCard', this.inspectorCard.addFormFieldAppend(searchCardWrapper, { key: 'add-search-field', value: 'Add Field: ' }, formFieldOptions));
-        // searchCardWrapper.appendChild(addFormFieldAppend);
-
-
-        // Create Search Form
-        var searchFormCard = this.getField('SearchFormCard');
+        //---------- Append Form Card to this inspector card
+        var searchFormCard = this.getField('SearchFormCard_' + key);
         searchCardWrapper.appendChild(searchFormCard.getCard().wrapper);
-
         this.inspectorCard.appendToBody(searchCardWrapper);
 
-        /********************************** onclick events ***********************************/
-        // Search Form Submit Event
+        /********************************** js events ***********************************/
+        /**
+         * Search Form Submit Event 
+         * */
         document.querySelector('#' + formName.name + '-btn').addEventListener('click', (e) => {
-            var searchForm = document.querySelector('#' + formName.name);
-            /*e.preventDefault();*/
-            const data = new FormData(searchForm);
+            // clean up form field values.. delete the empty fields
+            e.preventDefault();
+
+            const searchForm = document.querySelector('#' + formName.name);
+            var formData = new FormData(searchForm);
+
+            //... inprogress > need to delete empty fields? right now it works without deleting empty fields
+            /*for (const [key, value] of formData.entries()) {
+                if (value === '') {
+                    formData.delete(key);
+                }
+            }*/
 
             const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Search Form Submit Event', {
                 type: 'form',
-                formdata: data,
+                formdata: formData,
                 moduleKey: key
             });
             this.sendMessage(message);
         });
 
         // Add Form Field Event
-        document.getElementById('add-search-field-btn').addEventListener('click', (e) => {
+        /*document.getElementById('add-search-field-btn').addEventListener('click', (e) => {
             var dropdown = document.getElementById('add-search-field-dropdown');
             var field = { type: 'input', labelName: dropdown.options[dropdown.selectedIndex].text, fieldName: dropdown.value };
             console.log(field);
@@ -369,32 +372,42 @@ export class InspectorCardMaker {
 
             // update the search options (remove the newly added field from the options)
 
+        });*/
 
+        /**
+         * Update Search Form Field event (on query type change)
+         * */
+        document.querySelector('#query-type-dropdown').addEventListener('change', (e) => {
+            var queryTypeIndex = e.target.options[e.target.selectedIndex].value;
+            var fields = SearchFields.fieldsDict[queryTypeIndex].fields;
+
+            // update form fields
+            const formCard = this.getField('SearchFormCard_' + key);
+            this.inspectorCard.updateSearchFormFields(formCard, fields, fieldsFormat);
+
+            // temp removed
+            // update form field options
+            /*var formFieldAppendCard = this.getField('FormFieldAppendSelectCard');  
+            this.inspectorCard.updateFormFieldAppend(formFieldAppendCard, options);*/
         });
 
-        document.querySelector('#query-type-dropdown').addEventListener('change', (e) => {
 
-            // change the default form field elements
-            
+        /**
+         * Set datepicker configuration for begin and end dates to be in a range mode
+         * */
+        var endInputId = '#' + formName.name + ' #' + 'date-end';
 
-
-            //var searchForm = this.getField('SearchFormCard');
-            var queryTypeIndex = e.target.options[e.target.selectedIndex].value;
-            var options = SearchFields.fieldsDict[queryTypeIndex].fields;
-
-            // update form field options
-            var formFieldAppendCard = this.getField('FormFieldAppendSelectCard');  
-            this.inspectorCard.updateFormField(formFieldAppendCard, options);
+        // Initialize flatpickr with the range plugin
+        flatpickr('.date-range', {
+            mode: 'range',
+            dateFormat: 'Y-m-d', // Set the desired date format (ISO format: YYYY-MM-DD)
+            plugins: [new rangePlugin({ input: endInputId })],
         });
 
         // Expand the size of the inspector card
         this.inspectorCard.maximizeCard();
     }
 
-    // helper function to filter out the select options of the target form
-    filterOptions(formName, options) {
-        
-    }
 
 
     getField = key => this.dataTable.get(key);

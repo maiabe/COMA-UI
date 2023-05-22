@@ -105,6 +105,12 @@ export class PopupContentMaker {
     setSearchResultTable(moduleKey, data, content) {
         // Organize data for the tabulator data
         if (content.querySelector('.tabulator') == null) {
+            // delete any div child under popup content
+            var popupcontent = content.querySelector('div');
+            if (popupcontent) {
+                content.removeChild(content.querySelector('div'));
+            }
+
             content.style.height = "calc(100% - 2rem)"; // set height to fit content
 
             var downloadBtn = this.HF.createNewButton('', [], ['download-csv-button'], ['border-radius: 3px'], 'button', 'Download CSV');
@@ -142,6 +148,12 @@ export class PopupContentMaker {
     setErrorDisplay(moduleKey, messages, content) {
         // if it doesnt exist in the dataTable already, set the errorwrapper to dataTable
         if (this.getField('errorWrapper') === undefined) {
+            // delete any div child under popup content
+            var popupcontent = content.querySelector('div');
+            if (popupcontent) {
+                content.removeChild(content.querySelector('div'));
+            }
+
             this.dataTable.set('errorWrapper',
                 this.HF.createNewDiv('error-wrapper-' + moduleKey, '', ['error-wrapper'],
                     [{ style: 'width', value: '60%' }, { style: 'display', value: 'flex' },

@@ -29,14 +29,47 @@
 }
 .search-form .field-wrapper {
     margin: 2% 8%;
-    text-align-last: justify;
+    display: flex;
+    align-items: center;
+}
+.search-form .tooltip-div {
+    display: inline-block;
+    position: relative;
+    /*z-index: 1;*/
+
+}
+.search-form .tooltip-div .tooltip-text {
+    visibility: hidden;
+    position: fixed;
+    top: 0;
+    right: 0;
+    
+    border-radius: 6px;
+    background-color: black;
+    padding: 1%;
+    color: white;
+    white-space: break-spaces;
+}
+.tooltip-div:hover .tooltip-text {
+    visibility: visible;
+    z-index: 3;
 }
 .search-form .field-input {
-    width: 75%;
+    width: -webkit-fill-available;
     height: 1.2rem;
+    text-align-last: start;
+    margin: 0 4%;
+}
+.search-form select {
+    height: 2.2rem !important;
+    border: inset;
 }
 .search-card-wrapper .button-wrapper {
     float: right;
+    text-align: end;
+}
+.search-card-wrapper .button-wrapper p {
+    margin: 2% 0;
 }
 .search-card-wrapper .button-wrapper .form-submit-btn {
     border: outset;
