@@ -41,7 +41,7 @@
     <Content Include="customModules\jobManager\lib\jobManager.js" />
     <Content Include="customModules\jobManager\lib\workerFiles\workerScript.js" />
     <Content Include="customModules\savedModuleManager\lib\savedModuleManager.js" />
-    <Content Include="src\public\css\displayMessage.css">
+    <Content Include="src\public\css\errorDisplay.css">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\css\inspector\searchCard.css">
@@ -51,8 +51,12 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\images\background\error_bg.jpeg" />
+    <Content Include="src\public\images\icons\database.png" />
+    <Content Include="src\public\images\icons\db-image.png" />
     <Content Include="src\public\images\icons\info.png" />
+    <Content Include="src\public\images\icons\loading_spinner.gif" />
     <Content Include="src\public\images\icons\plus.png" />
+    <Content Include="src\public\images\icons\table_inv.png" />
     <Content Include="src\public\index.html" />
     <Content Include="src\public\css\main.css" />
     <Content Include="src\public\css\moduleSelectionMenu.css" />
@@ -72,6 +76,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\js\components\inspector\inspectorCardComponents\formSelectCard.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\public\js\components\popup\popupComponents\errorCard.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\js\htmlGeneration\elementGenerators\anchorGenerator.js">
@@ -1371,7 +1378,7 @@
     <Content Include="src\public\js\htmlGeneration\elementGenerators\divGenerator.js" />
     <Content Include="src\public\js\htmlGeneration\elementGenerators\h1Generator.js" />
     <Content Include="src\public\js\htmlGeneration\elementGenerators\h3Generator.js" />
-    <Content Include="src\public\js\htmlGeneration\elementGenerators\HTMLTableGenerator.js" />
+    <Content Include="src\public\js\htmlGeneration\elementGenerators\TableGenerator.js" />
     <Content Include="src\public\js\htmlGeneration\elementGenerators\imgGenerator.js" />
     <Content Include="src\public\js\htmlGeneration\elementGenerators\inputGenerator.js" />
     <Content Include="src\public\js\htmlGeneration\elementGenerators\paragraphGenerator.js" />
@@ -1465,6 +1472,7 @@
     <Folder Include="src\public\js\components\inspector\inspectorCardComponents" />
     <Folder Include="src\public\js\components\moduleSelectionMenu" />
     <Folder Include="src\public\js\components\popup" />
+    <Folder Include="src\public\js\components\popup\popupComponents\" />
     <Folder Include="src\public\js\dataComponents" />
     <Folder Include="src\public\js\dataComponents\charts" />
     <Folder Include="src\public\js\dataComponents\charts\echarts" />
