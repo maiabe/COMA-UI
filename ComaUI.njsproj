@@ -88,6 +88,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\js\htmlGeneration\elementGenerators\labelGenerator.js" />
+    <Content Include="src\public\js\htmlGeneration\elementGenerators\listGenerator.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\public\js\htmlGeneration\elementGenerators\spanGenerator.js" />
     <Content Include="src\public\js\main.js" />
     <Content Include="src\public\css\inspector\axisCard.css" />

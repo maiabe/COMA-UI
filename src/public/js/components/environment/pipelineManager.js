@@ -13,10 +13,17 @@ export class PipelineManager {
      */
     validatePipeline = pipeLine => {
         if (invalidVariables([varTest(pipeLine, 'pipeLine', 'object')], 'PipelineManager', 'validatePipeline')) return;
+        console.log(pipeLine);
         let valid = true;
         // TODO: Create validation function.
         if (valid) this.sendRequest(this.buildPipeJSON(pipeLine)).sendPipelineKeys(pipeLine);
         else printErrorMessage('invalid pipeline', `-- Pipeline Manager - validatePipeline`);
+
+        // if valid, show success message
+
+
+        // else show error modal with message containing where in the pipeline failed
+        
     }
 
     /**

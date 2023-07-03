@@ -29,8 +29,8 @@ export class Module {
      * description (string)                     | Module Description
      * chartType (string)                       | ie. bar, scatter
      * coordinateSystem (string)                | ie. cartesian_2d, polar
-     * isDataModule (boolean)                   | true if this is a data module
-     * linkedToData (boolean)                   | true if connected to a graph with data
+     * isDataModule (boolean)                   | true if this is a data module (deprecated)
+     * linkedToData (boolean)                   | true if connected to a graph with data (deprecated)
      * requestMetadataOnCreation (boolean)      | Some Source models will ping server for metadata
      * popupContent (Object)                    | The HTML to insert into a popup
      * metadata (Object)                        | Headers, min, max etc.
@@ -42,7 +42,7 @@ export class Module {
      * getFilterDetailsFunctionArray (Function) | Array of filter functions
      * onCreationFunction (Function)            | Function to call on creation of module.
      * ----------------------------------------------------------------------------------------------
-     */
+*/     
 
     /* The InspectorCardMaker is an object that sits between the Module and the Inspector Card. It
     *  is called by the Module and then calls the InspectorCard */
@@ -119,8 +119,10 @@ export class Module {
     /** --- PUBLIC ---
      * Sets the popup content associated with this module. This is the generic function and will likely be overriden in the child classes. */
     setPopupContent = () => {
-        const popupContent = GM.HF.createNewDiv('', '', [], []);
-        popupContent.appendChild(GM.HF.createNewParagraph('', '', [], [], this.getData('name')));
+        const popupContent = GM.HF.createNewDiv('', '', ['popup-body-wrapper'], []);
+        const loadingWrapper = GM.HF.createNewDiv('', '', ['popup-loading-wrapper'], []);
+        loadingWrapper.appendChild(GM.HF.createNewIMG('popup-loading-spinner', '', 'images/icons/loading_spinner.gif', [], [{ style: 'width', value: '60px' }], ''));
+        popupContent.appendChild(loadingWrapper);
         this.addData('popupContent', popupContent, false, '', false);
     }
 
@@ -135,6 +137,19 @@ export class Module {
      */
     addData = (key, value) => {
         this.#dataTable.set(key, value);
+    }
+
+    /** --- PUBLIC ---
+     * Removes data of this modules data hash table.
+     * @param {string} key the key for the hash table 
+     * @param {any} value to store
+     */
+    removeData = (key) => {
+        if (this.getData(key)) {
+            this.#dataTable.delete(key);
+            return true;
+        }
+        return false;
     }
 
     /** --- PUBLIC ---

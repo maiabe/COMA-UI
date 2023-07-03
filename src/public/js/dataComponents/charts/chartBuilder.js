@@ -5,12 +5,11 @@
  *************************************************************/
 
 import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
-
-
 export class ChartBuilder {
 
     #optionGenerationMap;
     #planetaryRadii;
+    #dataTable;
     #HF;
 
     constructor() {
@@ -27,6 +26,9 @@ export class ChartBuilder {
         this.#planetaryRadii.set('saturn', 9.54);
         this.#planetaryRadii.set('uranus', 19.22);
         this.#planetaryRadii.set('neptune', 30.06);
+
+        this.#dataTable = new Map();
+
         this.#HF = new HTMLFactory();
     };
 
@@ -358,36 +360,6 @@ export class ChartBuilder {
     }
 
     /** --- PRIVATE ---
-    * Creates a tabulator table.
-    * @param {{e: any[], x: any[]}, y: any[][]} data Arrays of the data for the data columns
-    * @param {string} type chart type, ie 'bar'
-    * @param {HTML div} pdiv the plot div is the location to inject the chart in the dom 
-    * @param {Number} width width of the chart
-    * @param {Number} height height of the chart
-    * @returns Tabulator Object
-    */
-    #drawTabulatorTable = (data, type, tablediv, width, height) => {
-        let result = undefined;
-        //console.log(data.tabledata);
-        switch (type) {
-            case 'table':
-                result = new Tabulator(tablediv,
-                    {
-                        columns: data.columns,
-                        data: data.tabledata,
-                        pagination: 'local',
-                        paginationSize: 100,
-                        paginationSizeSelector: [10, 50, 100, 250, 500],
-                        paginationCounter: "rows",
-                        height: "85%",
-                        ajaxLoader: true,
-                    }
-                );
-                break;
-        }
-        return result;
-    }
-    /** --- PRIVATE ---
     * Creates a plotly chart. Currently this is only used to create tables.
     * @param {{e: any[], x: any[]}, y: any[][]} data Arrays of the data for the x axis, y axis, and error trace
     * @param {string} type chart type, ie 'bar'
@@ -581,6 +553,42 @@ export class ChartBuilder {
     };
 
 
+    /** --- PRIVATE ---
+    * Creates a tabulator table.
+    * @param {{e: any[], x: any[]}, y: any[][]} data Arrays of the data for the data columns
+    * @param {string} type chart type, ie 'bar'
+    * @param {HTML div} pdiv the plot div is the location to inject the chart in the dom 
+    * @param {Number} width width of the chart
+    * @param {Number} height height of the chart
+    * @returns Tabulator Object
+    */
+    #drawTabulatorTable = (data, type, tablediv, width, height) => {
+        var result = undefined;
+        //console.log(data.tabledata);
+        switch (type) {
+            case 'table':
+                var tabulatorId = tablediv.getAttribute('id');
+                
+                result = new Tabulator(`#${tabulatorId}`,
+                    {
+                        columns: data.columns,
+                        data: data.tabledata,
+                        pagination: "local",
+                        paginationSize: 100,
+                        paginationSizeSelector: [10, 50, 100, 250],
+                        movableColumns: true,
+                        width: width,
+                        height: height,
+                        ajaxLoader: true,
+                    }
+                );
+                
+                this.#dataTable.set(tabulatorId, result);
+                break;
+        }
+        return result;
+    }
+
     /** --- PUBLIC ---
      * There are a lot of options passed to the function from the HUB.
      * @param {{e: any[], x: any[]}, y: any[]} data Arrays of the data for the x axis, y axis, and error trace
@@ -599,10 +607,10 @@ export class ChartBuilder {
      * @param {string} coordinateSystem polar or cartesian2d
      * @returns chart object  */
     //updateData = (data, type, pdiv, width, height, framework, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
-    updatePlotData = (moduleKey, data, type, pdiv, width, height, framework) => {
+    updatePlotData = (data, type, pdiv, width, height, framework) => {
         switch (framework) {
             case 'tabulator':
-                return this.#updateTabulatorTable(moduleKey, data, type, pdiv, width, height);
+                return this.#updateTabulatorTable(data, type, pdiv, width, height);
             /*case 'plotly':
                 return this.#updatePlotlyChart(data, type, pdiv, width, height);*/
             /*case 'echart':
@@ -610,18 +618,15 @@ export class ChartBuilder {
         }
     }
 
-    #updateTabulatorTable(moduleKey, data, type, pdiv, width, height) {
+    #updateTabulatorTable(data, type, pdiv, width, height) {
         let result = undefined;
         // get the target table to update
-        var tableElement = pdiv;
-        var table = Tabulator.prototype.findTable(tableElement);
-        if (table) {
-            table.setOptions({
-                columns: data.columns,
-                data: data.tabledata
-            });
-            result = table;
-        } else printErrorMessage('tabulator table not found', 'chartBuilder -> updateTabulatorTable');
+        var tableId = pdiv.getAttribute('id');
+        var tabulator = this.#dataTable.get(tableId);
+        if (tabulator) {
+            tabulator.setData(data.tabledata);
+            tabulator.setColumns(data.columns);
+        } else console.log('tabulator table not found', 'chartBuilder -> updateTabulatorTable');
         
         return result;
     }

@@ -44,14 +44,17 @@
 
 /***************************** Tabulator Style ********************************/
 
-.tabulator-table span.left-span {
+/*.tabulator-table span.left-span {
     float: left;
     text-align: right;
-}
-.tabulator-table span.right-span {
+}*/
+/*.tabulator-table span.right-span {
     float: right;
     text-align: left;
 
+}*/
+.tabulator-table {
+    font-family: monospace;
 }
 
 button.tabulator-page {

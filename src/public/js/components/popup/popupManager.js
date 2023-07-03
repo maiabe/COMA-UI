@@ -50,34 +50,31 @@ export class PopupManager {
      * @param {number} x -> the x position of the click that generated the popup;
      * @param {number} y -> The y position of the mouse click that generated the popup.
      */
-    createModulePopup = (moduleKey, content, x, y) => {
+    createModulePopup = (moduleKey, content) => {
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(content, 'content', 'object')], 'Popup Manager', 'createModulePopup')) return;
         // Only allow one popup for each module at any given time.
         if (!this.#popupList.has(moduleKey)) {
             // Check window size before building.
-            let width = 400;
-            let height = 500;
-            if (window.innerWidth > 2048) {
-                width = 800;
-                height = 500;
-            }
-            console.log(content.color);
-            const p = new Popup(width, height, 0, 0, moduleKey, content.color, content.content, content.headerText);
+            let width = (content.width) ? content.width : 800;
+            let height = (content.height) ? content.height : 500;
+            console.log(content);
+            const p = new Popup(width, height, 50, 50, moduleKey, content.color, content.content, content.headerText);
             p.publisher.subscribe(this.subscriber);
             this.#popupList.set(moduleKey, { type: 'module', element: p });
             this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Resize Popup Event', { moduleKey: moduleKey }));
         } else console.log(`ERROR: Popup already exists for moduleKey: ${moduleKey}. -- PopupManager -> createModulePopup.`);
     };
 
+    // -- deprecated create tabs in a popup? 
     createOtherPopup = (content) => {
         if (invalidVariables([varTest(content, 'content', 'object')], 'Popup Manager', 'createOtherPopup')) return;
         const nextIndex = this.incrementNonModulePopupIndex();
         if (!this.#popupList.has(nextIndex)) {
             // Check window size before building.
-            let width = 400;
+            let width = 800;
             let height = 500;
             if (window.innerWidth > 2048) {
-                width = 600;
+                width = 1000;
                 height = 800;
             }
             const p = new Popup(width, height, 0, 0, nextIndex, content.color, content.content, content.headerText);
@@ -98,7 +95,9 @@ export class PopupManager {
      */
     isPopupOpen = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'PopupManager', 'isPopupOpen')) return false;
-        if (this.#popupList.has(key)) return true;
+        //if (this.#popupList.has(key)) return true;
+
+
         return false;
     }
 

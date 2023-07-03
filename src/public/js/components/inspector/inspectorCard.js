@@ -15,7 +15,7 @@ import { FormCard } from './inspectorCardComponents/formCard.js';
 import { FormSelectCard } from './inspectorCardComponents/formSelectCard.js';
 import { ConversionCard } from './inspectorCardComponents/conversionCard.js';
 import { Publisher, Message } from '../../communication/index.js';
-import { INSPECTOR, INSPECTOR_CARD } from '../../sharedVariables/constants.js';
+import { INSPECTOR, INSPECTOR_CARD, WORKER_MANAGER } from '../../sharedVariables/constants.js';
 
 /**
  * This class should not be called directly but called through the InspectorCardMaker.
@@ -272,6 +272,8 @@ export class InspectorCard {
         } else printErrorMessage(`Undefined or Null Variable`, `data: ${data}. -- Inspector Card -> updateDynamicField`);
     }
 
+    
+
     /** --- PUBLIC ---
      * This builds a card for including columns of a data table. It is a row of checkboxes that can be toggled on or off.
      * @param {*} checkboxes 
@@ -388,56 +390,62 @@ export class InspectorCard {
     }
 
 
-    //------------------------------------------- SEARCH MODULE ------------------------------------------------
+    //------------------------------------------- SEARCH MODULE (deprecated) ------------------------------------------------
     /** --- PUBLIC ---
      * This adds the select element to select the type of the query
      * @param { Object } label of the select element. key is the class name and value is the label text
      * @param { Object } options of the select element
      */
-    addQueryTypeSelect(wrapper, label, options) {
-        const card = new FormSelectCard(label, options);
-        wrapper.appendChild(card.getCard().wrapper);
-        return card;
+    addQueryTypeSelect(wrapper, label, options, tooltipContent) {
+        const selectCard = new FormSelectCard(label, options);
+        var selectWrapper = selectCard.getCard().wrapper;
+        // Create tooltip of the selected query type option
+        const dropdown = selectCard.getCard().dropdown;
+        var selected = dropdown.options[dropdown.selectedIndex].text;
+        var match = tooltipContent.filter(x => x.type == selected)[0];
+        var description = "Query Type: " + selected;
+        if (match) {
+            description = match.description;
+        }
+        // tooltip
+        var tooltipElement = selectWrapper.querySelector('label');
+        var tooltip = selectCard.appendToolTip(description, tooltipElement);
+        selectWrapper.insertBefore(tooltip, selectWrapper.firstChild);
+
+        wrapper.appendChild(selectCard.getCard().wrapper);
+        return selectCard;
     }
 
     /** --- PUBLIC ---
      * This adds the form fields to the Search Form. This is the initial load where the default fields are added.
      * @param { string } name of form to add
      * @param { Object } fields of the initial form format
+     * @param { Array } fieldsTooltip Array of objects containing field tooltip content
      * @returns The card object (not just the HTML element)
      */
-    addSearchFormCard(name, fields, fieldsFormat) {
-        const card = new FormCard(name, fields);
-        //card.appendRemoveField();
+    addSearchFormCard(moduleKey, formName, fields, fieldsTooltip) {
+        const card = new FormCard(formName, fields);
 
-        // Append form field tooltips
         const formFields = card.getFormFields();
         formFields.forEach((formField) => {
+            const fieldLabel = formField.querySelector('label');
             const fieldElement = formField.lastChild;
             if (fieldElement) {
+                // Append form field tooltips
                 const fieldName = fieldElement.getAttribute('name');
-                const match = fieldsFormat.filter(x => x.field == fieldName);
+                const match = fieldsTooltip.filter(x => x.field == fieldName);
                 if (match.length > 0) {
-                    let tooltip = card.appendFormFieldToolTip(match[0].format);
+                    let tooltip = card.appendToolTip(match[0].format, fieldLabel);
                     formField.insertBefore(tooltip, formField.firstChild);
                 }
 
-                // Set datepicker configuration for begin and end dates
-                /*var dateBegin = document.querySelector('#' + name + ' #' + 'date-begin');
-                var dateEnd = document.querySelector('#' + name + ' #' + 'date-end');
-*/
-                /*if (fieldName === 'begin') {
-                    let datepicker = fieldElement._datepicker;
-                    datepicker.set('mode', 'range');
-                    datepicker.set('onClose', (selectedDates) => {
-
-                    });
-                }*/
+                const fieldObject = fields.filter(x => x.fieldName == fieldName)[0];
+                // Handle Remote Data Search Fields... create function for this?
+                if (fieldObject && fieldObject.remote) {
+                    this.#handleRemoteSearchField(moduleKey, fieldObject);
+                }
             }
         });
-
-        // Set datepicker configuration for begin and end dates
-
 
         // Append form message
         const btnWrapper = card.getCard().submitButton;
@@ -446,22 +454,43 @@ export class InspectorCard {
         return card;
     }
 
+    #handleRemoteSearchField(moduleKey, fieldObject) {
+        switch (fieldObject.dirName) {
+            case "objects":
+                console.log(fieldObject.dirName);
+                // ajax function
+                break;
+            default: // dropdown remote fields
+                // get options from server
+                const message = new Message(WORKER_MANAGER, INSPECTOR_CARD, 'Get Remote Dropdown Options',
+                    {
+                        moduleKey: moduleKey,
+                        dirName: fieldObject.dirName
+                    });
+                this.sendMessage(message);
+                // append options to the dropdown (current fieldElement)
+
+        }
+    }
+
     /** --- PUBLIC ---
      * This updates the form fields of the specified Search Form.
      * @param { string } fromCard object to update
      * @param { Object } fields of the form to update with
+     * @param { Array } fieldsTooltip Array of objects containing field tooltip content
      * @returns The card object (not just the HTML element)
      */
-    updateSearchFormFields(formCard, fields, fieldsFormat) {
+    updateSearchFormFields(formCard, fields, fieldsTooltip) {
         formCard.updateFormFields(fields);
         const formFields = formCard.getFormFields();
         formFields.forEach((formField) => {
+            const fieldLabel = formField.querySelector('label');
             const fieldElement = formField.lastChild;
             if (fieldElement) {
                 const fieldName = fieldElement.getAttribute('name');
-                const match = fieldsFormat.filter(x => x.field == fieldName);
+                const match = fieldsTooltip.filter(x => x.field == fieldName);
                 if (match.length > 0) {
-                    var tooltip = formCard.appendFormFieldToolTip(match[0].format);
+                    var tooltip = formCard.appendToolTip(match[0].format, fieldLabel);
                     formField.insertBefore(tooltip, formField.firstChild);
                 }
             }
@@ -493,9 +522,9 @@ export class InspectorCard {
      * @param { Object } formSelectCard FormSelect object to update the options of
      * @param { Object } options of the dropdown to update to
      */
-    updateFormFieldAppend(formSelectCard, options) {
+    /*updateFormFieldAppend(formSelectCard, options) {
         formSelectCard.updateDropdown(options);
-    }
+    }*/
 
     /** --- PUBLIC ---
      * This adds the form field to the target FormCard element.

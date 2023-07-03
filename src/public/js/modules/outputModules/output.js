@@ -5,19 +5,22 @@
  *************************************************************/
 import { Module } from "../index.js";
 import { ChartDataStorage } from "./components/chartDataStorage.js";
-import { TABLE_OUTPUT, LOCAL_DATA_SOURCE, MODULE, MODULE_MANAGER, OUTPUT_MANAGER } from "../../sharedVariables/constants.js";
+import { LT_OUTPUT, LT_PROCESSOR, LT_SOURCE, MODULE, MODULE_MANAGER, OUTPUT_MANAGER } from "../../sharedVariables/constants.js";
 import { Message } from "../../communication/message.js";
 
 export class Output extends Module {
     constructor(category, color, shape, command, name, image, inports, outports, key) {
         super(category, color, shape, command, name, image, inports, outports, key);
+        this.addData('inportType', [-1]);
+        this.addData('outportType', [LT_PROCESSOR, LT_SOURCE]);
     }
 }
 
 /** All 2D charts inherit from this except Tables */
 export class Chart_2D extends Output {
     constructor(category, color, shape, command, name, image, outports, key) {
-        super(category, color, shape, command, name, image, [{ name: 'IN', leftSide: true, type: TABLE_OUTPUT }], outports, key)
+        super(category, color, shape, command, name, image,
+            [{ name: 'IN', leftSide: true, type: LT_SOURCE }, { name: 'OUT', leftSide: true, type: LT_OUTPUT }], outports, key)
     };
 
     /** --- PUBLIC ---
@@ -26,8 +29,8 @@ export class Chart_2D extends Output {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
         this.addData('themeDD', this.popupContentMaker.addEChartThemeDropdown(this.getData('key')), false, '', false);
         this.addData('plotDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
-        this.addData('inportType', LOCAL_DATA_SOURCE);
-        this.addData('outportType', -1);
+        this.addData('inportType', [LT_SOURCE, LT_PROCESSOR]);
+        this.addData('outportType', [-1]);
     }
 
     /** --- PUBLIC ---
@@ -138,11 +141,11 @@ export class OrbitalPlot extends Chart_2D {
 
 export class ToCSV extends Output {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'To CSV', 'images/icons/csv-file-format-extension-white.png', [{ name: 'IN', leftSide: true, type: TABLE_OUTPUT }], [], key);
+        super(category, color, shape, 'output', 'To CSV', 'images/icons/csv-file-format-extension-white.png', [{ name: 'IN', leftSide: true, type: LT_OUTPUT }], [], key);
         this.setPopupContent();
         this.createInspectorCardData();
         this.chartData = new ChartDataStorage('table');
-        this.addData('inportType', LOCAL_DATA_SOURCE);
+        this.addData('inportType', LT_PROCESSOR);
         this.addData('outportType', -1);
         this.addData('chartType', 'table');
     }

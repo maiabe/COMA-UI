@@ -1,5 +1,5 @@
 
-import { FormGenerator, TextAreaGenerator, H3Generator, H1Generator, DivGenerator, ParagraphGenerator, SpanGenerator, LabelGenerator, ImgGenerator, InputGenerator, HTMLTableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider, AnchorGenerator } from "./index.js";
+import { FormGenerator, TextAreaGenerator, H3Generator, H1Generator, DivGenerator, ParagraphGenerator, SpanGenerator, LabelGenerator, ImgGenerator, InputGenerator, TableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider, AnchorGenerator, ListGenerator } from "./index.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
 export class HTMLFactory {
 
@@ -19,9 +19,10 @@ export class HTMLFactory {
     #textAreaGenerator;
     #formGenerator;
     #anchorGenerator;
+    #listGenerator;
 
     constructor() {
-        this.#tableGenerator = new HTMLTableGenerator();
+        this.#tableGenerator = new TableGenerator();
         this.#divGenerator = new DivGenerator();
         this.#imgGenerator = new ImgGenerator();
         this.#paragraphGenerator = new ParagraphGenerator();
@@ -35,10 +36,11 @@ export class HTMLFactory {
         this.#textAreaGenerator = new TextAreaGenerator();
         this.#formGenerator = new FormGenerator();
         this.#anchorGenerator = new AnchorGenerator();
+        this.#listGenerator = new ListGenerator();
     };
 
-    createNewTable(dataTable, rowLimit) {
-        return this.#tableGenerator.generateTableFromData(dataTable, rowLimit);
+    createNewTable(id, name, classlist, customStyles, headers, columnData, rowLimit) {
+        return this.#tableGenerator.generateTableFromData(id, name, classlist, customStyles, headers, columnData, rowLimit);
     }
 
     /** Creates a new HTML div element
@@ -243,6 +245,21 @@ export class HTMLFactory {
      * @param {boolean} checked 
      * @return {wrapper: (Div), checkbox: (Input), label: (Label)t}
      */
+    createNewRadioButton(id, name, classlist, customStyles, value, checked) {
+        return this.#inputGenerator.generateRadioInput(id, name, classlist, customStyles, value, checked);
+    }
+
+    /**
+     * Creates a checkbox with label wrapped in a div.
+     * @param {string} id 
+     * @param {string} name 
+     * @param {string[]} classlist 
+     * @param {string[]} customStyles 
+     * @param {string} value 
+     * @param {string} label 
+     * @param {boolean} checked 
+     * @return {wrapper: (Div), checkbox: (Input), label: (Label)}
+     */
     createNewCheckbox(id, name, classlist, customStyles, value, label, checked) {
         return this.#checkboxGenerator.generateCheckbox(id, name, classlist, customStyles, value, label, checked);
     }
@@ -265,6 +282,21 @@ export class HTMLFactory {
      */
     createNewAnchor(href, id, name, classlist, customStyles, text) {
         return this.#anchorGenerator.generateNewAnchor(href, id, name, classlist, customStyles, text);
+    }
+
+    /** Creates a new HTML a element
+     * @param href -> the href link of the element
+     * @param id -> the id of the element (if not adding id, use empty string '')
+     * @param name -> the name of the element (if not adding name, use empty string '')
+     * @param classlist -> Array of strings, each string is a css classname
+     * @param customStyles -> array of objects in the following format
+     *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
+     *                         value: 'green;}
+     * @param text -> a string to display in the a element.
+     * @return the new span
+     */
+    createNewList(id, name, classlist, customStyles, list) {
+        return this.#listGenerator.generateNewList(id, name, classlist, customStyles, list);
     }
 
     /** Takes an array of style objects and applies them to an element

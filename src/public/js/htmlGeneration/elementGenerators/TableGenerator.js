@@ -1,21 +1,29 @@
-export class HTMLTableGenerator {
-    constructor () {
+export class TableGenerator {
+    constructor() {
+        
     }
 
-    generateTableFromData = (data, rowLimit) => {
+    generateTableFromData = (id, name, classlist, customStyles, headers, columnData, rowLimit) => {
         const t = document.createElement('table');
-        //t.setAttribute("id", tableId);
-        //console.log(tableId);
+        t.setAttribute("id", id);
+        const thead = document.createElement('thead');
         const tbody = document.createElement('tbody');
+        t.appendChild(thead);
         t.appendChild(tbody);
 
-        //console.log(data);
-        const obj = JSON.parse(data);
-        const tableObj = Object.entries(obj);
+        console.log(columnData);
+
+        /*const obj = JSON.parse(columnData);
+        const tableObj = Object.entries(obj);*/
+
         /*for (var value in tableObj[0]) {
             console.log(value);
         }*/
 
+        console.log(headers);
+        console.log(columnData);
+
+        
         const tableBodyElements = JSON.parse(tableObj[0][1]);
         //console.log(tableBodyElements);
         for (var i = 0; i < tableBodyElements.data.length; i++) {

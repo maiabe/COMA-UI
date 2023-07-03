@@ -4,7 +4,7 @@
  * Date: 5/5/2022                                            *
  *************************************************************/
 import { Module } from "../module.js";
-import { LOCAL_DATA_SOURCE, REMOTE_DATA_TABLE, TABLE_OUTPUT, MODULE, MODULE_MANAGER, DATA_MANAGER } from "../../sharedVariables/constants.js";
+import { LT_SOURCE, LT_PROCESSOR, LT_OUTPUT, MODULE, MODULE_MANAGER, DATA_MANAGER } from "../../sharedVariables/constants.js";
 import { Message } from "../../communication/message.js";
 
 export class Processor extends Module {
@@ -15,9 +15,11 @@ export class Processor extends Module {
 /* Module that can apply min and max filters or change data types on a dataset */
 export class Filter extends Processor {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'filter', 'Filter', 'images/icons/filter-white.png', [{ name: 'IN', leftSide: true, type: REMOTE_DATA_TABLE }, { name: 'IN', leftSide: true, type: TABLE_OUTPUT }], [{ name: 'OUT', leftSide: false, type: REMOTE_DATA_TABLE }, { name: 'OUT', leftSide: false, type: TABLE_OUTPUT }], key);
-        this.addData('inportType', REMOTE_DATA_TABLE);
-        this.addData('outportType', REMOTE_DATA_TABLE);
+        super(category, color, shape, 'filter', 'Filter', 'images/icons/filter-white.png',
+            [{ name: 'PS_IN', leftSide: true, type: LT_PROCESSOR }, { name: 'IN', leftSide: true, type: LT_SOURCE }],
+            [{ name: 'PS_OUT', leftSide: false, type: LT_PROCESSOR }, { name: 'OUT', leftSide: false, type: LT_OUTPUT }], key);
+        this.addData('inportType', [LT_PROCESSOR, LT_SOURCE]);
+        this.addData('outportType', [LT_PROCESSOR, LT_OUTPUT]);
         this.addData('description', 'Use this module to filter table data.');
         this.addData('linkedToData', false);
         this.#setPopupContent();
@@ -85,9 +87,9 @@ export class Filter extends Processor {
 
 export class DataConversion extends Processor {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'dataConversion', 'DataConversion', 'images/icons/convert-white.png', [{ name: 'IN', leftSide: true, type: REMOTE_DATA_TABLE }, { name: 'IN', leftSide: true, type: TABLE_OUTPUT }], [{ name: 'OUT', leftSide: false, type: LOCAL_DATA_SOURCE }], key);
-        this.addData('inportType', REMOTE_DATA_TABLE);
-        this.addData('outportType', REMOTE_DATA_TABLE);
+        super(category, color, shape, 'dataConversion', 'DataConversion', 'images/icons/convert-white.png',
+            [{ name: 'PS_IN', leftSide: true, type: LT_PROCESSOR }, { name: 'IN', leftSide: true, type: LT_SOURCE }],
+            [{ name: 'PS_OUT', leftSide: false, type: LT_PROCESSOR }, { name: 'OUT', leftSide: false, type: LT_OUTPUT }], key);
         this.addData('description', 'Use this module to convert table data.');
         this.addData('linkedToData', false);
         this.setPopupContent();

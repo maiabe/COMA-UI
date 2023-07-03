@@ -48,7 +48,7 @@ export class Popup {
      * @param {string} headerText text to display in popup header.
      */
     #createHTMLElement = headerText => {
-        this.element = this.HF.createNewDiv(`popup-${this.key}`, `popup-${this.key}`, ['popup'], []);
+        this.element = this.HF.createNewDiv(`popup-${this.key}`, `popup-${this.key}`, ['popup'], [{ style: 'visibility', value: 'hidden' }]);
         this.#createHeader(headerText);
         this.body = this.HF.createNewDiv(`popup-body-${this.key}`, `popup-body-${this.key}`, ['popupBody'], []);
         this.element.appendChild(this.header);
@@ -63,7 +63,7 @@ export class Popup {
      * @param {string} headerText ext to display in popup header.
      */
     #createHeader = headerText => {
-        this.header = this.HF.createNewDiv(`popup-header-${this.id}`, `popup-header-${this.id}`, ['popupHeader'], [{ style: 'backgroundColor', value: this.headerColor }]);
+        this.header = this.HF.createNewDiv(`popup-header-${this.key}`, `popup-header-${this.key}`, ['popupHeader'], [{ style: 'backgroundColor', value: this.headerColor }]);
         this.headerTitle = this.HF.createNewParagraph('', '', ['popupHeaderTitle'], [], headerText);
         this.header.appendChild(this.headerTitle);
         const closeIcon = this.HF.createNewDiv('', '', ['closePopupIcon'], []);
@@ -253,7 +253,7 @@ export class Popup {
     moveToFrontHelper = index => this.element.style.zIndex = index;
 
     close = () => {
-        document.body.removeChild(this.element);
+        //document.body.removeChild(this.element);
         this.sendMessage(new Message(POPUP_MANAGER, POPUP, 'Popup Closed Event', { moduleKey: this.key }));
     }
 

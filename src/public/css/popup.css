@@ -13,6 +13,10 @@
   left: 2%;
   min-width: 300px;
   border-radius: 10px 10px 10px 10px;
+  box-shadow: 0 3px 10px rgb(0 0 0/0.2);
+  overflow: hidden;
+  display: flex;
+  flex-flow: wrap;
 }
 
 .popup > .popupHeader {
@@ -33,14 +37,31 @@
 
 .popupBody {
     height: calc(100% - 3rem);
-    box-shadow: 0 3px 10px rgb(0 0 0/0.2);
+    width: 100%;
+}
+
+.popup-body-wrapper {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-flow: column;
+}
+/*.popup-body-wrapper {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}*/
+.popup-loading-wrapper {
+    display: flex;
 }
 
 .popup-content {
     height: 100%;
     width: 95%;
     margin: 0 auto;
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 
 .closePopupIcon {
@@ -102,3 +123,13 @@
     width: 800px;
   }
 }*/
+
+/***************************** Table Popup Card ******************************/
+.download-wrapper {
+    margin: 2%;
+}
+.table-wrapper {
+    margin: 0 2% 2% 2%;
+    /*overflow: auto;*/
+}
+

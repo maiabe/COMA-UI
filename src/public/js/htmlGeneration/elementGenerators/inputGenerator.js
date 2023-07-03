@@ -8,6 +8,9 @@ export class InputGenerator {
         e.setAttribute('name', name);
         e.setAttribute('type', type);
         e.setAttribute('value', value);
+        if (disabled) {
+            e.setAttribute('disabled', disabled);
+        }
         classlist.forEach(c => {
             e.classList.add(c);
         });
@@ -39,4 +42,29 @@ export class InputGenerator {
         HTMLFactory.setCustomStyles(e, customStyles);
         return e;
     }
+
+
+    // Checkbox here?
+
+
+    // RadioInput
+    generateRadioInput = (id, name, classlist, customStyles, type, value, checked) => {
+        const e = document.createElement('input');
+        e.setAttribute('id', id);
+        e.setAttribute('name', name);
+        e.setAttribute('type', type);
+        e.setAttribute('value', value);
+
+        if (checked) {
+            e.setAttribute("checked", "checked");
+        }
+
+        classlist.forEach(c => {
+            e.classList.add(c);
+        });
+        HTMLFactory.setCustomStyles(e, customStyles);
+        return e;
+    }
+
+
 }

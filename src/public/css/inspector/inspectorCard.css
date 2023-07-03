@@ -2,6 +2,7 @@
   position: relative;
   width: 100%;
   top: 100px;
+  border: white solid 0.5px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -157,3 +158,45 @@
   width: 100%;
   height: 100%;
 }
+
+
+/***************************** Table Inspector Card ******************************/
+.include-column-card {
+    flex-flow: column;
+    width: 100%;
+}
+
+.include-column-card-header {
+    margin: 5%;
+    text-decoration: underline;
+}
+
+.include-column-card-body-wrapper,
+.include-column-card .view-button-wrapper 
+{
+    margin: 0 5% 5% 5%;
+}
+.include-column-card-title-wrapper,
+.include-column-card-fields-wrapper 
+{
+    display: flex;
+}
+.include-column-card-fields-wrapper .checkbox-wrapper {
+    display: flex;
+    width: 80%;
+}
+.include-column-card-fields-wrapper .checkbox-wrapper input {
+    width: 20%;
+}
+.include-column-card-fields-wrapper .dropdown-wrapper {
+    width: 20%;
+}
+.include-column-card .view-button-wrapper .btn {
+    width: 100%;
+    transition: transform 0.05s;
+}
+
+.include-column-card .view-button-wrapper .btn:active {
+    transform: translateY(1.5px);
+}
+

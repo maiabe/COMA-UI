@@ -103,7 +103,8 @@ select,
 #mainWrapper {
   position: relative;
   width: 98vw;
-  display: inline-block;
+  display: flex;
+  justify-content: center;
   left: 1vw;
   height: 85vh;
   top: 0;
@@ -277,4 +278,20 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
   #environmentDiv {
     max-height: 2100px;
   }
+}
+
+@media screen and (max-width: 1200px) {
+    .inspector-card-body {
+        font-size: smaller;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #moduleMenu > .menuSegmentWrapper > .topMenuButton {
+        height: 40px;
+    }
+
+    #moduleMenu > .menuSegmentWrapper > .topMenuButton p {
+        padding-left: 14% !important;
+        width: auto !important;
+    }
 }

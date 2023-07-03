@@ -18,14 +18,20 @@ export class SelectGenerator {
         return e;
     }
 
+    /**
+     * Updates the options for existing dropdown.
+     * @param {HTMLElement} dropdown the HTML Element of the target dropdown
+     * @param {Array} options the array of objects with option display names and values
+     * */
     updateOptions = (dropdown, options) => {
         while (dropdown.firstChild) {
             dropdown.removeChild(dropdown.firstChild);
         }
+
         for (let i = 0; i < options.length; i++) {
             const option = document.createElement('option');
-            option.setAttribute('value', options[i]);
-            option.innerHTML = options[i];
+            option.setAttribute('value', options[i].value);
+            option.innerHTML = options[i].name;
             dropdown.appendChild(option);
         }
     }

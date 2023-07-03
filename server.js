@@ -4,12 +4,12 @@ const https = require('https')
 const JobManager = require('./customModules/jobManager');
 const req = require('express/lib/request');
 
-
 // Define Express App
 const app = express();
 app.use(express.json())
 app.use(express.static('./src/public'));
 app.use('/echarts', express.static(__dirname + './node_modules/echarts'));
+//app.use('/tabulator-tables', express.static(__dirname + 'node_modules/tabulator-tables'));
 
 /*var corsOptions = {
     host: 'coma.ifa.hawaii.edu',

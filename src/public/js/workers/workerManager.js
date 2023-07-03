@@ -74,10 +74,10 @@ export class WorkerManager {
         return this;
     }
 
-    setWorkerReturnMessage = (id, message, moduleId) => {
-        if (invalidVariables([varTest(id, 'id', 'number'), varTest(message, 'message', 'string'), varTest(moduleId, 'moduleId', 'number')], 'WorkerManager', 'setReturnMessage')) return undefined;
+    setWorkerReturnMessage = (id, message, moduleKey) => {
+        if (invalidVariables([varTest(id, 'id', 'number'), varTest(message, 'message', 'string'), varTest(moduleKey, 'moduleKey', 'number')], 'WorkerManager', 'setReturnMessage')) return undefined;
         if (this.#workers.has(id)) {
-            this.#workers.get(id).returnMessage = { moduleId: moduleId, message: message };
+            this.#workers.get(id).returnMessage = { moduleKey: moduleKey, message: message };
             return this;
         } else return undefined;
     }
@@ -116,32 +116,49 @@ export class WorkerManager {
                     case 'Metadata Return':
                         workerObject.handleReturnFunction(event.data.data);
                         break;
-                    case 'Database Query Return':
-                        console.log(event.data);
-                        const searchResultData = {
-                            val: {
-                                type: 'table',
-                                status: event.data.status,
-                                query: event.data.query,
-                                data: event.data.data
-                            },
-                            moduleId: workerObject.returnMessage.moduleId,
-                            linkDataNode: true,
-                            local: false
-                        }
-                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, searchResultData));
+                    case 'Task Result Return':
                         workerObject.stopWorkerFunction(id);
-                        //workerObject.handleReturnFunction(event.data.data);
-                        //console.log(event);
+                        break;
+                    /*case 'Handle Query Return':
+                        console.log(event.data);
+                        const taskResult = {
+                            val: {
+                                queryType: event.data.queryType,
+                                queryEntries: event.data.queryEntries,
+                                resultData: event.data.taskResult
+                            },
+                            moduleKey: workerObject.returnMessage.moduleKey,
+                        }
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, taskResult));
+                        workerObject.stopWorkerFunction(id);
+                        break;*/
+                    case 'Database Query Return':
+                        const moduleData = {
+                            moduleKey: workerObject.returnMessage.moduleKey,
+                            remoteData: event.data.remoteData,
+                            status: event.data.status,
+                            queryType: event.data.queryType,
+                            queryEntries: event.data.queryEntries,
+                            columnsToRender: event.data.columnsToRender,
+                            tableData: (event.data.taskResult) ? JSON.parse(event.data.taskResult) : event.data.taskResult
+                        }
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, moduleData));
+                        workerObject.stopWorkerFunction(id);
                         break;
                     case 'Handle Fetch Error':
                         const data = {
-                            moduleId: workerObject.returnMessage.moduleId,
+                            moduleKey: workerObject.returnMessage.moduleKey,
+                            queryType: event.data.queryType,
                             query: event.data.query,
                             message: event.data.message
                         }
                         workerObject.returnMessage.message = 'Handle Fetch Error';
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, data));
+                        workerObject.stopWorkerFunction(id);
+                        break;
+                    case 'Remote Dropdown Options Return':
+                        console.log(event);
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, event.data));
                         workerObject.stopWorkerFunction(id);
                         break;
                 }
@@ -158,7 +175,10 @@ export class WorkerManager {
      */
     sendPipelineToServer = (id, pipelineArray) => {
         if (invalidVariables([varTest(id, 'id', 'number'), varTest(pipelineArray, 'pipelineArray', 'object')], 'WorkerManager', 'sendPipelineToServer')) return false;
-        if (this.#workers.has(id)) this.#workers.get(id).worker.postMessage({ type: 'Execute Post', list: pipelineArray });
+        if (this.#workers.has(id)) this.#workers.get(id).worker.postMessage({ type: 'Execute Pipeline', list: pipelineArray });
+        console.log(pipelineArray);
+        // resolve the sequence of server request here?
+
         return true;
     }
 
@@ -291,19 +311,42 @@ export class WorkerManager {
         for (let key of this.#workers.keys()) this.stopWorker(key);
     }
 
+    /** Processes Search to the Database
+     * 
+     * */
+    processSearch(workerId, data) {
+        // post data to get taskId back
+        if (this.#workers.has(workerId)) {
+            /*const entries = {};
+            if (data.formdata) {
+                data.formdata.forEach((value, key) => { entries[key] = value });
+            }*/
+            this.#workers.get(workerId).worker.postMessage(
+                {
+                    type: 'Query COMA Engine',
+                    remoteData: data.remoteData,
+                    queryType: data.queryType,
+                    queryEntries: data.queryEntries,
+                    columnsToRender: data.columnsToRender,
+                });
+        }
+    }
 
     // make API call to query database
-    queryDatabase(workerId, formdata) {
-        /*console.log(workerId);
-        for (let value of formdata.values()) {
-            console.log(value);
-        }*/
-
-        // make api call
+    queryDatabase(workerId, queryType, formdata) {
         if (this.#workers.has(workerId)) {
             const entries = {};
             formdata.forEach((value, key) => { entries[key] = value });
-            this.#workers.get(workerId).worker.postMessage({ type: 'Query COMA Engine', query: entries });
+            this.#workers.get(workerId).worker.postMessage({ type: 'Query COMA Engine', queryType: queryType, queryEntries: entries });
+        }
+    }
+
+
+    getRemoteDropdownOptions(workerId, data) {
+        //console.log(data);
+        // call clientworker to query the database
+        if (this.#workers.has(workerId)) {
+            this.#workers.get(workerId).worker.postMessage({ type: 'Get Remote Dropdown Options', data: data });
         }
     }
     

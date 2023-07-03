@@ -3,6 +3,7 @@ import { GM } from "../../../main.js";
 
 export class FormSelectCard {
 
+    dataTable;
     #wrapper;
     #label;
     #dropdown;
@@ -36,7 +37,7 @@ export class FormSelectCard {
     }
 
     #createDropdown(label, options) {
-        this.#dropdown = GM.HF.createNewSelect(label.key + '-dropdown', '', ['select-field-dropdown'], [], Object.keys(options), Object.values(options));
+        this.#dropdown = GM.HF.createNewSelect(label.key, '', ['select-field-dropdown'], [], Object.keys(options), Object.values(options));
     }
 
 
@@ -58,7 +59,35 @@ export class FormSelectCard {
         GM.HF.updateSelectOptions(dropdown, options);
     }
 
-    getHTML = () => this.dataTable.get('wrapper');
+
+    /** --- PUBLIC ---
+     * Creates the field tooltip
+     * @param {fieldinfo String} fieldinfo tooltip
+     * */
+    appendToolTip(fieldinfo, tooltipElement) {
+        var tooltipDiv = GM.HF.createNewDiv('', '', ['tooltip-div'], []);
+        //var tooltipIcon = GM.HF.createNewIMG('', '', '../../../images/icons/info.png', ['tooltip-img'], [{ style: 'width', value: '30px' }], 'form field format');
+        var tooltipSpan = GM.HF.createNewSpan('', '', ['tooltip-text'], [], fieldinfo);
+
+        if (!tooltipElement) {
+            tooltipElement = GM.HF.createNewIMG('', '', '../../../images/icons/info.png', ['tooltip-img'], [{ style: 'width', value: '30px' }], 'form field format');
+        }
+        tooltipDiv.appendChild(tooltipElement);
+        //tooltipDiv.appendChild(tooltipIcon);
+        tooltipDiv.appendChild(tooltipSpan);
+
+        tooltipDiv.addEventListener('mouseenter', (e) => {
+            const tooltipElementRect = tooltipElement.getBoundingClientRect();
+            console.log(tooltipElementRect);
+            const top = tooltipElementRect.top;
+            const right = window.innerWidth - tooltipElementRect.left;
+            tooltipSpan.style.top = `${top}px`; // Adjust the vertical position
+            tooltipSpan.style.right = `${right}px`; // Position it right next to the tooltip-div
+        });
+
+        return tooltipDiv;
+    }
+
 
     getCard() {
         return { wrapper: this.#wrapper, label: this.#label, dropdown: this.#dropdown, addButton: this.#addButton };

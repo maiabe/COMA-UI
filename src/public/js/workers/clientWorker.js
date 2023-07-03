@@ -1,12 +1,13 @@
 
 let id = -1;
 let messageDataObject = {};
-//const baseUrl = 'http://localhost:8080/';
-const baseUrl = 'http://localhost:1500/ ';
+const baseUrl = 'http://localhost:8080/';
+//const baseUrl = 'http://localhost:1366/ ';
+const coma_api = 'https://coma.ifa.hawaii.edu/api/';
 
 
 const onMessageTable = new Map();
-onMessageTable.set('ExecutePost', executePost);
+onMessageTable.set('Execute Pipeline', executePipeline);
 onMessageTable.set('Set Worker Id', setWorkerId);
 onMessageTable.set('Get Objects', getObjects);
 onMessageTable.set('Get Routes', getRoutes);
@@ -14,38 +15,9 @@ onMessageTable.set('Get Metadata', getMetadata);
 onMessageTable.set('Save Module', saveModule);
 onMessageTable.set('Load Saved Modules', loadSavedModules);
 onMessageTable.set('Query COMA Engine', queryDatabase);
+onMessageTable.set('Get Remote Dropdown Options', getRemoteDropdownOptions);
 
 onmessage = e => onMessageTable.get(e.data.type)(e);
-
-function queryDatabase(e) {
-    const message = { message: 'Query COMA Engine', data: formatQuery(e.data.query) }
-    //console.log(formatQuery(e.data.query));
-    postCOMAData('https://coma.ifa.hawaii.edu/api/lightcurve', message)
-        // Promise fulfilled
-        .then(data => {
-            //console.log(data.status);
-            // e.data = form query
-            // console.log(e.data.query);
-            handleDatabaseQueryReturn(e.data.query, data);
-        },
-        // Promise rejected
-        reason => {
-            handleFetchError(e.data.query, reason);
-            // api call fail
-            return reason;
-        }
-    );
-}
-
-// format body of the query
-function formatQuery(query) {
-    let body = "";
-    Object.keys(query).forEach((key) => (body += `${key}=${query[key]}&`));
-    body = body.slice(0, body.length - 1);
-    //console.log(body);
-    return body;
-}
-
 
 function loadSavedModules(e) {
     const message = { message: 'Get Saved Modules' };
@@ -99,11 +71,12 @@ function setWorkerId(e) {
     postMessage({ type: 'Text Only', data: `Worker ID set to ${id}` });
 }
 
-function executePost(e) {
-    postData(url, { type: 'Process Pipeline Request', data: e.data.list, clientId: id })
+function executePipeline(e) {
+    console.log(e.data);
+    /*postData(url, { type: 'Process Pipeline Request', data: e.data.list, clientId: id })
         .then(data => { handleReturn(data); });
     postMessage({ type: 'Text Only', data: 'Post Request Executed' });
-    initiatePing();
+    initiatePing();*/
 }
 
 let intervalId;
@@ -121,17 +94,38 @@ handleReturnTable.set('InitialResponse', handleInitialResponseReturn);
 handleReturnTable.set('Status Check', handleStatusCheckReturn);
 handleReturnTable.set('Saved Modules', handleSavedModulesReturn);
 handleReturnTable.set('Metadata Return', handleMetadataReturn);
+/*handleReturnTable.set('Handle Query Return', handleQueryReturn);*/
 handleReturnTable.set('Database Query Return', handleDatabaseQueryReturn);
 handleReturnTable.set('Handle Fetch Error', handleFetchError);
+handleReturnTable.set('Remote Dropdown Options Return', handleRemoteDropdownOptionsReturn);
 
-function handleFetchError(query, reason) {
-    console.log(reason);
-    postMessage({ type: 'Handle Fetch Error', clientId: id, query: query, message: reason });
+function handleRemoteDropdownOptionsReturn(fieldName, data) {
+    postMessage({ type: 'Remote Dropdown Options Return', clientId: id, fieldName: fieldName, data: data.data });
 }
 
-function handleDatabaseQueryReturn(query, data) {
-    postMessage({ type: 'Database Query Return', clientId: id, status: data.status, query: query, data: data.data });
+function handleFetchError(queryType, query, reason) {
+    postMessage({ type: 'Handle Fetch Error', clientId: id, queryType: queryType, query: query, message: reason });
 }
+
+function handleDatabaseQueryReturn(inputData, response) {
+    postMessage({
+        type: 'Database Query Return',
+        remoteData: inputData.remoteData,
+        status: response.status,
+        queryType: inputData.queryType,
+        queryEntries: inputData.queryEntries,
+        columnsToRender: inputData.columnsToRender,
+        taskResult: response.data
+    });
+}
+/*function handleQueryReturn(inputData, taskResult) {
+    postMessage({
+        type: 'Handle Query Return', clientId: id,
+        queryType: inputData.queryType,
+        queryEntries: inputData.queryEntries,
+        taskResult: taskResult
+    });
+}*/
 
 function handleMetadataReturn(data) {
     postMessage({ type: 'Metadata Return', clientId: id, data: data.returnData });
@@ -188,20 +182,28 @@ function buildURL(local, dir) {
 }
 
 async function getRequest(url) {
-    // Default options are marked with *
-    const response = await fetch(url, {
-        method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'Content-Type': 'application/json'
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer' // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    });
-    return response; // parses JSON response into native JavaScript objects
+    try {
+        // Default options are marked with *
+        const response = await fetch(url, {
+            method: 'GET', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, *cors, same-origin
+            //cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            //credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json'
+                // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            //redirect: 'follow', // manual, *follow, error
+            //referrerPolicy: 'no-referrer' // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        });
+
+        const data = await response.json();
+        return data; // parses JSON response into native JavaScript objects
+    }
+    catch (error) {
+        console.error(error);
+        throw error;
+    }
 }
 
 // Example POST method implementation:
@@ -224,67 +226,184 @@ async function postData(url, data) {
     return response.json(); // parses JSON response into native JavaScript objects
 }
 
-// Example POST method implementation:
-async function postCOMAData(url, body) {
-    /*console.log(body);
-    console.log(url);*/
+
+/**
+ * Get the Remote Search Field
+ * */
+async function getRemoteDropdownOptions(msg) {
+    //console.log(msg.data.data);
+    const url_searchfield = coma_api + msg.data.data.dirName;
+    var url_taskResult = coma_api + 'task/result/';
+    try {
+        //var response = undefined;
+        await getCOMAData(url_searchfield)
+            .then(taskResult => {
+                url_taskResult = url_taskResult + taskResult.task.id;
+                const result = getCOMAData(url_taskResult);
+                return result;
+            })            
+            .then(taskResultResponse => {
+                // handle response data
+                handleRemoteDropdownOptionsReturn(msg.data.data.fieldName, taskResultResponse);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    } catch (error) {
+        console.log(error);
+        // handle error func
+    }
+}
+
+
+/** 
+ * Post search data to get the task result back
+ * @param {object} data object containing moduleKey, queryType, queryEntries
+ * */
+/*function queryDatabase(e) {
+    postCOMATaskData(coma_api + e.data.queryType, formatQuery(e.data.queryEntries))
+        .then(taskResult => {
+            *//*console.log(e.data);
+            console.log(taskResult);*//*
+            handleQueryReturn(e.data, taskResult);
+        })
+        .catch(error => {
+            handleFetchError(e.data.queryType, entries, error);
+            console.error(error);
+        });
+}*/
+
+
+/** 
+ * queries the COMA database
+ * @param {object} data object containing moduleKey, queryType, queryEntries
+ * */
+function queryDatabase(e) {
+    var url_taskResult = coma_api + "task/result/";
+    postCOMATaskData(coma_api + e.data.queryType, formatQuery(e.data.queryEntries))
+        // Promise fulfilled
+        .then(taskResult => {
+            url_taskResult = url_taskResult + taskResult.task.id;
+            console.log(url_taskResult);
+            const result = getCOMAData(url_taskResult);
+            return result;
+        })
+        .then(taskResultResponse => {
+            handleDatabaseQueryReturn(e.data, taskResultResponse);
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
+
+
+// format body of the query
+function formatQuery(query) {
+    let body = "";
+    Object.keys(query).forEach((key) => (body += `${key}=${query[key]}&`));
+    body = body.slice(0, body.length - 1);
+    //console.log(body);
+    return body;
+}
+
+async function getCOMATaskData(url) {
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+    //const r = await response.json();
+    //const result = await getCOMATaskResults(r.task.id);
+    //console.log(result);
+    return response;
+}
+
+
+// change func name to postRequest
+async function postCOMATaskData(url, body) {
+    console.log(body);
+    console.log(url);
     // Default options are marked with *
     const response = await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
+        //mode: 'cors', // no-cors, *cors, same-origin
         //cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'omit', // include, *same-origin, omit
+        //credentials: 'omit', // include, *same-origin, omit
         headers: {
             //'Content-Type': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
-            // 'Access-Control-Allow-Origin': '*'
+            //'Access-Control-Allow-Origin': '*'
         },
         //redirect: 'follow', // manual, *follow, error
         //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: body.data // body data type must match "Content-Type" header
+        body: body // body data type must match "Content-Type" header
     });
-    //console.log(body);
     const r = await response.json();
-    //console.log(r);
+    //console.log(r.task.id);
 
-    const result = getCOMATaskResults(r.task.id);
+    /*const taskResultUrl = coma_api + 'task/result/' + r.task.id;
+    const result = await getCOMAData(taskResultUrl);*/
     //console.log(result);
     //return JSON.stringify(result); // parses JSON response into native JavaScript objects
 
     // Promise as result
-    return result
+    //return result;
+    return r;
 }
 
 
 
 // Example POST method implementation:
-async function getCOMATaskResults(id) {
-    const url = `https://coma.ifa.hawaii.edu/api/task/result/${id}`;
+/*async function getCOMATaskResults(id) {
+    const url = coma_api + `task/result/${id}`;
     // Default options are marked with *
     const response = await fetch(url, {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         //cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'omit', // include, *same-origin, omit
+        //credentials: 'omit', // include, *same-origin, omit
         headers: {
             'Content-Type': 'application/json',
             // 'Content-Type': 'application/x-www-form-urlencoded',
             // 'Access-Control-Allow-Origin': '*'
         },
         //redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
     });
-    const r = await response.json();
-    var counter = 0;
-    while ((r.status == "error") && (counter < 50)) {
-        getCOMATaskResults(id)
-        counter++;
-    }
-    // console.log(r);
-    //const result = JSON.stringify(r);
-    if ((r == undefined) || (counter >= 10)) {
-        console.log("GET Failed: Maximum number of requests attempted");
-    }
 
-    return r;
+    return response;
+}*/
+
+// change func name to getRequest
+async function getCOMAData(url) {
+    try {
+        //const url = coma_api + `task/result/${id}`;
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        const responseData = await response.json();
+
+        var counter = 0;
+        while (responseData.status === "error" && counter < 10) {
+            getCOMAData(url);
+            counter++;
+            console.log('counter: ' + counter);
+        }
+
+        return responseData;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
 }
+

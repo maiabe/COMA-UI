@@ -44,9 +44,9 @@
   transition: opacity 0.2s ease-in;
 }
 
-.bottomRoundedCorners {
+/*.bottomRoundedCorners {
   border-radius: 0 0 10px 10px;
-}
+}*/
 
 .topRoundedCorners{
   border-radius: 10px 10px 0 0;

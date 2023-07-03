@@ -1,7 +1,7 @@
 import { ModuleGenerator, SaveCompositeModulePopupContent, PopupContentMaker } from './index.js';
 import { Message, Publisher, Subscriber } from '../communication/index.js';
 import { invalidVariables, printErrorMessage, varTest } from '../errorHandling/errorHandlers.js';
-import { ENVIRONMENT, MODULE_MANAGER, MODULE, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR, POPUP_MANAGER, WORKER_MANAGER } from '../sharedVariables/index.js';
+import { ENVIRONMENT, MODULE_MANAGER, MODULE, DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, INSPECTOR, POPUP_MANAGER, WORKER_MANAGER, POPUP } from '../sharedVariables/index.js';
 import { Popup } from '../components/popup/popup.js';
 import { HTMLFactory } from "../htmlGeneration/htmlFactory.js";
 
@@ -61,7 +61,8 @@ export class ModuleManager {
             module.addData('oldKey', oldKey); // It is fine if this is undefined
             module.publisher.subscribe(this.subscriber);
             this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.#moduleMap.has(key), groupKey: groupKey }));
-            this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorCard().getCard()  }));
+            this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorCard().getCard() }));
+            this.#sendMessage(new Message(POPUP_MANAGER, MODULE_MANAGER, 'Publish Module Popup Event', { moduleKey: key, content: module.getPopupContent() }));
             this.#addModule(module, key);
             return true;
         } catch (e) {
@@ -322,12 +323,17 @@ export class ModuleManager {
             const module = this.#moduleMap.get(key);
             module.deleteInspectorCard();
             this.#moduleMap.delete(key);
+
+            // remove all daterange animation elements from body element
+            var datepickers = document.querySelectorAll('.flatpickr-calendar');
+            datepickers.forEach(function (e) { e.parentNode.removeChild(e); });
+
             return true;
         } else printErrorMessage('no module found for key', `key: ${key} -- ModuleManager - #removeModule`);
         return false;
     };
 
-    /** --- PUBLIC ---
+    /** --- PUBLIC --- deprecated
      * When a data module is generated, it connects to the module that generated the data. 
      * Search the module hash table and locate the unconnected module, then link them.
      * This is called by the Hub during a 'New Data Event'.
@@ -350,7 +356,7 @@ export class ModuleManager {
         return returnModule;
     }
 
-    /** --- PUBLIC ---
+    /** --- PUBLIC --- deprecated
      * When a data module is generated, it connects to the table module that generated the data. 
      * Search the module hash table and locate the unconnected module, then link them.
      * This is called by the Hub during a 'New Table Event'.
@@ -416,74 +422,48 @@ export class ModuleManager {
 
     /***************** Mai 022823 ******************/
     /** --- PUBLIC ---
-     * Create/update popup content for search module. 
-     * @param {number} key the key of the module to get.
-     * @param {string} type the type of the resulting display.
-     * @param {object} data data to update to.
+     * Create/update popup content for the specified module. 
+     * @param {number} moduleKey the key of the module to get.
+     * @param {object} data data to update the popup with.
+     *                  data.status: status of the query
+     *                  data.queryType: type of the query
+     *                  data.queryEntries: inputs of the query
+     *                  data.columnHeaders: status and taskid of the resulting data
      */
-    updatePopupContent(moduleKey, queryStatus, query, data) {
+    updatePopupContent(moduleKey, moduleName, data) {
         const module = this.getModule(moduleKey);
+        //const status = 'error';  // test error message
+        console.log(data);
         let content = undefined;
         if (module) {
             content = module.getPopupContent();
-            if (queryStatus === 'error') {
-                //---------------------------------- create query specific error 
-                const messages = [];
-                let errorMessage = this.#HF.createNewParagraph('', '', ['error-message'], [], 'The following query failed:');
-                messages.push(errorMessage);
-                let queryFields = this.#HF.createNewDiv('', '', ['error-message'], [{ key: 'display', value: 'grid' }, { key: 'grid-template-columns', value: 'repeat(3, 1fr)' }]);
-                let queryKeys = Object.keys(query);
-
-                // Find the longest string in queryKeys
-                let longestText = '';
-                queryKeys.forEach(text => {
-                    if (text.length > longestText.length) {
-                        longestText = text;
-                    }
-                });
-
-                // Fields of the query that failed
-                queryKeys.forEach((key) => {
-                    let wrapper = this.#HF.createNewParagraph('', '', ['error-query-wrapper'], [], '');
-                    let keySpan = this.#HF.createNewSpan('', '', ['error-query-key'],
-                        [{ style: 'width', value: longestText.length + 'ch' }, { style: 'text-align', value: 'right' }], key + ':');
-                    keySpan.innerHTML += '&nbsp;&nbsp;';
-                    let valueSpan = this.#HF.createNewSpan('', '', ['error-query-value'], [], query[key]);
-                    wrapper.appendChild(keySpan);
-                    wrapper.appendChild(valueSpan);
-                    queryFields.appendChild(wrapper);
-                });
-                messages.push(queryFields);
-
-                // error contact message sentence organized into span and anchor elements
-                let errorContact = this.#HF.createNewParagraph('', '', ['error-contact-wrapper'], [], '');
-                let firstspan = this.#HF.createNewSpan('', '', ['error-contact'], [], 'Please contact the ');
-                let anchor = this.#HF.createNewAnchor('mailto:admin@comaifa.com', '', '', ['error-contact'], [], 'admin@comaifa.com');
-                let lastspan = this.#HF.createNewSpan('', '', ['error-contact'], [], ' if error persists.');
-                errorContact.appendChild(firstspan);
-                errorContact.appendChild(anchor);
-                errorContact.appendChild(lastspan);
-                messages.push(errorContact);
-                this.#PCM.setErrorDisplay(moduleKey, messages, content.content);
-
-                // update module with this content
-                /*module.updatePopupContent(content.content);*/
+            if (data.status === 'error') {
+                this.#PCM.setErrorDisplay(moduleKey, content.content, data);
             }
             else {
-                if (data !== undefined) {
-
-                    this.#PCM.setSearchResultTable(moduleKey, data, content.content);
-
-                    // update module with this content
-                    module.updatePopupContent(content.content);
-
-                    //module.setSearchResultTable(content.content, data, construct);
-                } else printErrorMessage('queried data is undefined', 'ModuleManager -> setPopupContentForModule');
+                switch (moduleName) {
+                    case 'search':
+                        this.#PCM.setSearchModuleContent(moduleKey, content.content, data);
+                        break;
+                    case 'table':
+                        this.#PCM.setTableData(moduleKey, content.content, data);
+                        break;
+                    default:
+                        console.log('insert default method for setSearchModuleContent');
+                }
             }
         } else printErrorMessage('module is undefined', `key: ${key}. -- ModuleManager -> setPopupContentForModule`);
     }
 
-    
+
+    setRemoteDropdownOptions(fieldName, options) {
+        if (invalidVariables([varTest(fieldName, 'fieldName', 'string'), varTest(options, 'options', 'object')], 'Module Manager', 'Set Remote Dropdown Options Event')) return false;
+        var dropdown = document.querySelector('#dropdown-' + fieldName);
+        console.log(dropdown);
+        if (dropdown) {
+            this.#HF.updateSelectOptions(dropdown, options);
+        }
+    }
 
 
     /** --- PUBLIC ---
@@ -530,6 +510,10 @@ export class ModuleManager {
     handleLocalDataConnection(to, from) {
         const toModule = this.getModule(to);
         const fromModule = this.getModule(from);
+
+        console.log(fromModule);
+        console.log(toModule);
+
         if (fromModule.getData('linkedToData')) this.#updateModule_LocalDataConnection(toModule, fromModule);
         if (toModule.getData('name') === 'Filter') this.#updateModule_NewFilterConnection(toModule, fromModule);
     }
@@ -567,5 +551,28 @@ export class ModuleManager {
         } else printErrorMessage(`module undefined`, `key: ${args.moduleKey} --ModuleManager -> updateModuleDataTable`);
         return false;
     };
+
+
+    /** --- PUBLIC ---
+    * Toggle the inspector card header and popup header colors.
+    * If the module is processed, then change the header colors to dark gray.
+    * If the module is not validated or processed, change the header colors to light gray.
+    * keys are removed from the data table.
+    */
+    toggleHeaderColor(moduleKey, processed) {
+        var color = '#363538';
+        var module = this.getModule(moduleKey);
+        if (!processed) {
+            color = '#383838';
+        }
+        // toggle inspector card header color
+        var inspectorCardHeader = module.getInspectorCard().getCard().querySelector('.inspector-card-header');
+        inspectorCardHeader.style.backgroundColor = color;
+
+        // toggle popup header color
+        var popupHeader = module.getPopupContent().content.closest('.popup').querySelector('.popupHeader');
+        popupHeader.style.backgroundColor = color;
+
+    }
 
 }

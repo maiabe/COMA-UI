@@ -5,9 +5,10 @@
  *************************************************************/
 
 import { InspectorCard } from '../../components/inspector/inspectorCard.js';
+import { IncludeColumnCard } from '../../components/inspector/inspectorCardComponents/includeColumnCard.js';
 import { Publisher, Message, Subscriber } from '../../communication/index.js';
 import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
-import { INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER } from '../../sharedVariables/constants.js';
+import { INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER, WORKER_MANAGER } from '../../sharedVariables/constants.js';
 import { SearchFields } from '../../sharedVariables/moduleData.js';
 
 /**
@@ -306,6 +307,35 @@ export class InspectorCardMaker {
      */
     #createInspectorCardHorizontalFlexContainer = () => this.HF.createNewDiv('', '', ['inspector-card-horizontal-flex-container'], []);
 
+
+    /** --- PUBLIC ---
+     * Creates the HTML elements for the file upload section and binds a callback function to the button.
+     * @param {function} callback validates the file on the CSV module
+     * @param {number} key id of the CSV module that created this.
+     */
+    createFileUploadField(callback, key) {
+        const uploadWrapper = this.HF.createNewDiv('', '', ['uploadWrapper'], []);
+        this.inspectorCard.appendToBody(uploadWrapper);
+        const upload = this.HF.createNewFileInput(`upload_csv-${key}`, 'upload_csv', [], [], 'file', false);
+        uploadWrapper.append(upload);
+        upload.addEventListener('change', callback);
+
+        this.dataTable.set('readFileButton', this.HF.createNewButton('read-file-button', 'read-file-button', [], [], 'button', 'Read File', true));
+        uploadWrapper.appendChild(this.getField('readFileButton'));
+        this.getField('readFileButton').addEventListener('click', () => {
+            const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Read File Event', {
+                type: 'csv',
+                elementId: 'upload_csv-' + key,
+                moduleKey: key
+            });
+            this.sendMessage(message);
+        });
+        
+
+        // Expand the size of the inspector card
+        this.inspectorCard.maximizeCard();
+    }
+
     /** --- PUBLIC ---
      * Adds a Search Form to the Search module inspector card
      * @param {key number} key of the search module
@@ -316,17 +346,18 @@ export class InspectorCardMaker {
                                             [{ style: 'display', value: 'flex' },
                                             { style: 'flex-direction', value: 'column' },
                                             { style: 'width', value: '100%' },
-                                            { style: 'padding', value: '5%' }
                                         ]);
-
+         
         //---------- Create Search Form Card
-        const formName = { name: 'search-form-' + key, className: 'search-form' };
+        const formName = { name: 'search-form-' + key, className: 'search-form', submitButton: 'Confirm' };
         const defaultFields = SearchFields.fieldsDict[0].fields;
-        const fieldsFormat = SearchFields.fieldFormat;
-        this.dataTable.set('SearchFormCard_' + key, this.inspectorCard.addSearchFormCard(formName, defaultFields, fieldsFormat));
+
+        //const defaultFields = this.#handleRemoteDataFields(key, SearchFields.fieldsDict[0].fields);
+        this.dataTable.set('SearchFormCard_' + key, this.inspectorCard.addSearchFormCard(key, formName, defaultFields, SearchFields.fieldTooltip));
+        
 
         //---------- Create Query Type Options
-        this.dataTable.set('QueryTypeSelectCard', this.inspectorCard.addQueryTypeSelect(searchCardWrapper, { key: 'query-type', value: 'Query Type: ' }, SearchFields.types));
+        this.dataTable.set('QueryTypeSelectCard', this.inspectorCard.addQueryTypeSelect(searchCardWrapper, { key: 'query-type-' + key, value: 'Query Type ' }, SearchFields.types, SearchFields.queryTypeTooltip));
         
         // Create Form Field Append
         /*var formFieldOptions = SearchFields.fieldsDict[0].fields;
@@ -339,75 +370,131 @@ export class InspectorCardMaker {
 
         /********************************** js events ***********************************/
         /**
-         * Search Form Submit Event 
+         * Search Form Submit Event
          * */
         document.querySelector('#' + formName.name + '-btn').addEventListener('click', (e) => {
-            // clean up form field values.. delete the empty fields
             e.preventDefault();
 
             const searchForm = document.querySelector('#' + formName.name);
-            var formData = new FormData(searchForm);
-
-            //... inprogress > need to delete empty fields? right now it works without deleting empty fields
-            /*for (const [key, value] of formData.entries()) {
-                if (value === '') {
-                    formData.delete(key);
+            const formData = new FormData(searchForm);
+            const entriesToDelete = [];
+            for (const entry of formData.entries()) {
+                if (!entry[1]) {
+                    entriesToDelete.push(entry[0]);  
                 }
-            }*/
-
-            const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Search Form Submit Event', {
-                type: 'form',
-                formdata: formData,
-                moduleKey: key
+            }
+            for (const key of entriesToDelete) {
+                formData.delete(key);
+            }
+            // get queryEntries
+            const entries = {};
+            if (formData) {
+                formData.forEach((value, key) => { entries[key] = value });
+            }
+            // get query type
+            const dropdown = document.querySelector("#query-type-" + key);
+            var queryType = "lightcurve";
+            if (dropdown) {
+                queryType = dropdown.options[dropdown.value].text;
+            }
+            
+            const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Search Form Submit Event',
+            {
+                /*type: 'form',*/
+                moduleKey: key,
+                queryType: queryType,
+                queryEntries: entries
             });
             this.sendMessage(message);
         });
 
-        // Add Form Field Event
-        /*document.getElementById('add-search-field-btn').addEventListener('click', (e) => {
-            var dropdown = document.getElementById('add-search-field-dropdown');
-            var field = { type: 'input', labelName: dropdown.options[dropdown.selectedIndex].text, fieldName: dropdown.value };
-            console.log(field);
-            this.inspectorCard.appendFormField(searchFormCard, field);
-
-            // update the search options (remove the newly added field from the options)
-
-        });*/
-
         /**
          * Update Search Form Field event (on query type change)
          * */
-        document.querySelector('#query-type-dropdown').addEventListener('change', (e) => {
-            var queryTypeIndex = e.target.options[e.target.selectedIndex].value;
-            var fields = SearchFields.fieldsDict[queryTypeIndex].fields;
+        document.querySelector('#query-type-' + key).addEventListener('change', (e) => {
+            const dropdown = e.target;
+            var queryType = dropdown.options[dropdown.selectedIndex];
+            var fields = SearchFields.fieldsDict[queryType.value].fields;
+
+            // update query type tooltip content
+            var match = SearchFields.queryTypeTooltip.filter(x => x.type == queryType.text)[0];
+            var description = "Query Type: " + queryType.text;
+            if (match) {
+                description = match.description;
+            }
+            var tooltipText = dropdown.closest('div').querySelector('.tooltip-text');
+            tooltipText.textContent = description;
 
             // update form fields
             const formCard = this.getField('SearchFormCard_' + key);
-            this.inspectorCard.updateSearchFormFields(formCard, fields, fieldsFormat);
-
-            // temp removed
-            // update form field options
-            /*var formFieldAppendCard = this.getField('FormFieldAppendSelectCard');  
-            this.inspectorCard.updateFormFieldAppend(formFieldAppendCard, options);*/
+            this.inspectorCard.updateSearchFormFields(formCard, fields, SearchFields.fieldTooltip);
         });
-
-
+         
         /**
          * Set datepicker configuration for begin and end dates to be in a range mode
          * */
         var endInputId = '#' + formName.name + ' #' + 'date-end';
-
+        /*var targetDiv = this.getField('SearchFormCard_' + key).getCard().wrapper;
+        console.log(targetDiv);*/
         // Initialize flatpickr with the range plugin
         flatpickr('.date-range', {
             mode: 'range',
             dateFormat: 'Y-m-d', // Set the desired date format (ISO format: YYYY-MM-DD)
             plugins: [new rangePlugin({ input: endInputId })],
+            //appendTo: targetDiv,
         });
 
         // Expand the size of the inspector card
         this.inspectorCard.maximizeCard();
     }
 
+
+    // --------------------------- Table Module ---------------------------
+    updateTableModuleInspectorCard(moduleKey, moduleData, fields) {
+        var includeColumnCard = new IncludeColumnCard(moduleKey, fields, 'View Table');
+        this.inspectorCard.appendToBody(includeColumnCard.getCard().wrapper);
+
+        // add viewTable event listener
+        document.querySelector('#include-column-card-view-button-' + moduleKey)
+            .addEventListener('click', (e) => {
+                // create table columns object to render
+                var columnFields = e.target.closest('div').previousElementSibling;
+                var checkedColumns = columnFields.querySelectorAll('input[type="checkbox"]:checked');
+                var columns = [];
+                checkedColumns.forEach((checkedColumn) =>
+                {
+                    var columnName = checkedColumn.getAttribute('name');
+                    columns.push(columnName);
+                });
+
+                var data = undefined;
+                if (moduleData.remoteData) {
+                    data = {
+                        type: 'form',
+                        moduleKey: moduleKey,
+                        remoteData: moduleData.remoteData,
+                        queryType: moduleData.queryType,
+                        queryEntries: moduleData.queryEntries,
+                        columnsToRender: columns,
+                    };
+                    // send message with the query information
+                    const message = new Message(WORKER_MANAGER, INSPECTOR_CARD_MAKER, 'Fetch Remote Table Data Event', data);
+                    this.sendMessage(message);
+                }
+                else {
+                    data = {
+                        moduleKey: moduleKey,
+                        remoteData: moduleData.remoteData,
+                        fileId: moduleData.fileId,
+                        columnsToRender: columns,
+                        //columnHeaders: columns
+                    };
+                    // send message with the query information
+                    const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Fetch Local Table Data Event', data);
+                    this.sendMessage(message);
+                }
+            });
+    }
 
 
     getField = key => this.dataTable.get(key);

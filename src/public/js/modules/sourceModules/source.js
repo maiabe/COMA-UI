@@ -4,7 +4,15 @@
  * Date: 5/5/2022                                            *
  *************************************************************/
 import { Module } from "../index.js";
-import { LOCAL_DATA_SOURCE, REMOTE_DATA_TABLE } from "../../sharedVariables/constants.js";
+import { LT_SOURCE } from "../../sharedVariables/constants.js";
+
+/*******************************************************************************
+ * dataTable fields specific to source
+ * --------------------------------------------------------------------------------------------
+ * remoteData (boolean)                     | true if data associated with the module is remotely obtained
+ * sourceData (Object)                      | data to be passed to the next module
+ * ----------------------------------------------------------------------------------------------
+*/
 
 /** This represents a source module and extends the module class. */
 export class Source extends Module {
@@ -17,13 +25,13 @@ export class Source extends Module {
  */
 export class Cholera extends Source {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'remote', 'getCholeraData', 'Cholera', 'images/icons/skull-white.png', [], [{ name: 'OUT', leftSide: false, type: REMOTE_DATA_TABLE }], key);
-        this.addData('inportType', -1);
-        this.addData('outportType', REMOTE_DATA_TABLE);
+        super(category, color, shape, 'remote', 'getCholeraData', 'Cholera', 'images/icons/skull-white.png', [],
+            [{ name: 'OUT', leftSide: false, type: LT_SOURCE }], key);
         this.addData('description', 'This module returns all data on the London Cholera Outbreak.')
         this.addData('onCreationFunction', this.onCreation.bind(this));
         this.addData('requestMetadataOnCreation', true);
         this.addData('linkedToData', false);
+        this.addData('remoteData', false);
         this.setPopupContent();
         this.createInspectorCardData();
     }

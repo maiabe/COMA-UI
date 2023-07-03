@@ -1,4 +1,6 @@
 import { GM } from "../../../main.js";
+import { MinMaxFilter } from './minMaxFilter.js';
+
 
 /** 
  * Creates Form elements
@@ -17,7 +19,7 @@ export class FormCard {
     constructor(formName, fields) {
         this.#formName = formName.name;
         this.#createElements(formName, fields);
-        this.#buildCard(formName);
+        this.#buildCard();
     }
 
     #createElements(formName, fields) {
@@ -70,12 +72,14 @@ export class FormCard {
         switch (field.type) {
             case 'text':
                 formField = GM.HF.createNewTextInput(fieldNameUnique, field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                //formField.setAttribute('remote', field.remote);
                 if (field.value) {
                     formField.value = field.value;
                 }
                 break;
             case 'date':
                 formField = GM.HF.createNewTextInput(fieldNameUnique, field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                //formField.setAttribute('remote', field.remote);
                 // set default value
                 if (field.value) {
                     formField.value = field.value;
@@ -93,13 +97,67 @@ export class FormCard {
                 break;
             case 'dropdown':
                 const options = field.options;
-                formField = GM.HF.createNewSelect('dropdown-' + field.fieldName, field.fieldName, ['field-input'], [], Object.keys(options), Object.values(options));
+                var values = [];
+                var displayNames = ['-- None --'];
+                if (options) {
+                    values = options.map((obj) => { return obj.Key });
+                    displayNames = options.map((obj) => { return obj.Value });
+                }
+                formField = GM.HF.createNewSelect('dropdown-' + field.fieldName, field.fieldName, ['field-input'], [], values, displayNames);
+                //formField.setAttribute('remote', field.remote);
+                break;
+            case 'checkbox':
+                formField = GM.HF.createNewDiv('', '', ['checkbox-wrapper', 'field-input'], []);
+                console.log(field);
+                const checkbox_options = field.options;
+                // foreach option, create check box
+                checkbox_options.forEach((option) => {
+                    var checkbox = GM.HF.createNewCheckbox('checkbox-' + field.fieldName + '-'+ option.value,
+                        field.fieldName + '-' + option.value, ['checkbox'], [], option.value, option.key, false);
+                    formField.appendChild(checkbox.wrapper);
+                });
+                
+                //formField.setAttribute('remote', field.remote);
+                break;
+            case 'radio':
+                formField = GM.HF.createNewDiv('', '', ['radio-wrapper', 'field-input'], []);
+                console.log(field);
+                const radio_options = field.options;
+                // foreach option, create radiobuttons
+                radio_options.forEach((option) => {
+                    const id = 'radiobutton-' + field.fieldName + '-' + option.value;
+                    const radiolabel = document.createElement('Label');
+                    radiolabel.setAttribute('for', id);
+                    radiolabel.innerHTML = option.key;
+                    var radioButton = GM.HF.createNewRadioButton(id, field.fieldName, ['radiobutton'], [], field.type, option.value, false);
+                    formField.appendChild(radioButton);
+                    formField.appendChild(radiolabel);
+                });
+                //formField.setAttribute('remote', field.remote);
+                break;
+            case 'range':
+                // create range input
+
+
+                /*var minMaxFilter = new MinMaxFilter(field.fieldName, field.min, field.max, field.dataType, field.dataFormat);
+                formField = minMaxFilter.getHTML();*/
+                break;
+            case 'lookahead':
+                formField = GM.HF.createNewTextInput(fieldNameUnique, field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                formField.setAttribute('remote', field.remote);
+                if (field.value) {
+                    formField.value = field.value;
+                }
+                // create empty container for result
+                const resultContainer = GM.HF.createNewList('', '', ['field-result-container'], []);
+                // add event listener
+
                 break;
             default:
                 formField = GM.HF.createNewTextInput(fieldNameUnique, field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                //formField.setAttribute('remote', field.remote);
                 if (field.value) {
                     formField.value = field.value;
-                    console.log(formField);
                 }
         }
         return formField;
@@ -111,7 +169,7 @@ export class FormCard {
      * */
     #createSubmitButton(formName) {
         const submitButtonWrapper = GM.HF.createNewDiv('', '', ['button-wrapper'], []);
-        const submitButton = GM.HF.createNewButton(formName.name + '-btn', '', ['btn', 'form-submit-btn'], [], 'button', 'Search', false);
+        const submitButton = GM.HF.createNewButton(formName.name + '-btn', '', ['btn', 'form-submit-btn'], [], 'button', formName.submitButton, false);
         //submitButton.setAttribute('form', formName.name);
         submitButtonWrapper.appendChild(submitButton);
         this.#submitButton = submitButtonWrapper;
@@ -199,19 +257,27 @@ export class FormCard {
      * Creates the form field tooltip
      * @param {fieldinfo String} fieldinfo tooltip
      * */
-    appendFormFieldToolTip(fieldinfo) {
+    appendToolTip(fieldinfo, tooltipElement) {
         var tooltipDiv = GM.HF.createNewDiv('', '', ['tooltip-div'], []);
-        var tooltipIcon = GM.HF.createNewIMG('', '', '../../../images/icons/info.png', ['tooltip-img'], [{ style: 'width', value: '30px' }], 'form field format');
-        var tooltipText = GM.HF.createNewSpan('', '', ['tooltip-text'], [], fieldinfo);
-        tooltipDiv.appendChild(tooltipIcon);
-        tooltipDiv.appendChild(tooltipText);
+        //var tooltipIcon = GM.HF.createNewIMG('', '', '../../../images/icons/info.png', ['tooltip-img'], [{ style: 'width', value: '30px' }], 'form field format');
+        var tooltipSpan = GM.HF.createNewSpan('', '', ['tooltip-text'], [], fieldinfo);
 
-        tooltipDiv.addEventListener('mouseenter', () => {
-            const tooltipDivRect = tooltipDiv.getBoundingClientRect();
-            const right = window.innerWidth - tooltipDivRect.x;
-            tooltipText.style.top = `${tooltipDivRect.top}px`; // Adjust the vertical position
-            tooltipText.style.right = `${right}px`; // Position it right next to the tooltip-div
+        if (!tooltipElement) {
+            tooltipElement = GM.HF.createNewIMG('', '', '../../../images/icons/info.png', ['tooltip-img'], [{ style: 'width', value: '30px' }], 'form field format');
+        }
+        tooltipDiv.appendChild(tooltipElement);
+        //tooltipDiv.appendChild(tooltipIcon);
+        tooltipDiv.appendChild(tooltipSpan);
+
+        tooltipDiv.addEventListener('mouseenter', (e) => {
+            const tooltipElementRect = tooltipElement.getBoundingClientRect();
+            console.log(tooltipElementRect);
+            const top = tooltipElementRect.top - (tooltipElementRect.height/4);
+            const right = window.innerWidth - tooltipElementRect.left;
+            tooltipSpan.style.top = `${top}px`; // Adjust the vertical position
+            tooltipSpan.style.right = `${right}px`; // Position it right next to the tooltip-div
         });
+        
 
         return tooltipDiv;
     }
@@ -268,8 +334,6 @@ export class FormCard {
         dateRange.appendChild(rangeSliderBall_right);*//*
     }*/
 
-
-    getHTML = () => this.dataTable.get('wrapper');
 
     getCard() {
         return { wrapper: this.#wrapper, formName: this.#formName, form: this.#form, submitButton: this.#submitButton };

@@ -126,10 +126,10 @@ export class Environment {
      */
     #createNewModel = () => {
         this.#model = { 
-            class: "go.GraphLinksModel", 
-            nodeCategoryProperty: "type", 
-            linkFromPortIdProperty: "frompid", 
-            linkToPortIdProperty: "topid", 
+            class: "go.GraphLinksModel",
+            nodeCategoryProperty: "type",
+            linkFromPortIdProperty: "frompid",
+            linkToPortIdProperty: "topid",
             nodeDataArray: [], // This can be accessed to see the node data of the graph
             linkDataArray: []  // This can be accessed to see the link data of the graph
         }
@@ -141,7 +141,9 @@ export class Environment {
      */
     #createInteractionEventListeners = () => {
         this.#myDiagram.addDiagramListener('LinkDrawn', e => {
-            this.#sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Link Drawn Event', { event: 'LinkDrawn', fromNodeKey: e.subject.fromNode.key, toNodeKey: e.subject.toNode.key }));
+            console.log(e.subject);
+            this.#sendMessage(new Message(MODULE_MANAGER, ENVIRONMENT, 'Link Drawn Event',
+                { event: 'LinkDrawn', fromNodeKey: e.subject.fromNode.key, toNodeKey: e.subject.toNode.key }));
         });
 
         this.#myDiagram.addDiagramListener('SelectionDeleted', e => {
@@ -225,8 +227,9 @@ export class Environment {
      * @returns object with default settings
      */
     #setInitialDiagramVariables = gojs => {
+        console.log(go.Spot);
         return {
-            initialContentAlignment: go.Spot.TopLeft,
+            initialContentAlignment: go.Spot.Center,
             initialAutoScale: go.Diagram.UniformToFill,
             layout: gojs(go.LayeredDigraphLayout,
                 { direction: 0 }),
@@ -537,7 +540,6 @@ export class Environment {
      * @returns the gojs label object with settings
      */
     #createPortLabel = (gojs, label) => {
-        console.log(label)
         return gojs(go.TextBlock, label, { font: "7pt sans-serif" });
     }
     
@@ -549,7 +551,7 @@ export class Environment {
      * @returns 
      */
     #createPortObject = (gojs, name, type) => {
-        console.log(name);
+        console.log('PortName: ', name);
         return gojs(go.Shape, "Rectangle",
             {
                 fill: typeColorArray[type], stroke: null,
@@ -822,10 +824,12 @@ export class Environment {
     grayOutPipeline = nodeArray => {
         if (invalidVariables([varTest(nodeArray, 'nodeArray', 'object')], 'Environment', 'grayOutPipeline')) return;
         nodeArray.forEach(key => {
-            if (key != undefined) this.changeNodeBackgroundColor(this.#myDiagram.findNodeForKey(key), 'gray');
+            console.log(key);
+            if (key != undefined) this.changeNodeBackgroundColor(this.#myDiagram.findNodeForKey(key), '#363538');
             else printErrorMessage(`undefined variable`, `key: ${key} -- Environment -> grayOutPipeline`);
         });
     }
+
 
     /**
      * Changes the background color of a single node.
@@ -834,7 +838,19 @@ export class Environment {
      */
     changeNodeBackgroundColor = (node, color) => {
         if (invalidVariables([varTest(node, 'node', 'object'), varTest(color, 'color', 'string')], 'Environment', 'changeNodeBackgroundColor')) return;
-        else node.findObject('SHAPE').fill = color;
+        node.findObject('SHAPE').fill = color;
+    }
+
+    toggleNodeColor(moduleKey, processed) {
+        if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(processed, 'processed', 'boolean')], 'Environment', 'toggleNodeColor')) return;
+        var node = this.#myDiagram.findNodeForKey(moduleKey);
+        if (processed) {
+            node.findObject('SHAPE').fill = '#363538';
+        }
+        else {
+            node.findObject('SHAPE').fill = '#383838';
+        }
+
     }
 
 }

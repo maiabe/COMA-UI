@@ -6,7 +6,9 @@ export class ImgGenerator {
         e.setAttribute('id', id);
         e.setAttribute('name', name);
         e.setAttribute('src', src);
-        e.setAttribute('alt', alt);
+        if (alt) {
+            e.setAttribute('alt', alt);
+        }
         classlist.forEach(c => {
             e.classList.add(c);
         });

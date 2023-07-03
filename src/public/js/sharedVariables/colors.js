@@ -1,9 +1,12 @@
 
+const red = '#ff453a';
+const green = '#32d74b';
+const mint = '#00c7be';
 const rubyRed = '#931621';
 const slateGray = '#28464B';
-const ming = '#326771';
+//const mint = '#326771';
 const blueMunsell = '#2C8C99';
-const turquoise = '#42D9C8';
+const turquoise = '#66d4cf';
 const darkLiver = '#52414C';
 const ebony = '#596157';
 const middleGreen = '#3f743e';
@@ -32,14 +35,15 @@ const themeWhite = "#F6F6F6";
 
 const logoGreen = "#00e17b";
 
+const moduleMenuColor = themeGreen;
 // const sourceColor = lightGreen;
-const processorColor = themeGreen;
+const processorColor = themeGray;
 // const outputColor = lightBlue;
 // const compositColor = lightOrange;
-const sourceColor = themeGreen;
-const outputColor = themeGreen;
+const sourceColor = themeGray;
+const outputColor = themeGray;
 const compositColor = themeGray;
 
-const typeColorArray = [rubyRed, ming, turquoise, middleGreen];
+const typeColorArray = [green, turquoise, red];
 
-export { sourceColor, processorColor, outputColor, compositColor, typeColorArray };
+export { moduleMenuColor, sourceColor, processorColor, outputColor, compositColor, typeColorArray };

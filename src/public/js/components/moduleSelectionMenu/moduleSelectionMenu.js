@@ -1,4 +1,4 @@
-import { sourceColor, outputColor, processorColor, compositColor, MODULE_MANAGER, MODULE_SELECTION_MENU } from '../../sharedVariables/index.js';
+import { moduleMenuColor, sourceColor, outputColor, processorColor, compositColor, MODULE_MANAGER, MODULE_SELECTION_MENU } from '../../sharedVariables/index.js';
 import { Publisher, Message } from '../../communication/index.js';
 import { GM } from '../../main.js';
 import { HTMLFactory } from '../../htmlGeneration/index.js';
@@ -22,10 +22,10 @@ export class ModuleSelectionMenu {
         this.outputSubMenuItems = [];
         this.compositeSubMenuItems = [];
         this.moduleTypes = [
-            { text: 'Composite', color: compositColor, subMenuItems: this.compositeSubMenuItems, subMenu: null, buttonIcon: 'images/icons/flow-diagram-white.png' },
-            { text: 'Source', color: sourceColor, subMenuItems: this.sourceSubMenuItems, subMenu: null, buttonIcon: 'images/icons/database-storage.png' },
-            { text: 'Processor', color: processorColor, subMenuItems: this.processorSubMenuItems, subMenu: null, buttonIcon: 'images/icons/calculator.png' },
-            { text: 'Output', color: outputColor, subMenuItems: this.outputSubMenuItems, subMenu: null, buttonIcon: 'images/icons/scatter-graph.png' }
+            { text: 'Composite', color: moduleMenuColor, subMenuItems: this.compositeSubMenuItems, subMenu: null, buttonIcon: 'images/icons/flow-diagram-white.png' },
+            { text: 'Source', color: moduleMenuColor, subMenuItems: this.sourceSubMenuItems, subMenu: null, buttonIcon: 'images/icons/database-storage.png' },
+            { text: 'Processor', color: moduleMenuColor, subMenuItems: this.processorSubMenuItems, subMenu: null, buttonIcon: 'images/icons/calculator.png' },
+            { text: 'Output', color: moduleMenuColor, subMenuItems: this.outputSubMenuItems, subMenu: null, buttonIcon: 'images/icons/scatter-graph.png' }
         ];
         this.topMenuButtonArray = [];
         this.populateMenuArrays();
