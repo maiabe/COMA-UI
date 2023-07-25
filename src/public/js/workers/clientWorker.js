@@ -3,7 +3,7 @@ let id = -1;
 let messageDataObject = {};
 const baseUrl = 'http://localhost:8080/';
 //const baseUrl = 'http://localhost:1366/ ';
-const coma_api = 'https://coma.ifa.hawaii.edu/api/';
+const coma_api = 'http://coma.ifa.hawaii.edu:8000/api/v1/';
 
 
 const onMessageTable = new Map();
@@ -16,6 +16,7 @@ onMessageTable.set('Save Module', saveModule);
 onMessageTable.set('Load Saved Modules', loadSavedModules);
 onMessageTable.set('Query COMA Engine', queryDatabase);
 onMessageTable.set('Get Remote Dropdown Options', getRemoteDropdownOptions);
+onMessageTable.set('Get Remote Objects Suggestions', getRemoteObjectsSuggestions);
 
 onmessage = e => onMessageTable.get(e.data.type)(e);
 
@@ -98,25 +99,32 @@ handleReturnTable.set('Metadata Return', handleMetadataReturn);
 handleReturnTable.set('Database Query Return', handleDatabaseQueryReturn);
 handleReturnTable.set('Handle Fetch Error', handleFetchError);
 handleReturnTable.set('Remote Dropdown Options Return', handleRemoteDropdownOptionsReturn);
+handleReturnTable.set('Remote Objects Suggestions Return', handleRemoteObjectsSuggestionsReturn);
 
-function handleRemoteDropdownOptionsReturn(fieldName, data) {
-    postMessage({ type: 'Remote Dropdown Options Return', clientId: id, fieldName: fieldName, data: data.data });
+function handleRemoteDropdownOptionsReturn(moduleKey, fieldName, fieldWrapperId, response) {
+    //console.log(data);
+    postMessage({ type: 'Remote Dropdown Options Return', clientId: id, moduleKey: moduleKey, fieldName: fieldName, fieldWrapperId: fieldWrapperId, data: response });
+}
+function handleRemoteObjectsSuggestionsReturn(moduleKey, fieldWrapperId, response) {
+    postMessage({ type: 'Remote Objects Suggestions Return', clientId: id, moduleKey: moduleKey, fieldWrapperId: fieldWrapperId, data: response });
 }
 
 function handleFetchError(queryType, query, reason) {
     postMessage({ type: 'Handle Fetch Error', clientId: id, queryType: queryType, query: query, message: reason });
 }
 
-function handleDatabaseQueryReturn(inputData, response) {
-    postMessage({
-        type: 'Database Query Return',
-        remoteData: inputData.remoteData,
+function handleDatabaseQueryReturn(data, response) {
+    var moduleData = {
+        type: "Database Query Return",
+        remoteData: data.remoteData,
+        queryType: data.queryType,
+        queryEntries: data.queryEntries,
+        columnsToRender: data.columnsToRender,
         status: response.status,
-        queryType: inputData.queryType,
-        queryEntries: inputData.queryEntries,
-        columnsToRender: inputData.columnsToRender,
-        taskResult: response.data
-    });
+        sourceData: response[data.responseKey]
+    };
+    console.log(data);
+    postMessage(moduleData);
 }
 /*function handleQueryReturn(inputData, taskResult) {
     postMessage({
@@ -233,18 +241,43 @@ async function postData(url, data) {
 async function getRemoteDropdownOptions(msg) {
     //console.log(msg.data.data);
     const url_searchfield = coma_api + msg.data.data.dirName;
-    var url_taskResult = coma_api + 'task/result/';
+    // var url_taskResult = coma_api + 'task/result/';
+
     try {
         //var response = undefined;
-        await getCOMAData(url_searchfield)
-            .then(taskResult => {
+        await getCOMAData(url_searchfield, msg.data.data.delay)
+            /*.then(taskResult => {
                 url_taskResult = url_taskResult + taskResult.task.id;
                 const result = getCOMAData(url_taskResult);
                 return result;
-            })            
-            .then(taskResultResponse => {
+            })*/
+            .then(response => {
                 // handle response data
-                handleRemoteDropdownOptionsReturn(msg.data.data.fieldName, taskResultResponse);
+                handleRemoteDropdownOptionsReturn(msg.data.data.moduleKey, msg.data.data.dirName, msg.data.data.fieldWrapperId, response);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    } catch (error) {
+        console.log(error);
+        // handle error func
+    }
+}
+
+async function getRemoteObjectsSuggestions(msg) {
+    console.log(msg.data.data);
+    const url_searchfield = coma_api + msg.data.data.dirName + '/autocomplete?term=' + msg.data.data.term;
+    try {
+        //var response = undefined;
+        await getCOMAData(url_searchfield, msg.data.data.delay)
+            /*.then(taskResult => {
+                url_taskResult = url_taskResult + taskResult.task.id;
+                const result = getCOMAData(url_taskResult);
+                return result;
+            })*/
+            .then(response => {
+                // handle response data
+                handleRemoteObjectsSuggestionsReturn(msg.data.data.moduleKey, msg.data.data.fieldWrapperId, response);
             })
             .catch(error => {
                 console.error(error);
@@ -278,31 +311,37 @@ async function getRemoteDropdownOptions(msg) {
  * queries the COMA database
  * @param {object} data object containing moduleKey, queryType, queryEntries
  * */
-function queryDatabase(e) {
-    var url_taskResult = coma_api + "task/result/";
-    postCOMATaskData(coma_api + e.data.queryType, formatQuery(e.data.queryEntries))
-        // Promise fulfilled
-        .then(taskResult => {
-            url_taskResult = url_taskResult + taskResult.task.id;
-            console.log(url_taskResult);
-            const result = getCOMAData(url_taskResult);
-            return result;
-        })
-        .then(taskResultResponse => {
-            handleDatabaseQueryReturn(e.data, taskResultResponse);
-        })
-        .catch(error => {
-            console.error(error);
-        });
+async function queryDatabase(e) {
+    const url_searchfield = coma_api + e.data.queryType + '/' + formatQuery(e.data.queryEntries);
+
+    try {
+        //var response = undefined;
+        await getCOMAData(url_searchfield, e.data.delay)
+            /*.then(taskResult => {
+                url_taskResult = url_taskResult + taskResult.task.id;
+                const result = getCOMAData(url_taskResult);
+                return result;
+            })*/
+            .then(response => {
+                // handle response data
+                handleDatabaseQueryReturn(e.data, response);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    } catch (error) {
+        console.log(error);
+        // handle error func
+    }
 }
 
 
 // format body of the query
-function formatQuery(query) {
+function formatQuery(queryEntries) {
+    //console.log(queryEntries);
     let body = "";
-    Object.keys(query).forEach((key) => (body += `${key}=${query[key]}&`));
-    body = body.slice(0, body.length - 1);
-    //console.log(body);
+    Object.keys(queryEntries).forEach((key) => (body += `${queryEntries[key]}/`));
+    //body = body.slice(0, body.length - 1);
     return body;
 }
 
@@ -333,7 +372,6 @@ async function postCOMATaskData(url, body) {
         headers: {
             //'Content-Type': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
-            //'Access-Control-Allow-Origin': '*'
         },
         //redirect: 'follow', // manual, *follow, error
         //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
@@ -366,7 +404,9 @@ async function postCOMATaskData(url, body) {
         headers: {
             'Content-Type': 'application/json',
             // 'Content-Type': 'application/x-www-form-urlencoded',
-            // 'Access-Control-Allow-Origin': '*'
+            // 'Access-Control-Allow-Origin': '*',
+            // 'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+
         },
         //redirect: 'follow', // manual, *follow, error
         //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
@@ -376,16 +416,10 @@ async function postCOMATaskData(url, body) {
 }*/
 
 // change func name to getRequest
-async function getCOMAData(url) {
+async function getCOMAData(url, delay) {
     try {
         //const url = coma_api + `task/result/${id}`;
-        const response = await fetch(url, {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        const response = await fetch(url); 
 
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -395,7 +429,11 @@ async function getCOMAData(url) {
 
         var counter = 0;
         while (responseData.status === "error" && counter < 10) {
-            getCOMAData(url);
+            /*getCOMAData(url);
+            counter++;
+            console.log('counter: ' + counter);*/
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            responseData = await fetch(url).then((response) => response.json());
             counter++;
             console.log('counter: ' + counter);
         }

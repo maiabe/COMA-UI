@@ -4,7 +4,7 @@
  * Date: 5/5/2022                                            *
  *************************************************************/
 import { printErrorMessage } from '../../errorHandling/errorHandlers.js';
-import { XAxisCard, YAxisCard } from './inspectorCardComponents/axisCard.js';
+import { AxisCard, XAxisCard, YAxisCard } from './inspectorCardComponents/axisCard.js';
 import { ObjectSearchCard } from './inspectorCardComponents/objectSearchCard.js';
 import { KeyValueCard } from './inspectorCardComponents/keyValueCard.js';
 import { HTMLFactory } from '../../htmlGeneration/index.js';
@@ -285,6 +285,15 @@ export class InspectorCard {
         return card;
     }
 
+
+    // add Xaxis card for Chart modules
+    addAxisCard(axisName, fields, defaultField) {
+        const card = new AxisCard(axisName, fields, defaultField);
+        this.appendToBody(card.getCard().wrapper);
+        return card;
+    }
+
+
     /** --- PUBLIC ---
      * This passes HTML elements and generates a field in the inspector card where user can select options for the x axis of a chart.
      * When adding options in the future, pass them through this function and add them to the axis card.
@@ -429,7 +438,7 @@ export class InspectorCard {
         const formFields = card.getFormFields();
         formFields.forEach((formField) => {
             const fieldLabel = formField.querySelector('label');
-            const fieldElement = formField.lastChild;
+            const fieldElement = formField.querySelector('.field-input');
             if (fieldElement) {
                 // Append form field tooltips
                 const fieldName = fieldElement.getAttribute('name');
@@ -442,7 +451,7 @@ export class InspectorCard {
                 const fieldObject = fields.filter(x => x.fieldName == fieldName)[0];
                 // Handle Remote Data Search Fields... create function for this?
                 if (fieldObject && fieldObject.remote) {
-                    this.#handleRemoteSearchField(moduleKey, fieldObject);
+                    this.#handleRemoteSearchField(moduleKey, fieldObject, fieldElement);
                 }
             }
         });
@@ -454,22 +463,49 @@ export class InspectorCard {
         return card;
     }
 
-    #handleRemoteSearchField(moduleKey, fieldObject) {
+    #handleRemoteSearchField(moduleKey, fieldObject, fieldElement) {
+        const fieldWrapper = fieldElement.closest('.field-input-wrapper');
+
         switch (fieldObject.dirName) {
             case "objects":
-                console.log(fieldObject.dirName);
-                // ajax function
+                var resultContainer = fieldElement.nextElementSibling;
+                // Close the suggestions container when clicking outside
+                document.addEventListener('click', event => {
+                    if (!event.target.closest('.typeahead-result-container') && !event.target.closest('.typeahead-input')) {
+                        resultContainer.style.display = 'none';
+                    }
+                });
+                // add eventListener for object field typeahead function
+                fieldElement.addEventListener('input', event => {
+                    const inputValue = event.target.value.trim();
+                    if (inputValue === '') {
+                        // If the input is empty, hide the suggestions container
+                        resultContainer.style.display = 'none';
+                    } else {
+                        // Fetch suggestions from the API and update the suggestions container
+                        //const suggestions = await fetchSuggestions(inputValue);
+                        //updateSuggestions(suggestions);
+                        const message = new Message(WORKER_MANAGER, INSPECTOR_CARD, 'Get Remote Objects Suggestions',
+                            {
+                                moduleKey: moduleKey,
+                                dirName: fieldObject.dirName,
+                                fieldWrapperId: fieldWrapper.getAttribute('id'),
+                                term: inputValue,
+                                delay: 1500,
+                            });
+                        this.sendMessage(message);
+                    }
+                });            
                 break;
             default: // dropdown remote fields
-                // get options from server
                 const message = new Message(WORKER_MANAGER, INSPECTOR_CARD, 'Get Remote Dropdown Options',
                     {
                         moduleKey: moduleKey,
-                        dirName: fieldObject.dirName
+                        dirName: fieldObject.dirName,
+                        fieldWrapperId: fieldWrapper.getAttribute('id'),
+                        delay: 1000,
                     });
                 this.sendMessage(message);
-                // append options to the dropdown (current fieldElement)
-
         }
     }
 

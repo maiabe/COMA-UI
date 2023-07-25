@@ -456,16 +456,6 @@ export class ModuleManager {
     }
 
 
-    setRemoteDropdownOptions(fieldName, options) {
-        if (invalidVariables([varTest(fieldName, 'fieldName', 'string'), varTest(options, 'options', 'object')], 'Module Manager', 'Set Remote Dropdown Options Event')) return false;
-        var dropdown = document.querySelector('#dropdown-' + fieldName);
-        console.log(dropdown);
-        if (dropdown) {
-            this.#HF.updateSelectOptions(dropdown, options);
-        }
-    }
-
-
     /** --- PUBLIC ---
      * When a new link is drawn between 2 modules, this function checks to see if the link is drawn between a composite data module and some
      * other module such as an output. This does not return true if the connection is made with a processor. Those are handled by a different

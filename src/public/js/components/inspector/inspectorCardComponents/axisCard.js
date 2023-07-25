@@ -6,10 +6,179 @@
 import { GM } from "../../../main.js";
 
 export class AxisCard {
-    constructor(dropdown, labelInput, title, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown) {
-        this.elementTable = new Map();
-        this.#createHTMLElement(title, dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown);
+
+    #wrapper;
+    #axisName;
+    #axisHeader;
+    #axisContent;
+    #fieldDropdown;
+    #traceArea;
+    #addTraceButton;
+
+    traceCards;
+
+    /** Creates an axis card for Chart Module inspector cards.
+     * @param {axisName object} axisName object consists of displayName and elementId of this AxisCard.
+     * @param {fields Array} fields consists of array of objects with the displayName and fieldName information.
+     * @param {defaultField object} defaultField object consists of displayName and fieldName information of specified default field.
+     *                                                  defaultField may be an undefined object
+     */
+    constructor(axisName, fields, defaultField) {
+        this.#axisName = axisName;
+        this.#createElements(axisName, fields, defaultField);
+        this.#buildCard();
     }
+
+    #createElements(axisName, fields, defaultField) {
+        this.#createWrapper(axisName);
+        this.#createHeader(axisName);
+        this.#createContent(axisName, fields, defaultField);
+    }
+
+    #buildCard() {
+        this.#wrapper.appendChild(this.#axisHeader);
+        this.#wrapper.appendChild(this.#axisContent);
+    }
+
+    #createWrapper(axisName) {
+        this.#wrapper = GM.HF.createNewDiv(`${axisName.elementName}`, '', ['axis-card-wrapper'], []);
+    }
+
+    // create header
+    #createHeader(axisName) {
+        const axisCardHeader = GM.HF.createNewDiv('', '', ['axis-card-header', 'header'], []);
+        axisCardHeader.innerHTML = axisName.displayName;
+        this.#wrapper.appendChild(axisCardHeader);
+        this.#axisHeader = axisCardHeader;
+    }
+
+    // create content --> dropdowns & labels & (other chart options) & addTrace button for each field (add function to addTrace button)
+    #createContent(axisName, fields, defaultField) {
+        if (fields) {
+            // create content wrapper
+            var contentWrapper = GM.HF.createNewDiv('', '', ['axis-content-wrapper'], []);
+
+            var fieldsWrapper = GM.HF.createNewDiv('', '', ['fields-wrapper'], []);
+            // create dropdown wrapper
+            var options = { "---- None ----": "none" };
+            // foreach field, create a dropdown and a label input
+
+            // sort fields by the default selection then the name
+            fields.forEach(field => {
+                if (field.fieldName) {
+                    options[field.displayName] = field.fieldName;
+                }
+            });
+            this.#fieldDropdown = GM.HF.createNewSelect('', '', ['fields-dropdown'], [{ style: "width", value: "70%" }, { style: "height", value: "25px" }], Object.values(options), Object.keys(options));
+            this.#addTraceButton = GM.HF.createNewButton(`${axisName.elementName}-add-trace-button`, '', ['button', 'add-trace-button'], [{ style: "width", value: "30%" }, { style: "height", value: "25px" }], 'button', 'Add Trace', false);
+            fieldsWrapper.appendChild(this.#fieldDropdown);
+            fieldsWrapper.appendChild(this.#addTraceButton);
+
+            // create trace area (table with removeable items? add error dropdown here if any?)
+            this.#traceArea = GM.HF.createNewDiv('', '', ['trace-area'], []);
+
+            // add default fields
+            if (defaultField) {
+                // prepare field value and text for creating a trace card
+                var field = { value: defaultField.fieldName, text: defaultField.displayName };
+
+                /////////////////////// TODO: add error default if exists (in yaxis)
+            }
+            // otherwise choose the first field of the 'fields'
+            else {
+                var field = { value: fields[0].fieldName, text: fields[0].displayName };
+            }
+            this.#createTraceCard(field, this.#traceArea);
+
+            // label input for the added trace.. other options for the chart
+            contentWrapper.appendChild(fieldsWrapper);
+            contentWrapper.appendChild(this.#traceArea);
+
+            this.#axisContent = contentWrapper;
+
+            this.#addTraceFunction();
+        }
+        else {
+            // show error there are no fields to load
+        }
+    }
+    
+    /** Creates a Trace Card in the axis card.
+     * @param {field object} field object consists of value and text of the field to be added as a trace card.
+     * @param {traceArea HTML DOM} traceArea is an HTML object for the trace card to be added to.
+     * */
+    #createTraceCard(field, traceArea) {
+        if (field.value !== "none") {
+            // create card entry
+            let traceCard = GM.HF.createNewDiv(field.value, '', ['trace-card-wrapper'], []);
+            let header = GM.HF.createNewDiv('', '', ['trace-card-header'], []);
+            let headerText = GM.HF.createNewSpan('', '', ['text'], [], field.text);
+            let removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete_1.png', ['remove-button', 'button'], [], '');
+            header.appendChild(headerText);
+            header.appendChild(removeBtn);
+            traceCard.appendChild(header);
+            traceArea.appendChild(traceCard);
+
+            // add removeFunction
+            this.#removeTraceFunction(removeBtn);
+
+            let labelWrapper = GM.HF.createNewDiv('', '', ['label-wrapper'], []);
+            let labelText = GM.HF.createNewSpan('', '', ['label-text'], [], 'Label Name: ');
+            let label = GM.HF.createNewTextInput('', '', ['label-input'], [], 'text', false);
+            label.value = field.text;
+            // add label text here
+            labelWrapper.appendChild(labelText);
+            labelWrapper.appendChild(label);
+            traceCard.appendChild(labelWrapper);
+
+            let optionsWrapper = GM.HF.createNewDiv('', '', ['options-wrapper'], []);
+            let gridLinesOption = GM.HF.createNewCheckbox('', '', ['options-gridlines'], [], '', 'Grid Lines', false);
+            let ticksOption = GM.HF.createNewCheckbox('', '', ['options-ticks'], [], '', 'Ticks', false);
+            optionsWrapper.appendChild(gridLinesOption.wrapper);
+            optionsWrapper.appendChild(ticksOption.wrapper);
+            traceCard.appendChild(optionsWrapper);
+        }
+    }
+
+
+    #addTraceFunction() {
+        const button = this.#addTraceButton;
+        button.addEventListener('click', e => {
+            // get dropdown selection
+            let dropdown = e.target.previousElementSibling;
+            let selected = dropdown.options[dropdown.selectedIndex];
+            let traceArea = e.target.closest('.axis-content-wrapper').querySelector('.trace-area');
+
+            // check if the field is already in there
+            // if it is, display error message
+            //var exists = traceArea.querySelector(`#${selected.value}`);
+            if (selected.value !== 'none') {
+                // create card entry
+                this.#createTraceCard(selected, traceArea);
+            }
+            /*else {
+                let errorMessageWrapper = GM.HF.createNewDiv('', '', ['add-trace-error-wrapper'], []);
+                let errorMessage = GM.HF.createNewSpan('', '', ['add-trace-error'], [{ style: "color", value: "red" }], 'The field has already been selected');
+                errorMessageWrapper.appendChild(errorMessage);
+                traceArea.appendChild(errorMessageWrapper);
+            }*/
+
+
+        });
+    }
+
+    #removeTraceFunction(button) {
+        button.addEventListener('click', e => {
+            let traceArea = e.target.closest('.trace-area');
+            let traceCard = e.target.closest('.trace-card-wrapper');
+            traceArea.removeChild(traceCard);
+        });
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                        OLD CODE                                                          //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /** --- PRIVATE ---
      * Creates the HTML element for the axis card.
@@ -24,7 +193,7 @@ export class AxisCard {
      * @param {HTML select} errorDropDown 
      */
     #createHTMLElement(title, dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown) {
-        this.#createWrapper();
+        this.#createWrapper(title);
         this.#createTitleBarElement(title);
         this.#createDataField(dropdown, errorDropDown, addTraceButton);
         this.#createLabelField(labelInput);
@@ -35,10 +204,12 @@ export class AxisCard {
     /** --- PRIVATE ---
      * Creates and stores the wrapper element
      */
-    #createWrapper() {
-        const wrapperElement = GM.HF.createNewDiv('', '', ['axis-card-wrapper'], []);
+    /*#createWrapper(title) {
+        var elementId = title.replaceAll(' ', '-').toLowerCase();
+        console.log(elementId);
+        const wrapperElement = GM.HF.createNewDiv(`${elementId}-card-wrapper`, '', ['axis-card-wrapper'], []);
         this.storeElement('wrapperElement', wrapperElement);
-    }
+    }*/
 
     /** --- PRIVATE ---
      * Creates the title bar elements, stores that element, and adds the title text to the html object
@@ -152,10 +323,14 @@ export class AxisCard {
 
     /** --- PUBLIC ---
      * @returns the HTML wrapper containing all child nodes. */
-    getCard = () => this.elementTable.get('wrapperElement');
+    //getCard = () => this.elementTable.get('wrapperElement');
 
     storeElement(key, value) {
         this.elementTable.set(key, value);
+    }
+
+    getCard() {
+        return { card: this, wrapper: this.#wrapper, content: this.#axisContent, fieldDropdown: this.#fieldDropdown, addTraceButton: this.#addTraceButton };
     }
 }
 
@@ -176,3 +351,6 @@ export class ZAxisCard extends AxisCard {
         super(dropdown, labelInput, 'Z Axis', gridCheckbox, tickCheckbox, addTraceButton, errorDropDown);
     }
 }
+
+
+

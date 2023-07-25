@@ -6,7 +6,7 @@
 
 import { Publisher, Message } from '../../communication/index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../../errorHandling/errorHandlers.js';
-import { ENVIRONMENT, MODULE_MANAGER, POPUP_MANAGER, INSPECTOR, compositIcon, sourceColor, outputColor, processorColor, compositColor, typeColorArray } from '../../sharedVariables/index.js';
+import { ENVIRONMENT, MODULE_MANAGER, POPUP_MANAGER, INSPECTOR, compositIcon, sourceColor, outputColor, processorColor, compositColor, typeColorArray, processedModuleColor } from '../../sharedVariables/index.js';
 
 export class Environment {
     // Communication Variables
@@ -845,10 +845,10 @@ export class Environment {
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(processed, 'processed', 'boolean')], 'Environment', 'toggleNodeColor')) return;
         var node = this.#myDiagram.findNodeForKey(moduleKey);
         if (processed) {
-            node.findObject('SHAPE').fill = '#363538';
+            node.findObject('SHAPE').fill = processedModuleColor;
         }
         else {
-            node.findObject('SHAPE').fill = '#383838';
+            node.findObject('SHAPE').fill = sourceColor;
         }
 
     }

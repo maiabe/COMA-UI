@@ -21,7 +21,7 @@ export class Search extends Source {
         this.addData('onCreationFunction', this.onCreation.bind(this));
         this.addData('requestMetadataOnCreation', true);
         this.addData('remoteData', true);
-        this.createInspectorCardData();
+        //this.createInspectorCardData();
         this.setPopupContent();
     }
 

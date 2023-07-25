@@ -33,11 +33,11 @@ const moduleDataObject = [
         moduleCreationFunction: (category, key) => new Csv(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
         menuData: { icon: 'images/icons/csv-file-format-extension.png', text: 'CSV File', category: 'Source' }
     },
-    {
+    /*{
         key: 'Cholera',
         moduleCreationFunction: (category, key) => new Cholera(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
         menuData: { icon: 'images/icons/skull.png', text: 'Cholera', category: 'Source' }
-    },
+    },*/
     {
         key: 'Filter',
         moduleCreationFunction: (category, key) => new Filter(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
@@ -92,6 +92,26 @@ const moduleDataObject = [
     },
 ]
 
+const DatasetFields = [
+    "lightcurves",
+    "observation",
+    "geometry",
+    "photometry",
+    "objects"
+];
+
+// responseKey is for the api response key
+const DatasetTypes = [
+    { type: "lightcurves", responseKey: "lightcurve" },
+    { type: "photometries", responseKey: "photometries" },
+    { type: "objects", responseKey: "objects" },
+];
+
+const DefaultAxis = [
+    { datasetType: "lightcurves", xAxis: { displayName: "imagedate", fieldName: "imagedate" }, yAxis: { displayName: "mag", fieldName: "mag", error: "mag_err" } }
+    // add more later
+];
+
 /** This Object Stores the data for search module fields
  *  type: (array) list of strings that describes the types of a query
  *  field: (array) list of strings that describtes the form field options
@@ -102,7 +122,7 @@ const moduleDataObject = [
  */
 const SearchFields = {
     "types": [
-        "lightcurve",
+        "lightcurves",
         "observation",
         "geometry",
         "photometry",
@@ -110,7 +130,7 @@ const SearchFields = {
     ],
     "queryTypeTooltip": [
         {
-            type: "lightcurve",
+            type: "lightcurves",
             description: "Search for lightcurve of an object.\r\n"
         },
         {
@@ -150,113 +170,124 @@ const SearchFields = {
     ],
     "fieldsDict": [
         {
-            "type": "lightcurve",
+            "type": "lightcurves",
             "fields": [
-                { remote: true, dirName: "objects", labelName: "Object", fieldName: "object", type: 'lookahead', value: 'C_2017_K2' },
-                { remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
-                { remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
                 {
+                    index: 0, remote: true, dirName: "objects",
+                    labelName: "Object", fieldName: "objects", type: 'typeahead', value: '0'
+                },
+                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
+                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                /*{
                     remote: false,
                     labelName: "Object Type", fieldName: "objectType", type: 'dropdown',
                     options: objectType_options,
-                },
+                },*/
                 {
-                    remote: true, dirName: "telescopes",
+                    index: 0, remote: true, dirName: "telescopes",
                     labelName: "Telescope", fieldName: "telescopes", type: 'dropdown',
-                    options: undefined,
+                    options: [{ Value: '--- None ---', Key: -1 }],
                 },
                 {
-                    remote: true, dirName: "filters",
+                    index: 0, remote: true, dirName: "filters",
                     labelName: "Filter", fieldName: "filters", type: 'dropdown',
-                    options: undefined,
+                    options: [{ Value: '--- None ---', Key: -1 }],
                 },
             ]
         },
         {
             "type": "observation",
             "fields": [
-                { remote: true, labelName: "Object", fieldName: "objects", type: 'text', value: 'C_2017_K2' },
-                { remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
-                { remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'text', value: 'C_2017_K2' },
+                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
+                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
                 {
+                    index: 0,
                     remote: true,
                     labelName: "Telescope", fieldName: "telescopes", type: 'dropdown',
                     optionName: "telescope",
                     options: undefined,
                 },
                 {
+                    index: 0,
                     remote: true,
                     labelName: "Filter", fieldName: "filters", type: 'dropdown',
                     optionName: "filter",
                     options: undefined,
                 },
-                { remote: false, labelName: "Test1", fieldName: "test", type: 'text' },
-                { remote: false, labelName: "Test1", fieldName: "test", type: 'text' }
+                { index: 0, remote: false, labelName: "Test1", fieldName: "test", type: 'text' },
+                { index: 1, remote: false, labelName: "Test1", fieldName: "test", type: 'text' }
             ]
         },
         {
             "type": "geometry",
             "fields": [
-                { remote: true, labelName: "Object", fieldName: "objects", type: 'text', value: 'C/2017 K2' },
-                { remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
-                { remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'text', value: 'C/2017 K2' },
+                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
+                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
                 {
+                    index: 0,
                     remote: true,
                     labelName: "Telescope", fieldName: "telescopes", type: 'dropdown',
                     optionName: "telescope",
                     options: undefined,
                 },
                 {
+                    index: 0,
                     remote: true,
                     labelName: "Filter", fieldName: "filters", type: 'dropdown',
                     optionName: "filter",
                     options: undefined,
                 },
-                { remote: false, labelName: "Test2", fieldName: "test", type: 'text' },
-                { remote: false, labelName: "Test2", fieldName: "test", type: 'text' }
+                { index: 0, remote: false, labelName: "Test2", fieldName: "test", type: 'text' },
+                { index: 1, remote: false, labelName: "Test2", fieldName: "test", type: 'text' }
             ]
         },
         {
             "type": "photometry",
             "fields": [
-                { remote: true, labelName: "Object", fieldName: "objects", type: 'text', value: 'C_2017_K2' },
-                { remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
-                { remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'text', value: 'C_2017_K2' },
+                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
+                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
                 {
+                    index: 0,
                     remote: true,
                     labelName: "Telescope", fieldName: "telescopes", type: 'dropdown',
                     optionName: "telescope",
                     options: undefined,
                 },
                 {
+                    index: 0,
                     remote: true,
                     labelName: "Filter", fieldName: "filters", type: 'dropdown',
                     optionName: "filter",
                     options: undefined,
                 },
-                { remote: false, labelName: "Test3", fieldName: "test", type: 'text' },
-                { remote: false, labelName: "Test3", fieldName: "test", type: 'text' }
+                { index: 0, remote: false, labelName: "Test3", fieldName: "test", type: 'text' },
+                { index: 1, remote: false, labelName: "Test3", fieldName: "test", type: 'text' }
             ]
         },
         {
             "type": "objects",
             "fields": [
-                { remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
-                { remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
+                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
                 {
+                    index: 0,
                     remote: true,
                     labelName: "Telescope", fieldName: "telescopes", type: 'dropdown',
                     optionName: "telescope",
                     options: undefined,
                 },
                 {
+                    index: 0,
                     remote: true,
                     labelName: "Filter", fieldName: "filters", type: 'dropdown',
                     optionName: "filter",
                     options: undefined,
                 },
-                { remote: false, labelName: "Test4", fieldName: "test", type: 'text' },
-                { remote: false, labelName: "Test4", fieldName: "test", type: 'text' }
+                { index: 0, remote: false, labelName: "Test4", fieldName: "test", type: 'text' },
+                { index: 1, remote: false, labelName: "Test4", fieldName: "test", type: 'text' }
             ]
         }
     ],
@@ -275,5 +306,4 @@ const SearchFields = {
 }
 
 
-export { moduleDataObject }
-export { SearchFields }
+export { moduleDataObject, SearchFields, DatasetTypes, DatasetFields, DefaultAxis }

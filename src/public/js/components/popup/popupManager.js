@@ -21,7 +21,7 @@ export class PopupManager {
     };
 
     buildMessageHandlerMap() {
-        this.messageHandlerMap.set('Popup Closed Event', this.destroyPopup.bind(this));
+        this.messageHandlerMap.set('Popup Closed Event', this.closePopup.bind(this));
         this.messageHandlerMap.set('Request Z Index', this.getNextZIndex.bind(this));
     }
 
@@ -107,7 +107,9 @@ export class PopupManager {
      */
     getPopupWidth = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'PopupManager', 'getPopupWidth')) return -1;
-        if (this.#popupList.has(key)) return this.#popupList.get(key).element.width;
+        if (this.#popupList.has(key)) {
+            return this.#popupList.get(key).element.width;
+        }
         else return -1;
     }
 
@@ -117,7 +119,9 @@ export class PopupManager {
      */
     getPopupHeight = key => {
         if (invalidVariables([varTest(key, 'key', 'number')], 'PopupManager', 'getPopupHeight')) return -1;
-        if (this.#popupList.has(key)) return this.#popupList.get(key).element.height - 50;
+        if (this.#popupList.has(key)) {
+            return this.#popupList.get(key).element.height - 50;
+        }
         else return -1;
     }
 
@@ -148,8 +152,13 @@ export class PopupManager {
      */
     destroyPopup = data => {
         this.#popupList.delete(data.moduleKey);
-        this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Popup Closed Event', data));
+        // destroy when module is deleted
+
     };
+
+    closePopup = data => {
+        this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_MANAGER, 'Popup Closed Event', data));
+    }
 
     /**
      * Z index is requested by a popup. Increment Z index and pass it to the callback

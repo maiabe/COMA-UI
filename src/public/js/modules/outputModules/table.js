@@ -42,7 +42,7 @@ export class Table extends Output {
         this.popupContentMaker.setTablePopupContent(moduleKey);
     }
 
-    // moduleData: { moduleHeaders, 
+    // moduleData: { columnHeaders }
     // Set Inspector card content
     updateInspectorCard(moduleKey, moduleData) {
         // fields objects include { fieldname, displayname, and unitsArray }

@@ -49,14 +49,14 @@ export class ChartBuilder {
      * @param {boolean} yAxisTick true if include tick marks
      * @param {string} coordinateSystem polar or cartesian2d
      * @returns chart object  */
-    plotData = (data, type, pdiv, width, height, framework, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
+    plotData = (data, type, pdiv, width, height, framework, theme, coordinateSystem) => {
         switch (framework) {
             case 'tabulator':
                 return this.#drawTabulatorTable(data, type, pdiv, width, height);
             case 'plotly':
                 return this.#drawPlotlyChart(data, type, pdiv, width, height);
             case 'echart':
-                return this.#drawEChartChart(data, type, pdiv, width, height, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem);
+                return this.#drawEChartChart(data, type, pdiv, width, height, theme, coordinateSystem);
         }
     }
 
@@ -67,7 +67,7 @@ export class ChartBuilder {
      * @param {HTML div} pdiv the plot div is the location to inject the chart in the dom 
      * @param {Number} width width of the chart
      * @param {Number} height height of the chart
-     * @param {string} framework echart makes all charts except table. plotly makes the table 
+     * @param {string} framework echart makes all charts
      * @param {string} theme echart color theme 
      * @param {string} xAxisLabel user defined label for the x axis 
      * @param {string} yAxisLabel user defined label for the y axis 
@@ -78,9 +78,9 @@ export class ChartBuilder {
      * @param {string} coordinateSystem polar or cartesian2d
      * @returns echart object
      */
-    #drawEChartChart = (data, type, pdiv, width, height, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
+    #drawEChartChart = (data, type, pdiv, width, height, theme, coordinateSystem) => {
         const myChart = echarts.init(pdiv, theme);
-        const option = this.#optionGenerationMap.get(coordinateSystem)(data, type, coordinateSystem, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick);
+        const option = this.#optionGenerationMap.get(coordinateSystem)(data, type, coordinateSystem);
         option && myChart.setOption(option);
         console.log(option);
         this.resizeEchart(myChart, width, height);
@@ -101,7 +101,7 @@ export class ChartBuilder {
      * @param {string} coordinateSystem polar or cartesian2d
      * @returns object wil all settings
      */
-    #generatePolarOptions(data, type, coordinateSystem, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick) {
+    #generatePolarOptions(data, type, coordinateSystem) {
         const options = {
             title: {
                 text: 'Polar'
@@ -185,17 +185,49 @@ export class ChartBuilder {
      * There are many more possible options that can and should be included in the final product
      * @param {{e: any[], x: any[]}, y: any[][]} data Arrays of the data for the x axis, y axis, and error trace
      * @param {string} type chart type, ie 'bar'
-     * @param {string} xAxisLabel user defined label for the x axis 
-     * @param {string} yAxisLabel user defined label for the y axis 
-     * @param {boolean} xAxisGrid true if include grid
-     * @param {boolean} yAxisGrid true if include grid
-     * @param {boolean} xAxisTick true if include tick marks
-     * @param {boolean} yAxisTick true if include tick marks
      * @param {string} coordinateSystem polar or cartesian2d
      * @returns object wil all settings
      */
-    #generate2dCartesianOptions(data, type, coordinateSystem, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick) {
-        return {
+    #generate2dCartesianOptions(data, type, coordinateSystem) {
+        console.log(data);
+        console.log(type);
+        console.log(coordinateSystem);
+
+        var echartData = { 'series': [] };
+        var chartAxis = Object.keys(data);
+        chartAxis.forEach(axis => {
+            var trace = data[axis];
+            echartData[axis] = [];
+            switch (axis) {
+                case "xAxis":
+                    trace.forEach(t => {
+                        var td = { type: "category", data: t.data, scale: "true" };
+                        echartData[axis].push(td);
+                    });
+                    break;
+                case "yAxis":
+                    trace.forEach(t => {
+                        echartData[axis].push({ type: "value", scale: "true" });
+                        var seriesData = { type: type, data: t.data, xAxisIndex: 0 };
+                        echartData['series'].push(seriesData);
+                    });
+                    break;
+                case "error":
+                    // TODO: add error field
+                    break;
+                default:
+                    return false;
+            }
+        });
+
+        // Add range slider option
+        echartData['dataZoom'] = [{ type: 'slider' }]
+
+        console.log(echartData);
+
+        return echartData;
+
+        /*return {
             toolbox: {
                 feature: {
                     saveAsImage: {}
@@ -234,7 +266,7 @@ export class ChartBuilder {
                 }
             ],
             series: this.#createSeries(data, type, coordinateSystem)
-        }
+        }*/
     }
 
     /** --- PRIVATE ---
@@ -247,17 +279,17 @@ export class ChartBuilder {
     #createSeries(data, type, coordinateSystem) {
         const seriesArray = [];
         // The Y axis data is an array of arrays of data
-        data.data.y.forEach(dataList => {
+        data.yAxis.forEach(dataList => {
             seriesArray.push({
                 data: dataList,
-                type: this.#getEchartType(type),
+                type: type,
                 coordinateSystem: coordinateSystem
             });
         });
 
         // Create the error series. This has error bars that are created manually
         // This code came from the Echarts site with slight modifications
-        data.data.e.forEach((dataList, index) => {
+        /*data.error.forEach((dataList, index) => {
             const errorData = [];
             for (let i = 0; i < dataList.length; i++) {
                 errorData.push([i,
@@ -328,7 +360,7 @@ export class ChartBuilder {
                     z: 100
                 })
             }
-        });
+        });*/
         return seriesArray;
     }
 

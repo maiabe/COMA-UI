@@ -39,7 +39,7 @@ export class FormCard {
 
     /** --- PRIVATE ---
      * Creates the initial form
-     * @param {name string} formName of the form
+     * @param {formName string} formName of the form
      * @param {fields Array} fields array of objects containing labelName, type and fieldName data
      * @returns {form Object} form html element
      */
@@ -49,10 +49,11 @@ export class FormCard {
             const fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], []);
 
             // create field label
-            const fieldLabel = GM.HF.createNewLabel('', '', [field.type + '-' + field.fieldName], [], [], field.labelName + ': ');
+            const fieldInputId = field.fieldName + '-' + field.index;
+            const fieldLabel = GM.HF.createNewLabel('', '', [`${fieldInputId}`], [], [], field.labelName + ': ');
 
             // create fields
-            var formField = this.#createFormField(field);
+            var formField = this.#createFormField(field, fieldInputId);
             // append to fieldWrapper
             fieldWrapper.appendChild(fieldLabel);
             fieldWrapper.appendChild(formField);
@@ -66,61 +67,65 @@ export class FormCard {
      * Creates the form field
      * @param {field Object} field object contains labelName, type, and fieldName data 
      * */
-    #createFormField(field) {
-        var fieldNameUnique = field.type + '-' + field.fieldName;
+    #createFormField(field, fieldInputId) {
         var formField;
         switch (field.type) {
             case 'text':
-                formField = GM.HF.createNewTextInput(fieldNameUnique, field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], []);
+                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
                 //formField.setAttribute('remote', field.remote);
                 if (field.value) {
-                    formField.value = field.value;
+                    textInput.value = field.value;
                 }
+                formField.appendChild(textInput);
                 break;
             case 'date':
-                formField = GM.HF.createNewTextInput(fieldNameUnique, field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], []);
+                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
                 //formField.setAttribute('remote', field.remote);
                 // set default value
                 if (field.value) {
-                    formField.value = field.value;
+                    textInput.value = field.value;
                 }
                 else {
-                    formField.value = '2000-01-01';
+                    textInput.value = '2000-01-01';
                 }
-                formField._datepicker = flatpickr(formField, {
+                textInput._datepicker = flatpickr(textInput, {
                     dateFormat: 'Y-m-d',
                     allowInput: true,
                 });
                 if (field.fieldName === 'begin' || field.fieldName === 'end') {
-                    formField.classList.add('date-range');
+                    textInput.classList.add('date-range');
+                    textInput.setAttribute('id', `date-range-${field.fieldName}-${field.index}`);
                 }
+                formField.appendChild(textInput);
                 break;
             case 'dropdown':
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], []);
                 const options = field.options;
                 var values = [];
-                var displayNames = ['-- None --'];
+                var displayNames = [];
                 if (options) {
                     values = options.map((obj) => { return obj.Key });
                     displayNames = options.map((obj) => { return obj.Value });
                 }
-                formField = GM.HF.createNewSelect('dropdown-' + field.fieldName, field.fieldName, ['field-input'], [], values, displayNames);
-                //formField.setAttribute('remote', field.remote);
+                var dropdown = GM.HF.createNewSelect('', field.fieldName, ['field-input'], [], values, displayNames);
+                formField.appendChild(dropdown);
                 break;
             case 'checkbox':
-                formField = GM.HF.createNewDiv('', '', ['checkbox-wrapper', 'field-input'], []);
-                console.log(field);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['checkbox-wrapper', 'field-input-wrapper'], []);
                 const checkbox_options = field.options;
                 // foreach option, create check box
                 checkbox_options.forEach((option) => {
                     var checkbox = GM.HF.createNewCheckbox('checkbox-' + field.fieldName + '-'+ option.value,
-                        field.fieldName + '-' + option.value, ['checkbox'], [], option.value, option.key, false);
+                        field.fieldName + '-' + option.value, ['checkbox', 'field-input'], [], option.value, option.key, false);
                     formField.appendChild(checkbox.wrapper);
                 });
                 
                 //formField.setAttribute('remote', field.remote);
                 break;
             case 'radio':
-                formField = GM.HF.createNewDiv('', '', ['radio-wrapper', 'field-input'], []);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['radio-wrapper', 'field-input-wrapper'], []);
                 console.log(field);
                 const radio_options = field.options;
                 // foreach option, create radiobuttons
@@ -129,7 +134,7 @@ export class FormCard {
                     const radiolabel = document.createElement('Label');
                     radiolabel.setAttribute('for', id);
                     radiolabel.innerHTML = option.key;
-                    var radioButton = GM.HF.createNewRadioButton(id, field.fieldName, ['radiobutton'], [], field.type, option.value, false);
+                    var radioButton = GM.HF.createNewRadioButton(id, field.fieldName, ['radiobutton', 'field-input'], [], field.type, option.value, false);
                     formField.appendChild(radioButton);
                     formField.appendChild(radiolabel);
                 });
@@ -142,23 +147,43 @@ export class FormCard {
                 /*var minMaxFilter = new MinMaxFilter(field.fieldName, field.min, field.max, field.dataType, field.dataFormat);
                 formField = minMaxFilter.getHTML();*/
                 break;
-            case 'lookahead':
-                formField = GM.HF.createNewTextInput(fieldNameUnique, field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
-                formField.setAttribute('remote', field.remote);
+            case 'typeahead':
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [{ style: "position", value: "relative" }]);
+
+                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['typeahead-input', 'field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                textInput.setAttribute('remote', field.remote);
                 if (field.value) {
-                    formField.value = field.value;
+                    textInput.value = field.value;
                 }
                 // create empty container for result
-                const resultContainer = GM.HF.createNewList('', '', ['field-result-container'], []);
+                const resultContainer = GM.HF.createNewDiv('', '', ['typeahead-result-container'], [{ style: 'display', value: "none" }]);
+                formField.appendChild(textInput);
+                formField.appendChild(resultContainer);
+
                 // add event listener
+                /*textInput.addEventListener("input", async event => {
+                    const inputValue = event.target.value.trim();
+                    if (inputValue === '') {
+                        // If the input is empty, hide the suggestions container
+                        resultContainer.style.display = 'none';
+                    } else {
+                        // Fetch suggestions from the API and update the suggestions container
+                        //const suggestions = await fetchSuggestions(inputValue);
+                        //updateSuggestions(suggestions);
+                    }
+                    console.log(inputValue);
+                });*/
 
                 break;
             default:
-                formField = GM.HF.createNewTextInput(fieldNameUnique, field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], []);
+                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
                 //formField.setAttribute('remote', field.remote);
                 if (field.value) {
-                    formField.value = field.value;
+                    textInput.value = field.value;
                 }
+                formField.appendChild(textInput);
+                break;
         }
         return formField;
     }
@@ -288,6 +313,44 @@ export class FormCard {
     }
 
 
+    /** Add a Flatpickr Date Range Plugin to corresponding fields
+     * @param {dateFields} array of objects consisting of date field information
+     *                      (e.g. { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: "date" })
+     * */
+    createFlatpickrRangePlugin(dateFields) {
+        // for all the date fields with the same index, find begin and end pairs
+        var beginEndPairs = this.findBeginEndPairs(dateFields);
+
+        // if both begin and end exists, add plugin for those
+        if (beginEndPairs.length > 0) {
+            beginEndPairs.forEach(pair => {
+                var beginField = pair.begin;
+                var endField = pair.end;
+
+                var endFieldId = `#date-range-${endField.fieldName}-${endField.index}`;
+                // Initialize flatpickr with the range plugin
+                flatpickr(`#date-range-${beginField.fieldName}-${beginField.index}`, {
+                    mode: 'range',
+                    dateFormat: 'Y-m-d', // Set the desired date format (ISO format: YYYY-MM-DD)
+                    plugins: [new rangePlugin({ input: endFieldId })],
+                    //appendTo: targetDiv,
+                });
+            });
+        }
+    }
+
+    findBeginEndPairs(dateFields) {
+        var pairs = [];
+        dateFields.forEach(beginField => {
+            if (beginField.fieldName === 'begin') {
+                var endField = dateFields.find(field => field.index === beginField.index && field.fieldName === 'end'); 
+                if (endField) {
+                    pairs.push({ begin: beginField, end: endField });
+                }
+            }
+        });
+        return pairs;
+    }
 
 /*
     // Create Layout

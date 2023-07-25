@@ -15,32 +15,39 @@ export class InputManager {
         this.#dataTable = new Map();
     };
 
-    // returns moduleData if read is successful
-    readFile = (type, fileId, moduleKey) => {
-        var valid = this.#validateFileType(type, fileId);
+    // sets moduleData for CSV module
+    readFile = (moduleKey, fileId, type) => {
+        var valid = this.#validateFileType(moduleKey, fileId, type);
         if (valid) {
-
-            // get columnHeaders
-            this.#csvReader.getColumns(fileId, this.setModuleDataCB, moduleKey); // Await the promise
-                    
+            // Set moduleData (columnHeaders)
+            //this.#csvReader.getColumns(moduleKey, this.setModuleDataCB);
+            this.#csvReader.getFileData(moduleKey, fileId, this.setModuleDataCB);
         } else {
-
             console.log('File type expected does not match. Expected file type:' + type);
         }
     }
 
+    // Gets table data to set its content ... not needed?
     getTableData = (moduleData) => {
         if (moduleData.fileId) {
             this.#csvReader.getData(moduleData, this.setTableCB);
         }
     }
+
+    // Gets chart data to set its content ... not needed?
+    getChartData = (moduleData) => {
+        if (moduleData.fileId) {
+            this.#csvReader.getData(moduleData, this.setChartCB);
+        }
+    }
     
 
 
-    // file validation
-    #validateFileType = (type, elementId) => {
-        var file = document.getElementById(elementId).files[0];
-
+    /**
+     * 
+     * */
+    #validateFileType = (moduleKey, fileId, type) => {
+        var file = document.getElementById(fileId).files[0];
         var valid = false;
         // check if extention matches the expected file type
         var extention = file.name.split('.');
@@ -61,7 +68,10 @@ export class InputManager {
         return valid;
     }*/
 
-    // called at the source module to set the moduleData to itself
+    /** Sets moduleData to the CSV module.
+     * @param {moduleKey} moduleKey of this CSV module
+     * @param {moduleData} moduleData to set to this CSV module with
+     * */
     setModuleDataCB = (moduleKey, moduleData) => {
         const data = {
             moduleKey: moduleKey,
@@ -74,6 +84,12 @@ export class InputManager {
     // called at the table module to get the content of the file
     setTableCB = (moduleData) => {
         const msg = new Message(OUTPUT_MANAGER, INPUT_MANAGER, 'Set New Table Event', moduleData);
+        this.publisher.publishMessage(msg);
+    }
+
+    // called at the chart module to get the content of the file
+    setChartCB = (moduleData) => {
+        const msg = new Message(OUTPUT_MANAGER, INPUT_MANAGER, 'Set New Chart Event', moduleData);
         this.publisher.publishMessage(msg);
     }
 

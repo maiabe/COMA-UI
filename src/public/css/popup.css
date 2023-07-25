@@ -60,7 +60,7 @@
 .popup-content {
     height: 100%;
     width: 95%;
-    margin: 0 auto;
+    margin: auto;
     /*overflow: hidden;*/
 }
 
@@ -126,10 +126,16 @@
 
 /***************************** Table Popup Card ******************************/
 .download-wrapper {
-    margin: 2%;
+    padding: 2%;
 }
 .table-wrapper {
     margin: 0 2% 2% 2%;
     /*overflow: auto;*/
+}
+
+/***************************** Chart Popup Card ******************************/
+.popup-content.plot-popup {
+    width: 100%;
+    margin: 0;
 }
 

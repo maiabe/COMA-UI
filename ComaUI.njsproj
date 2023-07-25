@@ -53,6 +53,8 @@
     <Content Include="src\public\images\background\error_bg.jpeg" />
     <Content Include="src\public\images\icons\database.png" />
     <Content Include="src\public\images\icons\db-image.png" />
+    <Content Include="src\public\images\icons\delete_0.png" />
+    <Content Include="src\public\images\icons\delete_1.png" />
     <Content Include="src\public\images\icons\info.png" />
     <Content Include="src\public\images\icons\loading_spinner.gif" />
     <Content Include="src\public\images\icons\plus.png" />

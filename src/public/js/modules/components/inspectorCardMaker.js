@@ -8,8 +8,8 @@ import { InspectorCard } from '../../components/inspector/inspectorCard.js';
 import { IncludeColumnCard } from '../../components/inspector/inspectorCardComponents/includeColumnCard.js';
 import { Publisher, Message, Subscriber } from '../../communication/index.js';
 import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
-import { INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER, WORKER_MANAGER } from '../../sharedVariables/constants.js';
-import { SearchFields } from '../../sharedVariables/moduleData.js';
+import { INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, WORKER_MANAGER } from '../../sharedVariables/constants.js';
+import { DatasetTypes, DatasetFields, SearchFields, DefaultAxis } from '../../sharedVariables/moduleData.js';
 
 /**
  * This class is an intermediary between the Insepctor Card and the Modules. This Object has specific function
@@ -180,9 +180,11 @@ export class InspectorCardMaker {
      * @returns the button 
      */
     addInspectorCardGenerateChartButton(key, callbackFN) {
-        const button = this.HF.createNewButton(`create-line-chart-button-${key}`, `create-line-chart-button-${key}`, [], [], 'button', 'Generate', false);
+        const buttonWrapper = this.HF.createNewDiv('', '', ['generate-chart-button-wrapper'], []);
+        const button = this.HF.createNewButton(`generate-chart-button-${key}`, `generate-chart-button-${key}`, ['generate-chart-button'], [], 'button', 'Generate Chart', false);
+        buttonWrapper.appendChild(button);
+        this.inspectorCard.appendToBody(buttonWrapper);
         button.addEventListener('click', callbackFN);
-        this.#addDynamicInspectorCardFieldWithPrebuiltValueDiv('Generate Chart: ', button, false);
         return button;
     }
 
@@ -308,14 +310,50 @@ export class InspectorCardMaker {
     #createInspectorCardHorizontalFlexContainer = () => this.HF.createNewDiv('', '', ['inspector-card-horizontal-flex-container'], []);
 
 
+    createCSVModuleInspectorCard(callback, moduleKey) {
+        const contentWrapper = this.HF.createNewDiv('', '', ['wrapper', 'csv-inspector-wrapper'], []);
+        const datasetTypeWrapper = this.HF.createNewDiv('', '', ['wrapper', 'dataset-type-wrapper'], []);
+        const uploadWrapper = this.HF.createNewDiv('', '', ['wrapper', 'upload-wrapper'], []);
+
+        contentWrapper.appendChild(datasetTypeWrapper);
+        contentWrapper.appendChild(uploadWrapper);
+        this.inspectorCard.appendToBody(contentWrapper);
+
+        const options = DatasetTypes.map(ds => { return ds.type });
+        options.push('other');
+        var datasetTypeLabel = this.HF.createNewLabel('', '', '', ['dataset-type-label'], [], 'Dataset Type: ');
+        var datasetTypeDropdown = this.HF.createNewSelect('', '', ['dataset-type-dropdown'], [], options, options);
+        datasetTypeWrapper.appendChild(datasetTypeLabel);
+        datasetTypeWrapper.appendChild(datasetTypeDropdown);
+
+        const upload = this.HF.createNewFileInput(`upload_csv-${moduleKey}`, 'upload_csv', [], [], 'file', false);
+        uploadWrapper.appendChild(upload);
+
+        upload.addEventListener('change', callback);
+
+        this.dataTable.set('readFileButton', this.HF.createNewButton('read-file-button', 'read-file-button', ['read-file-button', 'button'], [], 'button', 'Read File', true));
+        uploadWrapper.appendChild(this.getField('readFileButton'));
+        this.getField('readFileButton').addEventListener('click', () => {
+            const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Read File Event', {
+                type: 'csv',
+                fileId: 'upload_csv-' + moduleKey,
+                //elementId: inspectorId,
+                moduleKey: moduleKey
+            });
+            this.sendMessage(message);
+        });
+
+        // Expand the size of the inspector card
+        this.inspectorCard.maximizeCard();
+    }
+
     /** --- PUBLIC ---
      * Creates the HTML elements for the file upload section and binds a callback function to the button.
      * @param {function} callback validates the file on the CSV module
      * @param {number} key id of the CSV module that created this.
      */
-    createFileUploadField(callback, key) {
-        const uploadWrapper = this.HF.createNewDiv('', '', ['uploadWrapper'], []);
-        this.inspectorCard.appendToBody(uploadWrapper);
+    #createFileUploadField(callback, key) {
+        const uploadWrapper = this.HF.createNewDiv('', '', ['upload-wrapper'], []);
         const upload = this.HF.createNewFileInput(`upload_csv-${key}`, 'upload_csv', [], [], 'file', false);
         uploadWrapper.append(upload);
         upload.addEventListener('change', callback);
@@ -331,9 +369,7 @@ export class InspectorCardMaker {
             this.sendMessage(message);
         });
         
-
-        // Expand the size of the inspector card
-        this.inspectorCard.maximizeCard();
+        return uploadWrapper;
     }
 
     /** --- PUBLIC ---
@@ -354,10 +390,10 @@ export class InspectorCardMaker {
 
         //const defaultFields = this.#handleRemoteDataFields(key, SearchFields.fieldsDict[0].fields);
         this.dataTable.set('SearchFormCard_' + key, this.inspectorCard.addSearchFormCard(key, formName, defaultFields, SearchFields.fieldTooltip));
-        
 
         //---------- Create Query Type Options
-        this.dataTable.set('QueryTypeSelectCard', this.inspectorCard.addQueryTypeSelect(searchCardWrapper, { key: 'query-type-' + key, value: 'Query Type ' }, SearchFields.types, SearchFields.queryTypeTooltip));
+        var options = DatasetTypes.map(dt => { return dt.type });
+        this.dataTable.set('QueryTypeSelectCard', this.inspectorCard.addQueryTypeSelect(searchCardWrapper, { key: 'query-type-' + key, value: 'Query Type ' }, options, SearchFields.queryTypeTooltip));
         
         // Create Form Field Append
         /*var formFieldOptions = SearchFields.fieldsDict[0].fields;
@@ -368,6 +404,10 @@ export class InspectorCardMaker {
         searchCardWrapper.appendChild(searchFormCard.getCard().wrapper);
         this.inspectorCard.appendToBody(searchCardWrapper);
 
+        // Add Flatpickr Date Range Plugin
+        const dateFields = defaultFields.filter(field => field.type === 'date');
+        searchFormCard.createFlatpickrRangePlugin(dateFields);
+
         /********************************** js events ***********************************/
         /**
          * Search Form Submit Event
@@ -376,10 +416,17 @@ export class InspectorCardMaker {
             e.preventDefault();
 
             const searchForm = document.querySelector('#' + formName.name);
+            const entries = {};
+
+            // get objectId
+            var objectsFields = searchForm.querySelectorAll('[name="objects"]');
+            objectsFields.forEach(objectField => { entries["objects"] = objectField.getAttribute('object-id');  });
+
             const formData = new FormData(searchForm);
+            // Organize formData to only include non-empty field inputs
             const entriesToDelete = [];
             for (const entry of formData.entries()) {
-                if (!entry[1]) {
+                if (!entry[1] || entry[1] === '-1' || entry[0] === 'objects') {
                     entriesToDelete.push(entry[0]);  
                 }
             }
@@ -387,25 +434,33 @@ export class InspectorCardMaker {
                 formData.delete(key);
             }
             // get queryEntries
-            const entries = {};
             if (formData) {
                 formData.forEach((value, key) => { entries[key] = value });
             }
             // get query type
             const dropdown = document.querySelector("#query-type-" + key);
-            var queryType = "lightcurve";
+            var queryType = "lightcurves"; // default in case dropdown does not exist
             if (dropdown) {
                 queryType = dropdown.options[dropdown.value].text;
             }
             
-            const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Search Form Submit Event',
+            // get responseKey for this query type
+            var responseKey = 'lightcurve';
+            DatasetTypes.forEach(dt => { if (dt.type === queryType) { responseKey = dt.responseKey } });
+
+            console.log(entries);
+
+/*            const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Search Form Submit Event',
             {
-                /*type: 'form',*/
+                *//*type: 'form',*//*
+                remoteData: true,
                 moduleKey: key,
                 queryType: queryType,
-                queryEntries: entries
+                queryEntries: entries,
+                responseKey: responseKey,
+                delay: 1000,
             });
-            this.sendMessage(message);
+            this.sendMessage(message);*/
         });
 
         /**
@@ -429,20 +484,6 @@ export class InspectorCardMaker {
             const formCard = this.getField('SearchFormCard_' + key);
             this.inspectorCard.updateSearchFormFields(formCard, fields, SearchFields.fieldTooltip);
         });
-         
-        /**
-         * Set datepicker configuration for begin and end dates to be in a range mode
-         * */
-        var endInputId = '#' + formName.name + ' #' + 'date-end';
-        /*var targetDiv = this.getField('SearchFormCard_' + key).getCard().wrapper;
-        console.log(targetDiv);*/
-        // Initialize flatpickr with the range plugin
-        flatpickr('.date-range', {
-            mode: 'range',
-            dateFormat: 'Y-m-d', // Set the desired date format (ISO format: YYYY-MM-DD)
-            plugins: [new rangePlugin({ input: endInputId })],
-            //appendTo: targetDiv,
-        });
 
         // Expand the size of the inspector card
         this.inspectorCard.maximizeCard();
@@ -460,6 +501,155 @@ export class InspectorCardMaker {
                 // create table columns object to render
                 var columnFields = e.target.closest('div').previousElementSibling;
                 var checkedColumns = columnFields.querySelectorAll('input[type="checkbox"]:checked');
+                var columnsToRender = [];
+                checkedColumns.forEach((checkedColumn) =>
+                {
+                    var columnName = checkedColumn.getAttribute('name');
+                    columnsToRender.push(columnName);
+                });
+
+                moduleData['moduleKey'] = moduleKey;
+                moduleData['columnsToRender'] = columnsToRender;
+                const message = new Message(OUTPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Set New Table Event', moduleData);
+                this.sendMessage(message);
+
+                /*var data = undefined;
+                if (moduleData.remoteData) {
+                    data = {
+                        type: 'form',
+                        moduleKey: moduleKey,
+                        remoteData: moduleData.remoteData,
+                        queryType: moduleData.queryType,
+                        queryEntries: moduleData.queryEntries,
+                        columnsToRender: columnsToRender,
+                    };
+                    // send message with the query information
+                    const message = new Message(WORKER_MANAGER, INSPECTOR_CARD_MAKER, 'Fetch Remote Table Data Event', data);
+                    this.sendMessage(message);
+                }
+                else {
+                    data = {
+                        moduleKey: moduleKey,
+                        remoteData: moduleData.remoteData,
+                        fileId: moduleData.fileId,
+                        columnsToRender: columnsToRender,
+                        //columnHeaders: columns
+                    };
+                    // send message with the query information
+                    const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Fetch Local Table Data Event', data);
+                    this.sendMessage(message);
+                }*/
+            });
+    }
+
+
+    // send message to setModuleData (x and y values and plotly options)
+    // --------------------------- Chart Module ---------------------------
+    updateChartModuleInspectorCard(moduleKey, moduleData) {
+        const fields = moduleData.columnHeaders;
+        const datasetType = moduleData.datasetType;
+
+        // sort trace fields
+        var filteredFields = this.#filterTraceCardFields(fields);
+        var xAxisFields = [];
+        var yAxisFields = [];
+        var errorFields = [];
+        filteredFields.map(field => { if (field.type === "x-axis-field") { xAxisFields.push(field) } });
+        filteredFields.map(field => { if (field.type === "y-axis-field") { yAxisFields.push(field) } });
+        filteredFields.map(field => { if (field.type === "error-field") { errorFields.push(field) } });
+
+        // Find default field object to load (e.g. {type: "lightcurve", xaxis: "imagedate", yaxis: "mag", error: "mag_err"})
+        var defaultField = DefaultAxis.map(axisObj => { if (axisObj.datasetType == datasetType) { return axisObj } });
+
+        // Create X axis card
+        var xAxisName = { displayName: "X Axis", elementName: "xAxis" };
+        var xAxisDefault = (defaultField.length > 0) ? defaultField[0].xAxis : undefined;
+        var xAxisCard = this.inspectorCard.addAxisCard(xAxisName, xAxisFields, xAxisDefault);
+
+        // Create Y axis card
+        var yAxisName = { displayName: "Y Axis", elementName: "yAxis" };
+        var yAxisDefault = (defaultField.length > 0) ? defaultField[0].yaxis : undefined;
+        var yAxisCard = this.inspectorCard.addAxisCard(yAxisName, yAxisFields, yAxisDefault);
+
+        // Add generateChartButton
+        var generateChartButton = this.HF.createNewButton(`generate-chart-button-${moduleKey}`, '', ['generate-chart-button', 'button'], [{ style: 'width', value: '100%' }], 'button', 'Generate Chart', false);
+        this.inspectorCard.appendToBody(generateChartButton);
+
+          // add generateChart function .. send message to output manager?
+            // prepare data for chart
+            // send message to output manager
+
+        // Send message to Output Manager
+        console.log(moduleData);
+        generateChartButton.addEventListener('click', (e) => {
+            // get current trace card information
+            const inspectorCard = e.target.closest('.inspector-card-body');
+            const axisCards = inspectorCard.querySelectorAll('.axis-card-wrapper');
+            // foreach axisCards
+            var traceData = {};
+            axisCards.forEach(axisCard => {
+                var id = axisCard.getAttribute('id');
+                var traceArea = axisCard.querySelector('.trace-area');
+                var traceCards = traceArea.querySelectorAll('.trace-card-wrapper');
+                traceData[id] = [];
+                traceCards.forEach(traceCard => {
+                    var elementId = traceCard.getAttribute('id');
+                    //-- add error field for yaxis later
+                    var labelName = traceCard.querySelector('.label-input');
+                    var gridLinesOption = traceCard.querySelector('.options-gridlines');
+                    var ticksOption = traceCard.querySelector('.options-ticks');
+                    var traceCardContent = { fieldName: elementId, labelName: labelName.value, gridLines: gridLinesOption.checked, ticks: ticksOption.checked };
+                    traceData[id].push(traceCardContent);
+                });
+            });
+
+            moduleData['moduleKey'] = moduleKey;
+            moduleData['traceData'] = traceData;
+            const message = new Message(OUTPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Set New Chart Event', moduleData);
+            this.sendMessage(message);
+
+            // organize data to pass to chart
+            /*var data = undefined;
+            if (moduleData.remoteData) {
+                data = {
+                    moduleKey: moduleKey,
+                    //remoteData: moduleData.remoteData,
+                    datasetType: moduleData.datasetType,
+                    traceData: traceData,
+                    //queryEntries: moduleData.queryEntries,
+                    //chartData: chartData,
+                };
+
+            }
+            else {
+                data = {
+                    moduleKey: moduleKey,
+                    remoteData: moduleData.remoteData,
+                    datasetType: moduleData.datasetType,
+                    fileId: moduleData.fileId,
+                    traceData: traceData,
+                };
+                const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Fetch Local Chart Data Event', data);
+                this.sendMessage(message);
+            }*/
+
+            
+
+        });
+
+
+        ////////////////////////////////////////// not needed? ////////////////////////////////////////////
+        // prepare moduleData
+
+
+        // send message to setModuleData
+
+
+
+        /*document.querySelector('#include-column-card-view-button-' + moduleKey)
+            .addEventListener('click', (e) => {
+                // create table columns object to render
+                var columnFields = e.target.closest('div').previousElementSibling;
                 var columns = [];
                 checkedColumns.forEach((checkedColumn) =>
                 {
@@ -493,7 +683,24 @@ export class InspectorCardMaker {
                     const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Fetch Local Table Data Event', data);
                     this.sendMessage(message);
                 }
-            });
+            });*/
+        
+    }
+
+
+    #filterTraceCardFields(fields) {
+        return fields.map(field => {
+            if (field.includes('date') || field.includes('time')) {
+                return { type: "x-axis-field", displayName: field, fieldName: field }
+            }
+            else if (field.includes('err') || field.includes("error")) {
+                return { type: "error-field", displayName: field, fieldName: field }
+            }
+            else {
+                // for y, include fields with numerical values
+                return { type: "y-axis-field", displayName: field, fieldName: field }
+            }
+        });
     }
 
 

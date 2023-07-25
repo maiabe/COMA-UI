@@ -46,9 +46,11 @@
   flex-wrap: wrap;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 1px 4px 1px 4px;
+  padding: 10px 4px;
   align-items: flex-start;
   align-content:flex-start;
+  min-height: 500px;
+  justify-content: space-around;
 }
 
 .inspector-card-horizontal-flex-container {
@@ -159,6 +161,51 @@
   height: 100%;
 }
 
+/***************************** CSV Inspector Card ******************************/
+#csvDataArea,
+#tableDataArea {
+    width: 90%;
+    height: 60%;
+    overflow: auto;
+    position: relative;
+    left: 5%;
+    top: 4vh;
+}
+
+.csv-inspector-wrapper {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    padding: 5% 3%;
+}
+
+.dataset-type-wrapper {
+    width: 100%;
+    height: 25px;
+    justify-content: center;
+    margin-bottom: 3%;
+}
+.dataset-type-wrapper label {
+    padding: 0 2%;
+}
+.dataset-type-wrapper select {
+    width: 50%;
+    height: inherit;
+}
+
+.upload-wrapper {
+    width: 90%;
+    padding: 2%;
+    outline: 1px solid black;
+    position: relative;
+    top: 3vh;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+}
+
+
+
 
 /***************************** Table Inspector Card ******************************/
 .include-column-card {
@@ -186,7 +233,7 @@
     width: 80%;
 }
 .include-column-card-fields-wrapper .checkbox-wrapper input {
-    width: 20%;
+    width: 10%;
 }
 .include-column-card-fields-wrapper .dropdown-wrapper {
     width: 20%;

@@ -27,6 +27,11 @@ body {
   color: var(--color-dark-gray);
 }
 
+.wrapper {
+    display: flex;
+    align-items: center;
+}
+
 input {
   cursor: auto;
 }
@@ -35,6 +40,13 @@ button {
   width: 15vw;
   font-size: 1em;
   overflow: hidden;
+}
+
+.button {
+    transition: transform 0.05s;
+}
+.button:active {
+    transform: translateY(1.5px);
 }
 
 h1 {
@@ -198,25 +210,6 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
 /* END THE RIGHT SIDE OF THE WINDOW */
 
 /* Special Areas for the popup */
-#csvDataArea,
-#tableDataArea {
-  width: 90%;
-  height: 60%;
-  overflow: auto;
-  position: relative;
-  left: 5%;
-  top: 4vh;
-}
-
-.uploadWrapper {
-  width: 90%;
-  padding: 2%;
-  outline: 1px solid black;
-  position: relative;
-  left: 3%;
-  top: 3vh;
-  z-index: 1000;
-}
 
 .setValueWrapper {
   width: 100%;
@@ -253,6 +246,49 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
   top: 52px;
   z-index: 1;
 }
+
+
+/*div * {
+    scrollbar-width: none;*/ /* Firefox */
+    /*-ms-overflow-style: none;*/ /* IE 10+ */
+/*}
+
+div *::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: none !important;
+    background-color: transparent;
+}
+
+div *::-webkit-scrollbar {
+    width: 3px !important;
+    background-color: transparent;
+}
+
+div *::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}*/
+
+
+/*.on-scrollbar {
+    scrollbar-width: thin;*/ /* Firefox */
+    /*-ms-overflow-style: none;*/ /* IE 10+ */
+/*}
+
+.on-scrollbar::-webkit-scrollbar-track {
+    -webkit-box-shadow: none !important;
+    background-color: transparent !important;
+}
+
+.on-scrollbar::-webkit-scrollbar {
+    width: 4px !important;
+    background-color: transparent;
+}
+
+.on-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #acacac;
+}*/
+
+
 
 /* Very small devices */
 @media (max-width: 480px) {

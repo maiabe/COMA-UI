@@ -1,6 +1,6 @@
 
 const objectType_options = [
-    { Key: "", Value: "-- None --" },
+    { Key: -1, Value: "-- None --" },
     { Key: "Comet", Value: "Comet" },
     { Key: "TNO", Value: "TNO (Trans-Neptunian Object)" },
     { Key: "KBO", Value: "KBO (Kuiper Belt Object)" },
@@ -10,7 +10,7 @@ const objectType_options = [
     { Key: "Standard Star", Value: "Standard Star" }
 ];
 const telescope_options = [
-    { Key: "", Value: "-- None --" },
+    { Key: -1, Value: "-- None --" },
     { Key: "SDSS", Value: "SDSS" },
     { Key: "JC", Value: "Johnson/Cousins" },
     { Key: "BESSEL", Value: "Bessel" },
@@ -20,7 +20,7 @@ const telescope_options = [
     { Key: "MEGACAM", Value: "CFHT Megacam" }
 ];
 const filter_options = [
-    { Key: "", Value: "-- None --" },
+    { Key: -1, Value: "-- None --" },
     { Key: "U_JC", Value: "U, Johnson-Cousins" },
     { Key: "B_JC", Value: "B, Johnson-Cousins" },
     { Key: "V_JC", Value: "V, Johnson-Cousins" },

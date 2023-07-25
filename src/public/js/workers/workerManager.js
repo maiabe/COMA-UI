@@ -133,15 +133,9 @@ export class WorkerManager {
                         workerObject.stopWorkerFunction(id);
                         break;*/
                     case 'Database Query Return':
-                        const moduleData = {
-                            moduleKey: workerObject.returnMessage.moduleKey,
-                            remoteData: event.data.remoteData,
-                            status: event.data.status,
-                            queryType: event.data.queryType,
-                            queryEntries: event.data.queryEntries,
-                            columnsToRender: event.data.columnsToRender,
-                            tableData: (event.data.taskResult) ? JSON.parse(event.data.taskResult) : event.data.taskResult
-                        }
+                        const moduleData = event.data;
+                        moduleData["moduleKey"] = workerObject.returnMessage.moduleKey;
+                        moduleData["sourceData"] = event.data.sourceData;
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, moduleData));
                         workerObject.stopWorkerFunction(id);
                         break;
@@ -157,7 +151,12 @@ export class WorkerManager {
                         workerObject.stopWorkerFunction(id);
                         break;
                     case 'Remote Dropdown Options Return':
-                        console.log(event);
+                        //console.log(event);
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, event.data));
+                        workerObject.stopWorkerFunction(id);
+                        break;
+                    case 'Remote Objects Suggestions Return':
+                        console.log(event.data);
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, event.data));
                         workerObject.stopWorkerFunction(id);
                         break;
@@ -327,26 +326,33 @@ export class WorkerManager {
                     remoteData: data.remoteData,
                     queryType: data.queryType,
                     queryEntries: data.queryEntries,
+                    responseKey: data.responseKey,
                     columnsToRender: data.columnsToRender,
                 });
         }
     }
 
     // make API call to query database
-    queryDatabase(workerId, queryType, formdata) {
+    /*queryDatabase(workerId, queryType, formdata, responseKey) {
+        console.log(queryType);
         if (this.#workers.has(workerId)) {
             const entries = {};
             formdata.forEach((value, key) => { entries[key] = value });
-            this.#workers.get(workerId).worker.postMessage({ type: 'Query COMA Engine', queryType: queryType, queryEntries: entries });
+            this.#workers.get(workerId).worker.postMessage({ type: 'Query COMA Engine', queryType: queryType, queryEntries: entries, responseKey: responseKey });
         }
-    }
+    }*/
 
 
     getRemoteDropdownOptions(workerId, data) {
-        //console.log(data);
         // call clientworker to query the database
         if (this.#workers.has(workerId)) {
             this.#workers.get(workerId).worker.postMessage({ type: 'Get Remote Dropdown Options', data: data });
+        }
+    }
+
+    getRemoteObjectsSuggestions(workerId, data) {
+        if (this.#workers.has(workerId)) {
+            this.#workers.get(workerId).worker.postMessage({ type: 'Get Remote Objects Suggestions', data: data });
         }
     }
     

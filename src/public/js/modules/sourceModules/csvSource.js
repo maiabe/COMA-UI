@@ -25,7 +25,8 @@ export class Csv extends Source {
      * Adds cards to the Inspector Card */
     #createInspectorCardData() {
         //this.inspectorCardMaker.addInspectorCardDescription(this.getData('description'));
-        this.inspectorCardMaker.createFileUploadField(this.handleFiles.bind(this), this.getData('key'));
+        this.inspectorCardMaker.createCSVModuleInspectorCard(this.handleFiles.bind(this), this.getData('key'));
+        //this.inspectorCardMaker.createFileUploadField(this.handleFiles.bind(this), this.getData('key'));
     }
 
     /** --- PRIVATE ---

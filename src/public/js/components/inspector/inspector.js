@@ -5,6 +5,7 @@
  *************************************************************/
 import { Publisher } from '../../communication/index.js';
 import { GM } from '../../main.js';
+import { HTMLFactory } from '../../htmlGeneration/index.js';
 
 export class Inspector {
 
@@ -20,6 +21,7 @@ export class Inspector {
         this.#currentModuleKey;
         this.contentArea;
         this.#moduleCards = new Map();
+        this.HF = new HTMLFactory();
     }
 
     /** --- PUBLIC ---
@@ -70,6 +72,54 @@ export class Inspector {
      * Minimizes all Cards */
     minimizeCards() {
         this.#moduleCards.forEach(card => card.style.display = 'flex');
+    }
+
+    /** --- PUBLIC ---
+     * Sets remote dropedown options for a field dropdown */
+    setRemoteDropdownOptions(moduleKey, fieldWrapperId, options) {
+        const fieldWrapper = document.querySelector(`#search-form-${moduleKey} #${fieldWrapperId}`);
+        var dropdown = fieldWrapper.querySelector('select');
+        if (dropdown) {
+            this.HF.updateSelectOptions(dropdown, options);
+            return true;
+        }
+        return false;
+    }
+
+    /** --- PUBLIC ---
+     * Sets remote objects suggestions for the search form object field */
+    setRemoteObjectsSuggestions(moduleKey, fieldWrapperId, data) {
+        var success = false;
+        try {
+            // moduleKey, result
+            const fieldWrapper = document.querySelector(`#search-form-${moduleKey} #${fieldWrapperId}`);
+            var resultContainer = fieldWrapper.querySelector('.typeahead-result-container');
+            resultContainer.innerHTML = '';
+            // get responseContainer
+            resultContainer.style.display = 'block';
+
+            // append suggestions elements to the resultContainer
+            data.forEach(suggestion => {
+                var suggestionElement = this.HF.createNewDiv('', '', ['object-suggestion'], []);
+                suggestionElement.textContent = suggestion.sbn_target_name;
+                suggestionElement.addEventListener('click', () => {
+                    // When a suggestion is clicked, populate the input with the suggestion
+                    fieldWrapper.querySelector('input').setAttribute("object-id", suggestion.id);
+                    fieldWrapper.querySelector('input').value = suggestion.sbn_target_name;
+                    resultContainer.style.display = 'none';
+                });
+                resultContainer.appendChild(suggestionElement);
+            });
+
+            success = true;
+        }
+        catch (e) {
+            console.log(e);
+            console.log('ERROR Setting Remote Objects Suggestions -- inspector 91');
+        }
+
+        // append result list to resultContainer
+        return success;
     }
     
     #sendMessage = msg => {

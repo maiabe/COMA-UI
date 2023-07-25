@@ -27,15 +27,15 @@ export class OutputManager {
     /** --- PUBLIC ---
      * Stores the chart information and data into the outputmap hash table.
      * @param {number} key key identifying the location in the hash table. it is also the id of the module associated with this chart.
-     * @param {object} data the data that is used for the chart
+     * @param {object} data the data that is used for the chart (traceData)
      * @param {object} div the html div to inject the chart
      * @param {string} type the type of chart. ie. 'bar', 'scatter'
      * @param {string} xAxisLabel (Optional)
      * @param {string} yAxisLabel (Optional)
      * @returns true if successful, false if failure  */
-     storeChartData = (key, data, div, type, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
+     storeChartData = (key, data, div, type, coordinateSystem) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(div, 'div', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
-        this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark', xAxisLabel: xAxisLabel, yAxisLabel: yAxisLabel, xAxisGrid: xAxisGrid, yAxisGrid: yAxisGrid, xAxisTick: xAxisTick, yAxisTick: yAxisTick, coordinateSystem: coordinateSystem });
+        this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark', coordinateSystem: coordinateSystem });
         return true;
     }
 
@@ -50,7 +50,7 @@ export class OutputManager {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(div, 'div', 'object'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'OutputManager', 'drawChart')) return;
         if (this.#outputMap.has(key)) {
             const cd = this.#outputMap.get(key);
-            this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(cd.data, cd.type, div, width, height, cd.framework, cd.theme, cd.xAxisLabel, cd.yAxisLabel, cd.xAxisGrid, cd.yAxisGrid, cd.xAxisTick, cd.yAxisTick, cd.coordinateSystem) });
+            this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(cd.data, cd.type, div, width, height, cd.framework, cd.theme, cd.coordinateSystem) });
         }
         else printErrorMessage(`Missing Data.`, `key: ${key} - OutputManager -> drawChart`);
     }
@@ -130,7 +130,7 @@ export class OutputManager {
             case 'scatter':
                 return 'echart';
             case 'table':
-                return 'plotly';
+                return 'tabulator';
         }
     }
 
@@ -198,6 +198,68 @@ export class OutputManager {
         let metadata = undefined;
         if (local) metadata = val.data.setMetadata();
         return true;
+    }
+
+
+    /*********************************************** Mai 7/13/23 *******************************************************/
+    /** --- PUBLIC ---
+     * Prepares the data for echarts and stores the prepared data in the outputMap hash table.
+     * @param {number} moduleKey key of the module is also a key to the outputMap table. 
+     * @param {object} traceData data from the chart's inspector card. (e.g { fieldName: "date", labelName: "Date", gridLines: true, ticks: false  })
+     * @param {object} sourceData unfiltered source data from the previous module (list of key-value objects)
+     * */
+
+    //// * NOTE: for now refer all yaxis to the first xaxis element
+    prepChartData(moduleKey, traceData, sourceData) {
+        if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(sourceData, 'sourceData', 'object')], 'OutputManager', 'prepEchartData')) return;
+        var axisNames = Object.keys(traceData);
+        axisNames.forEach(axis => {
+            traceData[axis].forEach(trace => {
+                var result = sourceData.map(sd => { return sd[trace.fieldName] });
+                trace['data'] = result;
+            });
+        });
+        return traceData;
+        // error check
+        /*var echartData = { 'series': [] };
+        var chartAxis = Object.keys(traceData);
+        chartAxis.forEach(axis => {
+            var trace = traceData[axis];
+            echartData[axis] = [];
+            switch (axis) {
+                case "xAxis":
+                    trace.forEach(t => {
+                        var result = sourceData.map(data => {
+                            return data[t.fieldName];
+                        });
+
+                        var td = { type: "category", data: result };
+                        echartData[axis].push(td);
+                    }); 
+                    break;
+                case "yAxis":
+                    trace.forEach(t => {
+                        echartData[axis].push({ type: "value" });
+
+                        var result = sourceData.map(data => {
+                            return data[t.fieldName];
+                        });
+                        var seriesData = { type: chartType, data: result, xAxisIndex: 0 };
+                        echartData['series'].push(seriesData);
+                    });
+                    break;
+                case "error":
+                    // TODO: add error field
+                    break;
+                default:
+                    return false;
+            }
+        });
+        console.log(echartData);*/
+
+        //var chartData = { x: [], y: [], e: []};
+
+        // save to outputMap hash table
     }
 
 }

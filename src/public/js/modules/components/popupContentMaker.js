@@ -150,7 +150,6 @@ export class PopupContentMaker {
 
         if (data) {
             var popupContentWrapper = this.HF.createNewDiv('popup-content-wrapper-' + moduleKey, '', ['popup-content-wrapper'], []);
-            console.log(data.queryType);
             // temp content
             var queryType = this.HF.createNewH1('', '', ['query-type'], [], data.queryType);
             popupContentWrapper.appendChild(queryType);
@@ -194,7 +193,7 @@ export class PopupContentMaker {
             // add download csv event listener
             downloadBtn.addEventListener('click', function () {
                 var filename = `table-results-${moduleKey}`;
-                table.download('csv', `${filename}.csv`, { delimiter: "." });
+                table.download('csv', `${filename}.csv`, { delimiter: "," });
             });
 
 

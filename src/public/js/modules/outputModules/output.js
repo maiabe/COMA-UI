@@ -31,13 +31,41 @@ export class Chart_2D extends Output {
         this.addData('plotDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
         this.addData('inportType', [LT_SOURCE, LT_PROCESSOR]);
         this.addData('outportType', [-1]);
+
+        var popupContent = this.getData('popupContent');
+        popupContent.classList.add('plot-popup');
     }
 
     /** --- PUBLIC ---
      * Creates the Inspector Card data */
     createInspectorCardData() {
-        this.inspectorCardMaker.addInspectorCardIDField(this.getData('key'));
-        this.inspectorCardMaker.addInspectorCardDataConnectedField();
+        //this.inspectorCardMaker.addInspectorCardIDField(this.getData('key'));
+        //this.inspectorCardMaker.addInspectorCardDataConnectedField();
+    }
+
+
+    /** --- PUBLIC ---
+     * Called by the Hub when an output module is connected to a flow with data.
+     * Updates the inspector card and sets up the chartData object.
+     * @param {Number} moduleKey key of the module
+     * @param {object} moduleData module data for data headers, data, etc
+     * */
+    updateInspectorCard(moduleKey, moduleData) {
+        var fields = moduleData.columnHeaders;
+        this.inspectorCardMaker.updateChartModuleInspectorCard(moduleKey, moduleData);
+
+
+        /*const xAxis = this.inspectorCardMaker.addInspectorCardChartXAxisCard(headers, moduleKey, this.addTrace.bind(this));
+        const yAxis = this.inspectorCardMaker.addInspectorCardChartYAxisCard(headers, moduleKey, this.addTrace.bind(this));
+        yAxis.dropdown.id = `${this.chartData.getNumberOfTraces()}-y-axis-dropdown`;
+        yAxis.errorDropDown.id = `${this.chartData.getNumberOfTraces()}-y-axis-error-dropdown`;
+        this.chartData.storeHeaders(headers);
+        this.chartData.set_2D_XAxisListeners(xAxis);
+        this.chartData.set_2D_YAxisListeners(yAxis);
+        this.chartData.setInitialValues(xAxis.dropdown.value, yAxis.dropdown.value, xAxis.labelInput.value,
+            yAxis.labelInput.value, xAxis.gridCheckbox.checkbox.checked, yAxis.gridCheckbox.checkbox.checked,
+            xAxis.tickCheckbox.checkbox.checked, yAxis.tickCheckbox.checkbox.checked, yAxis.errorDropDown.value);
+        this.inspectorCardMaker.addInspectorCardGenerateChartButton(moduleKey, this.createNewChartFromButtonClick.bind(this));*/
     }
 
     /** --- PUBLIC ---
