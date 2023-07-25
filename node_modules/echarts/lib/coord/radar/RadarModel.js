@@ -115,10 +115,6 @@ function (_super) {
         triggerEvent: triggerEvent
       }, false);
 
-      if (!showName) {
-        innerIndicatorOpt.name = '';
-      }
-
       if (zrUtil.isString(nameFormatter)) {
         var indName = innerIndicatorOpt.name;
         innerIndicatorOpt.name = nameFormatter.replace('{value}', indName != null ? indName : '');

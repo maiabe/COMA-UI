@@ -64,7 +64,7 @@ export interface PiecewiseVisualMapOption extends VisualMapOption {
      * When categories: {'cate1': false, 'cate3': true} When selected === false, means all unselected.
      */
     selected?: Dictionary<boolean>;
-    selectedMode?: 'multiple' | 'single';
+    selectedMode?: 'multiple' | 'single' | boolean;
     /**
      * By default, when text is used, label will hide (the logic
      * is remained for compatibility reason)

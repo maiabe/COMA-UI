@@ -26,6 +26,9 @@ export declare function getAxisInfo(item: MarkerPositionOption, data: SeriesData
 export declare function dataFilter(coordSys: CoordinateSystem & {
     containData?(data: ScaleDataValue[]): boolean;
 }, item: MarkerPositionOption): boolean;
+export declare function zoneFilter(coordSys: CoordinateSystem & {
+    containZone?(data1: ScaleDataValue[], data2: ScaleDataValue[]): boolean;
+}, item1: MarkerPositionOption, item2: MarkerPositionOption): boolean;
 export declare function createMarkerDimValueGetter(inCoordSys: boolean, dims: SeriesDimensionDefine[]): MarkerDimValueGetter<MarkerPositionOption>;
 export declare function numCalculate(data: SeriesData, valueDataDim: string, type: MarkerStatisticType): number;
 export {};

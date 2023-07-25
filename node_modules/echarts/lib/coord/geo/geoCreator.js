@@ -150,7 +150,7 @@ function resizeGeo(geoModel, api) {
   }
 
   this.setViewRect(viewRect.x, viewRect.y, viewRect.width, viewRect.height);
-  this.setCenter(geoModel.get('center'));
+  this.setCenter(geoModel.get('center'), api);
   this.setZoom(geoModel.get('zoom'));
 } // Back compat for ECharts2, where the coord map is set on map series:
 // {type: 'map', geoCoord: {'cityA': [116.46,39.92], 'cityA': [119.12,24.61]}},

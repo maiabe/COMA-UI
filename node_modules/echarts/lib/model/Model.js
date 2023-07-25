@@ -80,7 +80,7 @@ function () {
 
   Model.prototype.mergeOption = function (option, ecModel) {
     merge(this.option, option, true);
-  }; // `path` can be 'xxx.yyy.zzz', so the return value type have to be `ModelOption`
+  }; // `path` can be 'a.b.c', so the return value type have to be `ModelOption`
   // TODO: TYPE strict key check?
   // get(path: string | string[], ignoreParent?: boolean): ModelOption;
 
@@ -107,9 +107,9 @@ function () {
     }
 
     return val;
-  }; // `path` can be 'xxx.yyy.zzz', so the return value type have to be `Model<ModelOption>`
+  }; // `path` can be 'a.b.c', so the return value type have to be `Model<ModelOption>`
   // getModel(path: string | string[], parentModel?: Model): Model;
-  // TODO 'xxx.yyy.zzz' is deprecated
+  // TODO 'a.b.c' is deprecated
 
 
   Model.prototype.getModel = function (path, parentModel) {

@@ -83,13 +83,13 @@ export function install(registers) {
     update: 'series:unfocusNodeAdjacency'
   }, noop); // Register roam action.
 
-  registers.registerAction(actionInfo, function (payload, ecModel) {
+  registers.registerAction(actionInfo, function (payload, ecModel, api) {
     ecModel.eachComponent({
       mainType: 'series',
       query: payload
     }, function (seriesModel) {
       var coordSys = seriesModel.coordinateSystem;
-      var res = updateCenterAndZoom(coordSys, payload);
+      var res = updateCenterAndZoom(coordSys, payload, undefined, api);
       seriesModel.setCenter && seriesModel.setCenter(res.center);
       seriesModel.setZoom && seriesModel.setZoom(res.zoom);
     });

@@ -47,7 +47,7 @@ declare class Symbol extends graphic.Group {
      * @param {number} z
      */
     setZ(zlevel: number, z: number): void;
-    setDraggable(draggable: boolean): void;
+    setDraggable(draggable: boolean, hasCursorOption?: boolean): void;
     /**
      * Update symbol properties
      */

@@ -587,14 +587,14 @@ function removeBar(data, dataIndex, animationModel, bar) {
   // Not show text when animating
   var labelRect = bar.__pictorialBarRect;
   labelRect && labelRect.removeTextContent();
-  var pathes = [];
+  var paths = [];
   eachPath(bar, function (path) {
-    pathes.push(path);
+    paths.push(path);
   });
-  bar.__pictorialMainPath && pathes.push(bar.__pictorialMainPath); // I do not find proper remove animation for clip yet.
+  bar.__pictorialMainPath && paths.push(bar.__pictorialMainPath); // I do not find proper remove animation for clip yet.
 
   bar.__pictorialClipPath && (animationModel = null);
-  zrUtil.each(pathes, function (path) {
+  zrUtil.each(paths, function (path) {
     graphic.removeElement(path, {
       scaleX: 0,
       scaleY: 0

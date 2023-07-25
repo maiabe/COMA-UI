@@ -212,10 +212,16 @@ function (_super) {
   PiecewiseVisualMapView.prototype._onItemClick = function (piece) {
     var visualMapModel = this.visualMapModel;
     var option = visualMapModel.option;
+    var selectedMode = option.selectedMode;
+
+    if (!selectedMode) {
+      return;
+    }
+
     var selected = zrUtil.clone(option.selected);
     var newKey = visualMapModel.getSelectedMapKey(piece);
 
-    if (option.selectedMode === 'single') {
+    if (selectedMode === 'single' || selectedMode === true) {
       selected[newKey] = true;
       zrUtil.each(selected, function (o, key) {
         selected[key] = key === newKey;

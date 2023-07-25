@@ -163,7 +163,7 @@ function (_super) {
       group.y = layoutInfo.y;
     }
 
-    this._updateViewCoordSys(seriesModel);
+    this._updateViewCoordSys(seriesModel, api);
 
     this._updateController(seriesModel, ecModel, api);
 
@@ -213,7 +213,7 @@ function (_super) {
     this._data = data;
   };
 
-  TreeView.prototype._updateViewCoordSys = function (seriesModel) {
+  TreeView.prototype._updateViewCoordSys = function (seriesModel, api) {
     var data = seriesModel.getData();
     var points = [];
     data.each(function (idx) {
@@ -244,7 +244,7 @@ function (_super) {
     var viewCoordSys = seriesModel.coordinateSystem = new View();
     viewCoordSys.zoomLimit = seriesModel.get('scaleLimit');
     viewCoordSys.setBoundingRect(min[0], min[1], max[0] - min[0], max[1] - min[1]);
-    viewCoordSys.setCenter(seriesModel.get('center'));
+    viewCoordSys.setCenter(seriesModel.get('center'), api);
     viewCoordSys.setZoom(seriesModel.get('zoom')); // Here we use viewCoordSys just for computing the 'position' and 'scale' of the group
 
     this.group.attr({
@@ -394,7 +394,7 @@ function updateNode(data, dataIndex, symbolEl, group, seriesModel) {
     var rad = void 0;
     var isLeft = void 0;
 
-    if (targetLayout.x === rootLayout.x && node.isExpand === true) {
+    if (targetLayout.x === rootLayout.x && node.isExpand === true && realRoot.children.length) {
       var center = {
         x: (realRoot.children[0].getLayout().x + realRoot.children[length_1 - 1].getLayout().x) / 2,
         y: (realRoot.children[0].getLayout().y + realRoot.children[length_1 - 1].getLayout().y) / 2
@@ -450,7 +450,7 @@ function updateNode(data, dataIndex, symbolEl, group, seriesModel) {
 
 
   var focus = itemModel.get(['emphasis', 'focus']);
-  var focusDataIndices = focus === 'ancestor' ? node.getAncestorsIndices() : focus === 'descendant' ? node.getDescendantIndices() : null;
+  var focusDataIndices = focus === 'relative' ? zrUtil.concatArray(node.getAncestorsIndices(), node.getDescendantIndices()) : focus === 'ancestor' ? node.getAncestorsIndices() : focus === 'descendant' ? node.getDescendantIndices() : null;
 
   if (focusDataIndices) {
     // Modify the focus to data indices.
@@ -483,7 +483,8 @@ function drawEdge(seriesModel, node, virtualRoot, symbolEl, sourceOldLayout, sou
   var curvature = seriesModel.get(['lineStyle', 'curveness']);
   var edgeForkPosition = seriesModel.get('edgeForkPosition');
   var lineStyle = itemModel.getModel('lineStyle').getLineStyle();
-  var edge = symbolEl.__edge;
+  var edge = symbolEl.__edge; // curve edge from node -> parent
+  // polyline edge from node -> children
 
   if (edgeShape === 'curve') {
     if (node.parentNode && node.parentNode !== virtualRoot) {
@@ -531,9 +532,10 @@ function drawEdge(seriesModel, node, virtualRoot, symbolEl, sourceOldLayout, sou
         throw new Error('The polyline edgeShape can only be used in orthogonal layout');
       }
     }
-  }
+  } // show all edge when edgeShape is 'curve', filter node `isExpand` is false when edgeShape is 'polyline'
 
-  if (edge) {
+
+  if (edge && !(edgeShape === 'polyline' && !node.isExpand)) {
     edge.useStyle(zrUtil.defaults({
       strokeNoScale: true,
       fill: null

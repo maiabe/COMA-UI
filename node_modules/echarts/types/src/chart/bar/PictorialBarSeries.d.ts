@@ -1,5 +1,5 @@
 import BaseBarSeriesModel, { BaseBarSeriesOption } from './BaseBarSeries.js';
-import { OptionDataValue, ItemStyleOption, SeriesLabelOption, AnimationOptionMixin, SeriesStackOptionMixin, StatesOptionMixin, OptionDataItemObject, DefaultEmphasisFocus } from '../../util/types.js';
+import { OptionDataValue, ItemStyleOption, SeriesLabelOption, AnimationOptionMixin, SeriesStackOptionMixin, StatesOptionMixin, OptionDataItemObject, DefaultEmphasisFocus, SeriesEncodeOptionMixin } from '../../util/types.js';
 import type Cartesian2D from '../../coord/cartesian/Cartesian2D.js';
 export interface PictorialBarStateOption {
     itemStyle?: ItemStyleOption;
@@ -59,7 +59,7 @@ export interface PictorialBarDataItemOption extends PictorialBarSeriesSymbolOpti
     z?: number;
     cursor?: string;
 }
-export interface PictorialBarSeriesOption extends BaseBarSeriesOption<PictorialBarStateOption, ExtraStateOption>, PictorialBarStateOption, PictorialBarSeriesSymbolOption, SeriesStackOptionMixin {
+export interface PictorialBarSeriesOption extends BaseBarSeriesOption<PictorialBarStateOption, ExtraStateOption>, PictorialBarStateOption, PictorialBarSeriesSymbolOption, SeriesStackOptionMixin, SeriesEncodeOptionMixin {
     type?: 'pictorialBar';
     coordinateSystem?: 'cartesian2d';
     data?: (PictorialBarDataItemOption | OptionDataValue | OptionDataValue[])[];

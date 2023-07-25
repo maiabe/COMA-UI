@@ -67,14 +67,14 @@ export function installTreeAction(registers) {
     // the layout. So don't need to go through the whole update process, such
     // as 'dataPrcocess', 'coordSystemUpdate', 'layout' and so on.
     update: 'none'
-  }, function (payload, ecModel) {
+  }, function (payload, ecModel, api) {
     ecModel.eachComponent({
       mainType: 'series',
       subType: 'tree',
       query: payload
     }, function (seriesModel) {
       var coordSys = seriesModel.coordinateSystem;
-      var res = updateCenterAndZoom(coordSys, payload);
+      var res = updateCenterAndZoom(coordSys, payload, undefined, api);
       seriesModel.setCenter && seriesModel.setCenter(res.center);
       seriesModel.setZoom && seriesModel.setZoom(res.zoom);
     });

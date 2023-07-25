@@ -120,7 +120,7 @@ export function install(registers) {
     type: 'geoRoam',
     event: 'geoRoam',
     update: 'updateTransform'
-  }, function (payload, ecModel) {
+  }, function (payload, ecModel, api) {
     var componentType = payload.componentType || 'series';
     ecModel.eachComponent({
       mainType: componentType,
@@ -132,7 +132,7 @@ export function install(registers) {
         return;
       }
 
-      var res = updateCenterAndZoom(geo, payload, componentModel.get('scaleLimit'));
+      var res = updateCenterAndZoom(geo, payload, componentModel.get('scaleLimit'), api);
       componentModel.setCenter && componentModel.setCenter(res.center);
       componentModel.setZoom && componentModel.setZoom(res.zoom); // All map series with same `map` use the same geo coordinate system
       // So the center and zoom must be in sync. Include the series not selected by legend

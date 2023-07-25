@@ -4,6 +4,7 @@ import Transformable from 'zrender/lib/core/Transformable.js';
 import { CoordinateSystemMaster, CoordinateSystem } from './CoordinateSystem.js';
 import GlobalModel from '../model/Global.js';
 import { ParsedModelFinder } from '../util/model.js';
+import type ExtensionAPI from '../core/ExtensionAPI.js';
 export declare type ViewCoordSysTransformInfoPart = Pick<Transformable, 'x' | 'y' | 'scaleX' | 'scaleY'>;
 declare class View extends Transformable implements CoordinateSystemMaster, CoordinateSystem {
     readonly type: string;
@@ -59,7 +60,7 @@ declare class View extends Transformable implements CoordinateSystemMaster, Coor
     /**
      * Set center of view
      */
-    setCenter(centerCoord?: number[]): void;
+    setCenter(centerCoord: (number | string)[], api: ExtensionAPI): void;
     setZoom(zoom: number): void;
     /**
      * Get default center without roam

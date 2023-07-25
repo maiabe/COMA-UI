@@ -46,7 +46,7 @@ function getCenterCoord(view, point) {
   return view.pointToProjected ? view.pointToProjected(point) : view.pointToData(point);
 }
 
-export function updateCenterAndZoom(view, payload, zoomLimit) {
+export function updateCenterAndZoom(view, payload, zoomLimit, api) {
   var previousZoom = view.getZoom();
   var center = view.getCenter();
   var zoom = payload.zoom;
@@ -55,7 +55,7 @@ export function updateCenterAndZoom(view, payload, zoomLimit) {
   if (payload.dx != null && payload.dy != null) {
     point[0] -= payload.dx;
     point[1] -= payload.dy;
-    view.setCenter(getCenterCoord(view, point));
+    view.setCenter(getCenterCoord(view, point), api);
   }
 
   if (zoom != null) {
@@ -74,7 +74,7 @@ export function updateCenterAndZoom(view, payload, zoomLimit) {
     view.y -= fixY;
     view.updateTransform(); // Get the new center
 
-    view.setCenter(getCenterCoord(view, point));
+    view.setCenter(getCenterCoord(view, point), api);
     view.setZoom(zoom * previousZoom);
   }
 

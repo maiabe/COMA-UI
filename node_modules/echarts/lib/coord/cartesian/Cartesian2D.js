@@ -117,6 +117,14 @@ function (_super) {
     return this.getAxis('x').containData(data[0]) && this.getAxis('y').containData(data[1]);
   };
 
+  Cartesian2D.prototype.containZone = function (data1, data2) {
+    var zoneDiag1 = this.dataToPoint(data1);
+    var zoneDiag2 = this.dataToPoint(data2);
+    var area = this.getArea();
+    var zone = new BoundingRect(zoneDiag1[0], zoneDiag1[1], zoneDiag2[0] - zoneDiag1[0], zoneDiag2[1] - zoneDiag1[1]);
+    return area.intersect(zone);
+  };
+
   Cartesian2D.prototype.dataToPoint = function (data, clamp, out) {
     out = out || [];
     var xVal = data[0];

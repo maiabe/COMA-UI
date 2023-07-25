@@ -45,13 +45,13 @@ import { createHashMap, each } from 'zrender/lib/core/util.js';
 import { addSafe } from '../util/number.js'; // (1) [Caution]: the logic is correct based on the premises:
 //     data processing stage is blocked in stream.
 //     See <module:echarts/stream/Scheduler#performDataProcessorTasks>
-// (2) Only register once when import repeatly.
-//     Should be executed after series filtered and before stack calculation.
+// (2) Only register once when import repeatedly.
+//     Should be executed after series is filtered and before stack calculation.
 
 export default function dataStack(ecModel) {
   var stackInfoMap = createHashMap();
   ecModel.eachSeries(function (seriesModel) {
-    var stack = seriesModel.get('stack'); // Compatibal: when `stack` is set as '', do not stack.
+    var stack = seriesModel.get('stack'); // Compatible: when `stack` is set as '', do not stack.
 
     if (stack) {
       var stackInfoList = stackInfoMap.get(stack) || stackInfoMap.set(stack, []);
@@ -85,7 +85,8 @@ function calculateStack(stackInfoList) {
     var resultNaN = [NaN, NaN];
     var dims = [targetStackInfo.stackResultDimension, targetStackInfo.stackedOverDimension];
     var targetData = targetStackInfo.data;
-    var isStackedByIndex = targetStackInfo.isStackedByIndex; // Should not write on raw data, because stack series model list changes
+    var isStackedByIndex = targetStackInfo.isStackedByIndex;
+    var stackStrategy = targetStackInfo.seriesModel.get('stackStrategy') || 'samesign'; // Should not write on raw data, because stack series model list changes
     // depending on legend selection.
 
     targetData.modify(dims, function (v0, v1, dataIndex) {
@@ -118,12 +119,13 @@ function calculateStack(stackInfoList) {
         if (stackedDataRawIndex >= 0) {
           var val = stackInfo.data.getByRawIndex(stackInfo.stackResultDimension, stackedDataRawIndex); // Considering positive stack, negative stack and empty data
 
-          if (sum >= 0 && val > 0 || // Positive stack
-          sum <= 0 && val < 0 // Negative stack
+          if (stackStrategy === 'all' // single stack group
+          || stackStrategy === 'positive' && val > 0 || stackStrategy === 'negative' && val < 0 || stackStrategy === 'samesign' && sum >= 0 && val > 0 // All positive stack
+          || stackStrategy === 'samesign' && sum <= 0 && val < 0 // All negative stack
           ) {
-              // The sum should be as less as possible to be effected
-              // by floating arithmetic problem. A wrong result probably
-              // filtered incorrectly by axis min/max.
+              // The sum has to be very small to be affected by the
+              // floating arithmetic problem. An incorrect result will probably
+              // cause axis min/max to be filtered incorrectly.
               sum = addSafe(sum, val);
               stackedOver = val;
               break;

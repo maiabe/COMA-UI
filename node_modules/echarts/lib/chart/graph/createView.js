@@ -100,7 +100,7 @@ export default function createViewCoordSys(ecModel, api) {
       viewCoordSys.setBoundingRect(min[0], min[1], bbWidth, bbHeight);
       viewCoordSys.setViewRect(viewRect.x, viewRect.y, viewWidth, viewHeight); // Update roam info
 
-      viewCoordSys.setCenter(seriesModel.get('center'));
+      viewCoordSys.setCenter(seriesModel.get('center'), api);
       viewCoordSys.setZoom(seriesModel.get('zoom'));
       viewList.push(viewCoordSys);
     }
