@@ -450,9 +450,9 @@ export class InspectorCardMaker {
 
             console.log(entries);
 
-/*            const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Search Form Submit Event',
+            const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Search Form Submit Event',
             {
-                *//*type: 'form',*//*
+                type: 'form',
                 remoteData: true,
                 moduleKey: key,
                 queryType: queryType,
@@ -460,7 +460,7 @@ export class InspectorCardMaker {
                 responseKey: responseKey,
                 delay: 1000,
             });
-            this.sendMessage(message);*/
+            this.sendMessage(message);
         });
 
         /**
@@ -568,7 +568,7 @@ export class InspectorCardMaker {
 
         // Create Y axis card
         var yAxisName = { displayName: "Y Axis", elementName: "yAxis" };
-        var yAxisDefault = (defaultField.length > 0) ? defaultField[0].yaxis : undefined;
+        var yAxisDefault = (defaultField.length > 0) ? defaultField[0].yAxis : undefined;
         var yAxisCard = this.inspectorCard.addAxisCard(yAxisName, yAxisFields, yAxisDefault);
 
         // Add generateChartButton
@@ -632,9 +632,6 @@ export class InspectorCardMaker {
                 const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Fetch Local Chart Data Event', data);
                 this.sendMessage(message);
             }*/
-
-            
-
         });
 
 

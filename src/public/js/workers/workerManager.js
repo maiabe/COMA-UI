@@ -156,7 +156,7 @@ export class WorkerManager {
                         workerObject.stopWorkerFunction(id);
                         break;
                     case 'Remote Objects Suggestions Return':
-                        console.log(event.data);
+                        //console.log(event.data);
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, event.data));
                         workerObject.stopWorkerFunction(id);
                         break;
@@ -221,6 +221,7 @@ export class WorkerManager {
             return true;
         } else return false;
     }
+
     /**
      * Stops a webworker process
      * @param {number} id the id of the process to stop.

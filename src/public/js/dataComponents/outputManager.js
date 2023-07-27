@@ -19,7 +19,7 @@ export class OutputManager {
         this.publisher = new Publisher();
         this.#outputMap = new Map();
         this.#chartBuilder = new ChartBuilder();
-        this.#activeChartMap = new Map();
+        this.#activeChartMap = new Map(); // ... not needed?
         this.#csvWriter = new CsvWriter();
         this.#dataTable = new Map();
     };
@@ -35,8 +35,9 @@ export class OutputManager {
      * @returns true if successful, false if failure  */
      storeChartData = (key, data, div, type, coordinateSystem) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(div, 'div', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
-        this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark', coordinateSystem: coordinateSystem });
-        return true;
+         this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark', coordinateSystem: coordinateSystem });
+         console.log(this.#outputMap);
+         return true;
     }
 
     /** --- PUBLIC ---
@@ -50,7 +51,19 @@ export class OutputManager {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(div, 'div', 'object'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'OutputManager', 'drawChart')) return;
         if (this.#outputMap.has(key)) {
             const cd = this.#outputMap.get(key);
-            this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(cd.data, cd.type, div, width, height, cd.framework, cd.theme, cd.coordinateSystem) });
+            // if activeChartMap contains the key, updateChart
+            var activeChart = this.#activeChartMap.get(key);
+            if (this.popupHasActiveChart(key)) {
+                // get the div of chartObject
+                var activeChartDiv = activeChart.chartObject.getDom();
+                
+                // set activeChartMap with updated chartObject
+                this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.updatePlotData(cd.data, cd.type, activeChartDiv, width, height, cd.framework, cd.coordinateSystem) });
+            }
+            // otherwise set the key to activeChartMap
+            else {
+                this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(cd.data, cd.type, div, width, height, cd.framework, cd.theme, cd.coordinateSystem) });
+            }
         }
         else printErrorMessage(`Missing Data.`, `key: ${key} - OutputManager -> drawChart`);
     }
@@ -219,6 +232,7 @@ export class OutputManager {
                 trace['data'] = result;
             });
         });
+        /*console.log(traceData);*/
         return traceData;
         // error check
         /*var echartData = { 'series': [] };

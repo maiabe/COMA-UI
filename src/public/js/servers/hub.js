@@ -1173,6 +1173,9 @@ export default class Hub {
             processed = true;
         }
         
+        // Open popup if not opened yet
+        if (!GM.PM.isPopupOpen(moduleData.moduleKey)) this.#openModulePopup(moduleData.moduleKey, 0, 0);
+
         GM.MM.updatePopupContent(moduleData.moduleKey, 'table', resultData);
 
         // toggle module color and inspector/popup header color
@@ -1180,8 +1183,6 @@ export default class Hub {
         GM.MM.toggleHeaderColor(moduleData.moduleKey, processed);
 
 
-        // Open popup if not opened yet
-        if (!GM.PM.isPopupOpen(moduleData.moduleKey)) this.#openModulePopup(moduleData.moduleKey, 0, 0);
     }
 
     #setNewChartEvent(moduleData) {
@@ -1191,24 +1192,19 @@ export default class Hub {
         var key = moduleData.moduleKey;
         var module = GM.MM.getModule(key);
         var div = module.getPopupContent().content.querySelector('div');
-        console.log(moduleData);
 
-        // Organize data for echart
-        //var sourceData = moduleData.sourceData;
-        //var traceData = moduleData.traceData;
-        //var chartAxis = Object.keys(traceData);
-
+        // Organize the chartData for Echart
         var chartData = GM.OM.prepChartData(key, moduleData.traceData, moduleData.sourceData);
-        if (GM.OM.storeChartData(key,
-            chartData,
-            div,
-            module.getData('chartType'),
-            module.getData('coordinateSystem')))
+        var processed = GM.OM.storeChartData(key, chartData, div, module.getData('chartType'), module.getData('coordinateSystem'));
+        if (processed)
         {
-            if (!GM.PM.isPopupOpen(key)) this.#openModulePopup(key, 0, 0);
-
             GM.OM.drawChart(key, div, GM.PM.getPopupWidth(key), GM.PM.getPopupHeight(key));
+            if (!GM.PM.isPopupOpen(key)) this.#openModulePopup(key, 0, 0);
         }
+
+        // toggle module color and inspector/popup header color
+        GM.ENV.toggleNodeColor(moduleData.moduleKey, processed);
+        GM.MM.toggleHeaderColor(moduleData.moduleKey, processed);
     }
 
 

@@ -248,6 +248,34 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
 }
 
 
+/* Track */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background-color: #999;
+    border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+/* Hiding the scrollbar */
+/*::-webkit-scrollbar {
+    display: none;
+}*/
+
+/* Hiding the scrollbar in Firefox */
+/*html {
+    scrollbar-width: none;
+}*/
+
+
 /*div * {
     scrollbar-width: none;*/ /* Firefox */
     /*-ms-overflow-style: none;*/ /* IE 10+ */

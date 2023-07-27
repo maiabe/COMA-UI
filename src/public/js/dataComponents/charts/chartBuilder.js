@@ -82,7 +82,7 @@ export class ChartBuilder {
         const myChart = echarts.init(pdiv, theme);
         const option = this.#optionGenerationMap.get(coordinateSystem)(data, type, coordinateSystem);
         option && myChart.setOption(option);
-        console.log(option);
+        //console.log(option);
         this.resizeEchart(myChart, width, height);
         return myChart;
     };
@@ -189,9 +189,9 @@ export class ChartBuilder {
      * @returns object wil all settings
      */
     #generate2dCartesianOptions(data, type, coordinateSystem) {
-        console.log(data);
+        /*console.log(data);
         console.log(type);
-        console.log(coordinateSystem);
+        console.log(coordinateSystem);*/
 
         var echartData = { 'series': [] };
         var chartAxis = Object.keys(data);
@@ -621,6 +621,8 @@ export class ChartBuilder {
         return result;
     }
 
+
+
     /** --- PUBLIC ---
      * There are a lot of options passed to the function from the HUB.
      * @param {{e: any[], x: any[]}, y: any[]} data Arrays of the data for the x axis, y axis, and error trace
@@ -639,14 +641,14 @@ export class ChartBuilder {
      * @param {string} coordinateSystem polar or cartesian2d
      * @returns chart object  */
     //updateData = (data, type, pdiv, width, height, framework, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem) => {
-    updatePlotData = (data, type, pdiv, width, height, framework) => {
+    updatePlotData = (data, type, pdiv, width, height, framework, coordinateSystem) => {
         switch (framework) {
             case 'tabulator':
                 return this.#updateTabulatorTable(data, type, pdiv, width, height);
             /*case 'plotly':
                 return this.#updatePlotlyChart(data, type, pdiv, width, height);*/
-            /*case 'echart':
-                return this.#updateEChartChart(data, type, pdiv, width, height, theme, xAxisLabel, yAxisLabel, xAxisGrid, yAxisGrid, xAxisTick, yAxisTick, coordinateSystem);*/
+            case 'echart':
+                return this.#updateEChartChart(data, type, pdiv, width, height, coordinateSystem);
         }
     }
 
@@ -662,4 +664,17 @@ export class ChartBuilder {
         
         return result;
     }
+
+    #updateEChartChart(data, type, pdiv, width, height, coordinateSystem) {
+        // get the active chart
+        const myChart = echarts.getInstanceByDom(pdiv);
+        myChart.clear();
+
+        const option = this.#optionGenerationMap.get(coordinateSystem)(data, type, coordinateSystem);
+        option && myChart.setOption(option);
+
+        this.resizeEchart(myChart, width, height);
+        return myChart;
+    }
+
 }

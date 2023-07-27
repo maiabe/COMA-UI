@@ -87,7 +87,8 @@
   height: 50px;
   width: 50px;
   z-index: 10001;
-  background-color: #14285e;
+  background-color: #142990;
+  /*background-color: #14285e;*/
   opacity: 0.4;
   /*transition: opacity 0.3s ease-in;*/
   cursor: nwse-resize;
