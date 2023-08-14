@@ -21,13 +21,14 @@ export class Search extends Source {
         this.addData('onCreationFunction', this.onCreation.bind(this));
         this.addData('requestMetadataOnCreation', true);
         this.addData('remoteData', true);
-        //this.createInspectorCardData();
         this.setPopupContent();
+        //this.setInspectorCardContent();
     }
 
-    createInspectorCardData() {
-        //this.inspectorCardMaker.addInspectorCardDescription(this.getData('description'));
+    setInspectorCardContent = () => {
+        this.inspectorCardMaker.addSearchFormFields(this.getData('key'));
     }
+
 
     setPopupContent = () => {
         //this.popupContentMaker.addDescriptionText(this.getData('description'));
@@ -40,10 +41,10 @@ export class Search extends Source {
     getPopupContent = () => {
         return { width: 300, height: 300, color: this.getData('color'), content: this.getData('popupContent'), headerText: this.getData('name') };
     }
-
-    onCreation = metadata => {
-        this.addData('metadata', metadata);
+    
+    onCreation = () => {
         this.inspectorCardMaker.addSearchFormFields(this.getData('key'));
+        this.inspectorCardMaker.addFormFieldFunctions(this.getData('key'));
 
         //this.inspectorCardMaker.addSearchFormFields(metadata)
         // --> Add Date Range Field Min Max = date picker? (too many dates can be chosen from, slider may not be very useful)

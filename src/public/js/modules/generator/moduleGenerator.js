@@ -24,7 +24,6 @@ export class ModuleGenerator {
             if (category != '') {
                 let module = undefined;
                 try{
-                   console.log(this.generationMap)
                    module = this.generationMap.get(type)(category, key);
                 } catch (e) {
                     console.log(e);

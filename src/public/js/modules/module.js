@@ -190,6 +190,11 @@ export class Module {
         return { color: this.getData('color'), content: this.getData('popupContent'), headerText: this.getData('name') };
     }
 
+    onCreation() {
+        var moduleKey = this.getData('key');
+        console.log(`module-${moduleKey} onCreation`);
+    }
+
     /** --- PUBLIC ---
      * After the old key is used to identify the modules that were part of the saved prefab module, the old
      * keys are removed from the data table.

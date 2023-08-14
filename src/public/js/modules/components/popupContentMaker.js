@@ -333,16 +333,21 @@ export class PopupContentMaker {
      * @returns 
      */
     addPlotDiv(key) {
-        this.dataTable.set('plotDiv', this.HF.createNewDiv(`plot_${key}`, `plot_${key}`, ['plot1'], ['chartDiv']));
+        this.dataTable.set('plotDiv', this.HF.createNewDiv(`plot_${key}`, `plot_${key}`, ['plot-wrapper'], ['chartDiv']));
         this.getPopupContentWrapper().appendChild(this.getField('plotDiv'));
         return this.getField('plotDiv');
     }
 
     addEChartThemeDropdown(key) {
-        this.dataTable.set('themeDD', this.buildEchartThemeDropdown(key));
-        this.setEchartThemeDropdownEventListener(this.getField('themeDD'), key);
-        this.getPopupContentWrapper().appendChild(this.getField('themeDD'));
-        return this.getField('themeDD');
+        var themeDDWrapper = this.HF.createNewDiv('', '', ['chart-theme-wrapper'], [{ style: 'width', value: '100%' }]);
+        this.dataTable.set('themeDD', this.HF.createNewSelect(`chart-theme-dd-${key}`, '', ['chart-theme-dd'], [], chartThemes, chartThemes));
+        var themeDD = this.getField('themeDD');
+        this.setEchartThemeDropdownEventListener(themeDD, key);
+
+        themeDDWrapper.appendChild(themeDD);
+        console.log(themeDDWrapper);
+        this.getPopupContentWrapper().appendChild(themeDDWrapper);
+        return themeDD;
     }
 
     buildEchartThemeDropdown = (key) => {

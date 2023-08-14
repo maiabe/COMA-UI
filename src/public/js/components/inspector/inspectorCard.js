@@ -287,8 +287,8 @@ export class InspectorCard {
 
 
     // add Xaxis card for Chart modules
-    addAxisCard(axisName, fields, defaultField) {
-        const card = new AxisCard(axisName, fields, defaultField);
+    addAxisCard(axisName, fields, defaultField, errorFields) {
+        const card = new AxisCard(axisName, fields, defaultField, errorFields);
         this.appendToBody(card.getCard().wrapper);
         return card;
     }
@@ -432,10 +432,21 @@ export class InspectorCard {
      * @param { Array } fieldsTooltip Array of objects containing field tooltip content
      * @returns The card object (not just the HTML element)
      */
-    addSearchFormCard(moduleKey, formName, fields, fieldsTooltip) {
+    addSearchFormCard(moduleKey, formName, fields) {
         const card = new FormCard(formName, fields);
 
-        const formFields = card.getFormFields();
+        
+
+        // Append form message
+        const btnWrapper = card.getCard().submitButton;
+        card.appendMessage(btnWrapper, 'Empty fields will not be searched.');
+
+        return card;
+    }
+
+    // adds tooltip and remote field functions
+    addFormFieldFunctions(moduleKey, searchFormCard, fields, fieldsTooltip) {
+        var formFields = searchFormCard.getFormFields();
         formFields.forEach((formField) => {
             const fieldLabel = formField.querySelector('label');
             const fieldElement = formField.querySelector('.field-input');
@@ -444,23 +455,17 @@ export class InspectorCard {
                 const fieldName = fieldElement.getAttribute('name');
                 const match = fieldsTooltip.filter(x => x.field == fieldName);
                 if (match.length > 0) {
-                    let tooltip = card.appendToolTip(match[0].format, fieldLabel);
+                    let tooltip = searchFormCard.appendToolTip(match[0].format, fieldLabel);
                     formField.insertBefore(tooltip, formField.firstChild);
                 }
 
-                const fieldObject = fields.filter(x => x.fieldName == fieldName)[0];
+                const fieldObject = fields.filter(x => x.fieldName == fieldName)[0]; 
                 // Handle Remote Data Search Fields... create function for this?
                 if (fieldObject && fieldObject.remote) {
                     this.#handleRemoteSearchField(moduleKey, fieldObject, fieldElement);
                 }
             }
         });
-
-        // Append form message
-        const btnWrapper = card.getCard().submitButton;
-        card.appendMessage(btnWrapper, 'Empty fields will not be searched.');
-
-        return card;
     }
 
     #handleRemoteSearchField(moduleKey, fieldObject, fieldElement) {
@@ -495,7 +500,7 @@ export class InspectorCard {
                             });
                         this.sendMessage(message);
                     }
-                });            
+                });
                 break;
             default: // dropdown remote fields
                 const message = new Message(WORKER_MANAGER, INSPECTOR_CARD, 'Get Remote Dropdown Options',

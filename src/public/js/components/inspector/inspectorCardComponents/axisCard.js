@@ -23,16 +23,16 @@ export class AxisCard {
      * @param {defaultField object} defaultField object consists of displayName and fieldName information of specified default field.
      *                                                  defaultField may be an undefined object
      */
-    constructor(axisName, fields, defaultField) {
+    constructor(axisName, fields, defaultField, errorFields) {
         this.#axisName = axisName;
-        this.#createElements(axisName, fields, defaultField);
+        this.#createElements(axisName, fields, defaultField, errorFields);
         this.#buildCard();
     }
 
-    #createElements(axisName, fields, defaultField) {
+    #createElements(axisName, fields, defaultField, errorFields) {
         this.#createWrapper(axisName);
         this.#createHeader(axisName);
-        this.#createContent(axisName, fields, defaultField);
+        this.#createContent(axisName, fields, defaultField, errorFields);
     }
 
     #buildCard() {
@@ -53,7 +53,9 @@ export class AxisCard {
     }
 
     // create content --> dropdowns & labels & (other chart options) & addTrace button for each field (add function to addTrace button)
-    #createContent(axisName, fields, defaultField) {
+    #createContent(axisName, fields, defaultField, errorFields) {
+        console.log(defaultField);
+        console.log(errorFields);
         if (fields) {
             // create content wrapper
             var contentWrapper = GM.HF.createNewDiv('', '', ['axis-content-wrapper'], []);
@@ -80,15 +82,13 @@ export class AxisCard {
             // add default fields
             if (defaultField) {
                 // prepare field value and text for creating a trace card
-                var field = { value: defaultField.fieldName, text: defaultField.displayName };
-
-                /////////////////////// TODO: add error default if exists (in yaxis)
+                var field = { value: defaultField.fieldName, text: defaultField.displayName, dataType: defaultField.dataType };
             }
             // otherwise choose the first field of the 'fields'
             else {
-                var field = { value: fields[0].fieldName, text: fields[0].displayName };
+                var field = { value: fields[0].fieldName, text: fields[0].displayName, dataType: fields[0].dataType };
             }
-            this.#createTraceCard(field, this.#traceArea);
+            this.#createTraceCard(field, this.#traceArea, errorFields);
 
             // label input for the added trace.. other options for the chart
             contentWrapper.appendChild(fieldsWrapper);
@@ -96,7 +96,7 @@ export class AxisCard {
 
             this.#axisContent = contentWrapper;
 
-            this.#addTraceFunction();
+            this.#addTraceFunction(fields, errorFields);
         }
         else {
             // show error there are no fields to load
@@ -107,7 +107,8 @@ export class AxisCard {
      * @param {field object} field object consists of value and text of the field to be added as a trace card.
      * @param {traceArea HTML DOM} traceArea is an HTML object for the trace card to be added to.
      * */
-    #createTraceCard(field, traceArea) {
+    #createTraceCard(field, traceArea, errorFields) {
+
         if (field.value !== "none") {
             // create card entry
             let traceCard = GM.HF.createNewDiv(field.value, '', ['trace-card-wrapper'], []);
@@ -123,38 +124,57 @@ export class AxisCard {
             this.#removeTraceFunction(removeBtn);
 
             let labelWrapper = GM.HF.createNewDiv('', '', ['label-wrapper'], []);
-            let labelText = GM.HF.createNewSpan('', '', ['label-text'], [], 'Label Name: ');
+            let labelText = GM.HF.createNewSpan('', '', ['label-text'], [], `Label Name: `);
             let label = GM.HF.createNewTextInput('', '', ['label-input'], [], 'text', false);
             label.value = field.text;
+
             // add label text here
             labelWrapper.appendChild(labelText);
             labelWrapper.appendChild(label);
             traceCard.appendChild(labelWrapper);
 
-            let optionsWrapper = GM.HF.createNewDiv('', '', ['options-wrapper'], []);
-            let gridLinesOption = GM.HF.createNewCheckbox('', '', ['options-gridlines'], [], '', 'Grid Lines', false);
-            let ticksOption = GM.HF.createNewCheckbox('', '', ['options-ticks'], [], '', 'Ticks', false);
-            optionsWrapper.appendChild(gridLinesOption.wrapper);
-            optionsWrapper.appendChild(ticksOption.wrapper);
-            traceCard.appendChild(optionsWrapper);
+            if (errorFields) {
+                // add error bar option
+                let errorBarDDWrapper = GM.HF.createNewDiv('', '', ['errorbar-dropdown-wrapper'], []);
+                let errorBarLabel = GM.HF.createNewSpan('', '', ['label-text'], [], 'Error Bar: ');
+                let options = ['none'];
+                let optionsText = ['-- None --'];
+                errorFields.forEach(e => { optionsText.push(e.displayName) });
+                errorFields.forEach(e => { options.push(e.fieldName) });
+                let errorBarDD = GM.HF.createNewSelect('', '', ['error-dropdown'], [], options, optionsText);
+                errorBarDDWrapper.appendChild(errorBarLabel);
+                errorBarDDWrapper.appendChild(errorBarDD);
+                traceCard.appendChild(errorBarDDWrapper);
+            }
+            console.log(field);
+            if (field.dataType === 'value') {
+                // Gridlines and ticks
+                let optionsWrapper = GM.HF.createNewDiv('', '', ['options-wrapper'], []);
+                let gridLinesOption = GM.HF.createNewCheckbox('', '', ['options-gridlines'], [], '', 'Grid Lines', false);
+                let ticksOption = GM.HF.createNewCheckbox('', '', ['options-ticks'], [], '', 'Ticks', false);
+                optionsWrapper.appendChild(gridLinesOption.wrapper);
+                optionsWrapper.appendChild(ticksOption.wrapper);
+                traceCard.appendChild(optionsWrapper);
+            }
         }
     }
 
 
-    #addTraceFunction() {
+    #addTraceFunction(fields, errorFields) {
         const button = this.#addTraceButton;
         button.addEventListener('click', e => {
             // get dropdown selection
             let dropdown = e.target.previousElementSibling;
             let selected = dropdown.options[dropdown.selectedIndex];
+            let selectedField = fields.filter(f => f.fieldName === selected);
             let traceArea = e.target.closest('.axis-content-wrapper').querySelector('.trace-area');
-
+            console.log(selectedField);
             // check if the field is already in there
             // if it is, display error message
             //var exists = traceArea.querySelector(`#${selected.value}`);
             if (selected.value !== 'none') {
                 // create card entry
-                this.#createTraceCard(selected, traceArea);
+                this.#createTraceCard(selected.value, traceArea, errorFields);
             }
             /*else {
                 let errorMessageWrapper = GM.HF.createNewDiv('', '', ['add-trace-error-wrapper'], []);
@@ -175,6 +195,14 @@ export class AxisCard {
         });
     }
 
+    #findErrorField(fieldName, errorFields) {
+        const regex = new RegExp(`${fieldName}`);
+        var match = undefined;
+        if (errorFields) {
+            match = errorFields.filter(errorField => regex.test(errorField.fieldName));
+        }
+        return match;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                        OLD CODE                                                          //

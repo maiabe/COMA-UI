@@ -31,7 +31,7 @@ export class InputGenerator {
         return e;
     }
     
-    generateTextInput = (id, name, classlist, customStyles, type, disabled) => {
+    generateTextInput = (id, name, classlist, customStyles, type, value) => {
         const e = document.createElement('input');
         e.setAttribute('id', id);
         e.setAttribute('name', name);
@@ -40,6 +40,7 @@ export class InputGenerator {
             e.classList.add(c);
         });
         HTMLFactory.setCustomStyles(e, customStyles);
+        e.value = value;
         return e;
     }
 

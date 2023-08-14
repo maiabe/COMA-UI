@@ -2,7 +2,7 @@ import { Publisher, Subscriber } from "../communication/index.js";
 import { GM } from '../main.js';
 import { ENVIRONMENT, MODULE_MANAGER, INSPECTOR, POPUP_MANAGER, INPUT_MANAGER, DATA_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER, DOM_MANAGER, INSPECTOR_CARD } from '../sharedVariables/constants.js';
 import { invalidVariables, printErrorMessage, varTest } from "../errorHandling/errorHandlers.js";
-import { format_mapping, decimalAlignFormatter } from '../sharedVariables/formatValues.js';
+import { format_mapping, decimalAlignFormatter, getNumDigits } from '../sharedVariables/formatValues.js';
 import { SearchFields } from '../sharedVariables/moduleData.js';
 
 /* Envionment Data Table is the central communication hub of the application. All Messages
@@ -102,6 +102,7 @@ export default class Hub {
         this.#messageForModuleManager.set('Set Search Result Content', this.#setSearchResultContent.bind(this));
         this.#messageForModuleManager.set('Handle Fetch Error', this.#handleFetchError.bind(this));
         this.#messageForModuleManager.set('Set Module Data Event', this.#setModuleDataEvent.bind(this));
+        this.#messageForModuleManager.set('Toggle Module Color Event', this.#toggleModuleColorEvent.bind(this));
 
     }
 
@@ -124,6 +125,8 @@ export default class Hub {
         this.#messageForInputManager.set('Search Form Submit Event', this.#searchFormSubmit.bind(this));
         this.#messageForInputManager.set('Fetch Local Table Data Event', this.#fetchLocalTableDataEvent.bind(this));
         this.#messageForInputManager.set('Fetch Local Chart Data Event', this.#fetchLocalChartDataEvent.bind(this));
+        this.#messageForInputManager.set('Prep Table Data Event', this.#prepTableDataEvent.bind(this));
+        this.#messageForInputManager.set('Prep Chart Data Event', this.#prepChartDataEvent.bind(this));
     }
 
     #buildMessageForWorkerManagerMap() {
@@ -179,14 +182,22 @@ export default class Hub {
     #newModuleCreatedEvent(data) {
         if (invalidVariables([varTest(data.module, 'module', 'object'), varTest(data.templateExists, 'templateExists', 'boolean')], 'HUB', '#messageForEnvironment (New Module Created Event)')) return;
         console.log(data);
+        var moduleKey = data.module.getData('key');
         GM.ENV.insertModule(data.module, data.templateExists, data.groupKey);
         try {
+            //var onCreationFunction = data.module.getData('onCreationFunction');
+            //console.log(moduleName);
+            //console.log(onCreationFunction);
             if (data.module.getData('requestMetadataOnCreation') === true) {
-                this.#makeMetadataRequest(this.#getNewWorkerIndex(), data.module.getData('name'), data.module.getData('onCreationFunction'));
+                //this.#makeMetadataRequest(this.#getNewWorkerIndex(), data.module.getData('name'), data.module.getData('onCreationFunction'));
+                this.#makeMetadataRequest(moduleKey, data.module.getData('onCreationFunction'));
+                //data.module.getData('onCreationFunction');
             }
         } catch (e) {
             console.log(e);
         }
+        this.#maximizeCardEvent({ id: moduleKey });
+
     }
 
 
@@ -309,9 +320,11 @@ export default class Hub {
                 case 'output':
                     var fromModuleData = fromModule.getData('moduleData');
                     console.log(fromModuleData);
-                    // NOTE: The 'updateInspectorCard'' function is an override function defined in different modules. 
-                    // The content of the moduleData parameter differs from module to module. 
-                    outputModule.updateInspectorCard(outputModule.getData('key'), fromModuleData);
+                    // prepInspectorCardData sets the toModuleData from fromModuleData
+                    outputModule.prepInspectorCardData(outputModule.getData('key'), fromModuleData);
+
+                    // The content of the moduleData parameter differs from module to module.
+                    outputModule.updateInspectorCard();
 
                     break;
                 default:
@@ -501,35 +514,40 @@ export default class Hub {
      * }} data 
      */
     #readFileEvent(data) {
-        if (invalidVariables([varTest(data.type, 'type', 'string'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Read File Event)')) return;
+        if (invalidVariables([varTest(data.fileType, 'fileType', 'string'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Read File Event)')) return;
         // validateFile function and sets moduleData
-        GM.IM.readFile(data.moduleKey, data.fileId, data.type);
+        GM.IM.readFile(data.moduleKey, data.fileId, data.fileType);
     }
 
     #setModuleDataEvent(data) {
-        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.moduleData, 'moduleData', 'object')], 'HUB', '#messageForModuleManager (Set Module Data Event)')) return;
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.moduleData, 'moduleData', 'object'), varTest(data.toggleModuleColor, 'toggleModuleColor', 'boolean')], 'HUB', '#messageForModuleManager (Set Module Data Event)')) return;
         var module = GM.MM.getModule(data.moduleKey);
         console.log(data);
         var processed = false;
         if (data.moduleData) {
             module.addData('moduleData', data.moduleData);
             processed = true;
-            // set success screen (in popup) ..?
 
-            // change module color and inspector card header color
-            GM.ENV.toggleNodeColor(data.moduleKey, processed);
-            GM.MM.toggleHeaderColor(data.moduleKey, processed);
+            //console.log(module);
+            if (data.toggleModuleColor) {
+                this.#toggleModuleColorEvent(data.moduleKey, processed);
+            }
         }
         else {
             module.removeData('moduleData');
-            
+
             // set error screen (in popup) ...?
 
         }
         return processed;
     }
 
-
+    #toggleModuleColorEvent(moduleKey, processed) {
+        if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(processed, 'processed', 'boolean')], 'HUB', '#toggleModuleColorEvent (Toggle Module Color Event)')) return;
+        // toggle module color and inspector/popup header color
+        GM.ENV.toggleNodeColor(moduleKey, processed);
+        GM.MM.toggleHeaderColor(moduleKey, processed);
+    }
 
     //*************** search form */
     //-------------------------------------- .. use prepworker event.. from Worker manager
@@ -562,30 +580,29 @@ export default class Hub {
      *  @param {Object} data.val query entries and search taskResult data
      * */
     #setSearchResultContent(data) {
-        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.status, 'status', 'string'), varTest(data.queryType, 'queryType', 'string'), varTest(data.queryEntries, 'queryEntries', 'object'), varTest(data.sourceData, 'sourceData', 'string')], 'HUB', '#messageForInputManager (Set Search Result Content)')) return;
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.status, 'status', 'string'), varTest(data.queryType, 'queryType', 'string'), varTest(data.queryEntries, 'queryEntries', 'object'), varTest(data.sourceData, 'sourceData', 'object')], 'HUB', '#messageForInputManager (Set Search Result Content)')) return;
         var processed = false;
-        
+        console.log(data);
         if (data.status === 'success') {
-            var jsonResult = JSON.parse(data.sourceData);
-            // exclude all id fields here
-            var columnHeaders = Object.keys(jsonResult.data[0]);
-            columnHeaders = columnHeaders.filter((col) => { if (!col.includes('id')) { return col } });
-
-            data.columnHeaders = columnHeaders;
-            data['datasetType'] = data.queryType;
-            data['sourceData'] = jsonResult.data;
-
-            var moduleData = { moduleKey: data.moduleKey, moduleData: data };
-            this.#setModuleDataEvent(moduleData);
-            processed = true;
+            var moduleData = {
+                moduleKey: data.moduleKey,
+                moduleData: {
+                    remoteData: data.remoteData,
+                    status: data.status,
+                    datasetType: data.queryType,
+                    sourceData: data.sourceData,
+                },
+                toggleModuleColor: true,
+            };
+            processed = this.#setModuleDataEvent(moduleData);
 
             var moduleName = GM.MM.getModule(data.moduleKey).getData('name').toLowerCase();
             // update module popup content
             GM.MM.updatePopupContent(data.moduleKey, moduleName, data);
 
             // toggle Module color
-            GM.ENV.toggleNodeColor(data.moduleKey, processed);
-            GM.MM.toggleHeaderColor(data.moduleKey, processed);
+            /*GM.ENV.toggleNodeColor(data.moduleKey, processed);
+            GM.MM.toggleHeaderColor(data.moduleKey, processed);*/
         }
         else {
             // update module popup with error screen
@@ -678,6 +695,7 @@ export default class Hub {
      *  
      * */
     #getRemoteDropdownOptions(data) {
+        console.log(data);
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.dirName, 'dirName', 'string'),
             varTest(data.fieldWrapperId, 'fieldWrapperId', 'string'), varTest(data.delay, 'delay', 'number')], 'HUB', '#messageForWorkerManager (Get Remote Dropdown Options Event)')) return;
         // use prepworker
@@ -709,7 +727,7 @@ export default class Hub {
                 default:
                     result.map((item) => { options.push({ name: item.name, value: item.id }) });
             }
-            //console.log(options);
+            console.log(options);
 
             // append to dropdown INS
             success = GM.INS.setRemoteDropdownOptions(data.moduleKey, data.fieldWrapperId, options);
@@ -1043,7 +1061,7 @@ export default class Hub {
         }
     }
 
-    /** --- PRIVATE --- Message For Output Manager
+    /** --- PRIVATE --- Message For Output Manager (Deprecated)
      * Calls the DataManager to get the relevant data and filter out the unwanted fields that the user has unchecked. Then passes
      * that data to the output manager to generate a new CSV file.
      * @param {{
@@ -1089,100 +1107,145 @@ export default class Hub {
         }
     }
 
+    /////////////////////////////////////////////////////////// for outputmanager ///////////////////////////////////////////////////////////
+    /** Sets a table moduleData from source moduleData
+     * @param {moduleKey} moduleKey of the table module
+     * @param {sourceModuleData} sourceModuleData of the source module
+     * */
+    #prepTableDataEvent(data) {
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceModuleData, 'sourceModuleData', 'object')], 'HUB', '#messageForInputManager (Prep Table Data Event)')) return;
+        var processed = false;
+        var fromDatasetType = data.sourceModuleData.datasetType;
+        var fromSourceData = data.sourceModuleData.sourceData;
+        console.log(fromSourceData);
+
+        if (fromSourceData) {
+            // get columnHeaders
+            var columnHeaders = GM.IM.getColumnHeaders(fromSourceData);
+            console.log(columnHeaders);
+
+            // set moduleData for this table module
+            var data = {
+                moduleKey: data.moduleKey,
+                moduleData: {
+                    datasetType: fromDatasetType,
+                    columnHeaders: columnHeaders,
+                    sourceData: fromSourceData,
+                },
+                toggleModuleColor: true,
+            };
+            processed = this.#setModuleDataEvent(data);
+        }
+        // else show error
+        
+    }
+
+    /** Sets a table moduleData from source moduleData
+     * @param {moduleKey} moduleKey of the table module
+     * @param {sourceModuleData} sourceModuleData of the source module
+     * */
+    #prepChartDataEvent(data) {
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceModuleData, 'sourceModuleData', 'object')], 'HUB', '#messageForInputManager (Prep Table Data Event)')) return;
+        var processed = false;
+        var fromDatasetType = data.sourceModuleData.datasetType;
+        var fromSourceData = data.sourceModuleData.sourceData;
+        console.log(fromSourceData);
+
+        if (fromSourceData) {
+            // get columnHeaders
+            var columnHeaders = GM.IM.getColumnHeaders(fromSourceData);
+            console.log(columnHeaders);
+
+            // set moduleData for this table module
+            var data = {
+                moduleKey: data.moduleKey,
+                moduleData: {
+                    datasetType: fromDatasetType,
+                    columnHeaders: columnHeaders,
+                    sourceData: fromSourceData,
+                },
+                toggleModuleColor: true,
+            };
+            processed = this.#setModuleDataEvent(data);
+        }
+        // else show error
+
+    }
+
+
+
+
     /** Sets a new tabulator table to the Table Module Popup.
      * @param {moduleData} moduleData to set the table content with.
      *                      (e.g. { moduleKey: 1, datasetType: "", columnHeaders: [""], columnsToRender: [""], sourceData: [{}] })
      * */
     #setNewTableEvent(moduleData) {
         if (invalidVariables([varTest(moduleData.moduleKey, 'moduleKey', 'number'), varTest(moduleData.datasetType, 'datasetType', 'string'),
-            varTest(moduleData.columnHeaders, 'columnHeaders', 'object'), varTest(moduleData.columnsToRender, 'columnsToRender', 'object'),
-            varTest(moduleData.sourceData, 'sourceData', 'object')], 'HUB', '#messageForOutputManager (Set New Table Event)')) return;
+            varTest(moduleData.sourceData, 'sourceData', 'object'), varTest(moduleData.columnsToRender, 'columnsToRender', 'object')], 'HUB', '#messageForOutputManager (Set New Table Event)')) return;
 
         console.log('---------------- set New Table Event --------------');
-        console.log(moduleData);
-        var resultData = undefined;
-
         var processed = false;
-        let columns = [];
-        const headers = moduleData.columnsToRender;
 
         //-------------- write function in OutputManager.. in chartBuilder.js
         // Organize tableData for Tabulator
-        const data = moduleData.sourceData;
-        if (data) {
-            headers.forEach(function (headeritem) {
-                // Get the width of the left decimal type values
-                /*var leftWidth = 0;
-                var decimalType = data[0][headeritem];
-                if (decimalType.includes(".")) {
-                    // get all values of the current column
-                    data.map((val) => {
-                        let value = val[headeritem].split(".");
-                        if (value[0].length > leftWidth) {
-                            leftWidth = value[0].length;
-                        }
-                    });
-                }*/
-                columns.push({
-                    title: headeritem, field: headeritem,
-                    headerHozAlign: "center",
-                    /*formatter: 'text',
-                    formatterParams: function (cellValue) {
-                        let value = cellValue._cell.value;
-                        let valueWrapper = GM.HF.createNewDiv('', '', ['column-val-wrapper'], [{ style: "display", value: "flex" }, { style: "font-family", value: "monospace" }]);
-                        if (leftWidth == 0) {
-                            // create span of 100% with the value
-                            let span = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "center" }, { style: "display", value: "block" }, { style: "width", value: "100%" }], value);
-                            valueWrapper.appendChild(span);
-                        }
-                        else {
-                            let left = value.split(".")[0];
-                            let right = value.split(".")[1];
-                            // create left span with leftWidth
-                            let spanLeft = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "end" }, { style: "width", value: leftWidth + "ch" }], left);
-                            // create right span width 100% - leftWidth
-                            let spanDecimal = GM.HF.createNewSpan('', '', ['column-val'], [], ".");
-                            let spanRight = GM.HF.createNewSpan('', '', ['column-val'], [], right);
-                            valueWrapper.appendChild(spanLeft);
-                            valueWrapper.appendChild(spanDecimal);
-                            valueWrapper.appendChild(spanRight);
-                        }
-            
-                        //console.log(valueWrapper);
-                        return valueWrapper;
-                    },*/
-                });
-                // set certain columns with the assigned decimal places
-                //console.log(Number(data[0]['filepath']));
-                data.forEach(function (item) {
-                    if (Object.keys(format_mapping).includes(headeritem)) {
-                        item[headeritem] = Number(item[headeritem]).toFixed(format_mapping[headeritem]);
+
+        var tableData = GM.IM.getTabulatorData(moduleData.datasetType, moduleData.columnsToRender, moduleData.sourceData);
+/*
+        headers.forEach(function (headeritem) {
+            var columnData = headerData.find(h => h.fieldName === headeritem);
+            // Get the width of the left decimal type values
+            *//*var leftWidth = 0;
+            var decimalType = data[0][headeritem];
+            if (decimalType.includes(".")) {
+                // get all values of the current column
+                data.map((val) => {
+                    let value = val[headeritem].split(".");
+                    if (value[0].length > leftWidth) {
+                        leftWidth = value[0].length;
                     }
-                    // set all other number type fields to 3 decimal places
+                });
+            }*//*
+            columns.push({
+                title: headeritem, field: headeritem,
+                headerHozAlign: "center",
+                *//*formatter: 'text',
+                formatterParams: function (cellValue) {
+                    let value = cellValue._cell.value;
+                    let valueWrapper = GM.HF.createNewDiv('', '', ['column-val-wrapper'], [{ style: "display", value: "flex" }, { style: "font-family", value: "monospace" }]);
+                    if (leftWidth == 0) {
+                        // create span of 100% with the value
+                        let span = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "center" }, { style: "display", value: "block" }, { style: "width", value: "100%" }], value);
+                        valueWrapper.appendChild(span);
+                    }
                     else {
-                        if (item[headeritem].includes('.')) {
-                            var current = Number(item[headeritem]);
-                            if (current !== NaN) {
-                                item[headeritem] = Number(item[headeritem]).toFixed(3);
-                            }
-                        }
+                        let left = value.split(".")[0];
+                        let right = value.split(".")[1];
+                        // create left span with leftWidth
+                        let spanLeft = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "end" }, { style: "width", value: leftWidth + "ch" }], left);
+                        // create right span width 100% - leftWidth
+                        let spanDecimal = GM.HF.createNewSpan('', '', ['column-val'], [], ".");
+                        let spanRight = GM.HF.createNewSpan('', '', ['column-val'], [], right);
+                        valueWrapper.appendChild(spanLeft);
+                        valueWrapper.appendChild(spanDecimal);
+                        valueWrapper.appendChild(spanRight);
                     }
-                });
+            
+                    //console.log(valueWrapper);
+                    return valueWrapper;
+                },*//*
             });
-            resultData = { columns: columns, tabledata: data };
-            processed = true;
-        }
+        });*/
+        //resultData = { columns: columns, tabledata: tableData };
+        processed = true;
         
         // Open popup if not opened yet
         if (!GM.PM.isPopupOpen(moduleData.moduleKey)) this.#openModulePopup(moduleData.moduleKey, 0, 0);
 
-        GM.MM.updatePopupContent(moduleData.moduleKey, 'table', resultData);
+        GM.MM.updatePopupContent(moduleData.moduleKey, 'table', tableData);
 
         // toggle module color and inspector/popup header color
         GM.ENV.toggleNodeColor(moduleData.moduleKey, processed);
         GM.MM.toggleHeaderColor(moduleData.moduleKey, processed);
-
-
     }
 
     #setNewChartEvent(moduleData) {
@@ -1191,10 +1254,10 @@ export default class Hub {
         // get chart type
         var key = moduleData.moduleKey;
         var module = GM.MM.getModule(key);
-        var div = module.getPopupContent().content.querySelector('div');
+        var div = module.getData('plotDiv');
 
         // Organize the chartData for Echart
-        var chartData = GM.OM.prepChartData(key, moduleData.traceData, moduleData.sourceData);
+        var chartData = GM.OM.prepChartData(key, moduleData.chartTitle, moduleData.traceData, moduleData.sourceData);
         var processed = GM.OM.storeChartData(key, chartData, div, module.getData('chartType'), module.getData('coordinateSystem'));
         if (processed)
         {
@@ -1294,12 +1357,14 @@ export default class Hub {
      * @param {string} moduleName the name of the new module
      * @param {function} callbackFunction handles the metadata when it is returned. 
      */
-    #makeMetadataRequest(workerIndex, moduleName, callbackFunction) {
-        GM.WM.notifyWorkerOfId(workerIndex)
+    #makeMetadataRequest(moduleKey, callbackFunction) {
+
+        callbackFunction(moduleKey);
+        /*GM.WM.notifyWorkerOfId(workerIndex)
             .setStopWorkerFunction(workerIndex)
             .setHandleReturnFunction(workerIndex, callbackFunction)
-            .setWorkerMessageHandler(workerIndex)
-            .requestMetadata(workerIndex, moduleName);
+            .setWorkerMessageHandler(workerIndex)*/
+            //.requestMetadata(workerIndex, moduleName);
     }
 
     /** --- PRIVATE ---

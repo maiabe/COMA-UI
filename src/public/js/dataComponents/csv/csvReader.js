@@ -81,53 +81,52 @@ export class CsvReader {
     }
 
 
-    // Get columnHeaders and sourceData
+    // Get sourceData
     // moduleData to pass.. { datasetType, columnHeaders, sourceData }
-    getFileData = (moduleKey, fileId, cb) => {
+    getFileData = (moduleKey, fileId, setModuleCB) => {
         var fileInput = document.getElementById(fileId);
         var file = fileInput.files[0];
         var datasetTypeDD = fileInput.closest('.csv-inspector-wrapper').querySelector('.dataset-type-dropdown');
         var datasetType = datasetTypeDD.options[datasetTypeDD.selectedIndex].text;
 
-        var columnHeaders = [];
+        //var columnHeaders = [];
         var sourceData = [];
-        new Response(file).text().then(content => {
-            if (content) {
-                const rows = content.split(/\r\n|\n/);
-                var columns = rows[0].split(',');
-                columns.forEach((e) => {
-                    e = e.replaceAll('\"', '');
-                    if (!e.includes('id')) {
-                        columnHeaders.push(e);
-                    }
-                });
-                rows.forEach((row, i) => {
-                    if (i > 0) {
-                        var rowObj = {};
-                        var values = row.split(',');
-                        values.forEach((val, j) => {
-                            val = val.replaceAll('\"', '');
-                            var key = columns[j].replaceAll('\"', '');
-                            rowObj[key] = val;
-                        });
-                        sourceData.push(rowObj);
-                    }
-                });
-                var moduleData = {
-                    datasetType: datasetType,
-                    columnHeaders: columnHeaders,
-                    sourceData: sourceData,
-                }
-                console.log(moduleData);
-                cb(moduleKey, moduleData);
-            } else {
-                // TODO: defer to error screen
-                console.log('failed to read file data columns.');
-            }
-        }).catch(error => {
-            console.error(error);
-        });
+        new Response(file).text()
+            .then(content => {
+                if (content) {
+                    const rows = content.split(/\r\n|\n/);
+                    var columns = rows[0].split(',');
+                    rows.forEach((row, i) => {
+                        if (i > 0) {
+                            var rowObj = {};
+                            var values = row.split(',');
+                            values.forEach((val, j) => {
+                                val = val.replaceAll('\"', '');
+                                var key = columns[j].replaceAll('\"', '');
+                                rowObj[key] = val;
+                            });
+                            sourceData.push(rowObj);
+                        }
+                    });
 
+                    var moduleData = {
+                        datasetType: datasetType,
+                        sourceData: sourceData,
+                    };
+
+                } else {
+                    // TODO: defer to error screen
+                    console.log('failed to read file data columns.');
+                }
+                return moduleData;
+            })
+            .then(moduleData => {
+                var toggleModuleColor = moduleData.sourceData ? true : false;
+                setModuleCB(moduleKey, moduleData, toggleModuleColor);
+            })
+            .catch(error => {
+                console.error(error);
+            });
     }
 
 

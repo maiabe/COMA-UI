@@ -94,21 +94,25 @@ const moduleDataObject = [
 
 const DatasetFields = [
     "lightcurves",
-    "observation",
-    "geometry",
-    "photometry",
-    "objects"
+    "photometries",
+    "calibrations",
+    "images",
 ];
 
 // responseKey is for the api response key
 const DatasetTypes = [
     { type: "lightcurves", responseKey: "lightcurve" },
     { type: "photometries", responseKey: "photometries" },
-    { type: "objects", responseKey: "objects" },
+    { type: "calibrations", responseKey: "calibrations" },
+    { type: "images", responseKey: "images" },
 ];
 
 const DefaultAxis = [
-    { datasetType: "lightcurves", xAxis: { displayName: "imagedate", fieldName: "imagedate" }, yAxis: { displayName: "mag", fieldName: "mag", error: "mag_err" } }
+    {
+        datasetType: "lightcurves",
+        xAxis: { displayName: "imagedate", fieldName: "imagedate", dataType: 'category' },
+        yAxis: { displayName: "mag", fieldName: "mag", dataType: 'value' /*error: "mag_err"*/ }
+    }
     // add more later
 ];
 
@@ -121,13 +125,6 @@ const DefaultAxis = [
  *                          option: (array) list of numbers to represent the data with
  */
 const SearchFields = {
-    "types": [
-        "lightcurves",
-        "observation",
-        "geometry",
-        "photometry",
-        "objects"
-    ],
     "queryTypeTooltip": [
         {
             type: "lightcurves",
@@ -174,15 +171,8 @@ const SearchFields = {
             "fields": [
                 {
                     index: 0, remote: true, dirName: "objects",
-                    labelName: "Object", fieldName: "objects", type: 'typeahead', value: '0'
+                    labelName: "Object", fieldName: "objects", type: 'typeahead', value: '2017'
                 },
-                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
-                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
-                /*{
-                    remote: false,
-                    labelName: "Object Type", fieldName: "objectType", type: 'dropdown',
-                    options: objectType_options,
-                },*/
                 {
                     index: 0, remote: true, dirName: "telescopes",
                     labelName: "Telescope", fieldName: "telescopes", type: 'dropdown',
@@ -193,14 +183,19 @@ const SearchFields = {
                     labelName: "Filter", fieldName: "filters", type: 'dropdown',
                     options: [{ Value: '--- None ---', Key: -1 }],
                 },
+                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2022-01-01' },
+                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-06-27' },
+                /*{
+                    remote: false,
+                    labelName: "Object Type", fieldName: "objectType", type: 'dropdown',
+                    options: objectType_options,
+                },*/
             ]
         },
         {
-            "type": "observation",
+            "type": "photometries",
             "fields": [
-                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'text', value: 'C_2017_K2' },
-                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
-                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'typeahead', value: '2017' },
                 {
                     index: 0,
                     remote: true,
@@ -215,16 +210,14 @@ const SearchFields = {
                     optionName: "filter",
                     options: undefined,
                 },
-                { index: 0, remote: false, labelName: "Test1", fieldName: "test", type: 'text' },
-                { index: 1, remote: false, labelName: "Test1", fieldName: "test", type: 'text' }
+                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2022-01-01' },
+                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
             ]
         },
         {
-            "type": "geometry",
+            "type": "calibrations",
             "fields": [
-                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'text', value: 'C/2017 K2' },
-                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
-                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'typeahead' },
                 {
                     index: 0,
                     remote: true,
@@ -239,16 +232,14 @@ const SearchFields = {
                     optionName: "filter",
                     options: undefined,
                 },
-                { index: 0, remote: false, labelName: "Test2", fieldName: "test", type: 'text' },
-                { index: 1, remote: false, labelName: "Test2", fieldName: "test", type: 'text' }
+                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2022-01-01' },
+                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
             ]
         },
         {
-            "type": "photometry",
+            "type": "images",
             "fields": [
-                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'text', value: 'C_2017_K2' },
-                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
-                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
+                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'typeahead' },
                 {
                     index: 0,
                     remote: true,
@@ -263,33 +254,10 @@ const SearchFields = {
                     optionName: "filter",
                     options: undefined,
                 },
-                { index: 0, remote: false, labelName: "Test3", fieldName: "test", type: 'text' },
-                { index: 1, remote: false, labelName: "Test3", fieldName: "test", type: 'text' }
+                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2022-01-01' },
+                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
             ]
         },
-        {
-            "type": "objects",
-            "fields": [
-                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2018-01-01' },
-                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
-                {
-                    index: 0,
-                    remote: true,
-                    labelName: "Telescope", fieldName: "telescopes", type: 'dropdown',
-                    optionName: "telescope",
-                    options: undefined,
-                },
-                {
-                    index: 0,
-                    remote: true,
-                    labelName: "Filter", fieldName: "filters", type: 'dropdown',
-                    optionName: "filter",
-                    options: undefined,
-                },
-                { index: 0, remote: false, labelName: "Test4", fieldName: "test", type: 'text' },
-                { index: 1, remote: false, labelName: "Test4", fieldName: "test", type: 'text' }
-            ]
-        }
     ],
     "data-representation": [
         {

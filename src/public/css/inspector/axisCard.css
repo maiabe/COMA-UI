@@ -1,3 +1,23 @@
+.chart-theme-wrapper {
+    display: flex;
+    padding: 1.5% 5%;
+    position: absolute;
+    z-index: 1;
+}
+.chart-title-wrapper {
+    padding: 2% 2.5%;
+    align-items: center;
+    justify-content: center;
+}
+.chart-title-wrapper label {
+    width: 20%;
+    font-size: 14px;
+    white-space: nowrap;
+}
+.chart-title-wrapper input {
+    width: 80%;
+}
+
 .axis-card-wrapper {
     width: 45%;
     border-radius: 2px;
@@ -63,18 +83,24 @@
     width: 6%;
     height: 6%;
 }
-.trace-card-wrapper .label-wrapper {
+.trace-card-wrapper .label-wrapper,
+.trace-card-wrapper .errorbar-dropdown-wrapper {
     font-size: 80%;
     width: 100%;
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    padding-top: 8%;
+    padding-top: 5%;
 }
 .trace-card-wrapper .label-input {
-    width: 50%;
-    height: 5px;
+    height: 1.2rem;
 }
+.trace-card-wrapper .label-input,
+.trace-card-wrapper .error-dropdown {
+    width: 50%;
+    box-sizing: border-box;
+}
+
 .trace-card-wrapper .options-wrapper {
     display: flex;
     justify-content: space-evenly;

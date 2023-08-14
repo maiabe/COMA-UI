@@ -1,14 +1,22 @@
 
 const format_mapping = {
-    'mag': 3,
+    /*'mag': 3,
     'mag_err': 3,
     'zpmag': 3,
-    'zpmagerr': 3,
+    'zpmagerr': 3,*/
     'ra-object': 6,
     'dec-object': 7,
-    'exposure': 3,
+    /*'exposure': 3,*/
     'mjd_mid': 9,
 };
+
+function getNumDigits(fieldName) {
+    var numDigits = 3;
+    if (format_mapping.hasOwnProperty(fieldName)) {
+        numDigits = format_mapping[fieldName];
+    }
+    return numDigits;
+}
 
 function decimalAlignFormatter(cell, formatterParams, onRendered) {
     var value = cell.getValue();
@@ -26,4 +34,4 @@ function decimalAlignFormatter(cell, formatterParams, onRendered) {
 }
 
 
-export { format_mapping, decimalAlignFormatter }
+export { format_mapping, decimalAlignFormatter, getNumDigits }

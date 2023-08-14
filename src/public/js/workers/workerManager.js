@@ -151,7 +151,6 @@ export class WorkerManager {
                         workerObject.stopWorkerFunction(id);
                         break;
                     case 'Remote Dropdown Options Return':
-                        //console.log(event);
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, event.data));
                         workerObject.stopWorkerFunction(id);
                         break;

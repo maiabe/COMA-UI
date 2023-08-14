@@ -55,7 +55,7 @@ export class PopupManager {
         // Only allow one popup for each module at any given time.
         if (!this.#popupList.has(moduleKey)) {
             // Check window size before building.
-            let width = (content.width) ? content.width : 800;
+            let width = (content.width) ? content.width : 900;
             let height = (content.height) ? content.height : 500;
             console.log(content);
             const p = new Popup(width, height, 50, 50, moduleKey, content.color, content.content, content.headerText);

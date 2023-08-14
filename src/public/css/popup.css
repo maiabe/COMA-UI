@@ -133,6 +133,14 @@
     margin: 0 2% 2% 2%;
     /*overflow: auto;*/
 }
+.tabulator .tabulator-header .tabulator-col {
+    align-items: center;
+    justify-content: center !important;
+}
+.tabulator .tabulator-header .tabulator-col-group .tabulator-col-content {
+    align-self: start;
+    padding: 4px 10px;
+}
 
 /***************************** Chart Popup Card ******************************/
 .popup-content.plot-popup {

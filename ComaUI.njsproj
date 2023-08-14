@@ -55,6 +55,8 @@
     <Content Include="src\public\images\icons\db-image.png" />
     <Content Include="src\public\images\icons\delete_0.png" />
     <Content Include="src\public\images\icons\delete_1.png" />
+    <Content Include="src\public\images\icons\download_dark.png" />
+    <Content Include="src\public\images\icons\download_light.png" />
     <Content Include="src\public\images\icons\info.png" />
     <Content Include="src\public\images\icons\loading_spinner.gif" />
     <Content Include="src\public\images\icons\plus.png" />

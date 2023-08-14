@@ -40,6 +40,7 @@ function saveModule(e) {
 
 function getMetadata(e) {
     const message = { message: 'Get Metadata', moduleName: e.data.moduleName }
+    console.log(e.data);
     postData(baseUrl, message)
         .then(data => {
             handleReturn(data);
@@ -114,6 +115,7 @@ function handleFetchError(queryType, query, reason) {
 }
 
 function handleDatabaseQueryReturn(data, response) {
+    console.log(response);
     var moduleData = {
         type: "Database Query Return",
         remoteData: data.remoteData,
@@ -123,7 +125,6 @@ function handleDatabaseQueryReturn(data, response) {
         status: response.status,
         sourceData: response[data.responseKey]
     };
-    console.log(data);
     postMessage(moduleData);
 }
 /*function handleQueryReturn(inputData, taskResult) {
@@ -239,7 +240,6 @@ async function postData(url, data) {
  * Get the Remote Search Field
  * */
 async function getRemoteDropdownOptions(msg) {
-    //console.log(msg.data.data);
     const url_searchfield = coma_api + msg.data.data.dirName;
     // var url_taskResult = coma_api + 'task/result/';
 
@@ -417,6 +417,7 @@ async function postCOMATaskData(url, body) {
 
 // change func name to getRequest
 async function getCOMAData(url, delay) {
+    console.log(url);
     try {
         //const url = coma_api + `task/result/${id}`;
         const response = await fetch(url); 

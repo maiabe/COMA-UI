@@ -60,9 +60,10 @@ export class ModuleManager {
             const module = this.#MG.generateNewModule(name, category, key);  // This is the new module Instance.
             module.addData('oldKey', oldKey); // It is fine if this is undefined
             module.publisher.subscribe(this.subscriber);
-            this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.#moduleMap.has(key), groupKey: groupKey }));
             this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorCard().getCard() }));
             this.#sendMessage(new Message(POPUP_MANAGER, MODULE_MANAGER, 'Publish Module Popup Event', { moduleKey: key, content: module.getPopupContent() }));
+
+            this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.#moduleMap.has(key), groupKey: groupKey }));
             this.#addModule(module, key);
             return true;
         } catch (e) {
@@ -433,7 +434,6 @@ export class ModuleManager {
     updatePopupContent(moduleKey, moduleName, data) {
         const module = this.getModule(moduleKey);
         //const status = 'error';  // test error message
-        console.log(data);
         let content = undefined;
         if (module) {
             content = module.getPopupContent();

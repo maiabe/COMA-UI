@@ -7,6 +7,7 @@
 import { Publisher, Message } from '../communication/index.js';
 import { ChartBuilder, CsvWriter } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
+import { getNumDigits } from '../sharedVariables/formatValues.js';
 export class OutputManager {
     publisher;
     #outputMap;         // When a chart is created, parameters are stored here. If popup is closed, it can be recreatd from this data.
@@ -214,26 +215,78 @@ export class OutputManager {
     }
 
 
+    prepTableData(moduleKey, sourceData) {
+        // get columnHeaders
+
+
+        // prepare tableData
+
+
+        // setModuleData
+
+    }
+
     /*********************************************** Mai 7/13/23 *******************************************************/
     /** --- PUBLIC ---
-     * Prepares the data for echarts and stores the prepared data in the outputMap hash table.
+     * Prepares the data for echarts and stores it in the traceData to be passed to chartBuilder
      * @param {number} moduleKey key of the module is also a key to the outputMap table. 
      * @param {object} traceData data from the chart's inspector card. (e.g { fieldName: "date", labelName: "Date", gridLines: true, ticks: false  })
      * @param {object} sourceData unfiltered source data from the previous module (list of key-value objects)
      * */
-
     //// * NOTE: for now refer all yaxis to the first xaxis element
-    prepChartData(moduleKey, traceData, sourceData) {
+    // stores source data of the field and source data type of the field to traceData
+    prepChartData(moduleKey, chartTitle, traceData, sourceData) {
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(sourceData, 'sourceData', 'object')], 'OutputManager', 'prepEchartData')) return;
+        var chartData = traceData;
         var axisNames = Object.keys(traceData);
         axisNames.forEach(axis => {
-            traceData[axis].forEach(trace => {
-                var result = sourceData.map(sd => { return sd[trace.fieldName] });
+            chartData[axis].forEach(trace => {
+                // Store sourceData type of the field to determine whether the field is categorical or value type
+                var fieldValue = Number(sourceData[0][trace.fieldName]);
+                if (Number.isNaN(fieldValue)) {
+                    trace['dataType'] = "category";
+                }
+                else {
+                    trace['dataType'] = "value";
+                }
+
+                // Prepare sourceData of the field
+                var digits = getNumDigits(trace.fieldName);
+                var result = sourceData.map(sd => {
+                    var value = Number(sd[trace.fieldName]);
+                    if (Number.isNaN(value)) {
+                        value = sd[trace.fieldName];
+                    }
+                    else {
+                        value = value.toFixed(digits);
+                    }
+                    return value;
+                });
+                /*console.log(result);*/
                 trace['data'] = result;
+
+                // Prepare errorData if selected
+                if (trace.error && trace.error !== 'none') {
+                    trace['errorData'] = sourceData.map((sd, i) => {
+                        // round to the default number of digits if no default set it to 3 digits
+                        var lowerVal = Number(sd[trace.fieldName]) - Number(sd[trace.error]);
+                        var higherVal = Number(sd[trace.fieldName]) + Number(sd[trace.error]);
+                        return [i, lowerVal.toFixed(digits), higherVal.toFixed(digits)]
+                    });
+                }
+
+                // Store y-axis inverse value to be set to true if fieldName is any kind of a magnitude field
+                if (trace.fieldName.includes('mag') && trace.dataType === "value") {
+                    trace['inverse'] = true;
+                } else {
+                    trace['inverse'] = false;
+                }
             });
         });
-        /*console.log(traceData);*/
-        return traceData;
+        chartData['chartTitle'] = chartTitle;
+        console.log(chartData);
+
+        return chartData;
         // error check
         /*var echartData = { 'series': [] };
         var chartAxis = Object.keys(traceData);
@@ -270,7 +323,7 @@ export class OutputManager {
             }
         });
         console.log(echartData);*/
-
+         
         //var chartData = { x: [], y: [], e: []};
 
         // save to outputMap hash table

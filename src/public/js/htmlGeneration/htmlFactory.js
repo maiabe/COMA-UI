@@ -183,8 +183,8 @@ export class HTMLFactory {
              * @param disabled -> boolean (true = disabeled, false = enabeled )
              * @return the new button
              */
-    createNewTextInput(id, name, classlist, customStyles, type, disabled) {
-        return this.#inputGenerator.generateFileInput(id, name, classlist, customStyles, type, disabled);
+    createNewTextInput(id, name, classlist, customStyles, type, value) {
+        return this.#inputGenerator.generateTextInput(id, name, classlist, customStyles, type, value);
     }
 
     /** Creates a new HTML text input element

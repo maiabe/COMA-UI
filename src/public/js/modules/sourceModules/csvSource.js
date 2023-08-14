@@ -17,8 +17,13 @@ export class Csv extends Source {
         this.addData('description', 'This module loads a CSV file (.csv) and converts it into a module.');
         this.addData('linkedToData', false);
         this.addData('remoteData', false);
+        this.addData('onCreationFunction', this.onCreation.bind(this));
+        this.addData('requestMetadataOnCreation', true);
+        //this.#createInspectorCardData();
         this.#setPopupContent();
-        this.#createInspectorCardData();
+
+
+        //this.#createInspectorCardData();
     }
 
     /** --- PRIVATE ---
@@ -63,4 +68,14 @@ export class Csv extends Source {
         this.inspectorCardMaker.getField('readFileButton').disabled = toggle;
     };
 
+    onCreation = () => {
+        //this.addData('metadata', metadata);
+
+        this.inspectorCardMaker.createCSVModuleInspectorCard(this.handleFiles.bind(this), this.getData('key'));
+
+        //this.inspectorCardMaker.addSearchFormFields(metadata)
+        // --> Add Date Range Field Min Max = date picker? (too many dates can be chosen from, slider may not be very useful)
+        // --> Add Object (Comet) text input
+
+    }
 }

@@ -1,6 +1,7 @@
 import { Output } from "../index.js";
 import { HTMLFactory } from "../../htmlGeneration/htmlFactory.js";
-import { LT_SOURCE, LT_OUTPUT } from "../../sharedVariables/constants.js";
+import { LT_SOURCE, LT_OUTPUT, MODULE, INPUT_MANAGER } from "../../sharedVariables/constants.js";
+import { Message } from "../../communication/message.js";
 
 
 export class Table extends Output {
@@ -15,7 +16,6 @@ export class Table extends Output {
         //this.addData('link', -1, false, '', false);
         //this.addData('onCreationFunction', this.onCreation.bind(this));
         // close data source popup and inspectors
-
     }
 
     /*setPopupContent = () => {
@@ -42,19 +42,21 @@ export class Table extends Output {
         this.popupContentMaker.setTablePopupContent(moduleKey);
     }
 
+    prepInspectorCardData(toModuleKey, fromModuleData) {
+        this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Prep Table Data Event', { moduleKey: toModuleKey, sourceModuleData: fromModuleData }));
+    }
+
     // moduleData: { columnHeaders }
     // Set Inspector card content
-    updateInspectorCard(moduleKey, moduleData) {
+    updateInspectorCard() {
+        var moduleKey = this.getData('key');
+        var moduleData = this.getData('moduleData');
         // fields objects include { fieldname, displayname, and unitsArray }
-        if (moduleData) {
-            // add unitsArray if any.. lookup static data?
-            var fields = moduleData.columnHeaders.map(header => {
-                if (!header.includes('id')) {
-                    return { fieldName: header, displayName: header };
-                }
-            });
+        if (moduleData.sourceData) {
+            // prepare fields to render in the inspector card
+
             // add view table button
-            this.inspectorCardMaker.updateTableModuleInspectorCard(moduleKey, moduleData, fields);
+            this.inspectorCardMaker.updateTableModuleInspectorCard(moduleKey, moduleData);
         }
         else {
             console.log('moduleData is not set. Please make sure the source module contains data');
@@ -77,8 +79,6 @@ export class Table extends Output {
         //this.inspectorCardMaker.addSearchFormFields(metadata)
         // --> Add Date Range Field Min Max = date picker? (too many dates can be chosen from, slider may not be very useful)
         // --> Add Object (Comet) text input
-
-
     }
 
     /** --- PUBLIC ---

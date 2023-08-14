@@ -5,7 +5,7 @@
  *************************************************************/
 import { Module } from "../index.js";
 import { ChartDataStorage } from "./components/chartDataStorage.js";
-import { LT_OUTPUT, LT_PROCESSOR, LT_SOURCE, MODULE, MODULE_MANAGER, OUTPUT_MANAGER } from "../../sharedVariables/constants.js";
+import { LT_OUTPUT, LT_PROCESSOR, LT_SOURCE, MODULE, MODULE_MANAGER, OUTPUT_MANAGER, INPUT_MANAGER } from "../../sharedVariables/constants.js";
 import { Message } from "../../communication/message.js";
 
 export class Output extends Module {
@@ -28,6 +28,7 @@ export class Chart_2D extends Output {
     setPopupContent = () => {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
         this.addData('themeDD', this.popupContentMaker.addEChartThemeDropdown(this.getData('key')), false, '', false);
+
         this.addData('plotDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
         this.addData('inportType', [LT_SOURCE, LT_PROCESSOR]);
         this.addData('outportType', [-1]);
@@ -43,6 +44,10 @@ export class Chart_2D extends Output {
         //this.inspectorCardMaker.addInspectorCardDataConnectedField();
     }
 
+    prepInspectorCardData(toModuleKey, fromModuleData) {
+        console.log(fromModuleData);
+        this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Prep Chart Data Event', { moduleKey: toModuleKey, sourceModuleData: fromModuleData }));
+    }
 
     /** --- PUBLIC ---
      * Called by the Hub when an output module is connected to a flow with data.
@@ -50,8 +55,9 @@ export class Chart_2D extends Output {
      * @param {Number} moduleKey key of the module
      * @param {object} moduleData module data for data headers, data, etc
      * */
-    updateInspectorCard(moduleKey, moduleData) {
-        var fields = moduleData.columnHeaders;
+    updateInspectorCard() {
+        var moduleKey = this.getData('key');
+        var moduleData = this.getData('moduleData');
         this.inspectorCardMaker.updateChartModuleInspectorCard(moduleKey, moduleData);
 
 

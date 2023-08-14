@@ -55,4 +55,7 @@ const filter_options = [
     { Key: "WIDE", Value: "Wide band filter, generic" },
 ];
 
-export { telescope_options, filter_options, objectType_options }
+var datasetKeyDict = [{ datasetType: 'lightcurves', datasetKey: 'Photometry' }];
+
+
+export { datasetKeyDict, telescope_options, filter_options, objectType_options }
