@@ -1,48 +1,23 @@
-.chart-theme-wrapper {
-    display: flex;
-    padding: 1.5% 5%;
-    position: absolute;
-    z-index: 1;
-}
-.chart-title-wrapper {
-    padding: 2% 2.5%;
-    align-items: center;
-    justify-content: center;
-}
-.chart-title-wrapper label {
-    width: 20%;
-    font-size: 14px;
-    white-space: nowrap;
-}
-.chart-title-wrapper input {
-    width: 80%;
-}
 
+/*--------------------------- axisCard styles -----------------------------*/
 .axis-card-wrapper {
     width: 45%;
     border-radius: 2px;
-    margin: 1%;
+    padding: 3% 2%;
     font-size: 85%;
-    height: 400px;
+    height: 300px;
     box-shadow: 0.5px 0.5px 4px 0.5px gray;
-    flex-flow: column;
     overflow: auto;
-}
-
-.axis-card-header {
-    padding: 6% 4%;
 }
 
 .axis-content-wrapper {
     height: 100%;
-    padding: 5%;
-    text-align: center;
 }
 
-.axis-content-wrapper .fields-wrapper {
+.axis-content-wrapper .fields-dropdown-wrapper {
     width: 100%;
     display: flex;
-    margin: 3% 0;
+    margin: 5% 0;
 }
 .axis-content-wrapper .fields-dropdown {
     width: 70%;
@@ -59,15 +34,14 @@
 }
 
 .axis-content-wrapper .trace-area {
-    padding: 5% 0;
+    padding: 3% 0;
 }
 
 .trace-card-wrapper {
     border: 0.5px solid gray;
     border-radius: 3px;
     width: 100%;
-    min-height: 100px;
-    margin: 4% 0;
+    margin-bottom: 5%;
 }
 .trace-card-header {
     display: flex;
@@ -83,35 +57,74 @@
     width: 6%;
     height: 6%;
 }
-.trace-card-wrapper .label-wrapper,
-.trace-card-wrapper .errorbar-dropdown-wrapper {
+.trace-card-body {
+    padding: 3% 5%;
+}
+.trace-card-wrapper .trace-card-element {
     font-size: 80%;
     width: 100%;
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    padding-top: 5%;
+    margin-bottom: 3%;
 }
 .trace-card-wrapper .label-input {
     height: 1.2rem;
 }
-.trace-card-wrapper .label-input,
-.trace-card-wrapper .error-dropdown {
+.trace-card-wrapper .trace-card-element span,
+.trace-card-wrapper .trace-card-element select,
+.trace-card-wrapper .trace-card-element input,
+.trace-card-wrapper .trace-card-element label
+{
     width: 50%;
     box-sizing: border-box;
+    text-align: start;
 }
 
-.trace-card-wrapper .options-wrapper {
+.trace-card-body .offset-option-wrapper {
     display: flex;
-    justify-content: space-evenly;
-    padding: 5% 0;
+    flex-flow: wrap;
+}
+.trace-card-body .offset-option-wrapper label {
+    width: 100%;
+}
+
+.trace-card-body .offset-option-wrapper .range-input {
+    width: 70%;
+    height: 1rem;
+    padding: 0;
+}
+.trace-card-body .offset-option-wrapper .text-input {
+    width: 20%;
+    height: 1rem;
+}
+
+.trace-card-wrapper .trace-options-wrapper {
+    flex-flow: wrap;
+}
+.trace-card-wrapper .trace-options-wrapper .options-wrapper {
+    
+}
+.trace-card-wrapper .trace-options-wrapper .checkbox-wrapper {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    content-visibility: auto;
+}
+.trace-card-wrapper .trace-options-wrapper .checkbox-wrapper label {
+    font-size: smaller;
+    white-space: nowrap;
+    width: fit-content;
+}
+.trace-card-wrapper .trace-options-wrapper .checkbox-wrapper .checkbox {
+    width: 15%;
 }
 
 
 .generate-chart-button {
     width: 100%;
     height: 5%;
-    margin: 2%;
+    margin: 3% 0;
     padding: 0.5% 5%;
     justify-content: center;
     border: 1px solid darkgray;
@@ -201,3 +214,170 @@
 
 
 }
+
+
+
+/*--------------------------- seriesCard styles -----------------------------*/
+.series-card-wrapper {
+    width: 100%;
+    border-radius: 2px;
+    margin-top: 3%;
+    font-size: 85%;
+    height: 350px;
+    box-shadow: 0.5px 0.5px 4px 0.5px gray;
+    flex-flow: column;
+    overflow: auto;
+    padding: 4%;
+}
+
+.series-content-wrapper {
+    height: 100%;
+}
+
+.series-content-wrapper .fields-dropdown-wrapper {
+    width: 100%;
+    display: flex;
+    margin: 4% 0 2% 0;
+}
+
+.series-content-wrapper .fields-dropdown {
+    width: 80%;
+    height: 25px;
+    border: 0.5px solid darkgray;
+}
+
+.series-content-wrapper .add-trace-button {
+    width: 20%;
+    height: 25px;
+    font-size: 80%;
+    padding: 1%;
+    border: 0.5px solid darkgray;
+    border-radius: 2px;
+}
+
+.series-content-wrapper .trace-area {
+    padding: 3% 0;
+}
+
+.series-content-wrapper .trace-card-header {
+    padding: 1% 4%;
+}
+.series-content-wrapper .trace-card-header img {
+    width: 3%;
+}
+
+.series-content-wrapper .trace-card-body {
+    /*display: flex;
+    flex-flow: wrap;
+    justify-content: center;*/
+    display: grid;
+    column-gap: 3%;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+        'label label'
+        'xaxis yaxis'
+        'symbol error'
+        'size size';
+}
+
+.series-content-wrapper .trace-card-wrapper .trace-card-element {
+    margin-bottom: 3%;
+}
+    .series-content-wrapper .trace-card-wrapper select {
+        height: 1.2rem;
+    }
+
+.series-content-wrapper .trace-card-body .label-wrapper {
+    grid-area: label;
+}
+    .series-content-wrapper .trace-card-body .label-wrapper .label-text {
+        width: 20%;
+        text-align: right;
+        margin-right: 5px;
+        white-space: nowrap;
+    }
+    .series-content-wrapper .trace-card-body .label-wrapper .label-input {
+        width: 80%;
+        height: 1.5rem;
+    }
+
+.series-content-wrapper .trace-card-body .xaxis-index-dropdown-wrapper {
+    grid-area: xaxis;
+}
+.series-content-wrapper .trace-card-body .yaxis-index-dropdown-wrapper {
+    grid-area: yaxis;
+}
+.series-content-wrapper .trace-card-body .error-dropdown-wrapper {
+    grid-area: error;
+}
+.series-content-wrapper .trace-card-body .datapoint-symbol-dropdown-wrapper {
+    grid-area: symbol;
+}
+
+    .series-content-wrapper .trace-card-body .xaxis-index-dropdown-wrapper .xaxis-index-label,
+    .series-content-wrapper .trace-card-body .yaxis-index-dropdown-wrapper .yaxis-index-label,
+    .series-content-wrapper .trace-card-body .error-dropdown-wrapper .error-label,
+    .series-content-wrapper .trace-card-body .datapoint-symbols-dropdown-wrapper .datapoint-symbols-label 
+    {
+        width: 40%;
+        text-align: right;
+        margin-right: 5px;
+    }
+    .series-content-wrapper .trace-card-body .xaxis-index-dropdown-wrapper .xaxis-index-dropdown,
+    .series-content-wrapper .trace-card-body .yaxis-index-dropdown-wrapper .yaxis-index-dropdown,
+    .series-content-wrapper .trace-card-body .error-dropdown-wrapper .error-dropdown,
+    .series-content-wrapper .trace-card-body .datapoint-symbols-dropdown-wrapper .datapoint-symbols-dropdown 
+    {
+        width: 60%;
+    }
+
+.series-content-wrapper .trace-card-body .datapoint-size-range-wrapper {
+    grid-area: size;
+}
+    .series-content-wrapper .trace-card-body .datapoint-size-range-wrapper label {
+        width: 30%;
+    }
+    .series-content-wrapper .trace-card-body .datapoint-size-range-wrapper .range-input {
+        width: 60%;
+    }
+    .series-content-wrapper .trace-card-body .datapoint-size-range-wrapper .text-input {
+        width: 10% !important;
+        height: 1.2rem;
+    }
+
+
+/*
+.series-content-wrapper .trace-card-wrapper .trace-card-element {
+    justify-content: center;
+}
+.series-content-wrapper .trace-card-wrapper .trace-card-element span,
+.series-content-wrapper .trace-card-wrapper .trace-card-element label
+{
+    width: 25%;
+    text-align: right;
+    margin-right: 2%;
+    box-sizing: border-box;
+    white-space: nowrap;
+}*/
+
+
+/*.series-content-wrapper .trace-card-wrapper .xaxis-index-dropdown-wrapper,
+.series-content-wrapper .trace-card-wrapper .yaxis-index-dropdown-wrapper
+{
+    width: 45%;
+    flex-flow: nowrap;
+    justify-content: flex-start;
+    padding: 0 2%;
+}*/
+/*.series-content-wrapper .trace-card-wrapper .xaxis-index-dropdown-wrapper span,
+.series-content-wrapper .trace-card-wrapper .yaxis-index-dropdown-wrapper span
+{
+    width: auto;
+}*/
+
+/*
+.series-content-wrapper .trace-card-wrapper .datapoint-size-range-wrapper .range-input {
+    width: 80%;
+    margin: 0 3%;
+}*/
+

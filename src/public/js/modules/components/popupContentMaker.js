@@ -339,13 +339,12 @@ export class PopupContentMaker {
     }
 
     addEChartThemeDropdown(key) {
-        var themeDDWrapper = this.HF.createNewDiv('', '', ['chart-theme-wrapper'], [{ style: 'width', value: '100%' }]);
+        var themeDDWrapper = this.HF.createNewDiv('', '', ['chart-theme-wrapper'], []);
         this.dataTable.set('themeDD', this.HF.createNewSelect(`chart-theme-dd-${key}`, '', ['chart-theme-dd'], [], chartThemes, chartThemes));
         var themeDD = this.getField('themeDD');
         this.setEchartThemeDropdownEventListener(themeDD, key);
 
         themeDDWrapper.appendChild(themeDD);
-        console.log(themeDDWrapper);
         this.getPopupContentWrapper().appendChild(themeDDWrapper);
         return themeDD;
     }

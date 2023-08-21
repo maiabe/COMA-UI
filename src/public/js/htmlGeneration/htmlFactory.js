@@ -1,5 +1,5 @@
 
-import { FormGenerator, TextAreaGenerator, H3Generator, H1Generator, DivGenerator, ParagraphGenerator, SpanGenerator, LabelGenerator, ImgGenerator, InputGenerator, TableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider, AnchorGenerator, ListGenerator } from "./index.js";
+import { FormGenerator, TextAreaGenerator, H3Generator, H1Generator, DivGenerator, ParagraphGenerator, SpanGenerator, LabelGenerator, ImgGenerator, InputGenerator, TableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider, AnchorGenerator, ListGenerator, RangeInput } from "./index.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
 export class HTMLFactory {
 
@@ -195,6 +195,25 @@ export class HTMLFactory {
              *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
              *                         value: 'green;}
              * @param type -> must be 'text' (string)
+             * @param disabled -> boolean (true = disabeled, false = enabeled )
+             * @return the new button
+             */
+    createNewRangeInput(id, name, classlist, customStyles, min, max, step, value) {
+        return this.#inputGenerator.generateRangeInput(id, name, classlist, customStyles, min, max, step, value);
+    }
+
+    createNewRangeInputComponent(id, name, classlist, customStyles, labelName, min, max, step, value) {
+        const rangeInput = new RangeInput(id, name, classlist, customStyles, labelName, min, max, step, value);
+        return rangeInput.get().wrapper;
+    }
+
+    /** Creates a new HTML text input element
+             * @param id -> the id of the element (if not adding id, use empty string '')
+             * @param name -> the name of the element (if not adding name, use empty string '')
+             * @param classlist -> Array of strings, each string is a css classname
+             * @param customStyles -> array of objects in the following format
+             *                        { style: string (in camelCase)}  ex style: 'backgroundColor', value: 'green; }
+             * @param type -> must be 'text' (string)
              * @return the new button
              */
     createNewTextArea(id, name, classlist, customStyles,) {
@@ -234,6 +253,13 @@ export class HTMLFactory {
         return this.#selectGenerator.updateOptions(dropdown, options);
     }
 
+    addSelectOption(dropdown, option) {
+        this.#selectGenerator.addOption(dropdown, option);
+    }
+    removeSelectOption(dropdown, option) {
+        this.#selectGenerator.removeOption(dropdown, option);
+    }
+
     /**
      * Creates a checkbox with label wrapped in a div.
      * @param {string} id 
@@ -268,6 +294,8 @@ export class HTMLFactory {
         const slider = new RangeSlider(id, name, classlist, customStyles, callback, updateSliderFunction);
         return slider.getWrappper();
     }
+
+
 
     /** Creates a new HTML a element
      * @param href -> the href link of the element

@@ -35,4 +35,17 @@ export class SelectGenerator {
             dropdown.appendChild(option);
         }
     }
+
+    addOption(dropdown, option) {
+        const newOption = document.createElement('option');
+        newOption.setAttribute('value', option.value);
+        newOption.innerHTML = option.name;
+        dropdown.appendChild(newOption);
+    }
+    removeOption(dropdown, option) {
+        var optionIndex = Array.from(dropdown.options).indexOf(option);
+        if (optionIndex !== -1) {
+            dropdown.options[optionIndex].remove();
+        }
+    }
 }

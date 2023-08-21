@@ -455,8 +455,13 @@ export class InspectorCardMaker {
             
             // get responseKey for this query type
             var responseKey = 'lightcurve';
-            DatasetTypes.forEach(dt => { if (dt.type === queryType) { responseKey = dt.responseKey } });
-
+            var sortBy = undefined;
+            DatasetTypes.forEach(dt => {
+                if (dt.type === queryType) {
+                    responseKey = dt.responseKey;
+                    sortBy = dt.sortBy;
+                }
+            });
             console.log(entries);
 
             const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Search Form Submit Event',
@@ -467,6 +472,7 @@ export class InspectorCardMaker {
                 queryType: queryType,
                 queryEntries: entries,
                 responseKey: responseKey,
+                sortBy: sortBy,
                 delay: 1000,
             });
             this.sendMessage(message);
@@ -580,26 +586,27 @@ export class InspectorCardMaker {
     // send message to setModuleData (x and y values and plotly options)
     // --------------------------- Chart Module ---------------------------
     updateChartModuleInspectorCard(moduleKey, moduleData) {
-        console.log(moduleData);
-        const fields = moduleData.columnHeaders;
+        const chartAxisData = moduleData.chartAxisData;
         const datasetType = moduleData.datasetType;
 
-        // Add Chart title
+        var contentWrapper = this.HF.createNewDiv('', '', ['chart-inspector-wrapper'], [{ style: 'padding', value: '4%' }]);
+        this.inspectorCard.appendToBody(contentWrapper);
+
+        //-- Add Chart Title
         var chartTitleWrapper = this.HF.createNewDiv('', '', ['chart-title-wrapper'], [{ style: "width", value: "100%" }]);
         var chartTitleLabel = this.HF.createNewLabel('', '', `chart-title-${moduleKey}`, ['chart-title-label'], [], 'Chart Title: ');
         var chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', datasetType)
         chartTitleWrapper.appendChild(chartTitleLabel);
         chartTitleWrapper.appendChild(chartTitleInput);
-        this.inspectorCard.appendToBody(chartTitleWrapper);
+        contentWrapper.appendChild(chartTitleWrapper);
 
-        // sort trace fields
-        var filteredFields = this.#filterTraceCardFields(fields, moduleData.sourceData);
-        var xAxisFields = [];
-        var yAxisFields = [];
-        var errorFields = [];
-        filteredFields.map(field => { if (field.type === "axis-field") { xAxisFields.push(field) } });
-        filteredFields.map(field => { if (field.type === "axis-field") { yAxisFields.push(field) } });
-        filteredFields.map(field => { if (field.type === "error-field") { errorFields.push(field) } });
+        var chartAxisWrapper = this.HF.createNewDiv('', '', ['chart-axis-wrapper'], [{ style: "width", value: "100%" }]);
+        contentWrapper.appendChild(chartAxisWrapper);
+
+        //-- Add Axis Cards
+        var xAxisFields = chartAxisData.filter(column => column.axis === 'xaxis');
+        var yAxisFields = chartAxisData.filter(column => column.axis === 'yaxis');
+        var errorFields = chartAxisData.filter(column => column.axis === 'error');
 
         // Find default field object to load (e.g. {type: "lightcurve", xaxis: "imagedate", yaxis: "mag", error: "mag_err"})
         var defaultField = DefaultAxis.map(axisObj => { if (axisObj.datasetType == datasetType) { return axisObj } });
@@ -607,16 +614,46 @@ export class InspectorCardMaker {
         // Create X axis card
         var xAxisName = { displayName: "X Axis", elementName: "xAxis" };
         var xAxisDefault = (defaultField.length > 0) ? defaultField[0].xAxis : undefined;
-        var xAxisCard = this.inspectorCard.addAxisCard(xAxisName, xAxisFields, xAxisDefault, undefined);
+        console.log(xAxisFields[0].fields);
+        console.log(xAxisDefault);
+        console.log(xAxisName);
+        var xAxisCard = this.inspectorCard.addAxisCard(xAxisName, xAxisFields[0].fields, xAxisDefault);
+        chartAxisWrapper.appendChild(xAxisCard.getCard().wrapper);
 
         // Create Y axis card
         var yAxisName = { displayName: "Y Axis", elementName: "yAxis" };
         var yAxisDefault = (defaultField.length > 0) ? defaultField[0].yAxis : undefined;
-        var yAxisCard = this.inspectorCard.addAxisCard(yAxisName, yAxisFields, yAxisDefault, errorFields);
+        var yAxisCard = this.inspectorCard.addAxisCard(yAxisName, yAxisFields[0].fields, yAxisDefault);
+        chartAxisWrapper.appendChild(yAxisCard.getCard().wrapper);
 
-        // Add generateChartButton
+        var seriesCard = this.inspectorCard.addSeriesCard(yAxisFields[0].fields, yAxisDefault, errorFields[0].fields, this.updateSeriesAxisOptions);
+        chartAxisWrapper.appendChild(seriesCard.getCard().wrapper);
+
+
+        this.addSeriesAxisOptions(xAxisCard, yAxisCard, seriesCard);
+
+        // Add xFieldName options in yAxis traceCards according to the loaded xAxis traceCards
+        /*var xAxisTraces = xAxisCard.getCard().traceArea;
+        var xTraces = xAxisTraces ? xAxisTraces.querySelectorAll('.trace-card-wrapper') : undefined;
+        if (xTraces) {
+            var xFieldNames = [];
+            xTraces.forEach((xt, i) => {
+                xFieldNames.push({ value: i, name: xt.getAttribute('id') });
+            });
+            var yAxisTraces = yAxisCard.getCard().traceArea;
+            var yTraces = yAxisTraces ? yAxisTraces.querySelectorAll('.trace-card-wrapper') : undefined;
+            if (yTraces) {
+                yTraces.forEach(yt => {
+                    let dropdown = yt.querySelector('.xaxis-field-dropdown');
+                    this.HF.updateSelectOptions(dropdown, xFieldNames);
+                    dropdown.options[0].selected = true;
+                });
+            }
+        }*/
+
+        //-- Add generateChartButton
         var generateChartButton = this.HF.createNewButton(`generate-chart-button-${moduleKey}`, '', ['generate-chart-button', 'button'], [{ style: 'width', value: '100%' }], 'button', 'Generate Chart', false);
-        this.inspectorCard.appendToBody(generateChartButton);
+        contentWrapper.appendChild(generateChartButton);
 
           // add generateChart function .. send message to output manager?
             // prepare data for chart
@@ -628,6 +665,7 @@ export class InspectorCardMaker {
             const inspectorCard = e.target.closest('.inspector-card-body');
             const chartTitle = inspectorCard.querySelector('.chart-title');
             const axisCards = inspectorCard.querySelectorAll('.axis-card-wrapper');
+            const seriesCard = inspectorCard.querySelectorAll('.series-card-wrapper');
             // foreach axisCards
             var traceData = {};
             axisCards.forEach(axisCard => {
@@ -637,17 +675,20 @@ export class InspectorCardMaker {
                 traceData[id] = [];
                 traceCards.forEach(traceCard => {
                     var elementId = traceCard.getAttribute('id');
+                    var dataType = traceCard.querySelector('.data-type');
+                    var fieldGroup = traceCard.querySelector('.field-group');
                     var labelName = traceCard.querySelector('.label-input');
-                    var errorDropdown = traceCard.querySelector('.error-dropdown');
-                    var errorValue = errorDropdown ? errorDropdown.value : undefined;
-                    var gridLinesOption = traceCard.querySelector('.options-gridlines');
-                    var ticksOption = traceCard.querySelector('.options-ticks');
+                    var majorGridLines = traceCard.querySelector('.major-gridlines');
+                    var minorGridLines = traceCard.querySelector('.minor-gridlines');
+                    var ticks = traceCard.querySelector('.minor-ticks');
                     var traceCardContent = {
                         fieldName: elementId,
+                        dataType: dataType.value,
+                        fieldGroup: fieldGroup.value,
                         labelName: labelName ? labelName.value : elementId,
-                        error: errorValue,
-                        gridLines: gridLinesOption ? gridLinesOption.checked : false,
-                        ticks: ticksOption ? ticksOption.checked : false,
+                        majorGridLines: majorGridLines ? majorGridLines.checked : false,
+                        minorGridLines: minorGridLines ? minorGridLines.checked : false,
+                        ticks: ticks ? ticks.checked : false,
                     };
                     traceData[id].push(traceCardContent);
                     console.log(traceCardContent);
@@ -655,6 +696,7 @@ export class InspectorCardMaker {
             });
 
             moduleData['moduleKey'] = moduleKey;
+            moduleData['datasetType'] = datasetType;
             moduleData['chartTitle'] = chartTitle ? chartTitle.value : datasetType;
             moduleData['traceData'] = traceData;
             const message = new Message(OUTPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Set New Chart Event', moduleData);
@@ -736,24 +778,51 @@ export class InspectorCardMaker {
         
     }
 
+    /** Adds xAxisIndex & yAxisIndex dropdown options on initial inspector card load
+     * @param {xAxisCard object} xAxisCard object for getting the xAxis traces
+     * @param {yAxisCard object} yAxisCard object for getting the yAxis traces
+     * @param {seriesCard object} seriesCard to add the options for
+     * */
+    addSeriesAxisOptions(xAxisCard, yAxisCard, seriesCard) {
+        var xAxisTraceArea = xAxisCard.getCard().traceArea;
+        var yAxisTraceArea = yAxisCard.getCard().traceArea;
+        var seriesTraceArea = seriesCard.getCard().traceArea;
 
-    #filterTraceCardFields(fields, sourceData) {
+        var xTraces = xAxisTraceArea.querySelectorAll('.trace-card-wrapper');
+        var yTraces = yAxisTraceArea.querySelectorAll('.trace-card-wrapper');
+        var seriesTraces = seriesTraceArea.querySelectorAll('.trace-card-wrapper');
 
-        var sourceDataRow = sourceData[0];
-        return fields.map(field => {
-            var dataVal = Number(sourceDataRow[field]);
-            var dataType = Number.isNaN(dataVal) ? 'category' : 'value';
-            /*if (field.includes('date') || field.includes('time')) {
-                return { type: "x-axis-field", displayName: field, fieldName: field, dataType: dataType }
-            }*/
-            if (field.includes('err') || field.includes("error")) {
-                return { type: "error-field", displayName: field, fieldName: field, dataType: dataType }
-            }
-            else {
-                // for y, include fields with numerical values
-                return { type: "axis-field", displayName: field, fieldName: field, dataType: dataType }
-            }
+        /*console.log(xTraces);
+        console.log(yTraces);
+        console.log(seriesTraces);*/
+
+        var xOptions = [];
+        var yOptions = [];
+        xTraces.forEach((x, i) => { xOptions.push({ value: i, name: x.getAttribute('id') }) });
+        yTraces.forEach((x, i) => { yOptions.push({ value: i, name: x.getAttribute('id') }) });
+     
+        // append to xAxisIndex & yAxisIndex dropdowns in each series trace cards
+        seriesTraces.forEach(trace => {
+            var xAxisDD = trace.querySelector('.xaxis-index-dropdown-wrapper .xaxis-index-dropdown');
+            var yAxisDD = trace.querySelector('.yaxis-index-dropdown-wrapper .yaxis-index-dropdown');
+            this.HF.updateSelectOptions(xAxisDD, xOptions);
+            this.HF.updateSelectOptions(yAxisDD, yOptions);
         });
+    }
+
+    /** Updates the axis index dropdown options in each series traces.
+     *  This function is called on adding or removing a trace in xAxis or yAxis card.
+     * @param {action string} action is 'add' or 'remove' trace action.
+     * @param {axisName string} axisName of the card.
+     * @param {axisTrace HTML Object} axisTrace that was added to the card.
+     * */
+    // updateSeriesAxisOptions(action, axisTrace)
+    //updateSeriesAxisOptions(action, axisName, axisTrace) {
+    updateSeriesAxisOptions(traceCard) {
+        //var seriesCard = axisTrace.closest('.chart-axis-wrapper');
+        //var seriesTraces = seriesCard.querySelectorAll('.series-card-wrapper .trace-area .trace-card-wrapper');
+        var axisWrapper = traceCard.closest('.chart-axis-wrapper');
+        console.log(axisWrapper);
     }
 
 

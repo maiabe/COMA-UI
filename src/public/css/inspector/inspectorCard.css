@@ -50,7 +50,7 @@
   align-items: flex-start;
   align-content:flex-start;
   min-height: 500px;
-  justify-content: space-around;
+  justify-content: space-evenly;
 }
 
 .inspector-card-horizontal-flex-container {
@@ -256,5 +256,50 @@
 
 .include-column-card .view-button-wrapper .btn:active {
     transform: translateY(1.5px);
+}
+
+
+/***************************** Chart Inspector Card ******************************/
+
+.chart-inspector-wrapper {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    padding: 0 3%;
+}
+
+.chart-axis-wrapper {
+    width: 100%;
+    display: flex;
+    flex-flow: wrap;
+    justify-content: space-between;
+    margin: 2% 0;
+}
+
+.chart-title-wrapper {
+    width: 100%;
+    margin-bottom: 2.5%;
+    display: flex;
+    align-items: center;
+}
+
+.chart-title-wrapper label {
+    font-size: 14px;
+    white-space: nowrap;
+    margin-right: 5px;
+}
+
+.chart-title-wrapper input {
+    width: -webkit-fill-available;
+}
+
+@media screen and (max-width: 1200px) {
+    .chart-title-wrapper label {
+        width: 25%;
+    }
+
+    .chart-title-wrapper input {
+        width: 60%;
+    }
 }
 

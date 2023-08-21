@@ -16,3 +16,4 @@ export { FormGenerator } from './elementGenerators/formGenerator.js';
 export { AnchorGenerator } from './elementGenerators/anchorGenerator.js';
 export { ListGenerator } from './elementGenerators/listGenerator.js';
 export { RangeSlider } from './componentGenerator/rangeSlider.js';
+export { RangeInput } from './componentGenerator/rangeInput.js';

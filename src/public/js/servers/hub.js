@@ -1140,48 +1140,13 @@ export default class Hub {
         
     }
 
-    /** Sets a table moduleData from source moduleData
-     * @param {moduleKey} moduleKey of the table module
-     * @param {sourceModuleData} sourceModuleData of the source module
-     * */
-    #prepChartDataEvent(data) {
-        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceModuleData, 'sourceModuleData', 'object')], 'HUB', '#messageForInputManager (Prep Table Data Event)')) return;
-        var processed = false;
-        var fromDatasetType = data.sourceModuleData.datasetType;
-        var fromSourceData = data.sourceModuleData.sourceData;
-        console.log(fromSourceData);
-
-        if (fromSourceData) {
-            // get columnHeaders
-            var columnHeaders = GM.IM.getColumnHeaders(fromSourceData);
-            console.log(columnHeaders);
-
-            // set moduleData for this table module
-            var data = {
-                moduleKey: data.moduleKey,
-                moduleData: {
-                    datasetType: fromDatasetType,
-                    columnHeaders: columnHeaders,
-                    sourceData: fromSourceData,
-                },
-                toggleModuleColor: true,
-            };
-            processed = this.#setModuleDataEvent(data);
-        }
-        // else show error
-
-    }
-
-
-
-
     /** Sets a new tabulator table to the Table Module Popup.
      * @param {moduleData} moduleData to set the table content with.
      *                      (e.g. { moduleKey: 1, datasetType: "", columnHeaders: [""], columnsToRender: [""], sourceData: [{}] })
      * */
     #setNewTableEvent(moduleData) {
         if (invalidVariables([varTest(moduleData.moduleKey, 'moduleKey', 'number'), varTest(moduleData.datasetType, 'datasetType', 'string'),
-            varTest(moduleData.sourceData, 'sourceData', 'object'), varTest(moduleData.columnsToRender, 'columnsToRender', 'object')], 'HUB', '#messageForOutputManager (Set New Table Event)')) return;
+        varTest(moduleData.sourceData, 'sourceData', 'object'), varTest(moduleData.columnsToRender, 'columnsToRender', 'object')], 'HUB', '#messageForOutputManager (Set New Table Event)')) return;
 
         console.log('---------------- set New Table Event --------------');
         var processed = false;
@@ -1189,55 +1154,56 @@ export default class Hub {
         //-------------- write function in OutputManager.. in chartBuilder.js
         // Organize tableData for Tabulator
 
-        var tableData = GM.IM.getTabulatorData(moduleData.datasetType, moduleData.columnsToRender, moduleData.sourceData);
-/*
-        headers.forEach(function (headeritem) {
-            var columnData = headerData.find(h => h.fieldName === headeritem);
-            // Get the width of the left decimal type values
-            *//*var leftWidth = 0;
-            var decimalType = data[0][headeritem];
-            if (decimalType.includes(".")) {
-                // get all values of the current column
-                data.map((val) => {
-                    let value = val[headeritem].split(".");
-                    if (value[0].length > leftWidth) {
-                        leftWidth = value[0].length;
-                    }
-                });
-            }*//*
-            columns.push({
-                title: headeritem, field: headeritem,
-                headerHozAlign: "center",
-                *//*formatter: 'text',
-                formatterParams: function (cellValue) {
-                    let value = cellValue._cell.value;
-                    let valueWrapper = GM.HF.createNewDiv('', '', ['column-val-wrapper'], [{ style: "display", value: "flex" }, { style: "font-family", value: "monospace" }]);
-                    if (leftWidth == 0) {
-                        // create span of 100% with the value
-                        let span = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "center" }, { style: "display", value: "block" }, { style: "width", value: "100%" }], value);
-                        valueWrapper.appendChild(span);
-                    }
-                    else {
-                        let left = value.split(".")[0];
-                        let right = value.split(".")[1];
-                        // create left span with leftWidth
-                        let spanLeft = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "end" }, { style: "width", value: leftWidth + "ch" }], left);
-                        // create right span width 100% - leftWidth
-                        let spanDecimal = GM.HF.createNewSpan('', '', ['column-val'], [], ".");
-                        let spanRight = GM.HF.createNewSpan('', '', ['column-val'], [], right);
-                        valueWrapper.appendChild(spanLeft);
-                        valueWrapper.appendChild(spanDecimal);
-                        valueWrapper.appendChild(spanRight);
-                    }
-            
-                    //console.log(valueWrapper);
-                    return valueWrapper;
-                },*//*
+        var tableData = GM.OM.getTabulatorData(moduleData.datasetType, moduleData.columnsToRender, moduleData.sourceData);
+        // store tableData in OM?
+        /*
+                headers.forEach(function (headeritem) {
+                    var columnData = headerData.find(h => h.fieldName === headeritem);
+                    // Get the width of the left decimal type values
+                    *//*var leftWidth = 0;
+        var decimalType = data[0][headeritem];
+        if (decimalType.includes(".")) {
+            // get all values of the current column
+            data.map((val) => {
+                let value = val[headeritem].split(".");
+                if (value[0].length > leftWidth) {
+                    leftWidth = value[0].length;
+                }
             });
-        });*/
+        }*//*
+        columns.push({
+            title: headeritem, field: headeritem,
+            headerHozAlign: "center",
+            *//*formatter: 'text',
+        formatterParams: function (cellValue) {
+            let value = cellValue._cell.value;
+            let valueWrapper = GM.HF.createNewDiv('', '', ['column-val-wrapper'], [{ style: "display", value: "flex" }, { style: "font-family", value: "monospace" }]);
+            if (leftWidth == 0) {
+                // create span of 100% with the value
+                let span = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "center" }, { style: "display", value: "block" }, { style: "width", value: "100%" }], value);
+                valueWrapper.appendChild(span);
+            }
+            else {
+                let left = value.split(".")[0];
+                let right = value.split(".")[1];
+                // create left span with leftWidth
+                let spanLeft = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "end" }, { style: "width", value: leftWidth + "ch" }], left);
+                // create right span width 100% - leftWidth
+                let spanDecimal = GM.HF.createNewSpan('', '', ['column-val'], [], ".");
+                let spanRight = GM.HF.createNewSpan('', '', ['column-val'], [], right);
+                valueWrapper.appendChild(spanLeft);
+                valueWrapper.appendChild(spanDecimal);
+                valueWrapper.appendChild(spanRight);
+            }
+    
+            //console.log(valueWrapper);
+            return valueWrapper;
+        },*//*
+    });
+});*/
         //resultData = { columns: columns, tabledata: tableData };
         processed = true;
-        
+
         // Open popup if not opened yet
         if (!GM.PM.isPopupOpen(moduleData.moduleKey)) this.#openModulePopup(moduleData.moduleKey, 0, 0);
 
@@ -1246,6 +1212,39 @@ export default class Hub {
         // toggle module color and inspector/popup header color
         GM.ENV.toggleNodeColor(moduleData.moduleKey, processed);
         GM.MM.toggleHeaderColor(moduleData.moduleKey, processed);
+    }
+
+    /** Sets a table moduleData from source moduleData
+     * @param {moduleKey} moduleKey of the table module
+     * @param {sourceModuleData} sourceModuleData of the source module
+     * */
+    #prepChartDataEvent(data) {
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceModuleData, 'sourceModuleData', 'object')], 'HUB', '#messageForOutputManager (Prep Chart Data Event)')) return;
+        var processed = false;
+        var remoteData = data.sourceModuleData.remoteData;
+        var fromDatasetType = data.sourceModuleData.datasetType;
+        var fromSourceData = data.sourceModuleData.sourceData;
+        console.log(fromSourceData);
+
+        if (fromSourceData) {
+            // get columnHeaders
+            var chartAxisData = GM.IM.getChartAxisData(remoteData, fromSourceData);
+            
+            // set moduleData for this table module
+            var data = {
+                moduleKey: data.moduleKey,
+                moduleData: {
+
+                    datasetType: fromDatasetType,
+                    sourceData: fromSourceData,
+                    chartAxisData: chartAxisData,
+                },
+                toggleModuleColor: true,
+            };
+            processed = this.#setModuleDataEvent(data);
+        }
+        // else show error
+
     }
 
     #setNewChartEvent(moduleData) {
@@ -1257,7 +1256,7 @@ export default class Hub {
         var div = module.getData('plotDiv');
 
         // Organize the chartData for Echart
-        var chartData = GM.OM.prepChartData(key, moduleData.chartTitle, moduleData.traceData, moduleData.sourceData);
+        var chartData = GM.OM.prepChartData(key, moduleData.datasetType, moduleData.chartTitle, moduleData.traceData, moduleData.sourceData);
         var processed = GM.OM.storeChartData(key, chartData, div, module.getData('chartType'), module.getData('coordinateSystem'));
         if (processed)
         {
@@ -1266,8 +1265,7 @@ export default class Hub {
         }
 
         // toggle module color and inspector/popup header color
-        GM.ENV.toggleNodeColor(moduleData.moduleKey, processed);
-        GM.MM.toggleHeaderColor(moduleData.moduleKey, processed);
+        this.#toggleModuleColorEvent(moduleData.moduleKey, processed);
     }
 
 

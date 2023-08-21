@@ -75,6 +75,7 @@ export class InputManager {
      * @param {moduleData} moduleData to set to this CSV module with
      * */
     setModuleDataCB = (moduleKey, moduleData, toggleModuleColor) => {
+        console.log(moduleData);
         const data = {
             moduleKey: moduleKey,
             moduleData: moduleData,
@@ -114,7 +115,7 @@ export class InputManager {
         }
     }
 
-    // ----------------------------------------- Table Data Organization -----------------------------------------
+    // ----------------------------------------- Table Inspector Data Organization -----------------------------------------
     getColumnHeaders(sourceData) {
         var columnHeaders = [];
         var keys = Object.keys(sourceData[0]);
@@ -127,16 +128,16 @@ export class InputManager {
     buildColumnHeaders(dataRow, keys, columnHeaders) {
         keys.forEach(key => {
             if (!this.excludeFieldMatched(key)) {
-                var columnVal = dataRow[key];
+                var columnVal = Number(dataRow[key]);
+                columnVal = Number.isNaN(columnVal) ? dataRow[key] : columnVal;
                 var dataType = typeof (columnVal);
                 if (dataType !== 'object' || columnVal === null) {
-                    columnHeaders.push({ fieldName: key, dataType: (dataType === 'number') ? 'value' : (columnVal === null) ? 'null' : 'category' });
+                    columnHeaders.push({ fieldName: key, dataType: (dataType === 'number' || columnVal === null) ? 'value' : 'category' });
                 }
                 else {
                     var nestedDataRow = columnVal;
                     var nestedKeys = Object.keys(nestedDataRow);
                     var nestedColumnHeaders = [];
-
                     columnHeaders.push({ fieldName: key, data: nestedColumnHeaders });
 
                     this.buildColumnHeaders(nestedDataRow, nestedKeys, nestedColumnHeaders);
@@ -162,70 +163,50 @@ export class InputManager {
         return match;
     }
 
-    /** Prepares the tableData needed to create Tabulator data for columns and data organization.
-     * @param {sourceData object} sourceData of the sourceModule linked to the current table module
-     * @returns {tableData object} tableData is array of objects that contains information about each field of the sourceData and the values for each field 
-     *                              (e.g. tableData = [{ columns: [{ title: 'Date', field: 'date', hozAlign: 'center' }, ...],
-     *                                                   tableData: [{ mjd: '5986.480892', dec_obj: '27.803', ... }, ...] }],
-     * */
-    getTabulatorData(datasetType, columnsToRender, sourceData) {
-        console.log(columnsToRender);
-        console.log(sourceData);
-
-        var resultColumns = [];
-        var tableColumns = this.#buildTabulatorColumns(columnsToRender, resultColumns);
-        var resultData = [];
-        //var tableSourceData = this.#buildTabulatorSourceData(sourceData, columnsToRender, resultData);
-        var tableSourceData = [];
-        sourceData.forEach(dataRow => {
-            var newDataRow = this.#buildTabulatorSourceData(columnsToRender, dataRow, {});
-            tableSourceData.push(newDataRow);
-        });
-
-        var tabulatorData = { columns: tableColumns, tabledata: tableSourceData };
-        console.log(tabulatorData);
-        return tabulatorData;
-    }
-
-    #buildTabulatorColumns(columnsToRender, tableColumns) {
-        columnsToRender.forEach(column => {
-            if (column.hasOwnProperty('data')) {
-                var nestedColumnsToRender = column.data;
-                var nestedTableColumns = [];
-                tableColumns.push({ title: column.fieldName, columns: nestedTableColumns, headerHozAlign: 'left' });
-                this.#buildTabulatorColumns(nestedColumnsToRender, nestedTableColumns);
-            } else {
-                tableColumns.push({ title: column.fieldName, field: column.fieldName, hozAlign: 'right' });
-            }
-        });
-        return tableColumns;
-    }
-
-    #buildTabulatorSourceData(columnsToRender, dataRow, newDataRow) {
-        columnsToRender.forEach(column => {
-            var value = dataRow[column.fieldName];
-            if (column.hasOwnProperty('data')) {
-                // get the value (obj)
-                var nestedColumnsToRender = column.data;
-                var nestedDataRow = dataRow[column.fieldName];
-                var nestedNewDataRow = newDataRow;
-                // get the rest of columns to render
-                this.#buildTabulatorSourceData(nestedColumnsToRender, nestedDataRow, nestedNewDataRow);
-            }
-            else {
-                if (column.dataType === 'value') {
-                    var numDigits = getNumDigits(column.fieldName);
-                    newDataRow[column.fieldName] = Number(value).toFixed(numDigits);
+    // ----------------------------------------- Chart Inspector Data Organization -----------------------------------------
+    // build Chart axis information from columnHeaders (to build Chart Module Inspector Card)
+    getChartAxisData(remoteData, sourceData) {
+        var columnHeaders = this.getColumnHeaders(sourceData);
+        var chartAxisData = [];
+        var xAxisData = { axis: 'xaxis', fields: [] };
+        var yAxisData = { axis: 'yaxis', fields: [] };
+        var errorData = { axis: 'error', fields: [] };
+        columnHeaders.forEach(columnHeader => {
+            if (remoteData) {
+                if (columnHeader.hasOwnProperty('data')) {
+                    var columnHeaderY = columnHeader.data;
+                    columnHeaderY.forEach(header => {
+                        var fieldName = header.fieldName;
+                        if (fieldName.includes('err') || fieldName.includes('error')) {
+                            header['fieldGroup'] = columnHeader.fieldName;
+                            errorData['fields'].push(header);
+                        }
+                        else {
+                            header['fieldGroup'] = columnHeader.fieldName;
+                            yAxisData['fields'].push(header);
+                        }
+                    });
                 }
-                else if (column.dataType === 'null') {
-                    newDataRow[column.fieldName] = 'Null';
+                // x-axis data
+                else {
+                    xAxisData['fields'].push(columnHeader);
+                }
+            }
+            // local csv data
+            else {
+                if (columnHeader.fieldName.includes('error') || columnHeader.fieldName.includes('err')) {
+                    errorData['fields'].push(columnHeader);
                 }
                 else {
-                    newDataRow[column.fieldName] = value;
+                    xAxisData['fields'].push(columnHeader);
+                    yAxisData['fields'].push(columnHeader);
                 }
             }
-        }); 
-        return newDataRow;
+        });
+        chartAxisData.push(xAxisData);
+        chartAxisData.push(yAxisData);
+        chartAxisData.push(errorData);
+        return chartAxisData;
     }
 
     addRoutes = routes => this.#dataTable.set('routes', routes);

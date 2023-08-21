@@ -192,26 +192,27 @@ export class ChartBuilder {
         /*console.log(data);
         console.log(type);
         console.log(coordinateSystem);*/
+        console.log(data);
 
         var echartData = {
             title: {
                 text: data.chartTitle,
                 left: 'center',
-                top: '3%',
+                top: '5%',
             },
             grid: {
-                height: '70%',
+                /*height: '60%',*/
+                top: '15%',
+                bottom: '18%',
             },
             toolbox: {
                 show: true,
                 feature: {
-                    /*dataView: {
-                        readOnly: false
-                    },*/
                     saveAsImage: {  },
                 },
-                top: '2%',
+                top: '3%',
                 right: '5%',
+                z: 2,
             },
             tooltip: {
                 trigger: 'axis',
@@ -249,20 +250,22 @@ export class ChartBuilder {
                                 show: t.ticks
                             },
                             splitLine: {
-                                show: (t.dataType === 'value'),
+                                show: (t.dataType === 'value') ? t.majorGridLines : false,
                                 lineStyle: { type: 'solid' },
                             },
                             minorSplitLine: {
-                                show: t.gridLines,
+                                show: t.minorGridLines,
                                 lineStyle: { type: 'dashed', opacity: 0.3, }
                             }
                         };
                         echartData[axis].push(td);
                     });
+                    if (trace.length > 1) {
+                        echartData['grid'].top = '20%';
+                    }
                     break;
                 case "yAxis":
                     trace.forEach(t => {
-                        console.log(t);
                         echartData[axis].push({
                             type: t.dataType,
                             name: t.labelName,
@@ -279,11 +282,11 @@ export class ChartBuilder {
                                 show: t.ticks
                             },
                             splitLine: {
-                                show: (t.dataType === 'value'),
+                                show: (t.dataType === 'value') ? t.majorGridLines : false,
                                 lineStyle: { type: 'solid' },
                             },
                             minorSplitLine: {
-                                show: t.gridLines,
+                                show: t.minorGridLines,
                                 lineStyle: { type: 'dashed', opacity: 0.3, }
                             }
                         });

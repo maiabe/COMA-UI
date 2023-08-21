@@ -133,6 +133,7 @@ export class WorkerManager {
                         workerObject.stopWorkerFunction(id);
                         break;*/
                     case 'Database Query Return':
+                        console.log(event.data);
                         const moduleData = event.data;
                         moduleData["moduleKey"] = workerObject.returnMessage.moduleKey;
                         moduleData["sourceData"] = event.data.sourceData;
@@ -327,6 +328,7 @@ export class WorkerManager {
                     queryType: data.queryType,
                     queryEntries: data.queryEntries,
                     responseKey: data.responseKey,
+                    sortBy: data.sortBy,
                     columnsToRender: data.columnsToRender,
                 });
         }

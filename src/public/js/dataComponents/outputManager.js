@@ -63,6 +63,7 @@ export class OutputManager {
             }
             // otherwise set the key to activeChartMap
             else {
+                console.log(cd.data);
                 this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(cd.data, cd.type, div, width, height, cd.framework, cd.theme, cd.coordinateSystem) });
             }
         }
@@ -215,17 +216,78 @@ export class OutputManager {
     }
 
 
-    prepTableData(moduleKey, sourceData) {
-        // get columnHeaders
+    // ----------------------------------------- Table Data Preparation -----------------------------------------
 
+    /** Prepares the tableData needed to create Tabulator data for columns and data organization.
+     * @param {sourceData object} sourceData of the sourceModule linked to the current table module
+     * @returns {tableData object} tableData is array of objects that contains information about each field of the sourceData and the values for each field 
+     *                              (e.g. tableData = [{ columns: [{ title: 'Date', field: 'date', hozAlign: 'center' }, ...],
+     *                                                   tableData: [{ mjd: '5986.480892', dec_obj: '27.803', ... }, ...] }],
+     * */
+    getTabulatorData(datasetType, columnsToRender, sourceData) {
+        console.log(columnsToRender);
+        console.log(sourceData);
 
-        // prepare tableData
+        var resultColumns = [];
+        var tableColumns = this.#buildTabulatorColumns(columnsToRender, resultColumns);
+        var resultData = [];
+        //var tableSourceData = this.#buildTabulatorSourceData(sourceData, columnsToRender, resultData);
+        var tableSourceData = [];
+        sourceData.forEach(dataRow => {
+            var newDataRow = this.#buildTabulatorSourceData(columnsToRender, dataRow, {});
+            tableSourceData.push(newDataRow);
+        });
 
-
-        // setModuleData
-
+        var tabulatorData = { columns: tableColumns, tabledata: tableSourceData };
+        console.log(tabulatorData);
+        return tabulatorData;
     }
 
+    #buildTabulatorColumns(columnsToRender, tableColumns) {
+        columnsToRender.forEach(column => {
+            if (column.hasOwnProperty('data')) {
+                var nestedColumnsToRender = column.data;
+                var nestedTableColumns = [];
+                tableColumns.push({ title: column.fieldName, columns: nestedTableColumns, headerHozAlign: 'left' });
+                this.#buildTabulatorColumns(nestedColumnsToRender, nestedTableColumns);
+            } else {
+                tableColumns.push({ title: column.fieldName, field: column.fieldName, hozAlign: 'right' });
+            }
+        });
+        return tableColumns;
+    }
+
+    #buildTabulatorSourceData(columnsToRender, dataRow, newDataRow) {
+        columnsToRender.forEach(column => {
+            var value = dataRow[column.fieldName];
+            if (column.hasOwnProperty('data')) {
+                // get the value (obj)
+                var nestedColumnsToRender = column.data;
+                var nestedDataRow = dataRow[column.fieldName];
+                var nestedNewDataRow = newDataRow;
+                // get the rest of columns to render
+                this.#buildTabulatorSourceData(nestedColumnsToRender, nestedDataRow, nestedNewDataRow);
+            }
+            else {
+                if (column.dataType === 'value') {
+                    if (value === null) {
+                        newDataRow[column.fieldName] = 'Null';
+                    }
+                    else {
+                        var numDigits = getNumDigits(column.fieldName);
+                        newDataRow[column.fieldName] = Number(value).toFixed(numDigits);
+                    }
+                }
+                else {
+                    newDataRow[column.fieldName] = value;
+                }
+            }
+        });
+        return newDataRow;
+    }
+
+
+    // ----------------------------------------- Chart Data Preparation -----------------------------------------
     /*********************************************** Mai 7/13/23 *******************************************************/
     /** --- PUBLIC ---
      * Prepares the data for echarts and stores it in the traceData to be passed to chartBuilder
@@ -235,23 +297,19 @@ export class OutputManager {
      * */
     //// * NOTE: for now refer all yaxis to the first xaxis element
     // stores source data of the field and source data type of the field to traceData
-    prepChartData(moduleKey, chartTitle, traceData, sourceData) {
+    prepChartData(moduleKey, datasetType, chartTitle, traceData, sourceData) {
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(sourceData, 'sourceData', 'object')], 'OutputManager', 'prepEchartData')) return;
         var chartData = traceData;
+        console.log(traceData);
+
         var axisNames = Object.keys(traceData);
         axisNames.forEach(axis => {
             chartData[axis].forEach(trace => {
                 // Store sourceData type of the field to determine whether the field is categorical or value type
-                var fieldValue = Number(sourceData[0][trace.fieldName]);
-                if (Number.isNaN(fieldValue)) {
-                    trace['dataType'] = "category";
-                }
-                else {
-                    trace['dataType'] = "value";
-                }
+                trace['dataType'] = trace.dataType;
 
                 // Prepare sourceData of the field
-                var digits = getNumDigits(trace.fieldName);
+                /*var digits = getNumDigits(trace.fieldName);
                 var result = sourceData.map(sd => {
                     var value = Number(sd[trace.fieldName]);
                     if (Number.isNaN(value)) {
@@ -261,19 +319,21 @@ export class OutputManager {
                         value = value.toFixed(digits);
                     }
                     return value;
-                });
-                /*console.log(result);*/
+                });*/
+                var result = this.#buildEChartsSourceData(datasetType, axis, trace, sourceData);
+                console.log(result);
                 trace['data'] = result;
 
                 // Prepare errorData if selected
-                if (trace.error && trace.error !== 'none') {
+                /*if (trace.error && trace.error !== 'none') {
+                    var digits = getNumDigits(trace.error);
                     trace['errorData'] = sourceData.map((sd, i) => {
                         // round to the default number of digits if no default set it to 3 digits
                         var lowerVal = Number(sd[trace.fieldName]) - Number(sd[trace.error]);
                         var higherVal = Number(sd[trace.fieldName]) + Number(sd[trace.error]);
                         return [i, lowerVal.toFixed(digits), higherVal.toFixed(digits)]
                     });
-                }
+                }*/
 
                 // Store y-axis inverse value to be set to true if fieldName is any kind of a magnitude field
                 if (trace.fieldName.includes('mag') && trace.dataType === "value") {
@@ -327,6 +387,45 @@ export class OutputManager {
         //var chartData = { x: [], y: [], e: []};
 
         // save to outputMap hash table
+    }
+
+    #buildEChartsSourceData(datasetType, axis, trace, sourceData) {
+        console.log(trace);
+
+        var result = sourceData.map((sd, i) => {
+            var value = sd[trace.fieldName];
+            if (trace.fieldGroup !== 'undefined') {
+                var obj = sd[trace.fieldGroup];
+                value = obj[trace.fieldName];
+            }
+            if (trace.dataType === 'value') {
+                var digits = getNumDigits(trace.fieldName);
+                value = Number(value.toFixed(digits));
+            }
+            if (axis === 'yAxis') {
+                let digits = getNumDigits(trace.xFieldName.name);
+
+                // corresponding xFieldName
+                var xvalue = sd[trace.xFieldName.name].toFixed(digits);
+                xvalue = Number(xvalue);
+                value = [xvalue, value];
+
+                /*if (trace.error && trace.error !== 'none') {
+                    let errorDigits = getNumDigits(trace.error);
+                    trace['errorData'] = sourceData.map((sd, i) => {
+                        // round to the default number of digits if no default set it to 3 digits
+                        var lowerVal = value[1] - Number(sd[trace.fieldGroup][trace.error]);
+                        var higherVal = value[1] + Number(sd[trace.fieldGroup][trace.error]);
+                        console.log(sd[trace.fieldGroup][trace.error]);
+                        console.log(value);
+                        return [i, lowerVal.toFixed(errorDigits), higherVal.toFixed(errorDigits)]
+                    });
+                }*/
+            }
+            return value;
+        });
+        console.log(result);
+        return result;
     }
 
 }

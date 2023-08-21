@@ -110,6 +110,7 @@ export class CsvReader {
                     });
 
                     var moduleData = {
+                        remoteData: false,
                         datasetType: datasetType,
                         sourceData: sourceData,
                     };

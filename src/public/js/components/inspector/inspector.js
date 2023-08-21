@@ -100,6 +100,7 @@ export class Inspector {
 
             // append suggestions elements to the resultContainer
             data.forEach(suggestion => {
+                console.log(suggestion);
                 var suggestionElement = this.HF.createNewDiv('', '', ['object-suggestion'], []);
                 suggestionElement.textContent = suggestion.sbn_target_name;
                 suggestionElement.addEventListener('click', () => {

@@ -5,6 +5,7 @@
  *************************************************************/
 import { printErrorMessage } from '../../errorHandling/errorHandlers.js';
 import { AxisCard, XAxisCard, YAxisCard } from './inspectorCardComponents/axisCard.js';
+import { SeriesCard } from './inspectorCardComponents/seriesCard.js';
 import { ObjectSearchCard } from './inspectorCardComponents/objectSearchCard.js';
 import { KeyValueCard } from './inspectorCardComponents/keyValueCard.js';
 import { HTMLFactory } from '../../htmlGeneration/index.js';
@@ -287,12 +288,15 @@ export class InspectorCard {
 
 
     // add Xaxis card for Chart modules
-    addAxisCard(axisName, fields, defaultField, errorFields) {
-        const card = new AxisCard(axisName, fields, defaultField, errorFields);
-        this.appendToBody(card.getCard().wrapper);
+    addAxisCard(axisName, fields, defaultField) {
+        const card = new AxisCard(axisName, fields, defaultField);
         return card;
     }
 
+    addSeriesCard(fields, defaultField, xAxisCard, yAxisCard) {
+        const card = new SeriesCard(fields, defaultField, xAxisCard, yAxisCard);
+        return card;
+    }
 
     /** --- PUBLIC ---
      * This passes HTML elements and generates a field in the inspector card where user can select options for the x axis of a chart.

@@ -44,8 +44,22 @@ export class InputGenerator {
         return e;
     }
 
-
-    // Checkbox here?
+    // RangeInput
+    generateRangeInput = (id, name, classlist, customStyles, min, max, step, value) => {
+        const e = document.createElement('input');
+        e.setAttribute('id', id);
+        e.setAttribute('name', name);
+        e.setAttribute('type', 'range');
+        e.setAttribute('min', min);
+        e.setAttribute('max', max);
+        e.setAttribute('step', step);
+        classlist.forEach(c => {
+            e.classList.add(c);
+        });
+        HTMLFactory.setCustomStyles(e, customStyles);
+        e.value = value;
+        return e;
+    }
 
 
     // RadioInput

@@ -147,4 +147,20 @@
     width: 100%;
     margin: 0;
 }
+.tabulator-table {
+    font-family: monospace;
+}
+
+button.tabulator-page {
+    width: 3vw;
+}
+
+.chart-theme-wrapper {
+    width: 10%;
+    display: flex;
+    padding: 1.5% 5%;
+    position: absolute;
+    z-index: 1;
+}
+
 

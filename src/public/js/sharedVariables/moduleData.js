@@ -101,7 +101,7 @@ const DatasetFields = [
 
 // responseKey is for the api response key
 const DatasetTypes = [
-    { type: "lightcurves", responseKey: "lightcurve" },
+    { type: "lightcurves", responseKey: "lightcurve", sortBy: "iso_date_mid" },
     { type: "photometries", responseKey: "photometries" },
     { type: "calibrations", responseKey: "calibrations" },
     { type: "images", responseKey: "images" },
@@ -110,8 +110,8 @@ const DatasetTypes = [
 const DefaultAxis = [
     {
         datasetType: "lightcurves",
-        xAxis: { displayName: "imagedate", fieldName: "imagedate", dataType: 'category' },
-        yAxis: { displayName: "mag", fieldName: "mag", dataType: 'value' /*error: "mag_err"*/ }
+        xAxis: { displayName: "MJD", fieldName: "mjd_mid", dataType: 'value' },
+        yAxis: { displayName: "magnitude", fieldName: "mag", dataType: 'value', error: "mag_err", xAxisFieldName: "mjd_mid" }
     }
     // add more later
 ];
@@ -183,7 +183,7 @@ const SearchFields = {
                     labelName: "Filter", fieldName: "filters", type: 'dropdown',
                     options: [{ Value: '--- None ---', Key: -1 }],
                 },
-                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2022-01-01' },
+                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2010-01-01' },
                 { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-06-27' },
                 /*{
                     remote: false,

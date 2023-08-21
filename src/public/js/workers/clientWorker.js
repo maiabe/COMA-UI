@@ -116,6 +116,18 @@ function handleFetchError(queryType, query, reason) {
 
 function handleDatabaseQueryReturn(data, response) {
     console.log(response);
+    var sourceData = response[data.responseKey];
+    // sort data if needed
+    if (data.sortBy) {
+        switch (data.sortBy) {
+            case 'iso_date_mid':
+                sourceData = sourceData.sort((x, y) => new Date(x[data.sortBy]) - new Date(y[data.sortBy]));
+                break;
+            default:
+                sourceData = sourceData.sort((x, y) => x.date - y.date);
+        }
+    }
+
     var moduleData = {
         type: "Database Query Return",
         remoteData: data.remoteData,
@@ -123,7 +135,7 @@ function handleDatabaseQueryReturn(data, response) {
         queryEntries: data.queryEntries,
         columnsToRender: data.columnsToRender,
         status: response.status,
-        sourceData: response[data.responseKey]
+        sourceData: sourceData
     };
     postMessage(moduleData);
 }
