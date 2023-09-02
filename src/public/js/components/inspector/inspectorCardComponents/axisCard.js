@@ -82,9 +82,12 @@ export class AxisCard {
             this.#traceArea = GM.HF.createNewDiv('', '', ['trace-area'], []);
 
             // add default traceCard
-            var field = fields.filter(f => f.fieldName === defaultField.fieldName)[0];
-            if (!field) {
-                field = fields[0];
+            var field = fields[0];
+            if (defaultField) {
+                field = fields.filter(f => f.fieldName === defaultField.fieldName)[0];
+                if (!field) {
+                    field = fields[0];
+                }
             }
             console.log(field);
             this.#createTraceCard(axisName.elementName, field);
@@ -214,7 +217,7 @@ export class AxisCard {
         //-- Create positions options
         let positionOptionsWrapper = GM.HF.createNewDiv('', '', ['position-options-wrapper', 'trace-card-element'], []);
         // position option
-        let positionOptions = this.#createPositionOptions(axisName.elementName);
+        let positionOptions = this.#createPositionOptions(axisName);
         let positionOptionsLabel = GM.HF.createNewSpan('', '', ['position-options-label'], [], `Axis Position: `);
         let positionOptionsDropdown = GM.HF.createNewSelect('', '', ['position-options-dropdown'], [], positionOptions, positionOptions);
         positionOptionsWrapper.appendChild(positionOptionsLabel);
@@ -244,8 +247,13 @@ export class AxisCard {
         traceOptionsWrapper.appendChild(minorGridLinesOption.wrapper);
 
         // inverse option
-        let inverseOption = GM.HF.createNewCheckbox('', '', ['inverse', 'checkbox'], [{ style: 'margin-left', value: '22%' }], '', 'Inverse', false);
+        var inverseChecked = false;
+        if (field.fieldName.includes('mag') && field.dataType === 'value') {
+            inverseChecked = true;
+        }
+        let inverseOption = GM.HF.createNewCheckbox('', '', ['inverse', 'checkbox'], [{ style: 'margin-left', value: '22%' }], '', 'Inverse', inverseChecked);
         traceOptionsWrapper.appendChild(inverseOption.wrapper);
+
 
         //traceOptionsWrapper.appendChild(optionsWrapper);
         body.appendChild(traceOptionsWrapper);
@@ -257,7 +265,7 @@ export class AxisCard {
     #createPositionOptions(axisName) {
         var positionOptions = [];
         if (axisName === 'xAxis') {
-            positionOptions = ['top', 'bottom'];
+            positionOptions = ['bottom', 'top'];
         }
         else {
             positionOptions = ['left', 'right'];

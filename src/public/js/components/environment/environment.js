@@ -60,7 +60,8 @@ export class Environment {
 
     /** --- PRIVATE ---
      * Creates the diagram and sets off a chain of functions that build the environment */
-     #startGoJsEnvironment = () => {
+    #startGoJsEnvironment = () => {
+        go.licenseKey = '73f944e0b76631b700ca0d2b113f69ee1bb37b319ed01ef65a0541a7ef0e69462b9ded2858d08bc0d4ff4efd1c2fd2c9dacc3921971e5638b533d18b43b78ffdb3627ab0105c408ba40721c29bff7da4f82d26f5c0bd65b2dc2ddcf4ebfa939d4ef8f0d54bc911bb29670e';
         this.#myDiagram = this.#createNewDiagram(this.#getGOJSMakeObject());
         this.#setGridVisibility(true); // Toggles the grid in the background of the environment DOM element
     }

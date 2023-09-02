@@ -1,3 +1,4 @@
+
 export class CsvReader {
     constructor() {};
     readFile = (file, cb, moduleKey) => {
@@ -72,6 +73,7 @@ export class CsvReader {
                     data.push(rowObj);
                 }
             });
+
             moduleData.sourceData = data;
             //moduleData.status = "success";
             cb(moduleData);
@@ -81,7 +83,7 @@ export class CsvReader {
     }
 
 
-    // Get sourceData
+    // -- This reader will delete all column headers with empty string, and deletes all values of that column index
     // moduleData to pass.. { datasetType, columnHeaders, sourceData }
     getFileData = (moduleKey, fileId, setModuleCB) => {
         var fileInput = document.getElementById(fileId);
@@ -90,38 +92,16 @@ export class CsvReader {
         var datasetType = datasetTypeDD.options[datasetTypeDD.selectedIndex].text;
 
         //var columnHeaders = [];
-        var sourceData = [];
         new Response(file).text()
             .then(content => {
-                if (content) {
-                    const rows = content.split(/\r\n|\n/);
-                    var columns = rows[0].split(',');
-                    rows.forEach((row, i) => {
-                        if (i > 0) {
-                            var rowObj = {};
-                            var values = row.split(',');
-                            values.forEach((val, j) => {
-                                val = val.replaceAll('\"', '');
-                                var key = columns[j].replaceAll('\"', '');
-                                rowObj[key] = val;
-                            });
-                            sourceData.push(rowObj);
-                        }
-                    });
-
-                    var moduleData = {
-                        remoteData: false,
-                        datasetType: datasetType,
-                        sourceData: sourceData,
-                    };
-
-                } else {
-                    // TODO: defer to error screen
-                    console.log('failed to read file data columns.');
-                }
-                return moduleData;
+                return this.#parseCSV(content);
             })
-            .then(moduleData => {
+            .then(sourceData => {
+                var moduleData = {
+                    remoteData: false,
+                    datasetType: datasetType,
+                    sourceData: sourceData,
+                };
                 var toggleModuleColor = moduleData.sourceData ? true : false;
                 setModuleCB(moduleKey, moduleData, toggleModuleColor);
             })
@@ -130,14 +110,76 @@ export class CsvReader {
             });
     }
 
+    getElipticData(moduleKey, sourceData, setModuleCB, updateInspectorCardCB) {
+        fetch('/get-ecliptic')
+            .then(response => response.text())
+            .then(content => {
+                // get eliptic data
+                var elipticData = this.#parseCSV(content);
+                // get source data
+                return { elipticData: elipticData, sourceData: sourceData };
+            })
+            // set callback function parameters
+            .then(data => {
+                var moduleData = {
+                    remoteData: false,
+                    sourceData: data.sourceData, // orbit data points
+                    elipticData: data.elipticData,
+                };
+                var toggleModuleColor = moduleData.sourceData ? true : false;
+                setModuleCB(moduleKey, moduleData, toggleModuleColor);
+                return moduleData;
+            })
+            .then(moduleData => {
+                updateInspectorCardCB(moduleKey, moduleData);
+            })
+            .catch(error => {
+                console.error('Error fetching CSV:', error);
+            });
+    }
 
-    #removeIdFields(fields) {
-        var displayFields = fields.map((field) => {
-            if (!field.includes('id')) {
-                return field;
-            }
-        });
-        return displayFields;
+
+    #parseCSV(content) {
+        var sourceData = [];
+        if (content) {
+            var rows = content.split(/\r\n|\n/);
+            // delete all empty rows
+            rows = rows.filter(str => !/^\s*(,|\s)*\s*$/.test(str));
+            var columns = rows[0].split(',');
+            // remove empty columns
+            var emptyCols = [];
+            columns.forEach((str, i) => {
+                columns[i] = str.trim();
+                if (str === '') {
+                    columns.splice(i, 1);
+                    emptyCols.push(i);
+                }
+            });
+            rows.forEach((row, i) => {
+                if (i > 0) {
+                    var rowObj = {};
+                    var values = row.split(',');
+                    // remove empty column values
+                    values.forEach((val, j) => {
+                        if (emptyCols.includes(j)) {
+                            values.splice(j, 1);
+                        }
+                    });
+                    values.forEach((val, j) => {
+                        val = val.replaceAll('\"', '');
+                        val = val.trim();
+                        var key = columns[j].replaceAll('\"', '');
+                        rowObj[key] = val;
+                    });
+                    sourceData.push(rowObj);
+                }
+            });
+            console.log(sourceData);
+        } else {
+            // TODO: defer to error screen
+            console.log('failed to read file data columns.');
+        }
+        return sourceData;
     }
 
 }

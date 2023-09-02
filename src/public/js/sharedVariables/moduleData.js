@@ -74,6 +74,11 @@ const moduleDataObject = [
         menuData: { icon: 'images/icons/orbital-plot.png', text: 'Orbital Plot', category: 'Output' }
     },
     /*{
+        key: 'Images',
+        moduleCreationFunction: (category, key) => new Images(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
+        menuData: { icon: 'images/icons/images.png', text: 'Images', category: 'Output' }
+    },*/
+    /*{
         key: 'To Csv',
         moduleCreationFunction: (category, key) => new ToCSV(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false }], true),
         menuData: { icon: 'images/icons/csv-file-format-extension.png', text: 'To Csv', category: 'Output' }
@@ -101,19 +106,16 @@ const DatasetFields = [
 
 // responseKey is for the api response key
 const DatasetTypes = [
-    { type: "lightcurves", responseKey: "lightcurve", sortBy: "iso_date_mid" },
-    { type: "photometries", responseKey: "photometries" },
-    { type: "calibrations", responseKey: "calibrations" },
-    { type: "images", responseKey: "images" },
+    { type: "Photometry", queryKey: "lightcurves", responseKey: "lightcurve", sortBy: "iso_date_mid" },
+    { type: "Images", queryKey: "images", responseKey: "images" },
 ];
 
 const DefaultAxis = [
     {
-        datasetType: "lightcurves",
+        datasetType: "Photometry",
         xAxis: { displayName: "MJD", fieldName: "mjd_mid", dataType: 'value' },
         yAxis: { displayName: "magnitude", fieldName: "mag", dataType: 'value', error: "mag_err", xAxisFieldName: "mjd_mid" }
     }
-    // add more later
 ];
 
 /** This Object Stores the data for search module fields
@@ -127,24 +129,12 @@ const DefaultAxis = [
 const SearchFields = {
     "queryTypeTooltip": [
         {
-            type: "lightcurves",
+            type: "Photometry",
             description: "Search for lightcurve of an object.\r\n"
         },
         {
-            type: "observation",
-            description: "Search for observation values of an object.\r\n"
-        },
-        {
-            type: "geometry",
-            description: "test geometry"
-        },
-        {
-            type: "photometry",
-            description: "test photometry"
-        },
-        {
-            type: "objects",
-            description: "test objects"
+            type: "Images",
+            description: "Search for images of an object.\r\n"
         },
     ],
     "fieldTooltip": [
@@ -167,7 +157,7 @@ const SearchFields = {
     ],
     "fieldsDict": [
         {
-            "type": "lightcurves",
+            "type": "Photometry",
             "fields": [
                 {
                     index: 0, remote: true, dirName: "objects",
@@ -193,63 +183,20 @@ const SearchFields = {
             ]
         },
         {
-            "type": "photometries",
+            "type": "Images",
             "fields": [
-                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'typeahead', value: '2017' },
                 {
-                    index: 0,
-                    remote: true,
+                    index: 0, remote: true, dirName: "objects",
+                    labelName: "Object", fieldName: "objects", type: 'typeahead',
+                },
+                {
+                    index: 0, remote: true, dirName: "telescopes",
                     labelName: "Telescope", fieldName: "telescopes", type: 'dropdown',
                     optionName: "telescope",
                     options: undefined,
                 },
                 {
-                    index: 0,
-                    remote: true,
-                    labelName: "Filter", fieldName: "filters", type: 'dropdown',
-                    optionName: "filter",
-                    options: undefined,
-                },
-                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2022-01-01' },
-                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
-            ]
-        },
-        {
-            "type": "calibrations",
-            "fields": [
-                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'typeahead' },
-                {
-                    index: 0,
-                    remote: true,
-                    labelName: "Telescope", fieldName: "telescopes", type: 'dropdown',
-                    optionName: "telescope",
-                    options: undefined,
-                },
-                {
-                    index: 0,
-                    remote: true,
-                    labelName: "Filter", fieldName: "filters", type: 'dropdown',
-                    optionName: "filter",
-                    options: undefined,
-                },
-                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2022-01-01' },
-                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-12-31' },
-            ]
-        },
-        {
-            "type": "images",
-            "fields": [
-                { index: 0, remote: true, labelName: "Object", fieldName: "objects", type: 'typeahead' },
-                {
-                    index: 0,
-                    remote: true,
-                    labelName: "Telescope", fieldName: "telescopes", type: 'dropdown',
-                    optionName: "telescope",
-                    options: undefined,
-                },
-                {
-                    index: 0,
-                    remote: true,
+                    index: 0, remote: true, dirName: "filters",
                     labelName: "Filter", fieldName: "filters", type: 'dropdown',
                     optionName: "filter",
                     options: undefined,

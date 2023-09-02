@@ -302,7 +302,8 @@ export class OutputManager {
         var chartData = traceData;
         console.log(traceData);
 
-        var axisNames = Object.keys(traceData);
+        // Build axis echartData
+        var axisNames = ['xAxis', 'yAxis'];
         axisNames.forEach(axis => {
             chartData[axis].forEach(trace => {
                 // Store sourceData type of the field to determine whether the field is categorical or value type
@@ -320,8 +321,9 @@ export class OutputManager {
                     }
                     return value;
                 });*/
-                var result = this.#buildEChartsSourceData(datasetType, axis, trace, sourceData);
-                console.log(result);
+
+                var result = this.#buildEChartsAxisSourceData(trace, trace.fieldName, sourceData);
+                //console.log(result);
                 trace['data'] = result;
 
                 // Prepare errorData if selected
@@ -336,13 +338,38 @@ export class OutputManager {
                 }*/
 
                 // Store y-axis inverse value to be set to true if fieldName is any kind of a magnitude field
-                if (trace.fieldName.includes('mag') && trace.dataType === "value") {
+                /*if (trace.fieldName.includes('mag') && trace.dataType === "value") {
                     trace['inverse'] = true;
-                } else {
-                    trace['inverse'] = false;
-                }
+                }*/
             });
         });
+
+        // Build series echartData
+        chartData['series'].forEach(trace => {
+            trace['dataType'] = trace.dataType;
+
+            var xi = trace.xAxisIndex;
+            var yi = trace.yAxisIndex;
+            var result = this.#buildEChartsSeriesSourceData(chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
+            trace['data'] = result;
+
+            if (trace.error && trace.error !== 'none') {
+                var errorData = this.#buildEChartsErrorSourceData(trace, trace.error, sourceData, chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
+                trace['errorData'] = errorData;
+            }
+
+            /*if (trace.error && trace.error !== 'none') {
+                var digits = getNumDigits(trace.error);
+                trace['errorData'] = sourceData.map((sd, i) => {
+                    // round to the default number of digits if no default set it to 3 digits
+                    var lowerVal = Number(sd[trace.fieldName]) - Number(sd[trace.error]);
+                    var higherVal = Number(sd[trace.fieldName]) + Number(sd[trace.error]);
+                    return [i, lowerVal.toFixed(digits), higherVal.toFixed(digits)]
+                });
+            }*/
+
+        });
+
         chartData['chartTitle'] = chartTitle;
         console.log(chartData);
 
@@ -389,20 +416,27 @@ export class OutputManager {
         // save to outputMap hash table
     }
 
-    #buildEChartsSourceData(datasetType, axis, trace, sourceData) {
+    #buildEChartsAxisSourceData(trace, fieldName, sourceData) {
+        console.log(fieldName);
         console.log(trace);
 
         var result = sourceData.map((sd, i) => {
-            var value = sd[trace.fieldName];
+            var value = sd[fieldName];
             if (trace.fieldGroup !== 'undefined') {
                 var obj = sd[trace.fieldGroup];
-                value = obj[trace.fieldName];
+                value = obj[fieldName]; // value = value[trace.fieldGroup]
             }
+            /*console.log(value);*/
             if (trace.dataType === 'value') {
-                var digits = getNumDigits(trace.fieldName);
-                value = Number(value.toFixed(digits));
+                var digits = getNumDigits(fieldName);
+                value = Number(Number(value).toFixed(digits));
             }
-            if (axis === 'yAxis') {
+
+            /*if (axis === 'series') {
+                value = [sd[trace.xAxisName], value];
+            }*/
+
+            /*if (axis === 'yAxis') {
                 let digits = getNumDigits(trace.xFieldName.name);
 
                 // corresponding xFieldName
@@ -410,7 +444,7 @@ export class OutputManager {
                 xvalue = Number(xvalue);
                 value = [xvalue, value];
 
-                /*if (trace.error && trace.error !== 'none') {
+                *//*if (trace.error && trace.error !== 'none') {
                     let errorDigits = getNumDigits(trace.error);
                     trace['errorData'] = sourceData.map((sd, i) => {
                         // round to the default number of digits if no default set it to 3 digits
@@ -420,11 +454,91 @@ export class OutputManager {
                         console.log(value);
                         return [i, lowerVal.toFixed(errorDigits), higherVal.toFixed(errorDigits)]
                     });
-                }*/
-            }
+                }*//*
+            }*/
+
             return value;
         });
-        console.log(result);
+
+        return result;
+    }
+
+    #buildEChartsSeriesSourceData(xData, yData) {
+        var result = undefined;
+        if (xData && yData) {
+            result = xData.map((xd, i) => {
+                return [xd, yData[i]];
+            });
+        }
+        return result;
+    }
+
+    #buildEChartsErrorSourceData(trace, errorName, sourceData, xData, yData) {
+        var result = sourceData.map((sd, i) => {
+            var value = sd[errorName];
+            if (trace.fieldGroup !== 'undefined') {
+                value = sd[trace.fieldGroup];
+            }
+
+            /*console.log(value);
+            console.log(yvalue);*/
+            /*var xdigits = getNumDigits(trace.xAxisName);
+            var xvalue = sd[trace.xAxisName].toFixed(xdigits);*/
+
+            // Get higher and lower values
+            /*var ydigits = getNumDigits(trace.yAxisName);
+            var yvalue = yvalue[trace.yAxisName].toFixed(ydigits);*/
+
+            var xvalue = xData[i];
+            var yvalue = yData[i];
+
+            var errorDigits = getNumDigits(trace.error);
+            // round to the default number of digits if no default set it to 3 digits
+            var lowerVal = yvalue - Number(value[trace.error]);
+            lowerVal = lowerVal.toFixed(errorDigits);
+            var higherVal = yvalue + Number(value[trace.error]);
+            higherVal = higherVal.toFixed(errorDigits);
+
+            /*console.log(yvalue);
+            console.log(lowerVal);
+            console.log(higherVal);*/
+            return [Number(xvalue), Number(lowerVal), Number(higherVal)];
+            
+        });
+        return result;
+    }
+
+    #buildEChartsErrorData_old(trace, errorName, sourceData) {
+        var result = sourceData.map((sd, i) => {
+            var value = sd[errorName];
+            var yvalue = sd[trace.yAxisName];
+            if (trace.fieldGroup !== 'undefined') {
+                value = sd[trace.fieldGroup];
+                yvalue = sd[trace.fieldGroup];
+            }
+
+            /*console.log(value);
+            console.log(yvalue);*/
+            var xdigits = getNumDigits(trace.xAxisName);
+            var xvalue = sd[trace.xAxisName].toFixed(xdigits);
+
+            // Get higher and lower values
+            var ydigits = getNumDigits(trace.yAxisName);
+            var yvalue = yvalue[trace.yAxisName].toFixed(ydigits);
+            
+            var errorDigits = getNumDigits(trace.error);
+            // round to the default number of digits if no default set it to 3 digits
+            var lowerVal = Number(yvalue) - Number(value[trace.error]);
+            lowerVal = lowerVal.toFixed(errorDigits);
+            var higherVal = Number(yvalue) + Number(value[trace.error]);
+            higherVal = higherVal.toFixed(errorDigits);
+
+            /*console.log(yvalue);
+            console.log(lowerVal);
+            console.log(higherVal);*/
+            return [Number(xvalue), Number(lowerVal), Number(higherVal)];
+            
+        });
         return result;
     }
 

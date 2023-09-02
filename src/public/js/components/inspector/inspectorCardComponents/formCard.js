@@ -72,7 +72,7 @@ export class FormCard {
         switch (field.type) {
             case 'text':
                 formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], []);
-                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
                 //formField.setAttribute('remote', field.remote);
                 if (field.value) {
                     textInput.value = field.value;
@@ -81,7 +81,7 @@ export class FormCard {
                 break;
             case 'date':
                 formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], []);
-                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
                 //formField.setAttribute('remote', field.remote);
                 // set default value
                 if (field.value) {
@@ -150,7 +150,7 @@ export class FormCard {
             case 'typeahead':
                 formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [{ style: "position", value: "relative" }]);
 
-                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['typeahead-input', 'field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['typeahead-input', 'field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
                 textInput.setAttribute('remote', field.remote);
                 if (field.value) {
                     textInput.value = field.value;
@@ -241,15 +241,13 @@ export class FormCard {
             var field = fields[i];
             // create field elements
             var fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], []);
-            var label = GM.HF.createNewLabel('', '', [field.labelName], [], [], field.labelName + ': ');
-            var input = this.#createFormField(field);
-            if (field.value) {
-                input.value = field.value;
-            }
+            const fieldInputId = field.fieldName + '-' + field.index;
+            const label = GM.HF.createNewLabel('', '', [`${fieldInputId}`], [], [], field.labelName + ': ');
+
+            var input = this.#createFormField(field, fieldInputId);
 
             fieldWrapper.appendChild(label);
             fieldWrapper.appendChild(input);
-
             form.appendChild(fieldWrapper);
         }
     }

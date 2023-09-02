@@ -403,7 +403,7 @@ export class InspectorCard {
     }
 
 
-    //------------------------------------------- SEARCH MODULE (deprecated) ------------------------------------------------
+    //------------------------------------------- SEARCH MODULE ------------------------------------------------
     /** --- PUBLIC ---
      * This adds the select element to select the type of the query
      * @param { Object } label of the select element. key is the class name and value is the label text
@@ -525,12 +525,13 @@ export class InspectorCard {
      * @param { Array } fieldsTooltip Array of objects containing field tooltip content
      * @returns The card object (not just the HTML element)
      */
-    updateSearchFormFields(formCard, fields, fieldsTooltip) {
+    updateSearchFormFields(moduleKey, formCard, fields, fieldsTooltip) {
         formCard.updateFormFields(fields);
         const formFields = formCard.getFormFields();
-        formFields.forEach((formField) => {
+        console.log(formFields);
+        formFields.forEach((formField) => {            
             const fieldLabel = formField.querySelector('label');
-            const fieldElement = formField.lastChild;
+            const fieldElement = formField.querySelector('.field-input');
             if (fieldElement) {
                 const fieldName = fieldElement.getAttribute('name');
                 const match = fieldsTooltip.filter(x => x.field == fieldName);
@@ -538,8 +539,58 @@ export class InspectorCard {
                     var tooltip = formCard.appendToolTip(match[0].format, fieldLabel);
                     formField.insertBefore(tooltip, formField.firstChild);
                 }
+
+                //console.log(fields);
+                //console.log(fieldName);
+                const fieldObject = fields.filter(x => x.fieldName == fieldName)[0];
+                //console.log(fieldObject);
+
+                // Handle Remote Data Search Fields... create function for this?
+                if (fieldObject && fieldObject.remote) {
+                    this.#handleRemoteSearchField(moduleKey, fieldObject, fieldElement);
+                }
             }
         });
+    }
+
+
+
+    //------------------------------------------- ORBIT MODULE (temporary) ------------------------------------------------
+    // Add object names for data points
+    addObjectOptions(sourceData) {
+        var wrapper = this.HF.createNewDiv('', '', ['object-options', 'options'], []);
+        var objectsLabel = this.HF.createNewLabel('', '', '', ['objects-title'], [], 'Objects');
+        wrapper.appendChild(objectsLabel);
+
+        var checkboxGroupWrapper = this.HF.createNewDiv('', '', ['object-checkbox-group', 'checkbox-group'], []);
+        var checkbox = this.HF.createNewCheckbox('', '', ['object-checkbox'], [], 'C/2017 K2', 'C/2017 K2', true);
+        checkboxGroupWrapper.appendChild(checkbox.wrapper);
+        wrapper.appendChild(checkboxGroupWrapper);
+
+        return wrapper;
+    }
+
+    // Add planet names for eliptic data
+    addPlanetsOptions(elipticData) {
+        var wrapper = this.HF.createNewDiv('', '', ['ephemerides-options', 'options'], []);
+        var ephemeridesLabel = this.HF.createNewLabel('', '', '', ['ephemerides-title'], [], 'Ephemerides');
+        wrapper.appendChild(ephemeridesLabel);
+
+        var checkboxGroupWrapper = this.HF.createNewDiv('', '', ['ephemerides-checkbox-group', 'checkbox-group'], []);
+        var planetNames = Object.keys(elipticData[0]).map(key => {
+            return key.split(' ')[0];
+        });
+        planetNames = new Set(planetNames);
+        planetNames.forEach(planet => {
+            if (!planet.includes('UT') && !planet.includes('MJD')) {
+                var checkbox = this.HF.createNewCheckbox('', '', ['planet-checkbox'], [], planet, planet, true);
+                checkboxGroupWrapper.appendChild(checkbox.wrapper);
+            }
+        });
+        wrapper.appendChild(checkboxGroupWrapper);
+
+        return wrapper;
+
     }
 
 

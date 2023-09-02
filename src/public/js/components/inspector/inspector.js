@@ -102,11 +102,11 @@ export class Inspector {
             data.forEach(suggestion => {
                 console.log(suggestion);
                 var suggestionElement = this.HF.createNewDiv('', '', ['object-suggestion'], []);
-                suggestionElement.textContent = suggestion.sbn_target_name;
+                suggestionElement.textContent = suggestion.ui_name;
                 suggestionElement.addEventListener('click', () => {
                     // When a suggestion is clicked, populate the input with the suggestion
                     fieldWrapper.querySelector('input').setAttribute("object-id", suggestion.id);
-                    fieldWrapper.querySelector('input').value = suggestion.sbn_target_name;
+                    fieldWrapper.querySelector('input').value = suggestion.ui_name;
                     resultContainer.style.display = 'none';
                 });
                 resultContainer.appendChild(suggestionElement);

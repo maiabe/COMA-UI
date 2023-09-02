@@ -325,6 +325,7 @@ export class WorkerManager {
                 {
                     type: 'Query COMA Engine',
                     remoteData: data.remoteData,
+                    datasetType: data.datasetType,
                     queryType: data.queryType,
                     queryEntries: data.queryEntries,
                     responseKey: data.responseKey,

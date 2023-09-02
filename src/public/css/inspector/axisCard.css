@@ -310,14 +310,14 @@
 .series-content-wrapper .trace-card-body .error-dropdown-wrapper {
     grid-area: error;
 }
-.series-content-wrapper .trace-card-body .datapoint-symbol-dropdown-wrapper {
+.series-content-wrapper .trace-card-body .symbols-dropdown-wrapper {
     grid-area: symbol;
 }
 
     .series-content-wrapper .trace-card-body .xaxis-index-dropdown-wrapper .xaxis-index-label,
     .series-content-wrapper .trace-card-body .yaxis-index-dropdown-wrapper .yaxis-index-label,
     .series-content-wrapper .trace-card-body .error-dropdown-wrapper .error-label,
-    .series-content-wrapper .trace-card-body .datapoint-symbols-dropdown-wrapper .datapoint-symbols-label 
+    .series-content-wrapper .trace-card-body .symbols-dropdown-wrapper .symbols-label 
     {
         width: 40%;
         text-align: right;
@@ -326,22 +326,23 @@
     .series-content-wrapper .trace-card-body .xaxis-index-dropdown-wrapper .xaxis-index-dropdown,
     .series-content-wrapper .trace-card-body .yaxis-index-dropdown-wrapper .yaxis-index-dropdown,
     .series-content-wrapper .trace-card-body .error-dropdown-wrapper .error-dropdown,
-    .series-content-wrapper .trace-card-body .datapoint-symbols-dropdown-wrapper .datapoint-symbols-dropdown 
+    .series-content-wrapper .trace-card-body .symbols-dropdown-wrapper .symbols-dropdown 
     {
         width: 60%;
     }
 
-.series-content-wrapper .trace-card-body .datapoint-size-range-wrapper {
+.series-content-wrapper .trace-card-body .symbols-size-range-wrapper {
     grid-area: size;
 }
-    .series-content-wrapper .trace-card-body .datapoint-size-range-wrapper label {
-        width: 30%;
+    .series-content-wrapper .trace-card-body .symbols-size-range-wrapper label {
+        width: 25%;
+        white-space: nowrap;
     }
-    .series-content-wrapper .trace-card-body .datapoint-size-range-wrapper .range-input {
+    .series-content-wrapper .trace-card-body .symbols-size-range-wrapper .range-input {
         width: 60%;
     }
-    .series-content-wrapper .trace-card-body .datapoint-size-range-wrapper .text-input {
-        width: 10% !important;
+    .series-content-wrapper .trace-card-body .symbols-size-range-wrapper .text-input {
+        width: 15% !important;
         height: 1.2rem;
     }
 

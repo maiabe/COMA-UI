@@ -29,7 +29,7 @@ export class SeriesCard {
 
     //-- Create Wrapper
     #createWrapper() {
-        this.#wrapper = GM.HF.createNewDiv('', '', ['series-card-wrapper'], []);
+        this.#wrapper = GM.HF.createNewDiv('series', '', ['series-card-wrapper'], []);
     }
 
     //-- Create Header
@@ -66,6 +66,9 @@ export class SeriesCard {
             if (defaultField) {
                 // prepare field value and text for creating a trace card
                 field = fields.filter(f => f.fieldName === defaultField.fieldName)[0];
+                if (!field) {
+                    field = fields[0];
+                }
             }
             console.log('defaultField: ', field);
 
@@ -173,25 +176,32 @@ export class SeriesCard {
 
 
         //-- Create error dropdown (if any)
+        var errorVals = ['none'];
+        var errorNames = ['-- None --'];
         errorFields = errorFields.map(e => { return e.fieldName });
+        errorVals = errorVals.concat(errorFields);
+        errorNames = errorNames.concat(errorFields);
+        console.log(errorVals);
         let errorDDWrapper = GM.HF.createNewDiv('', '', ['error-dropdown-wrapper', 'trace-card-element'], []);
         let errorLabel = GM.HF.createNewSpan('', '', ['error-label'], [], 'Error: ')
-        let errorDropdown = GM.HF.createNewSelect('', '', ['error-dropdown'], [], errorFields, errorFields)
+        let errorDropdown = GM.HF.createNewSelect('', '', ['error-dropdown'], [], errorVals, errorNames)
         errorDDWrapper.appendChild(errorLabel);
         errorDDWrapper.appendChild(errorDropdown);
         body.appendChild(errorDDWrapper);
 
         //-- Create data point Symbols dropdown
-        let datapointSymbolsDDWrapper = GM.HF.createNewDiv('', '', ['datapoint-symbols-dropdown-wrapper', 'trace-card-element'], []);
+        let datapointSymbolsDDWrapper = GM.HF.createNewDiv('', '', ['symbols-dropdown-wrapper', 'trace-card-element'], []);
         let datapointSymbolsOptions = ['none', 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'pin', 'arrow'];
-        let datapointSymbolsLabel = GM.HF.createNewSpan('', '', ['datapoint-symbols-label'], [], 'Symbols: ')
-        let datapointSymbolsDropdown = GM.HF.createNewSelect('', '', ['datapoint-symbols-dropdown'], [], datapointSymbolsOptions, datapointSymbolsOptions)
+        let datapointSymbolsLabel = GM.HF.createNewSpan('', '', ['symbols-label'], [], 'Symbols: ')
+        let datapointSymbolsDropdown = GM.HF.createNewSelect('', '', ['symbols-dropdown'], [], datapointSymbolsOptions, datapointSymbolsOptions)
+        // select circle as default
+        datapointSymbolsDropdown.selectedIndex = 1;
         datapointSymbolsDDWrapper.appendChild(datapointSymbolsLabel);
         datapointSymbolsDDWrapper.appendChild(datapointSymbolsDropdown);
         body.appendChild(datapointSymbolsDDWrapper);
 
         //-- Create data point Size range input (0 - 50)
-        let datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['datapoint-size-range-wrapper', 'trace-card-element'], [], 'Data Point Size: ', 0, 100, 1, 10);
+        let datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'trace-card-element'], [], 'Symbol Size: ', 0, 100, 1, 10);
         body.appendChild(datapointSizeRange);
 
 

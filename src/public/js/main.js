@@ -1,4 +1,4 @@
-import {GlobalManager} from './global/index.js';
+import { GlobalManager } from './global/index.js';
 
 // Global Manager Instance
 export let GM;

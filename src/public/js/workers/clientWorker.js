@@ -131,6 +131,7 @@ function handleDatabaseQueryReturn(data, response) {
     var moduleData = {
         type: "Database Query Return",
         remoteData: data.remoteData,
+        datasetType: data.datasetType,
         queryType: data.queryType,
         queryEntries: data.queryEntries,
         columnsToRender: data.columnsToRender,

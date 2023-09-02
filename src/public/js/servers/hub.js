@@ -103,6 +103,7 @@ export default class Hub {
         this.#messageForModuleManager.set('Handle Fetch Error', this.#handleFetchError.bind(this));
         this.#messageForModuleManager.set('Set Module Data Event', this.#setModuleDataEvent.bind(this));
         this.#messageForModuleManager.set('Toggle Module Color Event', this.#toggleModuleColorEvent.bind(this));
+        this.#messageForModuleManager.set('Update Inspector Card Event', this.#updateInspectorCardEvent.bind(this));
 
     }
 
@@ -127,6 +128,7 @@ export default class Hub {
         this.#messageForInputManager.set('Fetch Local Chart Data Event', this.#fetchLocalChartDataEvent.bind(this));
         this.#messageForInputManager.set('Prep Table Data Event', this.#prepTableDataEvent.bind(this));
         this.#messageForInputManager.set('Prep Chart Data Event', this.#prepChartDataEvent.bind(this));
+        this.#messageForInputManager.set('Prep Orbit Data Event', this.#prepOrbitDataEvent.bind(this));
     }
 
     #buildMessageForWorkerManagerMap() {
@@ -162,7 +164,7 @@ export default class Hub {
         this.#messageForOutputManager.set('Popup Closed Event', this.#popupClosedEvent.bind(this));
         this.#messageForOutputManager.set('Resize Popup Event', this.#resizePopupEvent.bind(this));
 
-        this.#messageForOutputManager.set('New Table Event', this.#newTableEvent.bind(this));
+        //this.#messageForOutputManager.set('New Table Event', this.#newTableEvent.bind(this));
         this.#messageForOutputManager.set('Set New Table Event', this.#setNewTableEvent.bind(this));
         this.#messageForOutputManager.set('Set New Chart Event', this.#setNewChartEvent.bind(this));
     }
@@ -549,6 +551,12 @@ export default class Hub {
         GM.MM.toggleHeaderColor(moduleKey, processed);
     }
 
+    #updateInspectorCardEvent(data) {
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.moduleData, 'moduleData', 'object')], 'HUB', '#messageForModuleManager (Update Inspector Card Event)')) return;
+        var module = GM.MM.getModule(data.moduleKey);
+        module.updateInspectorCard();
+    }
+
     //*************** search form */
     //-------------------------------------- .. use prepworker event.. from Worker manager
     #searchFormSubmit(data) {
@@ -589,7 +597,7 @@ export default class Hub {
                 moduleData: {
                     remoteData: data.remoteData,
                     status: data.status,
-                    datasetType: data.queryType,
+                    datasetType: data.datasetType,
                     sourceData: data.sourceData,
                 },
                 toggleModuleColor: true,
@@ -1107,7 +1115,7 @@ export default class Hub {
         }
     }
 
-    /////////////////////////////////////////////////////////// for outputmanager ///////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////// for input & outputmanagers ///////////////////////////////////////////////////////////
     /** Sets a table moduleData from source moduleData
      * @param {moduleKey} moduleKey of the table module
      * @param {sourceModuleData} sourceModuleData of the source module
@@ -1214,7 +1222,7 @@ export default class Hub {
         GM.MM.toggleHeaderColor(moduleData.moduleKey, processed);
     }
 
-    /** Sets a table moduleData from source moduleData
+    /** Sets a chart moduleData from source moduleData
      * @param {moduleKey} moduleKey of the table module
      * @param {sourceModuleData} sourceModuleData of the source module
      * */
@@ -1278,7 +1286,7 @@ export default class Hub {
      * local (Boolean): Data comes from local or remote.
      * }} data 
      */
-    #newTableEvent(data) {
+    /*#newTableEvent(data) {
         if (invalidVariables([varTest(data.id, 'id', 'number'), varTest(data.val, 'val', 'object'), varTest(data.linkDataNode, 'linkDataNode', 'boolean'), varTest(data.local, 'local', 'boolean')], 'HUB', ' #messageForOutputManager. (new table event)')) return;
         //if (GM.OM.addData(data.id, data.val, data.local)) {
             try {
@@ -1313,14 +1321,54 @@ export default class Hub {
         //}
         // outputmanager draw chart
 
+    }*/
+
+
+    /** Sets a orbit moduleData from source moduleData
+     * @param {moduleKey} moduleKey of the table module
+     * @param {sourceModuleData} sourceModuleData of the source module
+     * */
+    #prepOrbitDataEvent(data) {
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceModuleData, 'sourceModuleData', 'object')], 'HUB', '#messageForOutputManager (Prep Orbit Data Event)')) return;
+        console.log(data);
+
+        GM.IM.getOrbitalPlotData(data.moduleKey, data.sourceModuleData.remote, data.sourceModuleData.sourceData);
+        //console.log(orbitPlotData);
+
+/*        var processed = false;
+        var remoteData = data.sourceModuleData.remoteData;
+        var fromDatasetType = data.sourceModuleData.datasetType;
+        var fromSourceData = data.sourceModuleData.sourceData;
+        console.log(fromSourceData);
+
+        if (fromSourceData) {
+            // get columnHeaders
+            var chartAxisData = GM.IM.getChartAxisData(remoteData, fromSourceData);
+
+            // set moduleData for this table module
+            var data = {
+                moduleKey: data.moduleKey,
+                moduleData: {
+
+                    datasetType: fromDatasetType,
+                    sourceData: fromSourceData,
+                    chartAxisData: chartAxisData,
+                },
+                toggleModuleColor: true,
+            };
+            processed = this.#setModuleDataEvent(data);
+        }*/
+        // else show error
+
     }
+
 
     /** --- PUBLIC ---
      * At application start, server is pinged to get routes and available objects.
      */
     makeInitialContactWithServer() {
-        this.#getRoutes();
-        this.#getObjects();
+        //this.#getRoutes();
+        //this.#getObjects();
         this.#getSavedModules();
     }
     

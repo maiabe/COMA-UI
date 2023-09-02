@@ -1,7 +1,7 @@
 import { Message, Publisher } from '../communication/index.js';
 import { CsvReader, DataTable } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
-import { DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, MODULE_MANAGER, getNumDigits } from '../sharedVariables/index.js';
+import { DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, MODULE_MANAGER, getNumDigits, INSPECTOR_CARD } from '../sharedVariables/index.js';
 
 export class InputManager {
 
@@ -82,6 +82,11 @@ export class InputManager {
             toggleModuleColor: toggleModuleColor
         }
         const msg = new Message(MODULE_MANAGER, INPUT_MANAGER, 'Set Module Data Event', data);
+        this.publisher.publishMessage(msg);
+    }
+
+    updateInspectorCardCB = (moduleKey, moduleData) => {
+        const msg = new Message(MODULE_MANAGER, INPUT_MANAGER, 'Update Inspector Card Event', { moduleKey: moduleKey, moduleData: moduleData });
         this.publisher.publishMessage(msg);
     }
 
@@ -207,6 +212,26 @@ export class InputManager {
         chartAxisData.push(yAxisData);
         chartAxisData.push(errorData);
         return chartAxisData;
+    }
+
+    /** Gets eliptical data for different planets
+     * @returns { elipticalData string } json object with eliptical orbit sorted into different planets
+     * */
+    prepElipticalCB(result) {
+        // process eliptical data here
+
+
+        // read planets (call csvReader function)
+
+
+    }
+
+    // callback
+    getOrbitalPlotData(moduleKey, remote, sourceData) {
+        // get eliptical data
+        //var elipticalData = this.#getElipticalData()
+        //console.log(elipticalData);
+        this.#csvReader.getElipticData(moduleKey, sourceData, this.setModuleDataCB, this.updateInspectorCardCB);
     }
 
     addRoutes = routes => this.#dataTable.set('routes', routes);
