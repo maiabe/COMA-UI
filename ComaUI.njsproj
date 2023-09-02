@@ -22,6 +22,7 @@
     <Content Include="localFileStorage\searchModule.json">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="localFileStorage\xyz_ephem_ecliptic.csv" />
     <Content Include="package-lock.json" />
     <Content Include="package.json" />
     <Content Include="server.js" />
