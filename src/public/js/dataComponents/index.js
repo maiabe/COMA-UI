@@ -5,3 +5,4 @@ export {DataTable} from './tables/dataTable.js';
 export {CsvReader} from './csv/csvReader.js';
 export {CsvWriter} from './csv/csvWriter.js';
 export {ChartBuilder} from './charts/chartBuilder.js';
+export {OrbitBuilder} from './charts/orbitBuilder.js';

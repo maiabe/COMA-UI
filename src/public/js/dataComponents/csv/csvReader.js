@@ -115,19 +115,19 @@ export class CsvReader {
             .then(response => response.text())
             .then(content => {
                 // get eliptic data
-                var elipticData = this.#parseCSV(content);
+                var eclipticData = this.#parseCSV(content);
                 // get source data
-                return { elipticData: elipticData, sourceData: sourceData };
+                return { eclipticData: eclipticData, sourceData: sourceData };
             })
             // set callback function parameters
             .then(data => {
                 var moduleData = {
                     remoteData: false,
                     sourceData: data.sourceData, // orbit data points
-                    elipticData: data.elipticData,
+                    eclipticData: data.eclipticData,
                 };
-                var toggleModuleColor = moduleData.sourceData ? true : false;
-                setModuleCB(moduleKey, moduleData, toggleModuleColor);
+                //var toggleModuleColor = moduleData.sourceData ? true : false;
+                setModuleCB(moduleKey, moduleData, false);
                 return moduleData;
             })
             .then(moduleData => {

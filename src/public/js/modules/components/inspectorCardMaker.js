@@ -762,7 +762,7 @@ export class InspectorCardMaker {
         var objectOptions = this.inspectorCard.addObjectOptions(moduleData.sourceData);
         contentWrapper.appendChild(objectOptions);
 
-        var ephemeridesOptions = this.inspectorCard.addPlanetsOptions(moduleData.elipticData);
+        var ephemeridesOptions = this.inspectorCard.addPlanetsOptions(moduleData.eclipticData);
         contentWrapper.appendChild(ephemeridesOptions);
 
         // add generate orbit button
@@ -770,7 +770,34 @@ export class InspectorCardMaker {
         contentWrapper.appendChild(generateOrbitButton);
 
         // add generate orbit button onclick event listener
+        generateOrbitButton.addEventListener('click', (e) => {
+            var wrapper = e.target.closest('.orbit-inspector-wrapper');
+            var objects = wrapper.querySelectorAll('.object-options .checkbox-group input');
+            var ephemerides = wrapper.querySelectorAll('.ephemerides-options .checkbox-group input');
+            console.log(ephemerides);
 
+            var objectsToRender = [];
+            var ephemToRender = [];
+            // get checked objects and ephemerides
+            objects.forEach(obj => {
+                if (obj.checked) { objectsToRender.push(obj.value); }
+            });
+            ephemerides.forEach(ephem => {
+                if (ephem.checked) { ephemToRender.push(ephem.value); }
+            });
+
+            var data = {
+                moduleKey: moduleKey,
+                objectsData: moduleData.sourceData,
+                eclipticData: moduleData.eclipticData,
+                objectsToRender: objectsToRender,
+                ephemToRender: ephemToRender,
+            }
+
+            // send message
+            const message = new Message(OUTPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Set New Orbit Event', data);
+            this.sendMessage(message);
+        });
 
     }
 

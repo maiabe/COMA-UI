@@ -5,6 +5,7 @@ const JobManager = require('./customModules/jobManager');
 const req = require('express/lib/request');
 const go = require('gojs');
 const fs = require('fs');
+const THREE = require('three');
 
 // Define Express App
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.json())
 app.use(express.static('./src/public'));
 app.use('/echarts', express.static(__dirname + '/node_modules/echarts'));
 app.use('/gojs', express.static(__dirname + '/node_modules/gojs'));
+app.use('/three', express.static(__dirname + '/node_modules/three'));
 
 //app.use('/tabulator-tables', express.static(__dirname + 'node_modules/tabulator-tables'));
 

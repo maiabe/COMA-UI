@@ -571,18 +571,21 @@ export class InspectorCard {
     }
 
     // Add planet names for eliptic data
-    addPlanetsOptions(elipticData) {
+    addPlanetsOptions(eclipticData) {
         var wrapper = this.HF.createNewDiv('', '', ['ephemerides-options', 'options'], []);
         var ephemeridesLabel = this.HF.createNewLabel('', '', '', ['ephemerides-title'], [], 'Ephemerides');
         wrapper.appendChild(ephemeridesLabel);
 
         var checkboxGroupWrapper = this.HF.createNewDiv('', '', ['ephemerides-checkbox-group', 'checkbox-group'], []);
-        var planetNames = Object.keys(elipticData[0]).map(key => {
-            return key.split(' ')[0];
+        var planetNames = Object.keys(eclipticData[0]).map(key => {
+            if (!key.includes('UT') && !key.includes('MJD')) {
+                var lastIndex = key.lastIndexOf(' ');
+                return key.slice(0, lastIndex);
+            }
         });
         planetNames = new Set(planetNames);
         planetNames.forEach(planet => {
-            if (!planet.includes('UT') && !planet.includes('MJD')) {
+            if (planet) {
                 var checkbox = this.HF.createNewCheckbox('', '', ['planet-checkbox'], [], planet, planet, true);
                 checkboxGroupWrapper.appendChild(checkbox.wrapper);
             }

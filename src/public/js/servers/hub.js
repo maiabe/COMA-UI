@@ -167,6 +167,7 @@ export default class Hub {
         //this.#messageForOutputManager.set('New Table Event', this.#newTableEvent.bind(this));
         this.#messageForOutputManager.set('Set New Table Event', this.#setNewTableEvent.bind(this));
         this.#messageForOutputManager.set('Set New Chart Event', this.#setNewChartEvent.bind(this));
+        this.#messageForOutputManager.set('Set New Orbit Event', this.#setNewOrbitEvent.bind(this));
     }
 
     /** --- PRIVATE --- MESSAGE FOR ENVIRONMENT
@@ -995,6 +996,11 @@ export default class Hub {
                 GM.PM.getPopupWidth(data.moduleKey),
                 GM.PM.getPopupHeight(data.moduleKey));
         }
+        if (GM.OM.popupHasOrbit(data.moduleKey)) {
+            GM.OM.resizeOrbit(data.moduleKey,
+                GM.PM.getPopupWidth(data.moduleKey),
+                GM.PM.getPopupHeight(data.moduleKey));
+        }
     }
 
     /** --- PRIVATE --- MESSAGE FOR OUTPUT MANAGER
@@ -1360,6 +1366,23 @@ export default class Hub {
         }*/
         // else show error
 
+    }
+
+    #setNewOrbitEvent(data) {
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForOutputManager (Set New Orbit Event)')) return;
+
+        var key = data.moduleKey;
+        var module = GM.MM.getModule(key);
+        var div = module.getData('orbitDiv');
+
+        var orbitData = GM.OM.prepOrbitData(data.objectsToRender, data.objectsData, data.ephemToRender, data.eclipticData);
+        var processed = GM.OM.storeOrbitData(key, orbitData, div);
+        if (processed) {
+            GM.OM.drawOrbit(key, div, GM.PM.getPopupWidth(key), GM.PM.getPopupHeight(key));
+            if (!GM.PM.isPopupOpen(key)) this.#openModulePopup(key, 0, 0);
+        }
+        // toggle module color and inspector/popup header color
+        this.#toggleModuleColorEvent(key, processed);
     }
 
 

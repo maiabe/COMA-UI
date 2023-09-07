@@ -5,7 +5,7 @@
  *************************************************************/
 
 import { Publisher, Message } from '../communication/index.js';
-import { ChartBuilder, CsvWriter } from './index.js';
+import { ChartBuilder, CsvWriter, OrbitBuilder } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
 import { getNumDigits } from '../sharedVariables/formatValues.js';
 export class OutputManager {
@@ -13,6 +13,8 @@ export class OutputManager {
     #outputMap;         // When a chart is created, parameters are stored here. If popup is closed, it can be recreatd from this data.
     #chartBuilder;
     #activeChartMap;
+    #orbitBuilder;
+    #activeOrbitMap;
     #csvWriter;
     #dataTable;
 
@@ -20,7 +22,9 @@ export class OutputManager {
         this.publisher = new Publisher();
         this.#outputMap = new Map();
         this.#chartBuilder = new ChartBuilder();
-        this.#activeChartMap = new Map(); // ... not needed?
+        this.#activeChartMap = new Map();
+        this.#activeOrbitMap = new Map();
+        this.#orbitBuilder = new OrbitBuilder();
         this.#csvWriter = new CsvWriter();
         this.#dataTable = new Map();
     };
@@ -40,6 +44,7 @@ export class OutputManager {
          console.log(this.#outputMap);
          return true;
     }
+    
 
     /** --- PUBLIC ---
      * Generates data for a chart and calls the chart builder.
@@ -295,7 +300,6 @@ export class OutputManager {
      * @param {object} traceData data from the chart's inspector card. (e.g { fieldName: "date", labelName: "Date", gridLines: true, ticks: false  })
      * @param {object} sourceData unfiltered source data from the previous module (list of key-value objects)
      * */
-    //// * NOTE: for now refer all yaxis to the first xaxis element
     // stores source data of the field and source data type of the field to traceData
     prepChartData(moduleKey, datasetType, chartTitle, traceData, sourceData) {
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(sourceData, 'sourceData', 'object')], 'OutputManager', 'prepEchartData')) return;
@@ -309,38 +313,8 @@ export class OutputManager {
                 // Store sourceData type of the field to determine whether the field is categorical or value type
                 trace['dataType'] = trace.dataType;
 
-                // Prepare sourceData of the field
-                /*var digits = getNumDigits(trace.fieldName);
-                var result = sourceData.map(sd => {
-                    var value = Number(sd[trace.fieldName]);
-                    if (Number.isNaN(value)) {
-                        value = sd[trace.fieldName];
-                    }
-                    else {
-                        value = value.toFixed(digits);
-                    }
-                    return value;
-                });*/
-
                 var result = this.#buildEChartsAxisSourceData(trace, trace.fieldName, sourceData);
-                //console.log(result);
                 trace['data'] = result;
-
-                // Prepare errorData if selected
-                /*if (trace.error && trace.error !== 'none') {
-                    var digits = getNumDigits(trace.error);
-                    trace['errorData'] = sourceData.map((sd, i) => {
-                        // round to the default number of digits if no default set it to 3 digits
-                        var lowerVal = Number(sd[trace.fieldName]) - Number(sd[trace.error]);
-                        var higherVal = Number(sd[trace.fieldName]) + Number(sd[trace.error]);
-                        return [i, lowerVal.toFixed(digits), higherVal.toFixed(digits)]
-                    });
-                }*/
-
-                // Store y-axis inverse value to be set to true if fieldName is any kind of a magnitude field
-                /*if (trace.fieldName.includes('mag') && trace.dataType === "value") {
-                    trace['inverse'] = true;
-                }*/
             });
         });
 
@@ -357,63 +331,12 @@ export class OutputManager {
                 var errorData = this.#buildEChartsErrorSourceData(trace, trace.error, sourceData, chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
                 trace['errorData'] = errorData;
             }
-
-            /*if (trace.error && trace.error !== 'none') {
-                var digits = getNumDigits(trace.error);
-                trace['errorData'] = sourceData.map((sd, i) => {
-                    // round to the default number of digits if no default set it to 3 digits
-                    var lowerVal = Number(sd[trace.fieldName]) - Number(sd[trace.error]);
-                    var higherVal = Number(sd[trace.fieldName]) + Number(sd[trace.error]);
-                    return [i, lowerVal.toFixed(digits), higherVal.toFixed(digits)]
-                });
-            }*/
-
         });
 
         chartData['chartTitle'] = chartTitle;
         console.log(chartData);
 
         return chartData;
-        // error check
-        /*var echartData = { 'series': [] };
-        var chartAxis = Object.keys(traceData);
-        chartAxis.forEach(axis => {
-            var trace = traceData[axis];
-            echartData[axis] = [];
-            switch (axis) {
-                case "xAxis":
-                    trace.forEach(t => {
-                        var result = sourceData.map(data => {
-                            return data[t.fieldName];
-                        });
-
-                        var td = { type: "category", data: result };
-                        echartData[axis].push(td);
-                    }); 
-                    break;
-                case "yAxis":
-                    trace.forEach(t => {
-                        echartData[axis].push({ type: "value" });
-
-                        var result = sourceData.map(data => {
-                            return data[t.fieldName];
-                        });
-                        var seriesData = { type: chartType, data: result, xAxisIndex: 0 };
-                        echartData['series'].push(seriesData);
-                    });
-                    break;
-                case "error":
-                    // TODO: add error field
-                    break;
-                default:
-                    return false;
-            }
-        });
-        console.log(echartData);*/
-         
-        //var chartData = { x: [], y: [], e: []};
-
-        // save to outputMap hash table
     }
 
     #buildEChartsAxisSourceData(trace, fieldName, sourceData) {
@@ -431,31 +354,6 @@ export class OutputManager {
                 var digits = getNumDigits(fieldName);
                 value = Number(Number(value).toFixed(digits));
             }
-
-            /*if (axis === 'series') {
-                value = [sd[trace.xAxisName], value];
-            }*/
-
-            /*if (axis === 'yAxis') {
-                let digits = getNumDigits(trace.xFieldName.name);
-
-                // corresponding xFieldName
-                var xvalue = sd[trace.xFieldName.name].toFixed(digits);
-                xvalue = Number(xvalue);
-                value = [xvalue, value];
-
-                *//*if (trace.error && trace.error !== 'none') {
-                    let errorDigits = getNumDigits(trace.error);
-                    trace['errorData'] = sourceData.map((sd, i) => {
-                        // round to the default number of digits if no default set it to 3 digits
-                        var lowerVal = value[1] - Number(sd[trace.fieldGroup][trace.error]);
-                        var higherVal = value[1] + Number(sd[trace.fieldGroup][trace.error]);
-                        console.log(sd[trace.fieldGroup][trace.error]);
-                        console.log(value);
-                        return [i, lowerVal.toFixed(errorDigits), higherVal.toFixed(errorDigits)]
-                    });
-                }*//*
-            }*/
 
             return value;
         });
@@ -479,16 +377,6 @@ export class OutputManager {
             if (trace.fieldGroup !== 'undefined') {
                 value = sd[trace.fieldGroup];
             }
-
-            /*console.log(value);
-            console.log(yvalue);*/
-            /*var xdigits = getNumDigits(trace.xAxisName);
-            var xvalue = sd[trace.xAxisName].toFixed(xdigits);*/
-
-            // Get higher and lower values
-            /*var ydigits = getNumDigits(trace.yAxisName);
-            var yvalue = yvalue[trace.yAxisName].toFixed(ydigits);*/
-
             var xvalue = xData[i];
             var yvalue = yData[i];
 
@@ -499,47 +387,121 @@ export class OutputManager {
             var higherVal = yvalue + Number(value[trace.error]);
             higherVal = higherVal.toFixed(errorDigits);
 
-            /*console.log(yvalue);
-            console.log(lowerVal);
-            console.log(higherVal);*/
             return [Number(xvalue), Number(lowerVal), Number(higherVal)];
             
         });
         return result;
     }
 
-    #buildEChartsErrorData_old(trace, errorName, sourceData) {
-        var result = sourceData.map((sd, i) => {
-            var value = sd[errorName];
-            var yvalue = sd[trace.yAxisName];
-            if (trace.fieldGroup !== 'undefined') {
-                value = sd[trace.fieldGroup];
-                yvalue = sd[trace.fieldGroup];
+
+    // ----------------------------------------- Orbit Data Preparation -----------------------------------------
+    /** --- PUBLIC ---
+    * Stores the orbit information and data into the outputmap hash table.
+    * @param {number} key key identifying the location in the hash table. it is also the id of the module associated with this orbit chart.
+    * @param {object} data the data that is used for the chart (traceData)
+    * @param {object} div the html div to inject the chart
+    * @returns true if successful, false if failure  */
+    storeOrbitData = (key, data, div) => {
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(div, 'div', 'object')], 'OutputManager', 'storeOrbitData')) return false;
+        this.#outputMap.set(key, { data: data, div: div, outputType: 'orbit' });
+        console.log(this.#outputMap);
+        return true;
+    }
+
+    // drawOrbit
+    drawOrbit = (key, div, width, height) => {
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(div, 'div', 'object'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'OutputManager', 'drawOrbit')) return;
+        if (this.#outputMap.has(key)) {
+            const od = this.#outputMap.get(key);
+            // if activeChartMap contains the key, updateChart
+            var activeOrbit = this.#activeOrbitMap.get(key);
+            if (activeOrbit) {
+                // get the div of orbitObject
+                this.#activeOrbitMap.set(key, { orbitObject: this.#orbitBuilder.updatePlotData(activeOrbit.orbitObject, od.data, width, height) });
+
             }
+            // otherwise set the key to activeChartMap
+            else {
+                // orbitObject is a three renderer
+                this.#activeOrbitMap.set(key, { orbitObject: this.#orbitBuilder.plotData(od.data, div, width, height) });
+            }
+        }
+        else printErrorMessage(`Missing Data.`, `key: ${key} - OutputManager -> drawChart`);
+    }
 
-            /*console.log(value);
-            console.log(yvalue);*/
-            var xdigits = getNumDigits(trace.xAxisName);
-            var xvalue = sd[trace.xAxisName].toFixed(xdigits);
+    /** Get objects vectors and ephemerides vectors
+     * 
+     * 
+     * */
+    prepOrbitData(objectsToRender, objectsData, ephemToRender, eclipticData) {
+        var orbitData = {};
 
-            // Get higher and lower values
-            var ydigits = getNumDigits(trace.yAxisName);
-            var yvalue = yvalue[trace.yAxisName].toFixed(ydigits);
-            
-            var errorDigits = getNumDigits(trace.error);
-            // round to the default number of digits if no default set it to 3 digits
-            var lowerVal = Number(yvalue) - Number(value[trace.error]);
-            lowerVal = lowerVal.toFixed(errorDigits);
-            var higherVal = Number(yvalue) + Number(value[trace.error]);
-            higherVal = higherVal.toFixed(errorDigits);
+        // Get object data
+        var objectVectors = this.#getObjectsData(objectsToRender, objectsData);
+        orbitData['objects'] = objectVectors;
 
-            /*console.log(yvalue);
-            console.log(lowerVal);
-            console.log(higherVal);*/
-            return [Number(xvalue), Number(lowerVal), Number(higherVal)];
-            
+        // Get ecliptic data
+        var eclipticVectors = this.#getEphemData(ephemToRender, eclipticData);
+        orbitData['ephemerides'] = eclipticVectors;
+
+        return orbitData;
+        //console.log(orbitData);
+    }
+
+    #getObjectsData(objectsToRender, objectsData) {
+        var result = [];
+
+        objectsToRender.forEach(object => {
+            var objectVectors = { name: object };
+            var xKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('x[au]'));
+            var yKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('y[au]'));
+            var zKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('z[au]'));
+
+            var vectors = objectsData.map(obj => {
+                return { x: Number(obj[`${xKey[0]}`]), y: Number(obj[`${yKey[0]}`]), z: Number(obj[`${zKey[0]}`]) };
+            });
+            objectVectors.vectors = vectors;
+            result.push(objectVectors);
+        });
+
+        return result;
+    }
+
+    #getEphemData(ephemToRender, eclipticData) {
+        var result = [];
+        ephemToRender.forEach(ephem => {
+            var ephemVectors = { name: ephem };
+            var xKey = Object.keys(eclipticData[0]).filter(k => k.toLowerCase().includes('x') && k.includes(ephem));
+            var yKey = Object.keys(eclipticData[0]).filter(k => k.toLowerCase().includes('y') && k.includes(ephem));
+            var zKey = Object.keys(eclipticData[0]).filter(k => k.toLowerCase().includes('z') && k.includes(ephem));
+
+            var vectors = eclipticData.map(ed => {
+                return { x: Number(ed[`${xKey[0]}`]), y: Number(ed[`${yKey[0]}`]), z: Number(ed[`${zKey[0]}`]) }
+            });
+            ephemVectors['vectors'] = vectors;
+            result.push(ephemVectors);
         });
         return result;
+    }
+
+    popupHasOrbit = key => {
+        if (invalidVariables([varTest(key, 'key', 'number')], 'OutputManager', 'popupHasOrbit')) return false;
+        if (this.#outputMap.has(key)) {
+            if (this.#outputMap.get(key).outputType === 'orbit') return true;
+        }
+        return false;
+    }
+
+    resizeOrbit(key, width, height) {
+        var activeOrbit = this.#activeOrbitMap.get(key);
+        if (activeOrbit) {
+            var orbitObject = activeOrbit.orbitObject;
+            var renderer = orbitObject.renderer;
+            var camera = orbitObject.camera;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        }
     }
 
 }

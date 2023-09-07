@@ -214,10 +214,10 @@ export class InputManager {
         return chartAxisData;
     }
 
-    /** Gets eliptical data for different planets
-     * @returns { elipticalData string } json object with eliptical orbit sorted into different planets
+    /** Gets elliptical data for different planets
+     * @returns { eslipticalData string } json object with eliptical orbit sorted into different planets
      * */
-    prepElipticalCB(result) {
+    prepEclipticalCB(result) {
         // process eliptical data here
 
 
@@ -229,8 +229,6 @@ export class InputManager {
     // callback
     getOrbitalPlotData(moduleKey, remote, sourceData) {
         // get eliptical data
-        //var elipticalData = this.#getElipticalData()
-        //console.log(elipticalData);
         this.#csvReader.getElipticData(moduleKey, sourceData, this.setModuleDataCB, this.updateInspectorCardCB);
     }
 

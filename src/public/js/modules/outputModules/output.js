@@ -186,9 +186,8 @@ export class OrbitalPlot extends Output {
      * Creates the HTML content to be inserted into the Popup in the DOM. */
     setPopupContent = () => {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
-        this.addData('themeDD', this.popupContentMaker.addEChartThemeDropdown(this.getData('key')), false, '', false);
 
-        this.addData('plotDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
+        this.addData('orbitDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
         this.addData('inportType', [LT_SOURCE, LT_PROCESSOR]);
         this.addData('outportType', [-1]);
 
