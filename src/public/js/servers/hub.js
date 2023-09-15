@@ -138,6 +138,7 @@ export default class Hub {
         this.#messageForWorkerManager.set('Get Remote Dropdown Options', this.#getRemoteDropdownOptions.bind(this));
         this.#messageForWorkerManager.set('Get Remote Objects Suggestions', this.#getRemoteObjectsSuggestions.bind(this));
         this.#messageForWorkerManager.set('Fetch Remote Table Data Event', this.#fetchRemoteTableDataEvent.bind(this));
+        this.#messageForWorkerManager.set('Get Planet Orbits Event', this.#getPlanetOrbitsDataEvent.bind(this));
     }
 
     #buildMessageForPopupManager() {
@@ -188,13 +189,10 @@ export default class Hub {
         var moduleKey = data.module.getData('key');
         GM.ENV.insertModule(data.module, data.templateExists, data.groupKey);
         try {
-            //var onCreationFunction = data.module.getData('onCreationFunction');
-            //console.log(moduleName);
-            //console.log(onCreationFunction);
-            if (data.module.getData('requestMetadataOnCreation') === true) {
+            var callOnCreation = data.module.getData('callOnCreationFunction');
+            if (callOnCreation === true) {
                 //this.#makeMetadataRequest(this.#getNewWorkerIndex(), data.module.getData('name'), data.module.getData('onCreationFunction'));
-                this.#makeMetadataRequest(moduleKey, data.module.getData('onCreationFunction'));
-                //data.module.getData('onCreationFunction');
+                data.module.onCreation();
             }
         } catch (e) {
             console.log(e);
@@ -1329,6 +1327,13 @@ export default class Hub {
 
     }*/
 
+    // sets planet orbits on creation of orbit module
+    #getPlanetOrbitsDataEvent() {
+        if (invalidVariables([], 'HUB', '#messageForWorkerManager (Get Planet Orbits Event)')) return;
+        const workerId = this.#getNewWorkerIndex();
+        this.#prepWorker(workerId)
+            .getPlanetOrbits(workerId);
+    }
 
     /** Sets a orbit moduleData from source moduleData
      * @param {moduleKey} moduleKey of the table module
@@ -1337,15 +1342,18 @@ export default class Hub {
     #prepOrbitDataEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceModuleData, 'sourceModuleData', 'object')], 'HUB', '#messageForOutputManager (Prep Orbit Data Event)')) return;
         console.log(data);
+        /*const orbitModuleData = {
+            moduleKey: data.moduleKey,
+            moduleData: {
+                
+            },
+        }
+        this.#setModuleDataEvent({  });*/
 
-        GM.IM.getOrbitalPlotData(data.moduleKey, data.sourceModuleData.remote, data.sourceModuleData.sourceData);
+        GM.IM.prepOrbitModuleData(data.moduleKey, data.sourceModuleData.remoteData, data.sourceModuleData.sourceData);
         //console.log(orbitPlotData);
 
-/*        var processed = false;
-        var remoteData = data.sourceModuleData.remoteData;
-        var fromDatasetType = data.sourceModuleData.datasetType;
-        var fromSourceData = data.sourceModuleData.sourceData;
-        console.log(fromSourceData);
+/*        var processed = false;        var remoteData = data.sourceModuleData.remoteData;       var fromDatasetType = data.sourceModuleData.datasetType;      var fromSourceData = data.sourceModuleData.sourceData;       console.log(fromSourceData);
 
         if (fromSourceData) {
             // get columnHeaders
@@ -1361,8 +1369,7 @@ export default class Hub {
                     chartAxisData: chartAxisData,
                 },
                 toggleModuleColor: true,
-            };
-            processed = this.#setModuleDataEvent(data);
+            };          processed = this.#setModuleDataEvent(data);
         }*/
         // else show error
 
@@ -1373,9 +1380,12 @@ export default class Hub {
 
         var key = data.moduleKey;
         var module = GM.MM.getModule(key);
+        var moduleData = module.getData('moduleData');
         var div = module.getData('orbitDiv');
 
-        var orbitData = GM.OM.prepOrbitData(data.objectsToRender, data.objectsData, data.ephemToRender, data.eclipticData);
+
+        console.log(moduleData);
+        var orbitData = GM.OM.prepOrbitData(data.objectsToRender, moduleData.sourceData, data.orbitsToRender);
         var processed = GM.OM.storeOrbitData(key, orbitData, div);
         if (processed) {
             GM.OM.drawOrbit(key, div, GM.PM.getPopupWidth(key), GM.PM.getPopupHeight(key));
@@ -1386,8 +1396,7 @@ export default class Hub {
     }
 
 
-    /** --- PUBLIC ---
-     * At application start, server is pinged to get routes and available objects.
+    /** --- PUBLIC ---     * At application start, server is pinged to get routes and available objects.
      */
     makeInitialContactWithServer() {
         //this.#getRoutes();
@@ -1503,5 +1512,5 @@ export default class Hub {
     run = () => {
         let m = GM.ENV.getModel();
         GM.PLM.validatePipeline(GM.MM.getModulesForPipeline(m));
-    };
+    }
 }

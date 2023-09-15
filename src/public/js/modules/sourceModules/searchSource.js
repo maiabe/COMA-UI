@@ -18,8 +18,8 @@ export class Search extends Source {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'local', 'getQueryResult', 'Search', 'images/icons/db-image.png', [],
             [{ name: 'OUT', leftSide: false, type: LT_SOURCE }], key);
-        this.addData('onCreationFunction', this.onCreation.bind(this));
-        this.addData('requestMetadataOnCreation', true);
+        //this.addData('onCreationFunction', this.onCreation.bind(this));
+        this.addData('callOnCreationFunction', true);
         this.addData('remoteData', true);
         this.setPopupContent();
         //this.setInspectorCardContent();

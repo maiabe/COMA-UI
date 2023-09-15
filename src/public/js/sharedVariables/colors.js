@@ -45,6 +45,12 @@ const logoGreen = "#00e17b";
 const lightGray = "e3e3e3";
 const darkGray = "#363538";
 
+const objectColor = '#b0b0b0';
+const earthBlue = '#20A4F3';
+const marsYellow = '#f9c74f';
+const saturnGreen = '#0b6318';
+
+
 const moduleMenuColor = darkGray;
 // const sourceColor = lightGreen;
 const processorColor = themeGray;
@@ -58,4 +64,21 @@ const processedModuleColor = darkGray;
 
 const typeColorArray = [blue, yellow, pink];
 
-export { moduleMenuColor, sourceColor, processorColor, outputColor, compositColor, typeColorArray, processedModuleColor };
+const orbitColors = {
+    'C/2017 K2': objectColor,
+
+    Mercury: blue,
+    Venus: blue,
+    Earth: earthBlue,
+    Mars: marsYellow,
+    Jupiter: blue,
+    Saturn: saturnGreen,
+    Uranus: blue,
+    Neptune: blue,
+    Pluto: blue,
+};
+
+export {
+    moduleMenuColor, sourceColor, processorColor, outputColor, compositColor, typeColorArray, processedModuleColor,
+    orbitColors,
+};

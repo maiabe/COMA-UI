@@ -40,6 +40,7 @@ export class Module {
      * inports (Object[])                       | Array of information for building Environment ports
      * outports (Object[])                      | Array of information for building Environment ports
      * getFilterDetailsFunctionArray (Function) | Array of filter functions
+     * callOnCreationFunction (Function)        | Request onCreation function to be called
      * onCreationFunction (Function)            | Function to call on creation of module.
      * ----------------------------------------------------------------------------------------------
 */     

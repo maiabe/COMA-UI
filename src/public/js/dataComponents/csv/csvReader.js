@@ -110,7 +110,8 @@ export class CsvReader {
             });
     }
 
-    getElipticData(moduleKey, sourceData, setModuleCB, updateInspectorCardCB) {
+    // read csv planet orbit data
+    /*getElipticData(moduleKey, sourceData, setModuleCB, updateInspectorCardCB) {
         fetch('/get-ecliptic')
             .then(response => response.text())
             .then(content => {
@@ -136,7 +137,7 @@ export class CsvReader {
             .catch(error => {
                 console.error('Error fetching CSV:', error);
             });
-    }
+    }*/
 
 
     #parseCSV(content) {

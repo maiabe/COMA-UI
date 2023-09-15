@@ -557,33 +557,39 @@ export class InspectorCard {
 
     //------------------------------------------- ORBIT MODULE (temporary) ------------------------------------------------
     // Add object names for data points
-    addObjectOptions(sourceData) {
+    addObjectOptions(objectNames) {
         var wrapper = this.HF.createNewDiv('', '', ['object-options', 'options'], []);
-        var objectsLabel = this.HF.createNewLabel('', '', '', ['objects-title'], [], 'Objects');
+        var objectsLabel = this.HF.createNewLabel('', '', '', ['objects-title'], [], 'Objects: ');
         wrapper.appendChild(objectsLabel);
-
+        
         var checkboxGroupWrapper = this.HF.createNewDiv('', '', ['object-checkbox-group', 'checkbox-group'], []);
-        var checkbox = this.HF.createNewCheckbox('', '', ['object-checkbox'], [], 'C/2017 K2', 'C/2017 K2', true);
-        checkboxGroupWrapper.appendChild(checkbox.wrapper);
+        objectNames.forEach(object => {
+            if (object) {
+                var checkbox = this.HF.createNewCheckbox('', '', ['object-checkbox'], [], object, object, true);
+                checkboxGroupWrapper.appendChild(checkbox.wrapper);
+            }
+        });
+        //var checkbox = this.HF.createNewCheckbox('', '', ['object-checkbox'], [], 'C/2017 K2', 'C/2017 K2', true);
+        //checkboxGroupWrapper.appendChild(checkbox.wrapper);
         wrapper.appendChild(checkboxGroupWrapper);
 
         return wrapper;
     }
 
     // Add planet names for eliptic data
-    addPlanetsOptions(eclipticData) {
-        var wrapper = this.HF.createNewDiv('', '', ['ephemerides-options', 'options'], []);
-        var ephemeridesLabel = this.HF.createNewLabel('', '', '', ['ephemerides-title'], [], 'Ephemerides');
-        wrapper.appendChild(ephemeridesLabel);
+    addPlanetOptions(planetNames) {
+        var wrapper = this.HF.createNewDiv('', '', ['orbit-options', 'options'], []);
+        var orbitLabel = this.HF.createNewLabel('', '', '', ['orbit-title'], [], 'Orbits: ');
+        wrapper.appendChild(orbitLabel);
 
-        var checkboxGroupWrapper = this.HF.createNewDiv('', '', ['ephemerides-checkbox-group', 'checkbox-group'], []);
-        var planetNames = Object.keys(eclipticData[0]).map(key => {
-            if (!key.includes('UT') && !key.includes('MJD')) {
-                var lastIndex = key.lastIndexOf(' ');
+        var checkboxGroupWrapper = this.HF.createNewDiv('', '', ['orbit-checkbox-group', 'checkbox-group'], []);
+        /*var planetNames = Object.keys(eclipticData[0]).map(key => {
+            if (!key.includes('id')) {
+                var lastIndex = key.lastIndexOf('_');
                 return key.slice(0, lastIndex);
             }
-        });
-        planetNames = new Set(planetNames);
+        });*/
+        //planetNames = new Set(planetNames);
         planetNames.forEach(planet => {
             if (planet) {
                 var checkbox = this.HF.createNewCheckbox('', '', ['planet-checkbox'], [], planet, planet, true);

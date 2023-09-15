@@ -17,8 +17,8 @@ export class Csv extends Source {
         this.addData('description', 'This module loads a CSV file (.csv) and converts it into a module.');
         this.addData('linkedToData', false);
         this.addData('remoteData', false);
-        this.addData('onCreationFunction', this.onCreation.bind(this));
-        this.addData('requestMetadataOnCreation', true);
+        this.addData('callOnCreationFunction', true);
+        //this.addData('onCreationFunction', this.onCreation.bind(this));
         //this.#createInspectorCardData();
         this.#setPopupContent();
 

@@ -7,7 +7,9 @@
 import { Publisher, Message } from '../communication/index.js';
 import { ChartBuilder, CsvWriter, OrbitBuilder } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
-import { getNumDigits } from '../sharedVariables/formatValues.js';
+//import { getNumDigits } from '../sharedVariables/formatValues.js';
+import { getNumDigits, orbitColors } from '../sharedVariables/index.js';
+
 export class OutputManager {
     publisher;
     #outputMap;         // When a chart is created, parameters are stored here. If popup is closed, it can be recreatd from this data.
@@ -433,16 +435,17 @@ export class OutputManager {
      * 
      * 
      * */
-    prepOrbitData(objectsToRender, objectsData, ephemToRender, eclipticData) {
+    prepOrbitData(objectsToRender, objectsData, orbitsToRender) {
         var orbitData = {};
-
+        console.log(objectsData);
         // Get object data
         var objectVectors = this.#getObjectsData(objectsToRender, objectsData);
         orbitData['objects'] = objectVectors;
 
-        // Get ecliptic data
-        var eclipticVectors = this.#getEphemData(ephemToRender, eclipticData);
-        orbitData['ephemerides'] = eclipticVectors;
+        // Get orbit data
+        console.log(orbitsToRender);
+        var orbitVectors = this.#getOrbitsData(orbitsToRender);
+        orbitData['orbits'] = orbitVectors;
 
         return orbitData;
         //console.log(orbitData);
@@ -452,11 +455,14 @@ export class OutputManager {
         var result = [];
 
         objectsToRender.forEach(object => {
-            var objectVectors = { name: object };
+            var objectVectors = { name: object, color: '#5df941' };
             var xKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('x[au]'));
             var yKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('y[au]'));
             var zKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('z[au]'));
-
+            /*let xKey = 'sunvect_x';
+            let yKey = 'sunvect_y';
+            let zKey = 'sunvect_z';
+*/
             var vectors = objectsData.map(obj => {
                 return { x: Number(obj[`${xKey[0]}`]), y: Number(obj[`${yKey[0]}`]), z: Number(obj[`${zKey[0]}`]) };
             });
@@ -467,19 +473,21 @@ export class OutputManager {
         return result;
     }
 
-    #getEphemData(ephemToRender, eclipticData) {
+    #getOrbitsData(orbitsToRender) {
+        const planetOrbits = JSON.parse(localStorage.getItem('Planet Orbits'));
         var result = [];
-        ephemToRender.forEach(ephem => {
-            var ephemVectors = { name: ephem };
-            var xKey = Object.keys(eclipticData[0]).filter(k => k.toLowerCase().includes('x') && k.includes(ephem));
-            var yKey = Object.keys(eclipticData[0]).filter(k => k.toLowerCase().includes('y') && k.includes(ephem));
-            var zKey = Object.keys(eclipticData[0]).filter(k => k.toLowerCase().includes('z') && k.includes(ephem));
+        orbitsToRender.forEach(orbit => {
+            var color = orbitColors[orbit] ? orbitColors[orbit] : "#20A4F3";
+            var orbitVectors = { name: orbit, color: color };
+            var xKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('x') && k.includes(orbit));
+            var yKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('y') && k.includes(orbit));
+            var zKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('z') && k.includes(orbit));
 
-            var vectors = eclipticData.map(ed => {
+            var vectors = planetOrbits.map(ed => {
                 return { x: Number(ed[`${xKey[0]}`]), y: Number(ed[`${yKey[0]}`]), z: Number(ed[`${zKey[0]}`]) }
             });
-            ephemVectors['vectors'] = vectors;
-            result.push(ephemVectors);
+            orbitVectors['vectors'] = vectors;
+            result.push(orbitVectors);
         });
         return result;
     }

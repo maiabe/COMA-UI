@@ -160,6 +160,14 @@ export class WorkerManager {
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, event.data));
                         workerObject.stopWorkerFunction(id);
                         break;
+                    case 'Planet Orbits Return':
+                        const response = event.data.response;
+                        console.log(event.data);
+                        if (response.status === 'success') {
+                            localStorage.setItem('Planet Orbits', JSON.stringify(response.planet_coordinates));
+                        }
+                        workerObject.stopWorkerFunction(id);
+                        break;
                 }
             }
         }
@@ -335,17 +343,6 @@ export class WorkerManager {
         }
     }
 
-    // make API call to query database
-    /*queryDatabase(workerId, queryType, formdata, responseKey) {
-        console.log(queryType);
-        if (this.#workers.has(workerId)) {
-            const entries = {};
-            formdata.forEach((value, key) => { entries[key] = value });
-            this.#workers.get(workerId).worker.postMessage({ type: 'Query COMA Engine', queryType: queryType, queryEntries: entries, responseKey: responseKey });
-        }
-    }*/
-
-
     getRemoteDropdownOptions(workerId, data) {
         // call clientworker to query the database
         if (this.#workers.has(workerId)) {
@@ -358,7 +355,18 @@ export class WorkerManager {
             this.#workers.get(workerId).worker.postMessage({ type: 'Get Remote Objects Suggestions', data: data });
         }
     }
-    
+
+    getPlanetOrbits(workerId) {
+        if (this.#workers.has(workerId)) {
+            this.#workers.get(workerId).worker.postMessage(
+                {
+                    type: 'Get Planet Orbits',
+                });
+        }
+    }
+
+
+
 
 }
 

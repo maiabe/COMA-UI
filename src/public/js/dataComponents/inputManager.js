@@ -214,25 +214,52 @@ export class InputManager {
         return chartAxisData;
     }
 
-    /** Gets elliptical data for different planets
-     * @returns { eslipticalData string } json object with eliptical orbit sorted into different planets
-     * */
-    prepEclipticalCB(result) {
-        // process eliptical data here
-
-
-        // read planets (call csvReader function)
-
-
-    }
 
     // callback
-    getOrbitalPlotData(moduleKey, remote, sourceData) {
-        // get eliptical data
-        this.#csvReader.getElipticData(moduleKey, sourceData, this.setModuleDataCB, this.updateInspectorCardCB);
+    prepOrbitModuleData(moduleKey, remote, sourceData) {
+        // get objectNames & planetNames
+        const objectNames = ['C/2017 K2'];
+        const planetOrbits = JSON.parse(localStorage.getItem('Planet Orbits'));
+        console.log(planetOrbits);
+        let planetNames = Object.keys(planetOrbits[0])
+            .filter(planet => !planet.includes('id'))
+            .map(planet => {
+                let lastIndex = planet.lastIndexOf('_');
+                return planet.slice(0, lastIndex);
+            });
+        planetNames = new Set(planetNames);
+        console.log(planetNames);
+        // setModuleData
+        const orbitModuleData = {
+            moduleKey: moduleKey,
+            moduleData: {
+                sourceData: sourceData,
+                objectNames: objectNames,
+                planetNames: planetNames, 
+            },
+            toggleModuleColor: false,
+        }
+
+        const msg = new Message(MODULE_MANAGER, INPUT_MANAGER, 'Set Module Data Event', orbitModuleData);
+        this.publisher.publishMessage(msg);
+
+
+
+        if (remote) {
+            // set orbit module's moduleData
+            
+            // updateInspector card
+
+            // callbacks? 
+        }
+        else {
+            // get eliptical data
+            //this.#csvReader.getElipticData(moduleKey, sourceData, this.setModuleDataCB, this.updateInspectorCardCB);
+        }
     }
 
     addRoutes = routes => this.#dataTable.set('routes', routes);
     addObjects = objects => this.#dataTable.set('objects', objects);
     getObjects = () => this.#dataTable.get('objects');
 }
+

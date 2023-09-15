@@ -30,6 +30,7 @@ app.use('/three', express.static(__dirname + '/node_modules/three'));
     res.json({ msg: 'This is CORS-enabled for only coma.ifa.hawaii.edu.' })
 })*/
 app.get('/get-ecliptic', (req, res) => {
+    //const csvFilePath = './localFileStorage/planetary-xyz.csv'; // Replace with the actual path
     const csvFilePath = './localFileStorage/xyz_ephem_ecliptic.csv'; // Replace with the actual path
     const csvContent = fs.readFileSync(csvFilePath, 'utf-8');
 

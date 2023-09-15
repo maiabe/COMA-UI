@@ -17,6 +17,7 @@ onMessageTable.set('Load Saved Modules', loadSavedModules);
 onMessageTable.set('Query COMA Engine', queryDatabase);
 onMessageTable.set('Get Remote Dropdown Options', getRemoteDropdownOptions);
 onMessageTable.set('Get Remote Objects Suggestions', getRemoteObjectsSuggestions);
+onMessageTable.set('Get Planet Orbits', getPlanetOrbits);
 
 onmessage = e => onMessageTable.get(e.data.type)(e);
 
@@ -101,6 +102,12 @@ handleReturnTable.set('Database Query Return', handleDatabaseQueryReturn);
 handleReturnTable.set('Handle Fetch Error', handleFetchError);
 handleReturnTable.set('Remote Dropdown Options Return', handleRemoteDropdownOptionsReturn);
 handleReturnTable.set('Remote Objects Suggestions Return', handleRemoteObjectsSuggestionsReturn);
+handleReturnTable.set('Handle Planet Orbits Return', handlePlanetOrbitsReturn);
+
+function handlePlanetOrbitsReturn(response) {
+    //console.log(id);
+    postMessage({ type: 'Planet Orbits Return', clientId: id, response: response });
+}
 
 function handleRemoteDropdownOptionsReturn(moduleKey, fieldName, fieldWrapperId, response) {
     //console.log(data);
@@ -403,31 +410,6 @@ async function postCOMATaskData(url, body) {
     return r;
 }
 
-
-
-// Example POST method implementation:
-/*async function getCOMATaskResults(id) {
-    const url = coma_api + `task/result/${id}`;
-    // Default options are marked with *
-    const response = await fetch(url, {
-        method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        //cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        //credentials: 'omit', // include, *same-origin, omit
-        headers: {
-            'Content-Type': 'application/json',
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-            // 'Access-Control-Allow-Origin': '*',
-            // 'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-
-        },
-        //redirect: 'follow', // manual, *follow, error
-        //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    });
-
-    return response;
-}*/
-
 // change func name to getRequest
 async function getCOMAData(url, delay) {
     console.log(url);
@@ -457,5 +439,19 @@ async function getCOMAData(url, delay) {
         console.error(error);
         throw error;
     }
+}
+
+
+async function getPlanetOrbits() {
+    const url = coma_api + 'planets';
+    await this.getCOMAData(url, 5)
+        .then(response => { 
+            console.log(response);
+            //localStorage.setItem('Planet Orbits', response);
+            handlePlanetOrbitsReturn(response); // to kill the workers
+        })
+        .catch(error => {
+            console.error(error);
+        });
 }
 

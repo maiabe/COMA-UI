@@ -62,7 +62,7 @@ export class ModuleManager {
             module.publisher.subscribe(this.subscriber);
             this.#sendMessage(new Message(INSPECTOR, MODULE_MANAGER, 'Publish Module Inspector Card Event', { moduleKey: key, card: module.getInspectorCard().getCard() }));
             this.#sendMessage(new Message(POPUP_MANAGER, MODULE_MANAGER, 'Publish Module Popup Event', { moduleKey: key, content: module.getPopupContent() }));
-            this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.#moduleMap.has(key), groupKey: groupKey }));
+            this.#sendMessage(new Message(ENVIRONMENT, MODULE_MANAGER, 'New Module Created Event', { module: module, templateExists: this.#moduleMap.has(key), groupKey: groupKey }));            
             this.#addModule(module, key);
             return true;
         } catch (e) {

@@ -5,7 +5,7 @@
  *************************************************************/
 import { Module } from "../index.js";
 import { ChartDataStorage } from "./components/chartDataStorage.js";
-import { LT_OUTPUT, LT_PROCESSOR, LT_SOURCE, MODULE, MODULE_MANAGER, OUTPUT_MANAGER, INPUT_MANAGER } from "../../sharedVariables/constants.js";
+import { LT_OUTPUT, LT_PROCESSOR, LT_SOURCE, MODULE, MODULE_MANAGER, OUTPUT_MANAGER, INPUT_MANAGER, WORKER_MANAGER } from "../../sharedVariables/constants.js";
 import { Message } from "../../communication/message.js";
 
 export class Output extends Module {
@@ -179,20 +179,31 @@ export class OrbitalPlot extends Output {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'output', 'Orbital Plot', 'images/icons/orbital-plot-white.png', 
             [{ name: 'IN', leftSide: true, type: LT_SOURCE }, { name: 'OUT', leftSide: true, type: LT_OUTPUT }], [], key);
-        this.setPopupContent();
+        this.addData('callOnCreationFunction', true);
+        this.#setPopupContent();
     }
 
     /** --- PUBLIC ---
      * Creates the HTML content to be inserted into the Popup in the DOM. */
-    setPopupContent = () => {
+    #setPopupContent = () => {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
-
         this.addData('orbitDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
         this.addData('inportType', [LT_SOURCE, LT_PROCESSOR]);
         this.addData('outportType', [-1]);
 
         var popupContent = this.getData('popupContent');
         popupContent.classList.add('plot-popup');
+    }
+
+    // on creation, set the elliptical moduleData in browser's localStorage
+    getPlanetOrbits = () => {
+        // check if localStorage already has the Planet Orbits data
+        if (!localStorage.getItem('Planet Orbits')) {
+            let moduleKey = this.getData('key');
+            //console.log(moduleKey);
+            this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Get Planet Orbits Event', { moduleKey: moduleKey }));
+            console.log(moduleKey);
+        }
     }
 
     prepInspectorCardData(toModuleKey, fromModuleData) {
@@ -211,6 +222,13 @@ export class OrbitalPlot extends Output {
         console.log(moduleData);
         if (moduleData) {
             this.inspectorCardMaker.updateOrbitModuleInspectorCard(moduleKey, moduleData);
+        }
+    }
+
+    onCreation() {
+        //localStorage.clear();
+        if (!localStorage.getItem('Planet Orbits')) {
+            this.sendMessage(new Message(WORKER_MANAGER, MODULE, 'Get Planet Orbits Event'));
         }
     }
 }
