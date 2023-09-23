@@ -210,7 +210,7 @@ export class OrbitalPlot extends Output {
         this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Prep Orbit Data Event', { moduleKey: toModuleKey, sourceModuleData: fromModuleData }));
     }
 
-    /** --- PUBLIC ---
+    /** --- PUBLIC ---  rename to createInspectorCardContent() ?
      * Called by the Hub when an output module is connected to a flow with data.
      * Updates the inspector card and sets up the chartData object.
      * @param {Number} moduleKey key of the module

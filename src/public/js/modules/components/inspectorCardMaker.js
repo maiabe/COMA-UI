@@ -8,8 +8,13 @@ import { InspectorCard } from '../../components/inspector/inspectorCard.js';
 import { IncludeColumnCard } from '../../components/inspector/inspectorCardComponents/includeColumnCard.js';
 import { Publisher, Message, Subscriber } from '../../communication/index.js';
 import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
-import { INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, WORKER_MANAGER } from '../../sharedVariables/constants.js';
-import { DatasetTypes, DatasetFields, SearchFields, DefaultAxis } from '../../sharedVariables/moduleData.js';
+/*import { INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, WORKER_MANAGER } from '../../sharedVariables/constants.js';
+import { DatasetTypes, DatasetFields, SearchFields, DefaultAxis } from '../../sharedVariables/moduleData.js';*/
+import {
+    INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, WORKER_MANAGER,
+    DatasetTypes, DatasetFields, SearchFields, DefaultAxis,
+} from '../../sharedVariables/index.js'
+
 
 /**
  * This class is an intermediary between the Insepctor Card and the Modules. This Object has specific function
@@ -753,19 +758,18 @@ export class InspectorCardMaker {
         });
     }
 
-    // --------------------------- Chart Module ---------------------------
+    // --------------------------- Orbit Module ---------------------------
     updateOrbitModuleInspectorCard(moduleKey, moduleData) {
-
         var contentWrapper = this.HF.createNewDiv('', '', ['orbit-inspector-wrapper'], []);
         this.inspectorCard.appendToBody(contentWrapper);
 
         // objectNames
-        var objectOptions = this.inspectorCard.addObjectOptions(moduleData.objectNames);
-        contentWrapper.appendChild(objectOptions);
+        var objectList = this.inspectorCard.addRenderedObjectsList(moduleData.objectNames);
+        contentWrapper.appendChild(objectList);
 
         // planetNames
-        var orbitOptions = this.inspectorCard.addPlanetOptions(moduleData.planetNames);
-        contentWrapper.appendChild(orbitOptions);
+        /*var orbitOptions = this.inspectorCard.addPlanetOptions(moduleData.planetNames);
+        contentWrapper.appendChild(orbitOptions);*/
 
         // add generate orbit button
         var generateOrbitButton = this.HF.createNewButton(`generate-orbit-button-${moduleKey}`, '', ['generate-orbit-button', 'button'], [], 'button', 'Generate Orbit', false);
@@ -773,11 +777,10 @@ export class InspectorCardMaker {
 
         // add generate orbit button onclick event listener
         generateOrbitButton.addEventListener('click', (e) => {
-            var wrapper = e.target.closest('.orbit-inspector-wrapper');
+            /*var wrapper = e.target.closest('.orbit-inspector-wrapper');
             var objects = wrapper.querySelectorAll('.object-options .checkbox-group input');
             var orbits = wrapper.querySelectorAll('.orbit-options .checkbox-group input');
-            console.log(orbits);
-
+            
             var objectsToRender = [];
             var orbitsToRender = [];
 
@@ -786,14 +789,14 @@ export class InspectorCardMaker {
             });
             orbits.forEach(orbit => {
                 if (orbit.checked) { orbitsToRender.push(orbit.value); }
-            });
+            });*/
 
             var data = {
                 moduleKey: moduleKey,
                 //objectsData: moduleData.sourceData,
                 //eclipticData: moduleData.eclipticData,
-                objectsToRender: objectsToRender,
-                orbitsToRender: orbitsToRender,
+                objectsToRender: moduleData.objectNames,
+                orbitsToRender: moduleData.planetNames,
             }
 
             // send message

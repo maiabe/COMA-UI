@@ -55,7 +55,22 @@ const filter_options = [
     { Key: "WIDE", Value: "Wide band filter, generic" },
 ];
 
-var datasetKeyDict = [{ datasetType: 'lightcurves', datasetKey: 'Photometry' }];
+const datasetKeyDict = [{ datasetType: 'lightcurves', datasetKey: 'Photometry' }];
 
 
-export { datasetKeyDict, telescope_options, filter_options, objectType_options }
+const PlanetCodes = [
+    { name: 'mercury', displayName: 'Mercury', code: 'Me' },
+    { name: 'venus', displayName: 'Venus', code: 'V' },
+    { name: 'earth', displayName: 'Earth', code: 'E' },
+    { name: 'mars', displayName: 'Mars', code: 'Ma' },
+    { name: 'jupiter', displayName: 'Jupiter', code: 'J' },
+    { name: 'saturn', displayName: 'Saturn', code: 'S' },
+    { name: 'uranus', displayName: 'Uranus', code: 'U' },
+    { name: 'neptune', displayName: 'Neptune', code: 'N' },
+    { name: 'pluto', displayName: 'Pluto', code: 'P' },
+];
+
+
+
+
+export { datasetKeyDict, telescope_options, filter_options, objectType_options, PlanetCodes }

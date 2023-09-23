@@ -1377,22 +1377,25 @@ export default class Hub {
 
     #setNewOrbitEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForOutputManager (Set New Orbit Event)')) return;
+        const key = data.moduleKey;
+        const module = GM.MM.getModule(key);
+        let processed = module.getData('processed');
+        if (!processed) {
+            let moduleData = module.getData('moduleData');
+            let div = module.getData('orbitDiv');
+            console.log(GM.PM.getPopupWidth(key));
 
-        var key = data.moduleKey;
-        var module = GM.MM.getModule(key);
-        var moduleData = module.getData('moduleData');
-        var div = module.getData('orbitDiv');
-
-
-        console.log(moduleData);
-        var orbitData = GM.OM.prepOrbitData(data.objectsToRender, moduleData.sourceData, data.orbitsToRender);
-        var processed = GM.OM.storeOrbitData(key, orbitData, div);
-        if (processed) {
-            GM.OM.drawOrbit(key, div, GM.PM.getPopupWidth(key), GM.PM.getPopupHeight(key));
-            if (!GM.PM.isPopupOpen(key)) this.#openModulePopup(key, 0, 0);
+            console.log(moduleData);
+            let orbitData = GM.OM.prepOrbitData(data.objectsToRender, moduleData.sourceData, data.orbitsToRender);
+            processed = GM.OM.storeOrbitData(key, orbitData, div);
+            if (processed) {
+                GM.OM.drawOrbit(key, div, GM.PM.getPopupWidth(key), GM.PM.getPopupHeight(key));
+                module.addData('processed', true);
+            }
         }
         // toggle module color and inspector/popup header color
         this.#toggleModuleColorEvent(key, processed);
+        if (!GM.PM.isPopupOpen(key)) this.#openModulePopup(key, 0, 0);
     }
 
 

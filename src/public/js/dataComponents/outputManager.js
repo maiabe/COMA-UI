@@ -419,7 +419,7 @@ export class OutputManager {
             var activeOrbit = this.#activeOrbitMap.get(key);
             if (activeOrbit) {
                 // get the div of orbitObject
-                this.#activeOrbitMap.set(key, { orbitObject: this.#orbitBuilder.updatePlotData(activeOrbit.orbitObject, od.data, width, height) });
+                this.#activeOrbitMap.set(key, { orbitObject: this.#orbitBuilder.updatePlotData(activeOrbit.orbitObject, od.data, od.div) });
 
             }
             // otherwise set the key to activeChartMap
@@ -453,18 +453,22 @@ export class OutputManager {
 
     #getObjectsData(objectsToRender, objectsData) {
         var result = [];
-
+        console.log(objectsData);
         objectsToRender.forEach(object => {
             var objectVectors = { name: object, color: '#5df941' };
             var xKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('x[au]'));
             var yKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('y[au]'));
             var zKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('z[au]'));
-            /*let xKey = 'sunvect_x';
-            let yKey = 'sunvect_y';
-            let zKey = 'sunvect_z';
-*/
+            xKey = xKey.length > 0 ? xKey[0] : 'sunvect_x';
+            yKey = yKey.length > 0 ? yKey[0] : 'sunvect_y';
+            zKey = zKey.length > 0 ? zKey[0] : 'sunvect_z';
+
             var vectors = objectsData.map(obj => {
-                return { x: Number(obj[`${xKey[0]}`]), y: Number(obj[`${yKey[0]}`]), z: Number(obj[`${zKey[0]}`]) };
+                let xVal = obj[`${xKey}`] ? Number(obj[`${xKey}`]) : obj['Photometry'][`${xKey}`];
+                let yVal = obj[`${yKey}`] ? Number(obj[`${yKey}`]) : obj['Photometry'][`${yKey}`];
+                let zVal = obj[`${zKey}`] ? Number(obj[`${zKey}`]) : obj['Photometry'][`${zKey}`];
+                //return { x: Number(obj[`${xKey}`]), y: Number(obj[`${yKey}`]), z: Number(obj[`${zKey}`]) };
+                return { x: xVal, y: yVal, z: zVal };
             });
             objectVectors.vectors = vectors;
             result.push(objectVectors);
@@ -475,13 +479,14 @@ export class OutputManager {
 
     #getOrbitsData(orbitsToRender) {
         const planetOrbits = JSON.parse(localStorage.getItem('Planet Orbits'));
+        console.log(planetOrbits);
         var result = [];
         orbitsToRender.forEach(orbit => {
             var color = orbitColors[orbit] ? orbitColors[orbit] : "#20A4F3";
             var orbitVectors = { name: orbit, color: color };
-            var xKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('x') && k.includes(orbit));
-            var yKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('y') && k.includes(orbit));
-            var zKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('z') && k.includes(orbit));
+            var xKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('_x') && k.includes(orbit));
+            var yKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('_y') && k.includes(orbit));
+            var zKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('_z') && k.includes(orbit));
 
             var vectors = planetOrbits.map(ed => {
                 return { x: Number(ed[`${xKey[0]}`]), y: Number(ed[`${yKey[0]}`]), z: Number(ed[`${zKey[0]}`]) }
@@ -503,12 +508,7 @@ export class OutputManager {
     resizeOrbit(key, width, height) {
         var activeOrbit = this.#activeOrbitMap.get(key);
         if (activeOrbit) {
-            var orbitObject = activeOrbit.orbitObject;
-            var renderer = orbitObject.renderer;
-            var camera = orbitObject.camera;
-            renderer.setSize(width, height);
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
+            this.#orbitBuilder.resizeOrbitChart(activeOrbit, width, height);
         }
     }
 

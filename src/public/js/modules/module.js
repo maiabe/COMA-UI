@@ -31,6 +31,8 @@ export class Module {
      * coordinateSystem (string)                | ie. cartesian_2d, polar
      * isDataModule (boolean)                   | true if this is a data module (deprecated)
      * linkedToData (boolean)                   | true if connected to a graph with data (deprecated)
+     * processed (boolean)                      | true if a module is processed
+     * moduleData (Object[])                    | Array of information for module-specific data
      * requestMetadataOnCreation (boolean)      | Some Source models will ping server for metadata
      * popupContent (Object)                    | The HTML to insert into a popup
      * metadata (Object)                        | Headers, min, max etc.

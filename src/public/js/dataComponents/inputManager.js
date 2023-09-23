@@ -229,6 +229,10 @@ export class InputManager {
             });
         planetNames = new Set(planetNames);
         console.log(planetNames);
+
+
+
+
         // setModuleData
         const orbitModuleData = {
             moduleKey: moduleKey,

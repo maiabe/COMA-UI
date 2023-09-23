@@ -1,17 +1,22 @@
 import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
 import * as THREE from '/three/build/three.module.js';
 import { OrbitControls } from './OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from './CSS2DRenderer.js';
+import { GUI } from './lil-gui.module.min.js';
+import { LabelGenerator } from '../../htmlGeneration/index.js';
+import { PlanetCodes } from '../../sharedVariables/index.js';
 
 export class OrbitBuilder {
 
     #dataTable; 
     #HF;
+    #LayersIndex;
     #axisLines;
 
     constructor() {
         this.#dataTable = new Map();
         this.#HF = new HTMLFactory();
-
+        this.#LayersIndex = 0;
     };
 
     plotData(data, div, width, height) {
@@ -38,7 +43,7 @@ export class OrbitBuilder {
 
     // Plot the path of the object
     // Needs a better line rendreere because we can't set the line width currently
-    #plotWholePath(points, color, scene) {
+    #plotWholePath(points, color, group) {
         const datapoints = points.map((point) => {
             return new THREE.Vector3(point.x, point.y, point.z);
         });
@@ -47,13 +52,26 @@ export class OrbitBuilder {
         const curvePoints = curve.getPoints(points.length);
         const geometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
         const material = new THREE.LineBasicMaterial({ color, linewidth: 1 });
-        const curveObject = new THREE.Line(geometry, material);
+        const curveLine = new THREE.Line(geometry, material);
 
-        scene.add(curveObject);
+        curveLine.layers.set(this.#LayersIndex);
+        group.add(curveLine);
+
+        return curveLine;
+        //line.curve = curve;
+        //scene.add(curveObject);
+
+        /*const group = new THREE.Group();
+        scene.add(group);
+        group.add(line);*/
+
+        // create label
+        /*const label = this.#createLabel(name, curve);
+        group.add(label);*/
     }
 
     // Plot the data points of the object
-    #plotDataPoints(points, color, scene) {
+    #plotDataPoints(points, color, group) {
         // Add small spheres for data points
         const sphereGeometry = new THREE.SphereGeometry(0.03, 8, 8); // Adjust the radius and segments as needed
         const sphereMaterial = new THREE.MeshStandardMaterial({ color });
@@ -61,20 +79,39 @@ export class OrbitBuilder {
         for (const point of points) {
             const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
             sphereMesh.position.set(point.x, point.y, point.z);
-            scene.add(sphereMesh);
+            group.add(sphereMesh);
+            sphereMesh.layers.set(this.#LayersIndex);
         }
+        //group.layers.add(this.#LayerIndex);
+        return group;
     }
 
-    #getRGB(hexColor) {
-        // Convert the hex color to a vec4 format in GLSL
-        const r = parseInt(hexColor.slice(1, 3), 16) / 255.0;
-        const g = parseInt(hexColor.slice(3, 5), 16) / 255.0;
-        const b = parseInt(hexColor.slice(5, 7), 16) / 255.0;
-        const a = 1.0; // Alpha value, set to 1.0 for full opacity
+    /*#createLegend(legendDiv, group) {
+        console.log(legendDiv);
 
-        // Use the vec4 format in GLSL
-        return { r: r, g: g, b: g, a: a };
-    }
+        // create CSS2DObject
+        const label = new CSS2DObject(legendDiv);
+        label.position.set(0, 1, 0);
+
+        console.log(label);
+        group.add(label);
+    }*/
+
+    /*#addLegend(name, color, legendDiv) {
+        // list? use span and set backgroundColor to create color lines?
+
+        const legendItem = this.#HF.createNewDiv('', '', ['orbit-legend-item'], []);
+
+        // get planet code here
+        const planetCodeObject = PlanetCodes.filter(p => p.name === name);
+        const planetCode = planetCodeObject.length > 0 ? planetCodeObject[0].code : name; 
+        const itemName = this.#HF.createNewSpan('', '', ['orbit-legend-item-name'], [{ style: 'color', value: 'white' }], planetCode + ': ');
+        const itemColor = this.#HF.createNewSpan('', '', ['orbit-legend-item-color'], [{style: 'font-size', value: '2px'},  { style: 'background-color', value: color },  { style: 'vertical-align', value: 'middle' }], '---------------------------------');
+        legendItem.appendChild(itemName);
+        legendItem.appendChild(itemColor);
+        legendDiv.appendChild(legendItem);
+    }*/
+
 
     // make the light a child of a camera
     // offset the light
@@ -93,19 +130,27 @@ export class OrbitBuilder {
         scene.add(ambientLight);
         scene.add(light);
 
-        /*const axesHelper = new THREE.AxesHelper(10);
+        const axesHelper = new THREE.AxesHelper(10);
         axesHelper.rotation.x = Math.PI / 2; // Rotate around the X-axis
+        axesHelper.layers.set(this.#LayersIndex);
+        this.#LayersIndex++;
 
-        axesHelper.setColors(0xffffff, 0xff4da6, 0x4de7ff);
-        scene.add(axesHelper);*/
-        this.#createAxisLines(scene);
+        //axesHelper.setColors(0xffffff, 0xff4da6, 0x4de7ff);
+        scene.add(axesHelper);
+        //this.#createAxisLines(scene);
 
         return scene;
     }
 
+    /** Creates Orbit plot elements 
+     * 
+     * 
+     * */
     #createThree(objects, orbits, div, width, height) {
         // Create the scene, camera and renderer
         const scene = this.#createScene();
+        const group = new THREE.Group();
+        scene.add(group);
 
         const camera = new THREE.PerspectiveCamera(
             75, // fov
@@ -113,88 +158,81 @@ export class OrbitBuilder {
             0.1, // near clipping plane
             1000 // far clipping plane
         );
-        camera.position.set(0, 5, 0);
-        camera.up.set(0, -1, 0);
+        camera.position.set(0, 5, 1);
+        camera.up.set(0, 0, 1);
         camera.lookAt(0, 0, 0);
+        camera.layers.enableAll();
 
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(width, height);
-
-        // Grab the div where we will put the threejs canvas
-        //const threeDiv = document.querySelector("#three-obrits");
-        // Add the renderer to the div
-        div.appendChild(renderer.domElement);
-
-        // Add orbit controls
-        const controls = new OrbitControls(camera, renderer.domElement);
-
-/*        // Modify OrbitControls to restrict rotation to the Z-axis only
-        controls.enabled = true;
-        controls.rotateSpeed = 1; // Adjust the rotation speed as needed
-
-        controls.minPolarAngle = Math.PI / 2; // Limit rotation to the upper hemisphere
-        controls.maxPolarAngle = Math.PI / 2;
-
-        controls.minDistance = 3; // Set minimum zoom distance
-        controls.maxDistance = 10; // Set maximum zoom distance
+        // create legendDOM
+        /*const legendDiv = this.#HF.createNewDiv('', '', ['orbit-legend'],
+            [{ style: 'position', value: 'absolute' }, { style: 'z-index', value: '2' }, { style: 'color', value: 'white' }, { style: 'top', value: '50px' }, { style: 'left', value: '50px' }, { style: 'margin', value: '2% 0' }]);
+        div.appendChild(legendDiv);
 */
+
+        let objectLayers = {
+            'Enable All': function () { camera.layers.enableAll(); },
+            'Disable All': function () {
+                camera.layers.disableAll();
+                camera.layers.toggle(0);
+            },
+        };
+        let objectGui = this.#initGui('Toggle Object', div, 'toggle-object');
+        
+        let orbitLayers = {
+            'Enable All': function () { camera.layers.enableAll(); },
+            'Disable All': function () {
+                camera.layers.disableAll();
+                camera.layers.toggle(0);
+            },
+        };
+        let orbitGui = this.#initGui('Toggle Orbit', div, 'toggle-orbit');
 
         //------------------- Plot the object datapoints provided in the objects array
         objects.forEach((el) => {
-            this.#plotDataPoints(el.vectors, el.color, scene);
+            this.#plotDataPoints(el.vectors, el.color, group);
+            this.#addGuiElement(el.name, el.color, objectLayers, objectGui, camera);
         });
+        /*objectGui.add(objectLayers, 'Enable All');
+        objectGui.add(objectLayers, 'Disable All');*/
 
+        //------------------- Plot the planet orbits provided in the orbits array
         orbits.forEach((el) => {
-            const points = el.vectors;
-            //console.log(points);
-            this.#plotWholePath(points, el.color, scene);
+            this.#plotWholePath(el.vectors, el.color, group);
+            this.#addGuiElement(el.name, el.color, orbitLayers, orbitGui, camera);
+            // add legend item here
+            //this.#addLegend(el.name, el.color, legendDiv);
         });
+        /*orbitGui.add(orbitLayers, 'Enable All');
+        orbitGui.add(orbitLayers, 'Disable All');*/
+
+        
+        // create legend object here, and add it to the group
+        //this.#createLegend(legendDiv, group);
 
 
-        // Set up custom controls
-        /*const controls = new THREE.EventDispatcher();
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(width, height);
+        // Add the renderer to the div
+        div.appendChild(renderer.domElement);
 
-        // Store initial mouse position
-        let mouse = new THREE.Vector2();
-        let initialCameraRotation = new THREE.Euler();
+        /*let labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(width, height);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.zIndex = '1';
+        labelRenderer.domElement.style.top = '0px';
+        div.appendChild(labelRenderer.domElement);*/
 
-        // Add mouse events
-        document.addEventListener('mousedown', (event) => {
-            event.preventDefault();
-            const rect = renderer.domElement.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        // Add orbit controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.minDistance = 0.1;
 
-            initialCameraRotation.copy(camera.rotation.clone());
-            renderer.domElement.addEventListener('mousemove', onMouseMove);
-            renderer.domElement.addEventListener('mouseup', onMouseUp);
-        });
-
-        function onMouseMove(event) {
-            event.preventDefault();
-            const rect = renderer.domElement.getBoundingClientRect();
-            const currentMouse = new THREE.Vector2(
-                ((event.clientX - rect.left) / rect.width) * 2 - 1,
-                -((event.clientY - rect.top) / rect.height) * 2 + 1
-            );
-
-            const delta = currentMouse.clone().sub(mouse);
-            const rotationSpeed = 0.01; // Adjust rotation speed as needed
-            camera.rotation.y = initialCameraRotation.y - delta.x * rotationSpeed;
-        }
-
-        function onMouseUp() {
-            renderer.domElement.removeEventListener('mousemove', onMouseMove);
-            renderer.domElement.removeEventListener('mouseup', onMouseUp);
-        }*/
-
-        // Set the cmaera away from center
-        //camera.position.z = 1;
 
         function animate() {
             requestAnimationFrame(animate);
-            //controls.update();
 
+            camera.up.set(0, 0, 1);
+            controls.update();
+            camera.up.set(0, 0, 1);
             // Check the slider value
             // Remove old spheres
             // Add new spheres depending on the slider value
@@ -202,31 +240,53 @@ export class OrbitBuilder {
             // Has the slider value changed?
 
             renderer.render(scene, camera);
+            //labelRenderer.render(scene, camera);
         }
 
         animate();
 
-        //this.#createAxisLines(scene);
-
-        return { camera: camera, renderer: renderer };
+        return { camera: camera, renderer: renderer, controls: controls };
     }
 
-    
+    #initGui(title, div, className) {
+        let gui = new GUI();
+        div.appendChild(gui.domElement);
+        gui.domElement.classList.add(className);
+        gui.title(title);
+        /*gui.add(layers, 'Enable All');
+        gui.add(layers, 'Disable All');*/
+        gui.open();
 
-    #updateThree(activeOrbit, data, width, height) {
+        return gui;
+    }
+
+    #addGuiElement(name, color, layers, gui, camera) {
+        let index = this.#LayersIndex;
+        layers[name] = function () {
+            
+            camera.layers.toggle(index);
+            
+        };
+        gui.add(layers, name);
+
+        let layerDOM = gui.domElement.querySelector(`#lil-gui-name-${this.#LayersIndex}`);
+        layerDOM.style.color = 'black';
+        layerDOM.style.backgroundColor = color;
+
+        this.#LayersIndex++;
+    }
+
+    #updateThree(activeOrbit, data, div) {
         console.log(activeOrbit);
-        var scene = this.#createScene();
+        const scene = this.#createScene();
+        //const scene = activeOrbit.scene;
 
-        // get renderer
-        var renderer = activeOrbit.renderer;
-        renderer.setSize(width, height);
-
-        var camera = activeOrbit.camera;
-        camera.aspect = width / height;
+        const camera = activeOrbit.camera;
+        //camera.aspect = width / height;
         camera.updateProjectionMatrix();
 
-        var objects = data.objects;
-        var orbits = data.orbits;
+        const objects = data.objects;
+        const orbits = data.orbits;
 
         objects.forEach((el) => {
             const points = el.vectors;
@@ -242,12 +302,21 @@ export class OrbitBuilder {
 
         //camera.position.z = 1;
 
+        // get renderer
+        var renderer = activeOrbit.renderer;
+        //renderer.setSize(width, height);
+
+        //const labelRenderer = activeOrbit.labelRenderer;
+        const controls = activeOrbit.controls;
+
         function animate() {
             requestAnimationFrame(animate);
 
             //console.log(`Camera Position: x=${camera.position.x}, y=${camera.position.y}, z=${camera.position.z}`);
 
-            //controls.update();
+            camera.up.set(0, 0, 1);
+            controls.update();
+            camera.up.set(0, 0, 1);
 
             // Check the slider value
             // Remove old spheres
@@ -256,10 +325,11 @@ export class OrbitBuilder {
             // Has the slider value changed?
 
             renderer.render(scene, camera);
+            //labelRenderer.render(scene, camera);
         }
 
         animate();
-        return { camera: camera, renderer: renderer };
+        return { camera: camera, renderer: renderer, controls: controls };
     }
 
     #createAxisLines(scene) {
@@ -293,5 +363,15 @@ export class OrbitBuilder {
         const zAxis = new THREE.Line(zAxisGeometry, zAxisMaterial);
         scene.add(zAxis);
 
+    }
+
+
+    resizeOrbitChart(activeOrbit, width, height) {
+        var orbitObject = activeOrbit.orbitObject;
+        var renderer = orbitObject.renderer;
+        var camera = orbitObject.camera;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
     }
 }

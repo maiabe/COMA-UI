@@ -164,7 +164,9 @@ export class WorkerManager {
                         const response = event.data.response;
                         console.log(event.data);
                         if (response.status === 'success') {
-                            localStorage.setItem('Planet Orbits', JSON.stringify(response.planet_coordinates));
+                            let planet_coordinates = response.planet_coordinates;
+                            planet_coordinates.push(planet_coordinates[0]);
+                            localStorage.setItem('Planet Orbits', JSON.stringify(planet_coordinates));
                         }
                         workerObject.stopWorkerFunction(id);
                         break;

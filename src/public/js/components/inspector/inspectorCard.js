@@ -16,7 +16,11 @@ import { FormCard } from './inspectorCardComponents/formCard.js';
 import { FormSelectCard } from './inspectorCardComponents/formSelectCard.js';
 import { ConversionCard } from './inspectorCardComponents/conversionCard.js';
 import { Publisher, Message } from '../../communication/index.js';
-import { INSPECTOR, INSPECTOR_CARD, WORKER_MANAGER } from '../../sharedVariables/constants.js';
+import {
+    INSPECTOR, INSPECTOR_CARD, WORKER_MANAGER,
+    PlanetCodes,
+} from '../../sharedVariables/index.js'
+
 
 /**
  * This class should not be called directly but called through the InspectorCardMaker.
@@ -555,7 +559,24 @@ export class InspectorCard {
 
 
 
-    //------------------------------------------- ORBIT MODULE (temporary) ------------------------------------------------
+    //------------------------------------------- ORBIT MODULE ------------------------------------------------
+    addRenderedObjectsList(objectNames) {
+        let wrapper = this.HF.createNewDiv('', '', ['rendered-objects'], []);
+        let objectsLabel = this.HF.createNewLabel('', '', '', ['rendered-objects-title'], [], 'Objects: ');
+        wrapper.appendChild(objectsLabel);
+
+        let objectsGroupWrapper = this.HF.createNewDiv('', '', ['rendered-objects-group', 'objects-group'], []);
+        objectNames.forEach(objectName => {
+            if (objectName) {
+                let item = this.HF.createNewSpan('', '', ['rendered-object', 'item'], [], objectName);
+                objectsGroupWrapper.appendChild(item);
+            }
+        });
+
+        wrapper.appendChild(objectsGroupWrapper);
+        return wrapper;
+    }
+
     // Add object names for data points
     addObjectOptions(objectNames) {
         var wrapper = this.HF.createNewDiv('', '', ['object-options', 'options'], []);
@@ -592,7 +613,9 @@ export class InspectorCard {
         //planetNames = new Set(planetNames);
         planetNames.forEach(planet => {
             if (planet) {
-                var checkbox = this.HF.createNewCheckbox('', '', ['planet-checkbox'], [], planet, planet, true);
+                const planetCode = PlanetCodes.filter(p => p.name === planet);
+                const displayName = planetCode[0] ? planetCode[0].displayName : planet;
+                const checkbox = this.HF.createNewCheckbox('', '', ['planet-checkbox'], [], planet, displayName, true);
                 checkboxGroupWrapper.appendChild(checkbox.wrapper);
             }
         });

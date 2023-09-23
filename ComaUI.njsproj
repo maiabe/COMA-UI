@@ -90,9 +90,11 @@
     <Content Include="src\public\js\components\popup\popupComponents\errorCard.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\public\js\dataComponents\charts\CSS2DRenderer.js" />
     <Content Include="src\public\js\dataComponents\charts\orbitBuilder.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\public\js\dataComponents\charts\OrbitControls.js" />
     <Content Include="src\public\js\htmlGeneration\componentGenerator\rangeInput.js" />
     <Content Include="src\public\js\htmlGeneration\elementGenerators\anchorGenerator.js">
       <SubType>Code</SubType>
