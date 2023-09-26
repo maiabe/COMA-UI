@@ -74,8 +74,8 @@ const moduleDataObject = [
         menuData: { icon: 'images/icons/orbital-plot.png', text: 'Orbital Plot', category: 'Output' }
     },
     /*{
-        key: 'Images',
-        moduleCreationFunction: (category, key) => new Images(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
+        key: 'ObjectImage',
+        moduleCreationFunction: (category, key) => new ObjectImage(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
         menuData: { icon: 'images/icons/images.png', text: 'Images', category: 'Output' }
     },*/
     /*{
@@ -107,7 +107,7 @@ const DatasetFields = [
 // responseKey is for the api response key
 const DatasetTypes = [
     { type: "Photometry", queryKey: "lightcurves", responseKey: "lightcurve", sortBy: "iso_date_mid" },
-    { type: "Images", queryKey: "images", responseKey: "images" },
+    /*{ type: "Images", queryKey: "images", responseKey: "images" },*/
 ];
 
 const DefaultAxis = [

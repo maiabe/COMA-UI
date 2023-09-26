@@ -111,33 +111,19 @@ export class CsvReader {
     }
 
     // read csv planet orbit data
-    /*getElipticData(moduleKey, sourceData, setModuleCB, updateInspectorCardCB) {
-        fetch('/get-ecliptic')
+    getObjectOrbits() {
+        fetch('/get-object-orbits')
             .then(response => response.text())
             .then(content => {
-                // get eliptic data
-                var eclipticData = this.#parseCSV(content);
-                // get source data
-                return { eclipticData: eclipticData, sourceData: sourceData };
-            })
-            // set callback function parameters
-            .then(data => {
-                var moduleData = {
-                    remoteData: false,
-                    sourceData: data.sourceData, // orbit data points
-                    eclipticData: data.eclipticData,
-                };
-                //var toggleModuleColor = moduleData.sourceData ? true : false;
-                setModuleCB(moduleKey, moduleData, false);
-                return moduleData;
-            })
-            .then(moduleData => {
-                updateInspectorCardCB(moduleKey, moduleData);
+                // get object orbits data
+                var objectOrbitsData = this.#parseCSV(content);
+                localStorage.setItem('Object Orbits', JSON.stringify(objectOrbitsData));
+                return objectOrbitsData;
             })
             .catch(error => {
                 console.error('Error fetching CSV:', error);
             });
-    }*/
+    }
 
 
     #parseCSV(content) {

@@ -313,7 +313,8 @@
 .orbit-inspector-wrapper .options {
     margin-bottom: 3%;
 }
-.orbit-inspector-wrapper .options .checkbox-group {
+/*.orbit-inspector-wrapper .options .checkbox-group { */
+.orbit-inspector-wrapper .rendered-objects .objects-group {
     text-indent: 5%;
     padding: 1.5%;
 }

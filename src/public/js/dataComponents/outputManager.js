@@ -7,8 +7,8 @@
 import { Publisher, Message } from '../communication/index.js';
 import { ChartBuilder, CsvWriter, OrbitBuilder } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
-//import { getNumDigits } from '../sharedVariables/formatValues.js';
-import { getNumDigits, orbitColors } from '../sharedVariables/index.js';
+//import { getNumDigits } from '../sharedletiables/formatValues.js';
+import { getNumDigits, orbitColors } from '../sharedvariables/index.js';
 
 export class OutputManager {
     publisher;
@@ -60,10 +60,10 @@ export class OutputManager {
         if (this.#outputMap.has(key)) {
             const cd = this.#outputMap.get(key);
             // if activeChartMap contains the key, updateChart
-            var activeChart = this.#activeChartMap.get(key);
+            let activeChart = this.#activeChartMap.get(key);
             if (this.popupHasActiveChart(key)) {
                 // get the div of chartObject
-                var activeChartDiv = activeChart.chartObject.getDom();
+                let activeChartDiv = activeChart.chartObject.getDom();
                 
                 // set activeChartMap with updated chartObject
                 this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.updatePlotData(cd.data, cd.type, activeChartDiv, width, height, cd.framework, cd.coordinateSystem) });
@@ -235,17 +235,17 @@ export class OutputManager {
         console.log(columnsToRender);
         console.log(sourceData);
 
-        var resultColumns = [];
-        var tableColumns = this.#buildTabulatorColumns(columnsToRender, resultColumns);
-        var resultData = [];
-        //var tableSourceData = this.#buildTabulatorSourceData(sourceData, columnsToRender, resultData);
-        var tableSourceData = [];
+        let resultColumns = [];
+        let tableColumns = this.#buildTabulatorColumns(columnsToRender, resultColumns);
+        let resultData = [];
+        //let tableSourceData = this.#buildTabulatorSourceData(sourceData, columnsToRender, resultData);
+        let tableSourceData = [];
         sourceData.forEach(dataRow => {
-            var newDataRow = this.#buildTabulatorSourceData(columnsToRender, dataRow, {});
+            let newDataRow = this.#buildTabulatorSourceData(columnsToRender, dataRow, {});
             tableSourceData.push(newDataRow);
         });
 
-        var tabulatorData = { columns: tableColumns, tabledata: tableSourceData };
+        let tabulatorData = { columns: tableColumns, tabledata: tableSourceData };
         console.log(tabulatorData);
         return tabulatorData;
     }
@@ -253,8 +253,8 @@ export class OutputManager {
     #buildTabulatorColumns(columnsToRender, tableColumns) {
         columnsToRender.forEach(column => {
             if (column.hasOwnProperty('data')) {
-                var nestedColumnsToRender = column.data;
-                var nestedTableColumns = [];
+                let nestedColumnsToRender = column.data;
+                let nestedTableColumns = [];
                 tableColumns.push({ title: column.fieldName, columns: nestedTableColumns, headerHozAlign: 'left' });
                 this.#buildTabulatorColumns(nestedColumnsToRender, nestedTableColumns);
             } else {
@@ -266,12 +266,12 @@ export class OutputManager {
 
     #buildTabulatorSourceData(columnsToRender, dataRow, newDataRow) {
         columnsToRender.forEach(column => {
-            var value = dataRow[column.fieldName];
+            let value = dataRow[column.fieldName];
             if (column.hasOwnProperty('data')) {
                 // get the value (obj)
-                var nestedColumnsToRender = column.data;
-                var nestedDataRow = dataRow[column.fieldName];
-                var nestedNewDataRow = newDataRow;
+                let nestedColumnsToRender = column.data;
+                let nestedDataRow = dataRow[column.fieldName];
+                let nestedNewDataRow = newDataRow;
                 // get the rest of columns to render
                 this.#buildTabulatorSourceData(nestedColumnsToRender, nestedDataRow, nestedNewDataRow);
             }
@@ -281,7 +281,7 @@ export class OutputManager {
                         newDataRow[column.fieldName] = 'Null';
                     }
                     else {
-                        var numDigits = getNumDigits(column.fieldName);
+                        let numDigits = getNumDigits(column.fieldName);
                         newDataRow[column.fieldName] = Number(value).toFixed(numDigits);
                     }
                 }
@@ -305,17 +305,17 @@ export class OutputManager {
     // stores source data of the field and source data type of the field to traceData
     prepChartData(moduleKey, datasetType, chartTitle, traceData, sourceData) {
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(sourceData, 'sourceData', 'object')], 'OutputManager', 'prepEchartData')) return;
-        var chartData = traceData;
+        let chartData = traceData;
         console.log(traceData);
 
         // Build axis echartData
-        var axisNames = ['xAxis', 'yAxis'];
+        let axisNames = ['xAxis', 'yAxis'];
         axisNames.forEach(axis => {
             chartData[axis].forEach(trace => {
                 // Store sourceData type of the field to determine whether the field is categorical or value type
                 trace['dataType'] = trace.dataType;
 
-                var result = this.#buildEChartsAxisSourceData(trace, trace.fieldName, sourceData);
+                let result = this.#buildEChartsAxisSourceData(trace, trace.fieldName, sourceData);
                 trace['data'] = result;
             });
         });
@@ -324,13 +324,13 @@ export class OutputManager {
         chartData['series'].forEach(trace => {
             trace['dataType'] = trace.dataType;
 
-            var xi = trace.xAxisIndex;
-            var yi = trace.yAxisIndex;
-            var result = this.#buildEChartsSeriesSourceData(chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
+            let xi = trace.xAxisIndex;
+            let yi = trace.yAxisIndex;
+            let result = this.#buildEChartsSeriesSourceData(chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
             trace['data'] = result;
 
             if (trace.error && trace.error !== 'none') {
-                var errorData = this.#buildEChartsErrorSourceData(trace, trace.error, sourceData, chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
+                let errorData = this.#buildEChartsErrorSourceData(trace, trace.error, sourceData, chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
                 trace['errorData'] = errorData;
             }
         });
@@ -345,15 +345,15 @@ export class OutputManager {
         console.log(fieldName);
         console.log(trace);
 
-        var result = sourceData.map((sd, i) => {
-            var value = sd[fieldName];
+        let result = sourceData.map((sd, i) => {
+            let value = sd[fieldName];
             if (trace.fieldGroup !== 'undefined') {
-                var obj = sd[trace.fieldGroup];
+                let obj = sd[trace.fieldGroup];
                 value = obj[fieldName]; // value = value[trace.fieldGroup]
             }
             /*console.log(value);*/
             if (trace.dataType === 'value') {
-                var digits = getNumDigits(fieldName);
+                let digits = getNumDigits(fieldName);
                 value = Number(Number(value).toFixed(digits));
             }
 
@@ -364,7 +364,7 @@ export class OutputManager {
     }
 
     #buildEChartsSeriesSourceData(xData, yData) {
-        var result = undefined;
+        let result = undefined;
         if (xData && yData) {
             result = xData.map((xd, i) => {
                 return [xd, yData[i]];
@@ -374,19 +374,19 @@ export class OutputManager {
     }
 
     #buildEChartsErrorSourceData(trace, errorName, sourceData, xData, yData) {
-        var result = sourceData.map((sd, i) => {
-            var value = sd[errorName];
+        let result = sourceData.map((sd, i) => {
+            let value = sd[errorName];
             if (trace.fieldGroup !== 'undefined') {
                 value = sd[trace.fieldGroup];
             }
-            var xvalue = xData[i];
-            var yvalue = yData[i];
+            let xvalue = xData[i];
+            let yvalue = yData[i];
 
-            var errorDigits = getNumDigits(trace.error);
+            let errorDigits = getNumDigits(trace.error);
             // round to the default number of digits if no default set it to 3 digits
-            var lowerVal = yvalue - Number(value[trace.error]);
+            let lowerVal = yvalue - Number(value[trace.error]);
             lowerVal = lowerVal.toFixed(errorDigits);
-            var higherVal = yvalue + Number(value[trace.error]);
+            let higherVal = yvalue + Number(value[trace.error]);
             higherVal = higherVal.toFixed(errorDigits);
 
             return [Number(xvalue), Number(lowerVal), Number(higherVal)];
@@ -416,7 +416,7 @@ export class OutputManager {
         if (this.#outputMap.has(key)) {
             const od = this.#outputMap.get(key);
             // if activeChartMap contains the key, updateChart
-            var activeOrbit = this.#activeOrbitMap.get(key);
+            let activeOrbit = this.#activeOrbitMap.get(key);
             if (activeOrbit) {
                 // get the div of orbitObject
                 this.#activeOrbitMap.set(key, { orbitObject: this.#orbitBuilder.updatePlotData(activeOrbit.orbitObject, od.data, od.div) });
@@ -431,39 +431,44 @@ export class OutputManager {
         else printErrorMessage(`Missing Data.`, `key: ${key} - OutputManager -> drawChart`);
     }
 
-    /** Get objects vectors and ephemerides vectors
+    /** Get object datapoint vectors, object orbit vectors, and planetary orbiot vectors
      * 
      * 
      * */
     prepOrbitData(objectsToRender, objectsData, orbitsToRender) {
-        var orbitData = {};
+        let orbitData = {};
         console.log(objectsData);
-        // Get object data
-        var objectVectors = this.#getObjectsData(objectsToRender, objectsData);
-        orbitData['objects'] = objectVectors;
+        // Get object data points
+        let objectVectors = this.#getObjectDataPoints(objectsToRender, objectsData);
+        orbitData['object_datapoints'] = objectVectors;
 
-        // Get orbit data
-        console.log(orbitsToRender);
-        var orbitVectors = this.#getOrbitsData(orbitsToRender);
-        orbitData['orbits'] = orbitVectors;
+        // Get object orbits
+        let objectOrbitVectors = this.#getObjectOrbits(objectsToRender);
+        orbitData['object_orbits'] = objectOrbitVectors;
+        console.log(objectOrbitVectors);
+
+        // Get planet orbits
+        //console.log(orbitsToRender);
+        let planetOrbitVectors = this.#getPlanetOrbits(orbitsToRender);
+        orbitData['planet_orbits'] = planetOrbitVectors;
 
         return orbitData;
         //console.log(orbitData);
     }
 
-    #getObjectsData(objectsToRender, objectsData) {
-        var result = [];
+    #getObjectDataPoints(objectsToRender, objectsData) {
+        let result = [];
         console.log(objectsData);
         objectsToRender.forEach(object => {
-            var objectVectors = { name: object, color: '#5df941' };
-            var xKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('x[au]'));
-            var yKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('y[au]'));
-            var zKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('z[au]'));
+            let objectVectors = { name: object, color: '#5df941' };
+            let xKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('x[au]'));
+            let yKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('y[au]'));
+            let zKey = Object.keys(objectsData[0]).filter(k => k.toLowerCase().includes('z[au]'));
             xKey = xKey.length > 0 ? xKey[0] : 'sunvect_x';
             yKey = yKey.length > 0 ? yKey[0] : 'sunvect_y';
             zKey = zKey.length > 0 ? zKey[0] : 'sunvect_z';
 
-            var vectors = objectsData.map(obj => {
+            let vectors = objectsData.map(obj => {
                 let xVal = obj[`${xKey}`] ? Number(obj[`${xKey}`]) : obj['Photometry'][`${xKey}`];
                 let yVal = obj[`${yKey}`] ? Number(obj[`${yKey}`]) : obj['Photometry'][`${yKey}`];
                 let zVal = obj[`${zKey}`] ? Number(obj[`${zKey}`]) : obj['Photometry'][`${zKey}`];
@@ -477,18 +482,43 @@ export class OutputManager {
         return result;
     }
 
-    #getOrbitsData(orbitsToRender) {
+    #getObjectOrbits(objectsToRender) {
+        // call 'get-object-orbits'
+        const objectOrbits = JSON.parse(localStorage.getItem('Object Orbits'));
+        console.log(objectOrbits);
+        let result = [];
+        objectsToRender.forEach(orbit => {
+            const exists = Object.keys(objectOrbits[0]).some(name => name.includes(orbit));
+            // if the object we are rendering exists in the localStorage data of Object Orbits, return vectors
+            if (exists) {
+                let color = "#C9C9C9";
+                let orbitVectors = { name: orbit, color: color };
+                let xKey = Object.keys(objectOrbits[0]).filter(k => k.includes(' X') && k.includes(orbit));
+                let yKey = Object.keys(objectOrbits[0]).filter(k => k.includes(' Y') && k.includes(orbit));
+                let zKey = Object.keys(objectOrbits[0]).filter(k => k.includes(' Z') && k.includes(orbit));
+
+                let vectors = objectOrbits.map(obj => {
+                    return { x: Number(obj[`${xKey[0]}`]), y: Number(obj[`${yKey[0]}`]), z: Number(obj[`${zKey[0]}`]) }
+                });
+                orbitVectors['vectors'] = vectors;
+                result.push(orbitVectors);
+            }
+        });
+        return result;
+    }
+
+    #getPlanetOrbits(orbitsToRender) {
         const planetOrbits = JSON.parse(localStorage.getItem('Planet Orbits'));
         console.log(planetOrbits);
-        var result = [];
+        let result = [];
         orbitsToRender.forEach(orbit => {
-            var color = orbitColors[orbit] ? orbitColors[orbit] : "#20A4F3";
-            var orbitVectors = { name: orbit, color: color };
-            var xKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('_x') && k.includes(orbit));
-            var yKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('_y') && k.includes(orbit));
-            var zKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('_z') && k.includes(orbit));
+            let color = orbitColors[orbit] ? orbitColors[orbit] : "#20A4F3";
+            let orbitVectors = { name: orbit, color: color };
+            let xKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('_x') && k.includes(orbit));
+            let yKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('_y') && k.includes(orbit));
+            let zKey = Object.keys(planetOrbits[0]).filter(k => k.toLowerCase().includes('_z') && k.includes(orbit));
 
-            var vectors = planetOrbits.map(ed => {
+            let vectors = planetOrbits.map(ed => {
                 return { x: Number(ed[`${xKey[0]}`]), y: Number(ed[`${yKey[0]}`]), z: Number(ed[`${zKey[0]}`]) }
             });
             orbitVectors['vectors'] = vectors;
@@ -506,7 +536,7 @@ export class OutputManager {
     }
 
     resizeOrbit(key, width, height) {
-        var activeOrbit = this.#activeOrbitMap.get(key);
+        let activeOrbit = this.#activeOrbitMap.get(key);
         if (activeOrbit) {
             this.#orbitBuilder.resizeOrbitChart(activeOrbit, width, height);
         }

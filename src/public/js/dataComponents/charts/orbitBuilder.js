@@ -20,9 +20,11 @@ export class OrbitBuilder {
     };
 
     plotData(data, div, width, height) {
-        var objects = data.objects;
-        var orbits = data.orbits;
-        return this.#createThree(objects, orbits, div, width, height);
+        console.log(this.#LayersIndex)
+        const object_datapoints = data.object_datapoints;
+        const object_orbits = data.object_orbits;
+        const planet_orbits = data.planet_orbits;
+        return this.#createThree(object_datapoints, object_orbits, planet_orbits, div, width, height);
     }
 
     // Update scene with renderer
@@ -132,7 +134,7 @@ export class OrbitBuilder {
 
         const axesHelper = new THREE.AxesHelper(10);
         axesHelper.rotation.x = Math.PI / 2; // Rotate around the X-axis
-        axesHelper.layers.set(this.#LayersIndex);
+        axesHelper.layers.set(0);
         this.#LayersIndex++;
 
         //axesHelper.setColors(0xffffff, 0xff4da6, 0x4de7ff);
@@ -146,7 +148,7 @@ export class OrbitBuilder {
      * 
      * 
      * */
-    #createThree(objects, orbits, div, width, height) {
+    #createThree(object_datapoints, object_orbits, planet_orbits, div, width, height) {
         // Create the scene, camera and renderer
         const scene = this.#createScene();
         const group = new THREE.Group();
@@ -170,35 +172,40 @@ export class OrbitBuilder {
 */
 
         let objectLayers = {
-            'Enable All': function () { camera.layers.enableAll(); },
+            /*'Enable All': function () { camera.layers.enableAll(); },
             'Disable All': function () {
                 camera.layers.disableAll();
                 camera.layers.toggle(0);
-            },
+            },*/
         };
         let objectGui = this.#initGui('Toggle Object', div, 'toggle-object');
         
         let orbitLayers = {
-            'Enable All': function () { camera.layers.enableAll(); },
+            /*'Enable All': function () { camera.layers.enableAll(); },
             'Disable All': function () {
                 camera.layers.disableAll();
                 camera.layers.toggle(0);
-            },
+            },*/
         };
-        let orbitGui = this.#initGui('Toggle Orbit', div, 'toggle-orbit');
+        let orbitGui = this.#initGui('Toggle Planet', div, 'toggle-planet');
 
         //------------------- Plot the object datapoints provided in the objects array
-        objects.forEach((el) => {
+        object_datapoints.forEach((el) => {
             this.#plotDataPoints(el.vectors, el.color, group);
-            this.#addGuiElement(el.name, el.color, objectLayers, objectGui, camera);
+            //this.#addGuiElement(this.#LayersIndex, el.name, el.color, objectLayers, objectGui, camera);
         });
-        /*objectGui.add(objectLayers, 'Enable All');
-        objectGui.add(objectLayers, 'Disable All');*/
+
+        object_orbits.forEach((el) => {
+            this.#plotWholePath(el.vectors, el.color, group);
+            this.#addGuiElement(this.#LayersIndex, el.name, el.color, objectLayers, objectGui, camera);
+            // add legend item here
+            //this.#addLegend(el.name, el.color, legendDiv);
+        });
 
         //------------------- Plot the planet orbits provided in the orbits array
-        orbits.forEach((el) => {
+        planet_orbits.forEach((el) => {
             this.#plotWholePath(el.vectors, el.color, group);
-            this.#addGuiElement(el.name, el.color, orbitLayers, orbitGui, camera);
+            this.#addGuiElement(this.#LayersIndex, el.name, el.color, orbitLayers, orbitGui, camera);
             // add legend item here
             //this.#addLegend(el.name, el.color, legendDiv);
         });
@@ -260,18 +267,60 @@ export class OrbitBuilder {
         return gui;
     }
 
-    #addGuiElement(name, color, layers, gui, camera) {
-        let index = this.#LayersIndex;
+    #addGuiElement(index, name, color, layers, gui, camera) {
         layers[name] = function () {
-            
-            camera.layers.toggle(index);
-            
+            let domList = gui.domElement.querySelector('.children').querySelectorAll('.name');
+
+            // Loop through the div elements to find the one with text content 'earth'
+            let dom = null;
+            for (var i = 0; i < domList.length; i++) {
+                if (domList[i].textContent.includes(name)) {
+                    dom = domList[i];
+                    break; // Exit the loop once you've found the desired element
+                }
+            }
+            //console.log(dom)
+            // Now, 'targetDiv' contains the specific div element with text content 'earth'
+            if (dom) {
+                let computedStyle = getComputedStyle(dom);
+                let textColor = computedStyle.getPropertyValue('color');
+                let backgroundColor = computedStyle.getPropertyValue('background-color');
+
+                let id = dom.getAttribute('id');
+                const match = id.match(/\d+$/);
+                // Check if a match was found
+                if (match) {
+                    // The match[0] contains the matched number as a string
+                    // Use parseInt() to convert it to a number if needed
+                    //const index = parseInt(match[0], 10);
+                    //console.log(index);
+
+                    dom.style.color = (textColor === 'rgb(255, 255, 255)') ? 'black' : 'white';
+                    dom.style.backgroundColor = (backgroundColor === 'rgba(0, 0, 0, 0)') ? color : 'unset';
+                    camera.layers.toggle(index);
+                } 
+                
+            } else {
+                // The element was not found
+                console.log('Element not found');
+            }
+
         };
         gui.add(layers, name);
 
-        let layerDOM = gui.domElement.querySelector(`#lil-gui-name-${this.#LayersIndex}`);
-        layerDOM.style.color = 'black';
-        layerDOM.style.backgroundColor = color;
+        // get gui domElement after adding an item
+        let domList = gui.domElement.querySelector('.children').querySelectorAll('.name');
+
+        // Loop through the div elements to find the one with text content 'earth'
+        let dom = null;
+        for (var i = 0; i < domList.length; i++) {
+            if (domList[i].textContent.includes(name)) {
+                dom = domList[i];
+                break; // Exit the loop once you've found the desired element
+            }
+        }
+        dom.style.color = 'black';
+        dom.style.backgroundColor = color;
 
         this.#LayersIndex++;
     }
@@ -365,6 +414,22 @@ export class OrbitBuilder {
 
     }
 
+
+    #getGuiIndex(guiId) {
+        const match = id.match(/\d+$/);
+
+        // Check if a match was found
+        if (match) {
+            // The match[0] contains the matched number as a string
+            // Use parseInt() to convert it to a number if needed
+            const numberAtEnd = parseInt(match[0], 10);
+            return numberAtEnd;
+        } else {
+            // No number found at the end of the string
+            return null;
+        }
+
+    }
 
     resizeOrbitChart(activeOrbit, width, height) {
         var orbitObject = activeOrbit.orbitObject;

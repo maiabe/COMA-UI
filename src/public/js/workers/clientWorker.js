@@ -1,4 +1,3 @@
-
 let id = -1;
 let messageDataObject = {};
 const baseUrl = 'http://localhost:8080/';
@@ -103,6 +102,7 @@ handleReturnTable.set('Handle Fetch Error', handleFetchError);
 handleReturnTable.set('Remote Dropdown Options Return', handleRemoteDropdownOptionsReturn);
 handleReturnTable.set('Remote Objects Suggestions Return', handleRemoteObjectsSuggestionsReturn);
 handleReturnTable.set('Handle Planet Orbits Return', handlePlanetOrbitsReturn);
+
 
 function handlePlanetOrbitsReturn(response) {
     //console.log(id);
@@ -416,12 +416,13 @@ async function getCOMAData(url, delay) {
     try {
         //const url = coma_api + `task/result/${id}`;
         const response = await fetch(url); 
-
+        console.log(response);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
         
         const responseData = await response.json();
+        console.log(responseData);
 
         var counter = 0;
         while (responseData.status === "error" && counter < 10) {
@@ -445,7 +446,7 @@ async function getCOMAData(url, delay) {
 async function getPlanetOrbits() {
     const url = coma_api + 'planets';
     await this.getCOMAData(url, 5)
-        .then(response => { 
+        .then(response => {
             console.log(response);
             //localStorage.setItem('Planet Orbits', response);
             handlePlanetOrbitsReturn(response); // to kill the workers
@@ -454,4 +455,3 @@ async function getPlanetOrbits() {
             console.error(error);
         });
 }
-

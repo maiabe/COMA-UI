@@ -230,9 +230,6 @@ export class InputManager {
         planetNames = new Set(planetNames);
         console.log(planetNames);
 
-
-
-
         // setModuleData
         const orbitModuleData = {
             moduleKey: moduleKey,
@@ -249,17 +246,22 @@ export class InputManager {
 
 
 
-        if (remote) {
+        //if (remote) {
             // set orbit module's moduleData
             
             // updateInspector card
 
             // callbacks? 
-        }
-        else {
+        //}
+        //else {
             // get eliptical data
             //this.#csvReader.getElipticData(moduleKey, sourceData, this.setModuleDataCB, this.updateInspectorCardCB);
-        }
+        //}
+    }
+
+
+    getObjectOrbits() {
+        this.#csvReader.getObjectOrbits();
     }
 
     addRoutes = routes => this.#dataTable.set('routes', routes);

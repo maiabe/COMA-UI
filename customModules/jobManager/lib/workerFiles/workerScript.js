@@ -17,7 +17,7 @@ parentPort.on('message', (message) => {
 
   function post(apiPath, jsonData) {
     axios
-        .post(`http://coma.ifa.hawaii.edu:8000/`, jsonData, {
+        .post(`http://localhost:8080/`, jsonData, {
             httpsAgent: new https.Agent({
                 rejectUnauthorized: false
             })
@@ -35,7 +35,7 @@ function get(apiPath) {
     axios({
         method: 'get',
         "rejectUnauthorized": false,
-        url: `http://coma.ifa.hawaii.edu:8000/`
+        url: `http://localhost:8080/`
     })
         .then(res => {
             handleGetReturn(res);

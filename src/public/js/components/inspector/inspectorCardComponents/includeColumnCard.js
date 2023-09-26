@@ -46,11 +46,11 @@ export class IncludeColumnCard {
         // create column title
         //const columnTitle_Include = GM.HF.createNewH3('', '', ['include-column-card-title'], [{ style: 'width', value: '23.33%' }, { style: 'text-align', value: 'center' }], 'Include');
         const columnTitle_Columns = GM.HF.createNewH3('', '', ['title'], [{ style: 'width', value: '80%' }], 'Include columns');
-        const columnTitle_Units = GM.HF.createNewH3('', '', ['title'], [{ style: 'width', value: '20%' }], 'Units');
+        //const columnTitle_Units = GM.HF.createNewH3('', '', ['title'], [{ style: 'width', value: '20%' }], 'Units');
 
         //columnTitleWrapper.appendChild(columnTitle_Include);
         columnTitleWrapper.appendChild(columnTitle_Columns);
-        columnTitleWrapper.appendChild(columnTitle_Units);
+        //columnTitleWrapper.appendChild(columnTitle_Units);
         bodyWrapper.appendChild(columnTitleWrapper);
 
         const includeColumnsWrapper = GM.HF.createNewDiv('', '', ['include-columns-wrapper'], []);

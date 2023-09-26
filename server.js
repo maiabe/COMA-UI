@@ -29,6 +29,15 @@ app.use('/three', express.static(__dirname + '/node_modules/three'));
 /*app.get('https://coma.ifa.hawaii.edu/api/', cors(corsOptions), function (req, res, next) {
     res.json({ msg: 'This is CORS-enabled for only coma.ifa.hawaii.edu.' })
 })*/
+app.get('/get-object-orbits', (req, res) => {
+    //const csvFilePath = './localFileStorage/planetary-xyz.csv'; // Replace with the actual path
+    const csvFilePath = './localFileStorage/object_orbits.csv'; // Replace with the actual path
+    const csvContent = fs.readFileSync(csvFilePath, 'utf-8');
+
+    res.setHeader('Content-Disposition', 'attachment; filename="data.csv"');
+    res.setHeader('Content-Type', 'text/csv');
+    res.send(csvContent);
+});
 app.get('/get-ecliptic', (req, res) => {
     //const csvFilePath = './localFileStorage/planetary-xyz.csv'; // Replace with the actual path
     const csvFilePath = './localFileStorage/xyz_ephem_ecliptic.csv'; // Replace with the actual path

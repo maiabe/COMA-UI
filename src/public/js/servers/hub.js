@@ -129,6 +129,7 @@ export default class Hub {
         this.#messageForInputManager.set('Prep Table Data Event', this.#prepTableDataEvent.bind(this));
         this.#messageForInputManager.set('Prep Chart Data Event', this.#prepChartDataEvent.bind(this));
         this.#messageForInputManager.set('Prep Orbit Data Event', this.#prepOrbitDataEvent.bind(this));
+        this.#messageForInputManager.set('Get Object Orbits Event', this.#getObjectOrbitsDataEvent.bind(this));
     }
 
     #buildMessageForWorkerManagerMap() {
@@ -1333,6 +1334,11 @@ export default class Hub {
         const workerId = this.#getNewWorkerIndex();
         this.#prepWorker(workerId)
             .getPlanetOrbits(workerId);
+    }
+    // sets object orbits on creation of orbit module
+    #getObjectOrbitsDataEvent() {
+        if (invalidVariables([], 'HUB', '#messageForInputManager (Get Object Orbits Event)')) return;
+        GM.IM.getObjectOrbits();
     }
 
     /** Sets a orbit moduleData from source moduleData

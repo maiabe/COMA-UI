@@ -230,6 +230,11 @@ export class OrbitalPlot extends Output {
         if (!localStorage.getItem('Planet Orbits')) {
             this.sendMessage(new Message(WORKER_MANAGER, MODULE, 'Get Planet Orbits Event'));
         }
+
+        if (!localStorage.getItem('Object Orbits')) {
+            this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Get Object Orbits Event'));
+        }
+
     }
 }
 
