@@ -77,7 +77,9 @@ export class Inspector {
     /** --- PUBLIC ---
      * Sets remote dropedown options for a field dropdown */
     setRemoteDropdownOptions(moduleKey, fieldWrapperId, options) {
+        console.log(fieldWrapperId);
         const fieldWrapper = document.querySelector(`#search-form-${moduleKey} #${fieldWrapperId}`);
+        console.log(fieldWrapper);
         var dropdown = fieldWrapper.querySelector('select');
         if (dropdown) {
             this.HF.updateSelectOptions(dropdown, options);

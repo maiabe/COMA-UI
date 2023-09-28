@@ -12,7 +12,8 @@ export class Table extends Output {
         super(category, color, shape, 'getTableData', 'Table', 'images/icons/table_inv.png',
             [{ name: 'IN', leftSide: true, type: LT_SOURCE }, { name: 'OUT', leftSide: true, type: LT_OUTPUT }], [], key);
         this.HF = new HTMLFactory();
-        this.#setPopupContent();
+        //this.setPopupContent();
+        this.#setTablePopupContent();
         //this.addData('link', -1, false, '', false);
         //this.addData('onCreationFunction', this.onCreation.bind(this));
         // close data source popup and inspectors
@@ -32,12 +33,12 @@ export class Table extends Output {
         this.addData('plotDiv', plotDiv, false, '', false);*//*
     }*/
 
-    #setPopupContent = () => {
+    #setTablePopupContent = () => {
         //this.popupContentMaker.addDescriptionText(this.getData('description'));
         //this.popupContentMaker.createFileUploadField(this.handleFiles.bind(this), this.getData('key'));
         //this.popupContentMaker.addDataArea();
         var moduleKey = this.getData('key');
-        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
+        //this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
 
         this.popupContentMaker.setTablePopupContent(moduleKey);
     }

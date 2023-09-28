@@ -16,15 +16,15 @@ export class FormCard {
     #form;
     #submitButton;
 
-    constructor(formName, fields) {
+    constructor(moduleKey, formName, fields) {
         this.#formName = formName.name;
-        this.#createElements(formName, fields);
+        this.#createElements(moduleKey, formName, fields);
         this.#buildCard();
     }
 
-    #createElements(formName, fields) {
+    #createElements(moduleKey, formName, fields) {
         this.#createWrapper();
-        this.#createForm(formName, fields);
+        this.#createForm(moduleKey, formName, fields);
         this.#createSubmitButton(formName);
     }
 
@@ -43,13 +43,13 @@ export class FormCard {
      * @param {fields Array} fields array of objects containing labelName, type and fieldName data
      * @returns {form Object} form html element
      */
-    #createForm(formName, fields) {
+    #createForm(moduleKey, formName, fields) {
         this.#form = GM.HF.createNewForm(formName.name, '', [formName.className], []);
         fields.forEach((field) => {
             const fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], []);
 
             // create field label
-            const fieldInputId = field.fieldName + '-' + field.index;
+            const fieldInputId = field.fieldName + '-' + moduleKey;
             const fieldLabel = GM.HF.createNewLabel('', '', [`${fieldInputId}`], [], [], field.labelName + ': ');
 
             // create fields

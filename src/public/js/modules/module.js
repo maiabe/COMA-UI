@@ -66,6 +66,7 @@ export class Module {
         this.subscriber = new Subscriber(this.messageHandler.bind(this));
         this.inspectorCardMaker.publisher.subscribe(this.subscriber);
         this.popupContentMaker.publisher.subscribe(this.subscriber);
+        this.setPopupContent();
     }
 
     /**
@@ -122,15 +123,16 @@ export class Module {
     /** --- PUBLIC ---
      * Sets the popup content associated with this module. This is the generic function and will likely be overriden in the child classes. */
     setPopupContent = () => {
-        const popupContent = GM.HF.createNewDiv('', '', ['popup-body-wrapper'], []);
-        const loadingWrapper = GM.HF.createNewDiv('', '', ['popup-loading-wrapper'], []);
+        const popupContent = this.popupContentMaker.getPopupContentWrapper();
+        console.log(popupContent);
+        /*const loadingWrapper = GM.HF.createNewDiv('', '', ['popup-loading-wrapper'], []);
         loadingWrapper.appendChild(GM.HF.createNewIMG('popup-loading-spinner', '', 'images/icons/loading_spinner.gif', [], [{ style: 'width', value: '60px' }], ''));
-        popupContent.appendChild(loadingWrapper);
-        this.addData('popupContent', popupContent, false, '', false);
+        popupContent.appendChild(loadingWrapper);*/
+        this.addData('popupContent', popupContent);
     }
 
     updatePopupContent = (content) => {
-        this.addData('popupContent', content, false, '', false);
+        this.addData('popupContent', content);
     }
 
     /** --- PUBLIC ---
@@ -190,7 +192,8 @@ export class Module {
      * Gets the content to populate a popup associated with this module.
      * @returns the content to populate the popup associated with this module*/
     getPopupContent = () => {
-        return { color: this.getData('color'), content: this.getData('popupContent'), headerText: this.getData('name') };
+        this.getData('popupContent');
+        return {  width: this.getData('popupWidth'), height: this.getData('popupHeight'), color: this.getData('color'), content: this.getData('popupContent'), headerText: this.getData('name') };
     }
 
     onCreation() {

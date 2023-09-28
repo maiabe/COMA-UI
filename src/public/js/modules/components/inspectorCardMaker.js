@@ -14,6 +14,7 @@ import {
     INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, WORKER_MANAGER,
     DatasetTypes, DatasetFields, SearchFields, DefaultAxis,
 } from '../../sharedVariables/index.js'
+import g from '../../dataComponents/charts/lil-gui.module.min.js';
 
 
 /**
@@ -377,6 +378,8 @@ export class InspectorCardMaker {
         return uploadWrapper;
     }
 
+    // --------------------------- Search Module ---------------------------
+
     /** --- PUBLIC ---
      * Adds a Search Form to the Search module inspector card
      * @param {key number} key of the search module
@@ -420,7 +423,7 @@ export class InspectorCardMaker {
         var queryTypeSelectCard = this.getField(`QueryTypeSelectCard_${key}`).getCard();
         /**
          * Search Form Submit Event
-         * */
+         **/
         var submitButton = searchFormCard.getCard().submitButton;
         this.dataTable.set('SubmitFormButton_' + key, submitButton.querySelector('.btn'));
         this.getField(`SubmitFormButton_${key}`).addEventListener('click', (e) => {
@@ -767,29 +770,12 @@ export class InspectorCardMaker {
         var objectList = this.inspectorCard.addRenderedObjectsList(moduleData.objectNames);
         contentWrapper.appendChild(objectList);
 
-        // planetNames
-        /*var orbitOptions = this.inspectorCard.addPlanetOptions(moduleData.planetNames);
-        contentWrapper.appendChild(orbitOptions);*/
-
         // add generate orbit button
         var generateOrbitButton = this.HF.createNewButton(`generate-orbit-button-${moduleKey}`, '', ['generate-orbit-button', 'button'], [], 'button', 'Generate Orbit', false);
         contentWrapper.appendChild(generateOrbitButton);
 
         // add generate orbit button onclick event listener
         generateOrbitButton.addEventListener('click', (e) => {
-            /*var wrapper = e.target.closest('.orbit-inspector-wrapper');
-            var objects = wrapper.querySelectorAll('.object-options .checkbox-group input');
-            var orbits = wrapper.querySelectorAll('.orbit-options .checkbox-group input');
-            
-            var objectsToRender = [];
-            var orbitsToRender = [];
-
-            objects.forEach(obj => {
-                if (obj.checked) { objectsToRender.push(obj.value); }
-            });
-            orbits.forEach(orbit => {
-                if (orbit.checked) { orbitsToRender.push(orbit.value); }
-            });*/
 
             var data = {
                 moduleKey: moduleKey,
@@ -804,6 +790,37 @@ export class InspectorCardMaker {
             this.sendMessage(message);
         });
 
+    }
+
+    updateImageModuleInspectorCard(moduleKey, moduleData) {
+        var contentWrapper = this.HF.createNewDiv('', '', ['object-images-inspector-wrapper'], []);
+        this.inspectorCard.appendToBody(contentWrapper);
+
+        var object = this.inspectorCard.addRenderedObjectsList([moduleData.objectName]);
+        contentWrapper.appendChild(object);
+
+        var generateImagesButton = this.HF.createNewButton(`generate-images-button-${moduleKey}`, '', ['generate-images-button', 'button'], [], 'button', 'Generate Images', false);
+        contentWrapper.appendChild(generateImagesButton);
+
+        // add generate orbit button onclick event listener
+        generateImagesButton.addEventListener('click', (e) => {
+            let imagePopupContent = document.querySelector(`#popup-${moduleKey} .popup-content`);
+            const imagePopupExists = imagePopupContent.firstChild ? true : false;
+            //console.log(imagePopupExists);
+
+            var data = {
+                moduleKey: moduleKey,
+                //objectsData: moduleData.sourceData,
+                //eclipticData: moduleData.eclipticData,
+                objectToRender: moduleData.objectName,
+                imagePopupExists: imagePopupExists
+            }
+
+            // send message
+            const message = new Message(OUTPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Set New Images Event', data);
+            this.sendMessage(message);
+            
+        });
     }
 
 

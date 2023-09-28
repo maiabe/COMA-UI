@@ -441,7 +441,7 @@ export class InspectorCard {
      * @returns The card object (not just the HTML element)
      */
     addSearchFormCard(moduleKey, formName, fields) {
-        const card = new FormCard(formName, fields);
+        const card = new FormCard(moduleKey, formName, fields);
 
         
 
@@ -510,15 +510,39 @@ export class InspectorCard {
                     }
                 });
                 break;
-            default: // dropdown remote fields
-                const message = new Message(WORKER_MANAGER, INSPECTOR_CARD, 'Get Remote Dropdown Options',
-                    {
-                        moduleKey: moduleKey,
-                        dirName: fieldObject.dirName,
-                        fieldWrapperId: fieldWrapper.getAttribute('id'),
-                        delay: 1000,
-                    });
-                this.sendMessage(message);
+            default: // if not cached, retrieve remote dropdown options
+                const dropdownOptions = JSON.parse(localStorage.getItem(`Remote Dropdown ${fieldObject.dirName}`));
+                console.log(dropdownOptions);
+                if (dropdownOptions) {
+
+                    const message = new Message(INSPECTOR, INSPECTOR_CARD, 'Set Remote Dropdown Options',
+                        {
+                            moduleKey: moduleKey,
+                            fieldName: fieldWrapper.querySelector('select').getAttribute('name'),
+                            fieldWrapperId: fieldWrapper.getAttribute('id'),
+                            data: dropdownOptions,
+                        });
+                    this.sendMessage(message);
+
+                    /*const message = new Message(WORKER_MANAGER, INSPECTOR_CARD, 'Get Remote Dropdown Options',
+                        {
+                            moduleKey: moduleKey,
+                            dirName: fieldObject.dirName,
+                            fieldWrapperId: fieldWrapper.getAttribute('id'),
+                            delay: 1000,
+                        });
+                    this.sendMessage(message);*/
+                }
+                else {
+                    const message = new Message(WORKER_MANAGER, INSPECTOR_CARD, 'Get Remote Dropdown Options',
+                        {
+                            moduleKey: moduleKey,
+                            dirName: fieldObject.dirName,
+                            fieldWrapperId: fieldWrapper.getAttribute('id'),
+                            delay: 1000,
+                        });
+                    this.sendMessage(message);
+                }
         }
     }
 

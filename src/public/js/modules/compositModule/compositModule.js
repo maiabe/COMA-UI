@@ -11,7 +11,6 @@ export class Composite extends Module {
     constructor (category, color, shape, key, name, inports, isData) {
         super(category, color, shape, 'composite', name, 'images/icons/flow-diagram-white.png', inports, [{ name: 'OUT', leftSide: false }], key, 'Composite Module');
         this.isData = isData;
-        this.setPopupContent();
         this.createInspectorCardData();
     }
     

@@ -272,6 +272,7 @@ async function getRemoteDropdownOptions(msg) {
                 return result;
             })*/
             .then(response => {
+                console.log(response);
                 // handle response data
                 handleRemoteDropdownOptionsReturn(msg.data.data.moduleKey, msg.data.data.dirName, msg.data.data.fieldWrapperId, response);
             })

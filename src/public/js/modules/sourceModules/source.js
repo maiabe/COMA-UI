@@ -32,18 +32,17 @@ export class Cholera extends Source {
         this.addData('requestMetadataOnCreation', true);
         this.addData('linkedToData', false);
         this.addData('remoteData', false);
-        this.setPopupContent();
         this.createInspectorCardData();
     }
 
     createInspectorCardData() {
         this.inspectorCardMaker.addInspectorCardDescription(this.getData('description'));
     }
-
-    setPopupContent = () => {
+/*
+    setPopupContent = (width, height) => {
         this.popupContentMaker.addDescriptionText(this.getData('description'));
-        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
-    }
+        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper());
+    }*/
 
     onCreation = metadata => {
         this.addData('metadata', metadata);
@@ -53,12 +52,6 @@ export class Cholera extends Source {
     }
 }
 
-/*export class Sql extends Source {
-    constructor(category, color, shape, key) {
-        super(category, color, shape, 'remote', 'querySql', 'SQL Query', 'images/icons/sql-open-file-format.png', [], [{ name: 'OUT', leftSide: false }], key);
-        this.setPopupContent();
-    }
-}*/
 
 
 

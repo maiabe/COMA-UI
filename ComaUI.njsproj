@@ -16,6 +16,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Content Include="localFileStorage\object_orbits.csv" />
     <Content Include="localFileStorage\planetary-xyz.csv" />
     <Content Include="localFileStorage\SearchFields.json">
       <SubType>Code</SubType>
@@ -53,16 +54,43 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\images\background\error_bg.jpeg" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2017K2_2023-09-09.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2018DO4_2019-01-03.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2018DO4_2021-10-11.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2018DO4_2022-06-23.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2019T2_2019-10-29.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2019T2_2019-12-03.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2019T2_2020-08-12.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2019T2_2022-12-23.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2019U5_2020-02-27.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2019U5_2020-11-10.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2020S4_2020-11-11.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2020S4_2021-09-03.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2020S4_2022-11-27.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021C5_2021-06-04.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021C5_2022-01-02.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021C5_2022-02-06.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021F1_2021-05-09.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021G2_2021-10-30.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021G2_2022-02-26.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021G2_2022-05-09.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021T4_2022-02-26.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021T4_2022-07-28.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021T4_2022-08-24.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021X1_2022-09-17.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2021X1_2022-12-15.png" />
     <Content Include="src\public\images\icons\database.png" />
     <Content Include="src\public\images\icons\db-image.png" />
     <Content Include="src\public\images\icons\delete_0.png" />
     <Content Include="src\public\images\icons\delete_1.png" />
     <Content Include="src\public\images\icons\download_dark.png" />
     <Content Include="src\public\images\icons\download_light.png" />
+    <Content Include="src\public\images\icons\image_light.png" />
     <Content Include="src\public\images\icons\info.png" />
     <Content Include="src\public\images\icons\loading_spinner.gif" />
     <Content Include="src\public\images\icons\plus.png" />
     <Content Include="src\public\images\icons\table_inv.png" />
+    <Content Include="src\public\images\logo\COMA_LOGO_T.png" />
     <Content Include="src\public\index.html" />
     <Content Include="src\public\css\main.css" />
     <Content Include="src\public\css\moduleSelectionMenu.css" />
@@ -1344,6 +1372,9 @@
     <Content Include="src\public\js\modules\index.js" />
     <Content Include="src\public\js\modules\module.js" />
     <Content Include="src\public\js\modules\moduleManager.js" />
+    <Content Include="src\public\js\modules\outputModules\objectImages.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\public\js\modules\sourceModules\searchSource.js">
       <SubType>Code</SubType>
     </Content>
@@ -1479,9 +1510,11 @@
     <Folder Include="src\public\gojs\samples\images" />
     <Folder Include="src\public\gojs\samplesTS" />
     <Folder Include="src\public\images" />
+    <Folder Include="src\public\images\fits_demo\Object_Images\" />
     <Folder Include="src\public\images\icons" />
     <Folder Include="src\public\images\logo" />
     <Folder Include="src\public\images\background\" />
+    <Folder Include="src\public\images\fits_demo\" />
     <Folder Include="src\public\js" />
     <Folder Include="src\public\js\communication" />
     <Folder Include="src\public\js\components" />

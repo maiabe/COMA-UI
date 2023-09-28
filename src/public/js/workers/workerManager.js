@@ -152,6 +152,10 @@ export class WorkerManager {
                         workerObject.stopWorkerFunction(id);
                         break;
                     case 'Remote Dropdown Options Return':
+                        const fieldName = event.data.fieldName;
+                        const fieldList = event.data.data;
+                        console.log(fieldList);
+                        localStorage.setItem(`Remote Dropdown ${event.data.fieldName}`, JSON.stringify(fieldList));
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, event.data));
                         workerObject.stopWorkerFunction(id);
                         break;

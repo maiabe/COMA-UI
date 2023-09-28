@@ -326,3 +326,24 @@
     border: 1px solid darkgray;
     border-radius: 2px;
 }
+
+/***************************** Orbit Inspector Card ******************************/
+.object-images-inspector-wrapper {
+    width: 100%;
+    padding: 4%;
+    flex-flow: column;
+}
+
+.object-images-inspector-wrapper .rendered-objects .objects-group {
+    text-indent: 5%;
+    padding: 1.5%;
+}
+
+.generate-images-button {
+    width: 100%;
+    height: 5%;
+    margin: 3% 0;
+    padding: 0.5% 5%;
+    border: 1px solid darkgray;
+    border-radius: 2px;
+}

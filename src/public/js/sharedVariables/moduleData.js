@@ -1,4 +1,4 @@
-import { Cholera, Search, Csv, Filter, DataConversion, LineChart, BarChart, ScatterPlot, OrbitalPlot, Table, ToCSV, Composite, CompositePrefab, Data } from '../modules/index.js';
+import { Cholera, Search, Csv, Filter, DataConversion, LineChart, BarChart, ScatterPlot, OrbitalPlot, Table, ToCSV, Composite, CompositePrefab, Data, ObjectImages } from '../modules/index.js';
 import { sourceColor, outputColor, processorColor, compositColor } from './colors.js';
 /*import { LOCAL_DATA_SOURCE } from "./constants.js";*/
 import { telescope_options, filter_options, objectType_options } from "./defaultData.js"; 
@@ -73,11 +73,11 @@ const moduleDataObject = [
         moduleCreationFunction: (category, key) => new OrbitalPlot(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
         menuData: { icon: 'images/icons/orbital-plot.png', text: 'Orbital Plot', category: 'Output' }
     },
-    /*{
-        key: 'ObjectImage',
-        moduleCreationFunction: (category, key) => new ObjectImage(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
-        menuData: { icon: 'images/icons/images.png', text: 'Images', category: 'Output' }
-    },*/
+    {
+        key: 'Images',
+        moduleCreationFunction: (category, key) => new ObjectImages(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key),
+        menuData: { icon: 'images/icons/image.png', text: 'Images', category: 'Output' }
+    },
     /*{
         key: 'To Csv',
         moduleCreationFunction: (category, key) => new ToCSV(category, colors[category.toLowerCase()], shapes[category.toLowerCase()], key, 'Data', [{ name: 'IN', leftSide: false }], true),

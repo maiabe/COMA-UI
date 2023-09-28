@@ -48,6 +48,17 @@ app.get('/get-ecliptic', (req, res) => {
     res.send(csvContent);
 });
 
+app.get('/get-images-names', (req, res) => {
+    //const csvFilePath = './localFileStorage/planetary-xyz.csv'; // Replace with the actual path
+    var fs = require('fs');
+    var files = fs.readdirSync('./src/public/images/fits_demo/Object_Images/');
+    console.log(files)
+
+    //res.setHeader('Content-Disposition', 'attachment; filename="data.csv"');
+    //res.setHeader('Content-Type', 'text/csv');
+    res.send(JSON.stringify({names: files}));
+});
+
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {

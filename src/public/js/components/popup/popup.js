@@ -86,6 +86,7 @@ export class Popup {
      * @param {HTML element} content the HTML element to add to the popup
      */
     #setBodyContent = content => {
+        console.log(content)
         this.#clearBodyContent();
         this.body.appendChild(content);
     };

@@ -3,6 +3,7 @@ import chartThemes from '../../dataComponents/charts/echarts/theme/echartsThemes
 import { ChartBuilder } from '../../dataComponents/charts/chartBuilder.js';
 import { Message, Publisher } from "../../communication/index.js";
 import { POPUP_CONTENT_MAKER, INPUT_MANAGER, OUTPUT_MANAGER } from "../../sharedVariables/constants.js";
+import { Popup } from "../../components/popup/popup.js";
 
 export class PopupContentMaker {
 
@@ -11,10 +12,10 @@ export class PopupContentMaker {
     constructor() {
         this.dataTable = new Map();
         this.HF = new HTMLFactory();
+        
         this.dataTable.set('popupContentWrapper', this.HF.createNewDiv('', '', ['popup-content'], []));
         this.publisher = new Publisher();
         this.chartBuilder = new ChartBuilder();
-
     }
 
     /** --- PUBLIC ---
@@ -24,6 +25,18 @@ export class PopupContentMaker {
     addDescriptionText(text) {
         this.getPopupContentWrapper()
             .appendChild(this.HF.createNewParagraph('', '', ['popup-module-description'], [], text));
+    }
+
+    setPopupDimension(width, height) {
+        const popup = this.getPopupContentWrapper().closest('.popup');
+        console.log(this.getPopupContentWrapper());
+        console.log(popup);
+        /*if (width) {
+            popup.style.width = width;
+        }
+        if (height) {
+            popup.style.height = height;
+        }*/
     }
 
     /** --- PUBLIC --- DEPRECATED
@@ -179,7 +192,6 @@ export class PopupContentMaker {
 
         this.getPopupContentWrapper().appendChild(downloadWrapper);
         this.getPopupContentWrapper().appendChild(tableWrapper);
-        
     }
 
     setTableData(moduleKey, content, data) {
@@ -358,6 +370,55 @@ export class PopupContentMaker {
             this.sendMessage(new Message(OUTPUT_MANAGER, POPUP_CONTENT_MAKER, 'Change EChart Theme Event', { moduleKey: key, theme: event.target.value}));
         });
     }
+
+
+    /*********************************************** Render Object Image ****************************************************/
+    createObjectImagesPopup(moduleKey, objectName, imageDates, imagesToRender) {
+        // Create Dropdown of observed dates
+        //--------- TEST
+        //imageDates = ['2019-01-03', '2021-10-11', '2022-06-23'];
+
+        console.log(objectName);
+
+        const datesDropdownWrapper = this.HF.createNewDiv('dates-dropdown-wrapper', '', ['dropdown-wrapper'], []);
+        const datesDropdown = this.HF.createNewSelect('', '', ['dates-dropdown'], [], imageDates, imageDates)
+        datesDropdownWrapper.appendChild(datesDropdown);
+
+        //--------- TEST
+        //imagesToRender = ['C2018DO4_2019-01-03.png', 'C2018DO4_2021-10-11.png', 'C2018DO4_2022-06-23.png'];
+
+        const imageWrapper = this.HF.createNewDiv('', '', ['image-wrapper'], []);
+        const objectImages = this.HF.createNewIMG('', '', `./images/fits_demo/Object_Images/${imagesToRender[0]}`, ['object-image'], [{ style: 'width', value: '400px' }], imagesToRender[0].replace('.png', ''));
+        imageWrapper.appendChild(objectImages);
+
+        const popupDiv = this.getPopupContentWrapper();
+        popupDiv.classList.add('image-popup-content');
+        popupDiv.appendChild(datesDropdownWrapper);
+        popupDiv.appendChild(imageWrapper);
+
+        // add event listener when the image date is selected, render that image instead
+        datesDropdown.addEventListener('change', (e) => {
+            const dropdown = e.target;
+
+            // get the image to render from selected date
+            let newImagePath = imagesToRender.filter(path => path.includes(dropdown.value));
+            newImagePath = newImagePath ? newImagePath[0] : dropdown.options[0];
+
+            // remove child of imageWrapper
+            //const imageWrapper = dropdown.closest('.image-popup-content').querySelector('.image-wrapper');
+            imageWrapper.removeChild(imageWrapper.firstChild);
+            
+            // add image to imageWrapper with the selected date
+            const newImage = this.HF.createNewIMG('', '', `./images/fits_demo/Object_Images/${newImagePath}`, ['object-image'], [{ style: 'width', value: '400px' }], newImagePath.replace('.png', ''));
+            imageWrapper.appendChild(newImage);
+        });
+
+    }
+
+
+
+
+
 
     getField = key => this.dataTable.get(key);
 

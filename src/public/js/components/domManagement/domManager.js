@@ -17,9 +17,14 @@ export class DomManager {
     }
 
     #initializeLogo() {
-        const element = this.HF.createNewIMG('logo','logo', '../../../images/logo/COMA-LOGO.png', ['logo'], [], 'COMA logo');
-        this.#domTable.get('navBarDiv').appendChild(element);
-        return element;
+        const elementDiv = this.HF.createNewDiv('', '', ['nav-content-wrapper'], []);
+        const element = this.HF.createNewIMG('logo', 'logo', '../../../images/logo/COMA-LOGO-NEW.png', ['logo'], [], 'COMA logo');
+        //const element = this.HF.createNewIMG('logo', 'logo', '../../../images/logo/COMA_LOGO_T.png', ['logo'], [], 'COMA logo');
+
+        elementDiv.appendChild(element);
+        this.#domTable.get('navBarDiv').appendChild(elementDiv);
+
+        return elementDiv;
     }
 
     #addToDomTable(key, value) {

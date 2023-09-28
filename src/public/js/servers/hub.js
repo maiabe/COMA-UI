@@ -130,6 +130,8 @@ export default class Hub {
         this.#messageForInputManager.set('Prep Chart Data Event', this.#prepChartDataEvent.bind(this));
         this.#messageForInputManager.set('Prep Orbit Data Event', this.#prepOrbitDataEvent.bind(this));
         this.#messageForInputManager.set('Get Object Orbits Event', this.#getObjectOrbitsDataEvent.bind(this));
+
+        this.#messageForInputManager.set('Prep Object Images Event', this.#prepObjectImagesEvent.bind(this));
     }
 
     #buildMessageForWorkerManagerMap() {
@@ -170,6 +172,7 @@ export default class Hub {
         this.#messageForOutputManager.set('Set New Table Event', this.#setNewTableEvent.bind(this));
         this.#messageForOutputManager.set('Set New Chart Event', this.#setNewChartEvent.bind(this));
         this.#messageForOutputManager.set('Set New Orbit Event', this.#setNewOrbitEvent.bind(this));
+        this.#messageForOutputManager.set('Set New Images Event', this.#setNewImagesEvent.bind(this));
     }
 
     /** --- PRIVATE --- MESSAGE FOR ENVIRONMENT
@@ -323,7 +326,7 @@ export default class Hub {
                     var fromModuleData = fromModule.getData('moduleData');
                     console.log(fromModuleData);
                     // prepInspectorCardData sets the toModuleData from fromModuleData
-                    outputModule.prepInspectorCardData(outputModule.getData('key'), fromModuleData);
+                    outputModule.prepInspectorCardData(outputModule.getData('key'), fromModuleData, fromKey);
 
                     // The content of the moduleData parameter differs from module to module.
                     outputModule.updateInspectorCard();
@@ -721,7 +724,7 @@ export default class Hub {
 
     // remote search data is the return from server
     #setRemoteDropdownOptions(data) {
-        if (invalidVariables([varTest(data.clientId, 'clientId', 'number'), varTest(data.fieldName, 'fieldName', 'string'), varTest(data.fieldWrapperId, 'fieldWrapperId', 'string'), varTest(data.data, 'data', 'object')], 'HUB', '#messageForWorkerManager (Set Remote Dropdown Options Event)')) return;
+        if (invalidVariables([varTest(data.fieldName, 'fieldName', 'string'), varTest(data.fieldWrapperId, 'fieldWrapperId', 'string'), varTest(data.data, 'data', 'object')], 'HUB', '#messageForWorkerManager (Set Remote Dropdown Options Event)')) return;
         console.log(data);
         // get options for the fieldName
         var success = false;
@@ -739,9 +742,6 @@ export default class Hub {
 
             // append to dropdown INS
             success = GM.INS.setRemoteDropdownOptions(data.moduleKey, data.fieldWrapperId, options);
-        }
-        if (!success) {
-            console.log("Could not retrieve remote data.");
         }
     }
 
@@ -1121,6 +1121,12 @@ export default class Hub {
     }
 
     /////////////////////////////////////////////////////////// for input & outputmanagers ///////////////////////////////////////////////////////////
+
+
+    //******************************************************************************************************/
+    //********************************************* TABLE MODULE *******************************************/
+    //******************************************************************************************************/
+
     /** Sets a table moduleData from source moduleData
      * @param {moduleKey} moduleKey of the table module
      * @param {sourceModuleData} sourceModuleData of the source module
@@ -1227,6 +1233,12 @@ export default class Hub {
         GM.MM.toggleHeaderColor(moduleData.moduleKey, processed);
     }
 
+
+
+    //******************************************************************************************************/
+    //********************************************* CHART MODULE *******************************************/
+    //******************************************************************************************************/
+
     /** Sets a chart moduleData from source moduleData
      * @param {moduleKey} moduleKey of the table module
      * @param {sourceModuleData} sourceModuleData of the source module
@@ -1328,6 +1340,10 @@ export default class Hub {
 
     }*/
 
+    //******************************************************************************************************/
+    //********************************************** ORBIT MODULE ******************************************/
+    //******************************************************************************************************/
+
     // sets planet orbits on creation of orbit module
     #getPlanetOrbitsDataEvent() {
         if (invalidVariables([], 'HUB', '#messageForWorkerManager (Get Planet Orbits Event)')) return;
@@ -1347,38 +1363,8 @@ export default class Hub {
      * */
     #prepOrbitDataEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceModuleData, 'sourceModuleData', 'object')], 'HUB', '#messageForOutputManager (Prep Orbit Data Event)')) return;
-        console.log(data);
-        /*const orbitModuleData = {
-            moduleKey: data.moduleKey,
-            moduleData: {
-                
-            },
-        }
-        this.#setModuleDataEvent({  });*/
 
         GM.IM.prepOrbitModuleData(data.moduleKey, data.sourceModuleData.remoteData, data.sourceModuleData.sourceData);
-        //console.log(orbitPlotData);
-
-/*        var processed = false;        var remoteData = data.sourceModuleData.remoteData;       var fromDatasetType = data.sourceModuleData.datasetType;      var fromSourceData = data.sourceModuleData.sourceData;       console.log(fromSourceData);
-
-        if (fromSourceData) {
-            // get columnHeaders
-            var chartAxisData = GM.IM.getChartAxisData(remoteData, fromSourceData);
-
-            // set moduleData for this table module
-            var data = {
-                moduleKey: data.moduleKey,
-                moduleData: {
-
-                    datasetType: fromDatasetType,
-                    sourceData: fromSourceData,
-                    chartAxisData: chartAxisData,
-                },
-                toggleModuleColor: true,
-            };          processed = this.#setModuleDataEvent(data);
-        }*/
-        // else show error
-
     }
 
     #setNewOrbitEvent(data) {
@@ -1402,6 +1388,61 @@ export default class Hub {
         // toggle module color and inspector/popup header color
         this.#toggleModuleColorEvent(key, processed);
         if (!GM.PM.isPopupOpen(key)) this.#openModulePopup(key, 0, 0);
+    }
+
+
+    //******************************************************************************************************/
+    //***************************************** OBJECT IMAGES MODULE ***************************************/
+    //******************************************************************************************************/
+
+    /**
+     * Prepare Object Images data to get corresponding object name of the image to render
+     * */
+    #prepObjectImagesEvent(data) {
+        const key = data.moduleKey;
+        const module = GM.MM.getModule(key);
+        const moduleData = data.sourceModuleData;
+        const remote = moduleData.remoteData;
+
+        if (remote) {
+            // get object name from the search module input
+            GM.IM.prepObjectImagesModuleData(key, data.sourceModuleKey);
+
+        }
+        else {
+            // same as remote... just add the object type-ahead field to the csv module & set moduleData
+
+
+        }
+        
+    }
+
+    async #setNewImagesEvent(data) {
+        if (!data.imagePopupExists) {
+            // get path of the images to render
+            const imagePaths = await GM.OM.getObjectImagePaths(data.objectToRender);
+            //console.log(imagePaths);
+
+            const imageModuleData = {
+                moduleKey: data.moduleKey,
+                moduleData: {
+                    objectName: imagePaths.objectName,
+                    imageDates: imagePaths.imageDates,
+                    imagesToRender: imagePaths.imagesToRender,
+                },
+                toggleModuleColor: true,
+            }
+
+            this.#setModuleDataEvent(imageModuleData);
+
+
+            // Render images in popup body (and date dropdown)
+            const module = GM.MM.getModule(data.moduleKey);
+            const moduleData = module.getData('moduleData');
+            module.renderObjectImages(data.moduleKey, moduleData);
+        }
+
+        if (!GM.PM.isPopupOpen(data.moduleKey)) this.#openModulePopup(data.moduleKey, 0, 0);
     }
 
 

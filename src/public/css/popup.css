@@ -176,3 +176,12 @@ button.tabulator-page {
     left: 20%;
 }
 
+/***************************** Image Popup Card ******************************/
+.image-popup-content .dropdown-wrapper {
+    padding: 2%;
+}
+.image-popup-content .image-wrapper {
+    padding: 5%;
+    text-align-last: center;
+}
+

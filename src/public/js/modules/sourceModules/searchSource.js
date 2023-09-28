@@ -1,12 +1,12 @@
-import { Module } from "../index.js";
+import { Source } from "../index.js";
 import { LT_SOURCE } from "../../sharedVariables/constants.js";
 
 /** This represents a source module and extends the module class. */
-export class Source extends Module {
+/*export class Source extends Module {
     constructor(category, color, shape, location, command, name, image, inports, outports, key, description) {
         super(category, color, shape, command, name, image, inports, outports, key, description);
     }
-}
+}*/
 
 
 // add comment for module data content.. queryType, queryEntries, resultData
@@ -21,19 +21,19 @@ export class Search extends Source {
         //this.addData('onCreationFunction', this.onCreation.bind(this));
         this.addData('callOnCreationFunction', true);
         this.addData('remoteData', true);
-        this.setPopupContent();
-        //this.setInspectorCardContent();
+        this.addData('popupWidth', 300);
+        this.addData('popupHeight', 300);
     }
 
     setInspectorCardContent = () => {
         this.inspectorCardMaker.addSearchFormFields(this.getData('key'));
     }
 
-
+/*
     setPopupContent = () => {
         //this.popupContentMaker.addDescriptionText(this.getData('description'));
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
-    }
+    }*/
 
     /** --- PUBLIC ---
      * Gets the content to populate a popup associated with this module.

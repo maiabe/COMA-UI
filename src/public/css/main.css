@@ -70,19 +70,27 @@ select,
 }
 
 .hidden {
-  display: none;
+    display: none;
 }
 /* Navigation bar runs across the top of the window */
 .nav {
-  height: 80px;
-  width: 100vw;
-  position: relative;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding-left: 20px;
-  gap: 20px;
-  color: white;
+    height: 70px;
+    width: 100vw;
+    position: relative;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    color: white;
+    padding: 1% 0;
+}
+
+.nav-content-wrapper {
+    width: 11%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: right;
 }
 
 .nav-two-column {
@@ -101,9 +109,9 @@ select,
   height: 30px;
 }
 
-.nav > img {
-  width: 200px;
-  height: 60px;
+.nav img {
+  height: 100%;
+  align-self: center;
 }
 
 .nav > h1 {
@@ -114,12 +122,10 @@ select,
 /* Contains all Data below the nav bar, split into two main sections, left and right */
 #mainWrapper {
   position: relative;
-  width: 98vw;
   display: flex;
   justify-content: center;
-  left: 1vw;
   height: 85vh;
-  top: 0;
+  margin: 1.5% 4%;
 }
 
 /* Left Side of the Window -- Contains the menu */

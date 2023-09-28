@@ -9,6 +9,7 @@ import { ChartBuilder, CsvWriter, OrbitBuilder } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
 //import { getNumDigits } from '../sharedletiables/formatValues.js';
 import { getNumDigits, orbitColors } from '../sharedvariables/index.js';
+//import { directoryPath } from '../../../images/fits_demo/Object_Images/'
 
 export class OutputManager {
     publisher;
@@ -541,5 +542,53 @@ export class OutputManager {
             this.#orbitBuilder.resizeOrbitChart(activeOrbit, width, height);
         }
     }
+
+
+    // ----------------------------------------- Object Images Data Preparation -----------------------------------------
+    async getObjectImagePaths(objectName) {
+
+        objectName = objectName.replace(/\([^)]*\)/g, '').trim();
+        objectName = objectName.replace('/', '');
+        objectName = objectName.replace(' ', '');
+
+        // take out parenthesis in objectName
+
+        //const directoryPath = path.join(__dirname, '..', '..', 'images', 'fits_demo', 'Object_Images');
+        //const root = '/images/fits_demo/Object_Images/';
+
+        const response = await fetch('/get-images-names');
+        const rjson = await response.json();
+        const names = rjson.names;
+        //console.log(names)
+
+        const imageDates = [];
+        const imagesToRender = [];
+        // Get object name from image name
+        names.forEach(name => {
+            //console.log(name);
+            const objRegex = /(\w+)_/;
+            const object = name.match(objRegex);
+            //console.log(object[1]);
+
+            // check if the object name passed on is the same as the current object name
+            if (objectName === object[1]) {
+                const dateRegex = /(\d{4}-\d{2}-\d{2})/;
+                const date = name.match(dateRegex);
+                imageDates.push(date[1]);
+
+                imagesToRender.push(name);
+            }
+
+        });
+
+        //console.log(imageDates);
+        //console.log(imagesToRender);
+
+        return { objectName: objectName, imageDates: imageDates, imagesToRender: imagesToRender };
+    }
+
+
+
+
 
 }

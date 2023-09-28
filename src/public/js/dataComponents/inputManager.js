@@ -215,7 +215,9 @@ export class InputManager {
     }
 
 
-    // callback
+    /**
+     * Prepare Orbit Module Data to get object and planet names to render and set its moduleData
+     * */
     prepOrbitModuleData(moduleKey, remote, sourceData) {
         // get objectNames & planetNames
         const objectNames = ['C/2017 K2'];
@@ -259,10 +261,25 @@ export class InputManager {
         //}
     }
 
-
     getObjectOrbits() {
         this.#csvReader.getObjectOrbits();
     }
+
+
+    prepObjectImagesModuleData(moduleKey, fromKey) {
+        const dom = document.querySelector(`#Inspector-card-${fromKey} #search-form-${fromKey} #objects-${fromKey} input`);
+        const objectName = dom.value;
+
+        const data = {
+            moduleKey: moduleKey,
+            moduleData: { objectName: objectName },
+            toggleModuleColor: false
+        };
+
+        const msg = new Message(MODULE_MANAGER, INPUT_MANAGER, 'Set Module Data Event', data);
+        this.publisher.publishMessage(msg);
+    }
+
 
     addRoutes = routes => this.#dataTable.set('routes', routes);
     addObjects = objects => this.#dataTable.set('objects', objects);

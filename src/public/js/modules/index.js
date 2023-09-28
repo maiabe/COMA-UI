@@ -11,6 +11,7 @@ export { LineChart } from './outputModules/output.js';
 export { BarChart } from './outputModules/output.js';
 export { ScatterPlot } from './outputModules/output.js';
 export { OrbitalPlot } from './outputModules/output.js';
+export { ObjectImages } from './outputModules/objectImages.js';
 export { Table } from './outputModules/table.js';
 export { ToCSV } from './outputModules/output.js';
 export { Composite } from './compositModule/compositModule.js';

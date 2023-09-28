@@ -21,8 +21,8 @@ export class Filter extends Processor {
         this.addData('inportType', [LT_PROCESSOR, LT_SOURCE]);
         this.addData('outportType', [LT_PROCESSOR, LT_OUTPUT]);
         this.addData('description', 'Use this module to filter table data.');
-        this.addData('linkedToData', false);
-        this.#setPopupContent();
+        this.addData('popupWidth', 300);
+        this.addData('popupHeight', 300);
         this.#createInspectorCardData();
     }
 
@@ -36,7 +36,7 @@ export class Filter extends Processor {
      * Creates the HTML object to insert into the Popup */
     #setPopupContent = () => {
         this.popupContentMaker.addDescriptionText(this.getData('description'));
-        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
+        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper());
     }
 
     /** --- PUBLIC ---
@@ -91,8 +91,8 @@ export class DataConversion extends Processor {
             [{ name: 'PS_IN', leftSide: true, type: LT_PROCESSOR }, { name: 'IN', leftSide: true, type: LT_SOURCE }],
             [{ name: 'PS_OUT', leftSide: false, type: LT_PROCESSOR }, { name: 'OUT', leftSide: false, type: LT_OUTPUT }], key);
         this.addData('description', 'Use this module to convert table data.');
-        this.addData('linkedToData', false);
-        this.setPopupContent();
+        this.addData('popupWidth', 300);
+        this.addData('popupHeight', 300);
         this.createInspectorCardData();
     }
 
@@ -104,10 +104,10 @@ export class DataConversion extends Processor {
 
     /** --- PRIVATE ---
      * Creates the HTML object to insert into the Popup */
-    setPopupContent = () => {
+    /*setPopupContent = () => {
         this.popupContentMaker.addDescriptionText(this.getData('description'));
-        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
-    }
+        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper());
+    }*/
 
     /** --- PUBLIC --- 
      * When attached to a pipeline containing metadata, the headers must be processed for generating the 
