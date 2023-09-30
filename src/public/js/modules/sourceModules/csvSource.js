@@ -17,12 +17,10 @@ export class Csv extends Source {
         this.addData('description', 'This module loads a CSV file (.csv) and converts it into a module.');
         this.addData('linkedToData', false);
         this.addData('remoteData', false);
-        this.addData('callOnCreationFunction', true);
-        this.addData('popupWidth', 300);
-        this.addData('popupHeight', 300);
-        //this.addData('onCreationFunction', this.onCreation.bind(this));
+        this.addData('onCreationFunction', this.onCreation.bind(this));
+        this.addData('requestMetadataOnCreation', true);
         //this.#createInspectorCardData();
-        //this.setPopupContent();
+        this.#setPopupContent();
 
 
         //this.#createInspectorCardData();
@@ -35,6 +33,17 @@ export class Csv extends Source {
         this.inspectorCardMaker.createCSVModuleInspectorCard(this.handleFiles.bind(this), this.getData('key'));
         //this.inspectorCardMaker.createFileUploadField(this.handleFiles.bind(this), this.getData('key'));
     }
+
+    /** --- PRIVATE ---
+     * Calls the popupContentMaker to build the HTML content for the CSV popup. */
+    #setPopupContent = () => {
+        //this.popupContentMaker.addDescriptionText(this.getData('description'));
+        //this.popupContentMaker.createFileUploadField(this.handleFiles.bind(this), this.getData('key'));
+        //this.popupContentMaker.addDataArea();
+        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
+    }
+
+
 
     /** --- PUBLIC ---
      * This function is attached to the file upload field in the CSV popup window. This function
@@ -63,6 +72,7 @@ export class Csv extends Source {
         //this.addData('metadata', metadata);
 
         this.inspectorCardMaker.createCSVModuleInspectorCard(this.handleFiles.bind(this), this.getData('key'));
+        this.inspectorCardMaker.addCSVObjectsFieldFunction(this.getData('key'));
 
         //this.inspectorCardMaker.addSearchFormFields(metadata)
         // --> Add Date Range Field Min Max = date picker? (too many dates can be chosen from, slider may not be very useful)

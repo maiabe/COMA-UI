@@ -5,7 +5,7 @@
  *************************************************************/
 import { Module } from "../index.js";
 import { ChartDataStorage } from "./components/chartDataStorage.js";
-import { LT_OUTPUT, LT_PROCESSOR, LT_SOURCE, MODULE, MODULE_MANAGER, OUTPUT_MANAGER, INPUT_MANAGER, WORKER_MANAGER } from "../../sharedVariables/constants.js";
+import { LT_OUTPUT, LT_PROCESSOR, LT_SOURCE, MODULE, MODULE_MANAGER, OUTPUT_MANAGER, INPUT_MANAGER } from "../../sharedVariables/constants.js";
 import { Message } from "../../communication/message.js";
 
 export class Output extends Module {
@@ -21,18 +21,18 @@ export class Chart_2D extends Output {
     constructor(category, color, shape, command, name, image, outports, key) {
         super(category, color, shape, command, name, image,
             [{ name: 'IN', leftSide: true, type: LT_SOURCE }, { name: 'OUT', leftSide: true, type: LT_OUTPUT }], outports, key)
-        this.setPopupContent();
-        this.addData('inportType', [LT_SOURCE, LT_PROCESSOR]);
-        this.addData('outportType', [-1]);
     };
 
     /** --- PUBLIC ---
      * Creates the HTML content to be inserted into the Popup in the DOM. */
     setPopupContent = () => {
-        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper());
+        this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
         this.addData('themeDD', this.popupContentMaker.addEChartThemeDropdown(this.getData('key')), false, '', false);
 
         this.addData('plotDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
+        this.addData('inportType', [LT_SOURCE, LT_PROCESSOR]);
+        this.addData('outportType', [-1]);
+
         var popupContent = this.getData('popupContent');
         popupContent.classList.add('plot-popup');
     }
@@ -133,6 +133,7 @@ export class Chart_2D extends Output {
 export class ScatterPlot extends Chart_2D {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'output', 'Scatter Plot', 'images/icons/scatter-graph.png', [], key);
+        this.setPopupContent();
         this.createInspectorCardData();
         this.addData('chartType', 'scatter');
         this.addData('coordinateSystem', 'cartesian2d');
@@ -143,6 +144,7 @@ export class ScatterPlot extends Chart_2D {
 export class BarChart extends Chart_2D {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'output', 'Bar Chart', 'images/icons/bar-chart-white.png', [], key);
+        this.setPopupContent();
         this.createInspectorCardData();
         this.addData('chartType', 'bar');
         this.addData('coordinateSystem', 'cartesian2d');
@@ -153,56 +155,63 @@ export class BarChart extends Chart_2D {
 export class LineChart extends Chart_2D {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'output', 'Line Chart', 'images/icons/line-chart-white.png', [], key);
+        this.setPopupContent();
         this.createInspectorCardData();
         this.addData('chartType', 'line');
         this.addData('coordinateSystem', 'cartesian2d');
         //this.chartData = new ChartDataStorage('line', 'cartesian2d');
     }
 }
+/*
+export class OrbitalPlot extends Chart_2D {
+    constructor(category, color, shape, key) {
+        super(category, color, shape, 'output', 'Orbital Plot', 'images/icons/orbital-plot-white.png', [], key,);
+        this.setPopupContent();
+        this.createInspectorCardData();
+        this.addData('chartType', 'line');
+        this.addData('coordinateSystem', 'polar');
+        //this.chartData = new ChartDataStorage('line', 'polar');
+    }
+}*/
 
 
 export class OrbitalPlot extends Output {
     constructor(category, color, shape, key) {
-        super(category, color, shape, 'output', 'Orbital Plot', 'images/icons/orbital-plot-white.png', 
+        super(category, color, shape, 'output', 'Orbital Plot', 'images/icons/orbital-plot-white.png',
             [{ name: 'IN', leftSide: true, type: LT_SOURCE }, { name: 'OUT', leftSide: true, type: LT_OUTPUT }], [], key);
-        this.addData('callOnCreationFunction', true);
-        this.addData('inportType', [LT_SOURCE, LT_PROCESSOR]);
-        this.addData('outportType', [-1]);
-        this.#addPlotDiv();
+        this.setPopupContent();
     }
 
-    #addPlotDiv () {
+    #addPlotDiv() {
         this.addData('orbitDiv', this.popupContentMaker.addPlotDiv(this.getData('key')));
+
+        const plotDiv = this.getData('orbitDiv');
+        let popupContent = plotDiv.closest('.popup-content');
+        popupContent.style.margin = 'none';
+        popupContent.style.width = '100%';
 
         /*var popupContent = this.getData('popupContent');
         popupContent.classList.add('plot-popup');*/
     }
     /** --- PUBLIC ---
      * Creates the HTML content to be inserted into the Popup in the DOM. */
-    /*#setPopupContent = () => {
+    setPopupContent = () => {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
-        this.addData('orbitDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
+        this.addData('themeDD', this.popupContentMaker.addEChartThemeDropdown(this.getData('key')), false, '', false);
+
+        this.addData('plotDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
+        this.addData('inportType', [LT_SOURCE, LT_PROCESSOR]);
+        this.addData('outportType', [-1]);
 
         var popupContent = this.getData('popupContent');
         popupContent.classList.add('plot-popup');
-    }*/
-
-    // on creation, set the elliptical moduleData in browser's localStorage
-    getPlanetOrbits = () => {
-        // check if localStorage already has the Planet Orbits data
-        if (!localStorage.getItem('Planet Orbits')) {
-            let moduleKey = this.getData('key');
-            //console.log(moduleKey);
-            this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Get Planet Orbits Event', { moduleKey: moduleKey }));
-            console.log(moduleKey);
-        }
     }
 
     prepInspectorCardData(toModuleKey, fromModuleData) {
         this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Prep Orbit Data Event', { moduleKey: toModuleKey, sourceModuleData: fromModuleData }));
     }
 
-    /** --- PUBLIC ---  rename to createInspectorCardContent() ?
+    /** --- PUBLIC ---
      * Called by the Hub when an output module is connected to a flow with data.
      * Updates the inspector card and sets up the chartData object.
      * @param {Number} moduleKey key of the module
@@ -215,18 +224,6 @@ export class OrbitalPlot extends Output {
         if (moduleData) {
             this.inspectorCardMaker.updateOrbitModuleInspectorCard(moduleKey, moduleData);
         }
-    }
-
-    onCreation() {
-        //localStorage.clear();
-        if (!localStorage.getItem('Planet Orbits')) {
-            this.sendMessage(new Message(WORKER_MANAGER, MODULE, 'Get Planet Orbits Event'));
-        }
-
-        if (!localStorage.getItem('Object Orbits')) {
-            this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Get Object Orbits Event'));
-        }
-
     }
 }
 
@@ -293,10 +290,10 @@ export class ToCSV extends Output {
 
     /** --- PUBLIC ---
      * Creates the HTML content to be inserted into the Popup in the DOM. */
-    /*setPopupContent = () => {
+    setPopupContent = () => {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper(), false, '', false);
         this.addData('plotDiv', this.popupContentMaker.addPlotDiv(), false, '', false);
-    };*/
+    };
 
     /** --- PUBLIC ---
      * stores an array of strings, 1 for each column name, on the chartData table.
@@ -305,6 +302,3 @@ export class ToCSV extends Output {
         this.chartData.storeHeaders(headerRow);
     }
 }
-
-
-

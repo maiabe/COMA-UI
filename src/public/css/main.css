@@ -110,8 +110,8 @@ select,
 }
 
 .nav img {
-  height: 100%;
-  align-self: center;
+    width: 200px;
+    height: 60px;
 }
 
 .nav > h1 {
@@ -121,11 +121,13 @@ select,
 
 /* Contains all Data below the nav bar, split into two main sections, left and right */
 #mainWrapper {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  height: 85vh;
-  margin: 1.5% 4%;
+    position: relative;
+    width: 98vw;
+    display: flex;
+    justify-content: center;
+    left: 1vw;
+    height: 85vh;
+    top: 0;
 }
 
 /* Left Side of the Window -- Contains the menu */

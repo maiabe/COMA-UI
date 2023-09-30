@@ -85,7 +85,7 @@ export class CsvReader {
 
     // -- This reader will delete all column headers with empty string, and deletes all values of that column index
     // moduleData to pass.. { datasetType, columnHeaders, sourceData }
-    getFileData = (moduleKey, fileId, setModuleCB) => {
+    getFileData = (moduleKey, fileId, object, setModuleCB) => {
         var fileInput = document.getElementById(fileId);
         var file = fileInput.files[0];
         var datasetTypeDD = fileInput.closest('.csv-inspector-wrapper').querySelector('.dataset-type-dropdown');
@@ -100,6 +100,7 @@ export class CsvReader {
                 var moduleData = {
                     remoteData: false,
                     datasetType: datasetType,
+                    objectName: object,
                     sourceData: sourceData,
                 };
                 var toggleModuleColor = moduleData.sourceData ? true : false;
