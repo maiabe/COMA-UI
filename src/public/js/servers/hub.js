@@ -12,7 +12,7 @@ export default class Hub {
     publisher;  // publisher. Emits messages to subscribers.
     subscriber; // subscriber variable
     GM;
-
+    
     #messageHandlerMap;
     #messageForOutputManager;
     #messageForDataManager;
@@ -129,6 +129,8 @@ export default class Hub {
         this.#messageForInputManager.set('Prep Table Data Event', this.#prepTableDataEvent.bind(this));
         this.#messageForInputManager.set('Prep Chart Data Event', this.#prepChartDataEvent.bind(this));
         this.#messageForInputManager.set('Prep Orbit Data Event', this.#prepOrbitDataEvent.bind(this));
+        this.#messageForInputManager.set('Get Object Orbits Event', this.#getObjectOrbitsDataEvent.bind(this));
+
         this.#messageForInputManager.set('Prep Object Images Event', this.#prepObjectImagesEvent.bind(this));
     }
 
@@ -139,6 +141,7 @@ export default class Hub {
         this.#messageForWorkerManager.set('Get Remote Dropdown Options', this.#getRemoteDropdownOptions.bind(this));
         this.#messageForWorkerManager.set('Get Remote Objects Suggestions', this.#getRemoteObjectsSuggestions.bind(this));
         this.#messageForWorkerManager.set('Fetch Remote Table Data Event', this.#fetchRemoteTableDataEvent.bind(this));
+        this.#messageForWorkerManager.set('Get Planet Orbits Event', this.#getPlanetOrbitsDataEvent.bind(this));
     }
 
     #buildMessageForPopupManager() {
@@ -168,6 +171,7 @@ export default class Hub {
         //this.#messageForOutputManager.set('New Table Event', this.#newTableEvent.bind(this));
         this.#messageForOutputManager.set('Set New Table Event', this.#setNewTableEvent.bind(this));
         this.#messageForOutputManager.set('Set New Chart Event', this.#setNewChartEvent.bind(this));
+        this.#messageForOutputManager.set('Set New Orbit Event', this.#setNewOrbitEvent.bind(this));
         this.#messageForOutputManager.set('Set New Images Event', this.#setNewImagesEvent.bind(this));
     }
 
@@ -189,13 +193,10 @@ export default class Hub {
         var moduleKey = data.module.getData('key');
         GM.ENV.insertModule(data.module, data.templateExists, data.groupKey);
         try {
-            //var onCreationFunction = data.module.getData('onCreationFunction');
-            //console.log(moduleName);
-            //console.log(onCreationFunction);
-            if (data.module.getData('requestMetadataOnCreation') === true) {
+            var callOnCreation = data.module.getData('callOnCreationFunction');
+            if (callOnCreation === true) {
                 //this.#makeMetadataRequest(this.#getNewWorkerIndex(), data.module.getData('name'), data.module.getData('onCreationFunction'));
-                this.#makeMetadataRequest(moduleKey, data.module.getData('onCreationFunction'));
-                //data.module.getData('onCreationFunction');
+                data.module.onCreation();
             }
         } catch (e) {
             console.log(e);
@@ -336,7 +337,7 @@ export default class Hub {
             }
 
             // select the output node
-            this.#nodeSelectedEvent({ moduleKey: outputKey });
+            this.#nodeSelectedEvent({ moduleKey: outputKey });           
         }
         // if fromModule is processor module
 
@@ -371,7 +372,7 @@ export default class Hub {
             const headers = dataSet.data.getHeaders();
             toModule.storeTableHeaders(headers);
         }
-
+        
     }
 
     /** --- PRIVATE --- CALLED LOCALLY
@@ -520,7 +521,7 @@ export default class Hub {
     #readFileEvent(data) {
         if (invalidVariables([varTest(data.fileType, 'fileType', 'string'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Read File Event)')) return;
         // validateFile function and sets moduleData
-        GM.IM.readFile(data.moduleKey, data.fileId, data.fileType, data.object);
+        GM.IM.readFile(data.moduleKey, data.fileId, data.fileType);
     }
 
     #setModuleDataEvent(data) {
@@ -617,7 +618,7 @@ export default class Hub {
         else {
             // update module popup with error screen
         }
-
+        
         if (!GM.PM.isPopupOpen(data.moduleKey)) this.#openModulePopup(data.moduleKey, 0, 0);
     }
 
@@ -707,7 +708,7 @@ export default class Hub {
     #getRemoteDropdownOptions(data) {
         console.log(data);
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.dirName, 'dirName', 'string'),
-        varTest(data.fieldWrapperId, 'fieldWrapperId', 'string'), varTest(data.delay, 'delay', 'number')], 'HUB', '#messageForWorkerManager (Get Remote Dropdown Options Event)')) return;
+            varTest(data.fieldWrapperId, 'fieldWrapperId', 'string'), varTest(data.delay, 'delay', 'number')], 'HUB', '#messageForWorkerManager (Get Remote Dropdown Options Event)')) return;
         // use prepworker
         const workerId = this.#getNewWorkerIndex();
         try {
@@ -723,7 +724,7 @@ export default class Hub {
 
     // remote search data is the return from server
     #setRemoteDropdownOptions(data) {
-        if (invalidVariables([varTest(data.clientId, 'clientId', 'number'), varTest(data.fieldName, 'fieldName', 'string'), varTest(data.fieldWrapperId, 'fieldWrapperId', 'string'), varTest(data.data, 'data', 'object')], 'HUB', '#messageForWorkerManager (Set Remote Dropdown Options Event)')) return;
+        if (invalidVariables([varTest(data.fieldName, 'fieldName', 'string'), varTest(data.fieldWrapperId, 'fieldWrapperId', 'string'), varTest(data.data, 'data', 'object')], 'HUB', '#messageForWorkerManager (Set Remote Dropdown Options Event)')) return;
         console.log(data);
         // get options for the fieldName
         var success = false;
@@ -742,9 +743,6 @@ export default class Hub {
             // append to dropdown INS
             success = GM.INS.setRemoteDropdownOptions(data.moduleKey, data.fieldWrapperId, options);
         }
-        if (!success) {
-            console.log("Could not retrieve remote data.");
-        }
     }
 
     /** Gets objects suggestions from the backend on user input. 
@@ -753,7 +751,7 @@ export default class Hub {
      * */
     #getRemoteObjectsSuggestions(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.dirName, 'dirName', 'string'),
-        varTest(data.fieldWrapperId, 'fieldWrapperId', 'string'), varTest(data.term, 'term', 'string'), varTest(data.delay, 'delay', 'number')], 'HUB', '#messageForInputManager (Get Remote Objects Suggestions Event)')) return;
+            varTest(data.fieldWrapperId, 'fieldWrapperId', 'string'), varTest(data.term, 'term', 'string'), varTest(data.delay, 'delay', 'number')], 'HUB', '#messageForInputManager (Get Remote Objects Suggestions Event)')) return;
         const workerId = this.#getNewWorkerIndex();
         try {
             this.#prepWorker(workerId, INSPECTOR, 'Set Remote Objects Suggestions', data.moduleKey)
@@ -859,7 +857,7 @@ export default class Hub {
         GM.IM.getChartData(data);
     }
 
-
+    
 
     /** --- PRIVATE --- MESSAGE FOR WORKER MANAGER
      * Notifies the Worker Manager to transmit a pipeline to the server for processing
@@ -997,6 +995,11 @@ export default class Hub {
                 GM.PM.getPopupWidth(data.moduleKey),
                 GM.PM.getPopupHeight(data.moduleKey));
         }
+        if (GM.OM.popupHasOrbit(data.moduleKey)) {
+            GM.OM.resizeOrbit(data.moduleKey,
+                GM.PM.getPopupWidth(data.moduleKey),
+                GM.PM.getPopupHeight(data.moduleKey));
+        }
     }
 
     /** --- PRIVATE --- MESSAGE FOR OUTPUT MANAGER
@@ -1028,7 +1031,7 @@ export default class Hub {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.theme, 'theme', 'string')], 'HUB', '#messageForOutputManager (Change EChart Theme Event)')) return;
         if (GM.OM.popupHasAChart(data.moduleKey)) {
             if (GM.OM.changeEchartTheme(data.moduleKey, data.theme)) {
-                if (GM.OM.popupHasActiveChart(data.moduleKey)) {
+                if (GM.OM.popupHasActiveChart(data.moduleKey)){
                     GM.OM.redrawEChart(
                         data.moduleKey,
                         GM.PM.getPopupWidth(data.moduleKey),
@@ -1065,7 +1068,7 @@ export default class Hub {
                 data.fieldData.xAxisTick,
                 data.fieldData.yAxisTick,
                 data.fieldData.coordinateSystem)) {
-                if (!GM.PM.isPopupOpen(data.moduleKey)) this.#openModulePopup(data.moduleKey, 0, 0);
+                if (!GM.PM.isPopupOpen(data.moduleKey)) this.#openModulePopup(data.moduleKey, 0,0);
                 GM.OM.drawChart(data.moduleKey, data.div, GM.PM.getPopupWidth(data.moduleKey), GM.PM.getPopupHeight(data.moduleKey));
             }
         }
@@ -1105,11 +1108,12 @@ export default class Hub {
         if (GM.DM.hasData(data.datasetKey)) {
             const chartData = GM.DM.getTableDataWithFields(data.datasetKey, data.fieldData);
             if (GM.OM.storeChartData(data.moduleKey, chartData, data.div, data.type, '', '')) {
-                if (!GM.PM.isPopupOpen(data.moduleKey)) this.#openModulePopup(data.moduleKey, 0, 0);
-                if (GM.PM.isPopupOpen(data.moduleKey)) {
-                    GM.OM.drawChart(data.moduleKey,
-                        data.div,
-                        GM.PM.getPopupWidth(data.moduleKey),
+                if (!GM.PM.isPopupOpen(data.moduleKey)) this.#openModulePopup(data.moduleKey, 0,0);
+                if (GM.PM.isPopupOpen(data.moduleKey))
+                {
+                    GM.OM.drawChart(data.moduleKey, 
+                        data.div, 
+                        GM.PM.getPopupWidth(data.moduleKey), 
                         GM.PM.getPopupHeight(data.moduleKey));
                 }
             }
@@ -1117,6 +1121,12 @@ export default class Hub {
     }
 
     /////////////////////////////////////////////////////////// for input & outputmanagers ///////////////////////////////////////////////////////////
+
+
+    //******************************************************************************************************/
+    //********************************************* TABLE MODULE *******************************************/
+    //******************************************************************************************************/
+
     /** Sets a table moduleData from source moduleData
      * @param {moduleKey} moduleKey of the table module
      * @param {sourceModuleData} sourceModuleData of the source module
@@ -1146,7 +1156,7 @@ export default class Hub {
             processed = this.#setModuleDataEvent(data);
         }
         // else show error
-
+        
     }
 
     /** Sets a new tabulator table to the Table Module Popup.
@@ -1170,44 +1180,44 @@ export default class Hub {
                     var columnData = headerData.find(h => h.fieldName === headeritem);
                     // Get the width of the left decimal type values
                     *//*var leftWidth = 0;
-var decimalType = data[0][headeritem];
-if (decimalType.includes(".")) {
-// get all values of the current column
-data.map((val) => {
-    let value = val[headeritem].split(".");
-    if (value[0].length > leftWidth) {
-        leftWidth = value[0].length;
-    }
-});
-}*//*
+        var decimalType = data[0][headeritem];
+        if (decimalType.includes(".")) {
+            // get all values of the current column
+            data.map((val) => {
+                let value = val[headeritem].split(".");
+                if (value[0].length > leftWidth) {
+                    leftWidth = value[0].length;
+                }
+            });
+        }*//*
         columns.push({
             title: headeritem, field: headeritem,
             headerHozAlign: "center",
             *//*formatter: 'text',
-    formatterParams: function (cellValue) {
-        let value = cellValue._cell.value;
-        let valueWrapper = GM.HF.createNewDiv('', '', ['column-val-wrapper'], [{ style: "display", value: "flex" }, { style: "font-family", value: "monospace" }]);
-        if (leftWidth == 0) {
-            // create span of 100% with the value
-            let span = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "center" }, { style: "display", value: "block" }, { style: "width", value: "100%" }], value);
-            valueWrapper.appendChild(span);
-        }
-        else {
-            let left = value.split(".")[0];
-            let right = value.split(".")[1];
-            // create left span with leftWidth
-            let spanLeft = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "end" }, { style: "width", value: leftWidth + "ch" }], left);
-            // create right span width 100% - leftWidth
-            let spanDecimal = GM.HF.createNewSpan('', '', ['column-val'], [], ".");
-            let spanRight = GM.HF.createNewSpan('', '', ['column-val'], [], right);
-            valueWrapper.appendChild(spanLeft);
-            valueWrapper.appendChild(spanDecimal);
-            valueWrapper.appendChild(spanRight);
-        }
- 
-        //console.log(valueWrapper);
-        return valueWrapper;
-    },*//*
+        formatterParams: function (cellValue) {
+            let value = cellValue._cell.value;
+            let valueWrapper = GM.HF.createNewDiv('', '', ['column-val-wrapper'], [{ style: "display", value: "flex" }, { style: "font-family", value: "monospace" }]);
+            if (leftWidth == 0) {
+                // create span of 100% with the value
+                let span = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "center" }, { style: "display", value: "block" }, { style: "width", value: "100%" }], value);
+                valueWrapper.appendChild(span);
+            }
+            else {
+                let left = value.split(".")[0];
+                let right = value.split(".")[1];
+                // create left span with leftWidth
+                let spanLeft = GM.HF.createNewSpan('', '', ['column-val'], [{ style: "text-align", value: "end" }, { style: "width", value: leftWidth + "ch" }], left);
+                // create right span width 100% - leftWidth
+                let spanDecimal = GM.HF.createNewSpan('', '', ['column-val'], [], ".");
+                let spanRight = GM.HF.createNewSpan('', '', ['column-val'], [], right);
+                valueWrapper.appendChild(spanLeft);
+                valueWrapper.appendChild(spanDecimal);
+                valueWrapper.appendChild(spanRight);
+            }
+    
+            //console.log(valueWrapper);
+            return valueWrapper;
+        },*//*
     });
 });*/
         //resultData = { columns: columns, tabledata: tableData };
@@ -1222,6 +1232,12 @@ data.map((val) => {
         GM.ENV.toggleNodeColor(moduleData.moduleKey, processed);
         GM.MM.toggleHeaderColor(moduleData.moduleKey, processed);
     }
+
+
+
+    //******************************************************************************************************/
+    //********************************************* CHART MODULE *******************************************/
+    //******************************************************************************************************/
 
     /** Sets a chart moduleData from source moduleData
      * @param {moduleKey} moduleKey of the table module
@@ -1238,7 +1254,7 @@ data.map((val) => {
         if (fromSourceData) {
             // get columnHeaders
             var chartAxisData = GM.IM.getChartAxisData(remoteData, fromSourceData);
-
+            
             // set moduleData for this table module
             var data = {
                 moduleKey: data.moduleKey,
@@ -1267,7 +1283,8 @@ data.map((val) => {
         // Organize the chartData for Echart
         var chartData = GM.OM.prepChartData(key, moduleData.datasetType, moduleData.chartTitle, moduleData.traceData, moduleData.sourceData);
         var processed = GM.OM.storeChartData(key, chartData, div, module.getData('chartType'), module.getData('coordinateSystem'));
-        if (processed) {
+        if (processed)
+        {
             GM.OM.drawChart(key, div, GM.PM.getPopupWidth(key), GM.PM.getPopupHeight(key));
             if (!GM.PM.isPopupOpen(key)) this.#openModulePopup(key, 0, 0);
         }
@@ -1323,6 +1340,22 @@ data.map((val) => {
 
     }*/
 
+    //******************************************************************************************************/
+    //********************************************** ORBIT MODULE ******************************************/
+    //******************************************************************************************************/
+
+    // sets planet orbits on creation of orbit module
+    #getPlanetOrbitsDataEvent() {
+        if (invalidVariables([], 'HUB', '#messageForWorkerManager (Get Planet Orbits Event)')) return;
+        const workerId = this.#getNewWorkerIndex();
+        this.#prepWorker(workerId)
+            .getPlanetOrbits(workerId);
+    }
+    // sets object orbits on creation of orbit module
+    #getObjectOrbitsDataEvent() {
+        if (invalidVariables([], 'HUB', '#messageForInputManager (Get Object Orbits Event)')) return;
+        GM.IM.getObjectOrbits();
+    }
 
     /** Sets a orbit moduleData from source moduleData
      * @param {moduleKey} moduleKey of the table module
@@ -1330,22 +1363,33 @@ data.map((val) => {
      * */
     #prepOrbitDataEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceModuleData, 'sourceModuleData', 'object')], 'HUB', '#messageForOutputManager (Prep Orbit Data Event)')) return;
-        console.log(data);
 
-        GM.IM.getOrbitalPlotData(data.moduleKey, data.sourceModuleData.remote, data.sourceModuleData.sourceData);
-        //console.log(orbitPlotData);
-
-        var processed = false;
-        var remoteData = data.sourceModuleData.remoteData;
-        var fromDatasetType = data.sourceModuleData.datasetType;
-        var fromSourceData = data.sourceModuleData.sourceData;
-        console.log(fromSourceData);
-
-        if (fromSourceData) {
-            // get columnHeaders
-            var chartAxisData = GM.IM.getChartAxisData(remoteData, fromSourceData);
-        }
+        GM.IM.prepOrbitModuleData(data.moduleKey, data.sourceModuleData.remoteData, data.sourceModuleData.sourceData);
     }
+
+    #setNewOrbitEvent(data) {
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForOutputManager (Set New Orbit Event)')) return;
+        const key = data.moduleKey;
+        const module = GM.MM.getModule(key);
+        let processed = module.getData('processed');
+        if (!processed) {
+            let moduleData = module.getData('moduleData');
+            let div = module.getData('orbitDiv');
+            console.log(GM.PM.getPopupWidth(key));
+
+            console.log(moduleData);
+            let orbitData = GM.OM.prepOrbitData(data.objectsToRender, moduleData.sourceData, data.orbitsToRender);
+            processed = GM.OM.storeOrbitData(key, orbitData, div);
+            if (processed) {
+                GM.OM.drawOrbit(key, div, GM.PM.getPopupWidth(key), GM.PM.getPopupHeight(key));
+                module.addData('processed', true);
+            }
+        }
+        // toggle module color and inspector/popup header color
+        this.#toggleModuleColorEvent(key, processed);
+        if (!GM.PM.isPopupOpen(key)) this.#openModulePopup(key, 0, 0);
+    }
+
 
     //******************************************************************************************************/
     //***************************************** OBJECT IMAGES MODULE ***************************************/
@@ -1360,21 +1404,24 @@ data.map((val) => {
         const moduleData = data.sourceModuleData;
         const remote = moduleData.remoteData;
 
-        console.log(data);
-        // get object name from the search module input
-        GM.IM.prepObjectImagesModuleData(remote, key, data.sourceModuleKey);
+        if (remote) {
+            // get object name from the search module input
+            GM.IM.prepObjectImagesModuleData(key, data.sourceModuleKey);
 
+        }
+        else {
+            // same as remote... just add the object type-ahead field to the csv module & set moduleData
+
+
+        }
+        
     }
 
     async #setNewImagesEvent(data) {
         if (!data.imagePopupExists) {
             // get path of the images to render
             const imagePaths = await GM.OM.getObjectImagePaths(data.objectToRender);
-            console.log(imagePaths);
-
-            console.log(data);
-            // moduleData of an objectImages = moduleKey, objectName, imageDates, imagesToRender
-
+            //console.log(imagePaths);
 
             const imageModuleData = {
                 moduleKey: data.moduleKey,
@@ -1384,53 +1431,29 @@ data.map((val) => {
                     imagesToRender: imagePaths.imagesToRender,
                 },
                 toggleModuleColor: true,
-            };
+            }
 
             this.#setModuleDataEvent(imageModuleData);
+
 
             // Render images in popup body (and date dropdown)
             const module = GM.MM.getModule(data.moduleKey);
             const moduleData = module.getData('moduleData');
             module.renderObjectImages(data.moduleKey, moduleData);
-
-
-/*
-            const fromDatasetType = data.sourceModuleData;
-            const fromDatasetType = data.sourceModuleData;
-
-            const imageModuleData = {
-                moduleKey: data.moduleKey,
-                moduleData: {
-
-                    datasetType: fromDatasetType,
-                    sourceData: fromSourceData,
-                    chartAxisData: chartAxisData,
-                },
-                toggleModuleColor: true,
-            };*/
-
-            
-
         }
-        else {
-            // else show error
-        }
-
-        
 
         if (!GM.PM.isPopupOpen(data.moduleKey)) this.#openModulePopup(data.moduleKey, 0, 0);
     }
 
 
-    /** --- PUBLIC ---
-     * At application start, server is pinged to get routes and available objects.
+    /** --- PUBLIC ---     * At application start, server is pinged to get routes and available objects.
      */
     makeInitialContactWithServer() {
         //this.#getRoutes();
         //this.#getObjects();
         this.#getSavedModules();
     }
-
+    
     /** --- PRIVATE --- 
      * Opens a new popup linked to a specific module.
      * @param {Number} key module key
@@ -1451,7 +1474,7 @@ data.map((val) => {
         // add delay to show the loading screen for minimum 0.5sec?
 
         // look for popup wrapper
-
+        
         // resize to update width and height of the popup accordingly
 
     }
@@ -1469,7 +1492,7 @@ data.map((val) => {
             .setStopWorkerFunction(workerIndex)
             .setHandleReturnFunction(workerIndex, callbackFunction)
             .setWorkerMessageHandler(workerIndex)*/
-        //.requestMetadata(workerIndex, moduleName);
+            //.requestMetadata(workerIndex, moduleName);
     }
 
     /** --- PRIVATE ---
@@ -1539,5 +1562,5 @@ data.map((val) => {
     run = () => {
         let m = GM.ENV.getModel();
         GM.PLM.validatePipeline(GM.MM.getModulesForPipeline(m));
-    };
+    }
 }

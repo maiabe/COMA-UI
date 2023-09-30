@@ -476,38 +476,6 @@ export class InspectorCard {
         });
     }
 
-    addCSVObjectFieldFunction(moduleKey, objectInputField) {
-        const fieldWrapper = objectInputField.closest(`#objects-dropdown-wrapper-${moduleKey}`);
-        var resultContainer = objectInputField.nextElementSibling;
-        // Close the suggestions container when clicking outside
-        document.addEventListener('click', event => {
-            if (!event.target.closest('.typeahead-result-container') && !event.target.closest('.typeahead-input')) {
-                resultContainer.style.display = 'none';
-            }
-        });
-        // add eventListener for object field typeahead function
-        objectInputField.addEventListener('input', event => {
-            const inputValue = event.target.value.trim();
-            if (inputValue === '') {
-                // If the input is empty, hide the suggestions container
-                resultContainer.style.display = 'none';
-            } else {
-                // Fetch suggestions from the API and update the suggestions container
-                //const suggestions = await fetchSuggestions(inputValue);
-                //updateSuggestions(suggestions);
-                const message = new Message(WORKER_MANAGER, INSPECTOR_CARD, 'Get Remote Objects Suggestions',
-                    {
-                        moduleKey: moduleKey,
-                        dirName: "objects",
-                        fieldWrapperId: fieldWrapper.getAttribute('id'),
-                        term: inputValue,
-                        delay: 1500,
-                    });
-                this.sendMessage(message);
-            }
-        });
-    }
-
     #handleRemoteSearchField(moduleKey, fieldObject, fieldElement) {
         const fieldWrapper = fieldElement.closest('.field-input-wrapper');
 

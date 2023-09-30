@@ -42,7 +42,8 @@ export class ObjectImages extends Output {
 
 
     prepInspectorCardData(toModuleKey, fromModuleData, fromKey) {
-        this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Prep Object Images Event', { moduleKey: toModuleKey, sourceModuleData: fromModuleData, sourceModuleKey: fromKey }));
+        console.log(fromModuleData);
+        this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Prep Object Images Event', { moduleKey: toModuleKey, sourceModuleData: fromModuleData, sourceModuleKey: fromKey}));
     }
 
     /** --- PUBLIC ---  rename to createInspectorCardContent() ?
