@@ -271,7 +271,7 @@ export class InputManager {
         let dom = document.querySelector(`#Inspector-card-${fromKey} #search-form-${fromKey} #objects-${fromKey} input`);
         if (!remote) {
             dom = document.getElementById(`csv-objects-input-${fromKey}`);
-            }
+        }
 
         const objectName = dom.value;
 

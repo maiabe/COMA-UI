@@ -1404,16 +1404,18 @@ export default class Hub {
         const moduleData = data.sourceModuleData;
         const remote = moduleData.remoteData;
 
-        if (remote) {
+        console.log(moduleData);
+
+        //if (remote) {
             // get object name from the search module input
             GM.IM.prepObjectImagesModuleData(remote, key, data.sourceModuleKey);
 
-        }
+        /*}
         else {
             // same as remote... just add the object type-ahead field to the csv module & set moduleData
 
 
-        }
+        }*/
         
     }
 
