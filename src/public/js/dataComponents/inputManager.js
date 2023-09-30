@@ -177,7 +177,7 @@ export class InputManager {
         var yAxisData = { axis: 'yaxis', fields: [] };
         var errorData = { axis: 'error', fields: [] };
         columnHeaders.forEach(columnHeader => {
-            if (remoteData) {
+            /*if (remoteData) {
                 if (columnHeader.hasOwnProperty('data')) {
                     var columnHeaderY = columnHeader.data;
                     columnHeaderY.forEach(header => {
@@ -198,7 +198,7 @@ export class InputManager {
                 }
             }
             // local csv data
-            else {
+            else {*/
                 if (columnHeader.fieldName.includes('error') || columnHeader.fieldName.includes('err')) {
                     errorData['fields'].push(columnHeader);
                 }
@@ -206,7 +206,7 @@ export class InputManager {
                     xAxisData['fields'].push(columnHeader);
                     yAxisData['fields'].push(columnHeader);
                 }
-            }
+            //}
         });
         chartAxisData.push(xAxisData);
         chartAxisData.push(yAxisData);
