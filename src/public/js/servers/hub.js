@@ -518,7 +518,7 @@ export default class Hub {
     #readFileEvent(data) {
         if (invalidVariables([varTest(data.fileType, 'fileType', 'string'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Read File Event)')) return;
         // validateFile function and sets moduleData
-        GM.IM.readFile(data.moduleKey, data.fileId, data.fileType);
+        GM.IM.readFile(data.moduleKey, data.fileId, data.fileType, data.object);
     }
 
     #setModuleDataEvent(data) {
@@ -1335,7 +1335,7 @@ export default class Hub {
         GM.IM.getOrbitalPlotData(data.moduleKey, data.sourceModuleData.remote, data.sourceModuleData.sourceData);
         //console.log(orbitPlotData);
 
-/*        var processed = false;
+        var processed = false;
         var remoteData = data.sourceModuleData.remoteData;
         var fromDatasetType = data.sourceModuleData.datasetType;
         var fromSourceData = data.sourceModuleData.sourceData;
@@ -1344,9 +1344,34 @@ export default class Hub {
         if (fromSourceData) {
             // get columnHeaders
             var chartAxisData = GM.IM.getChartAxisData(remoteData, fromSourceData);
+        }
+    }
 
-            // set moduleData for this table module
-            var data = {
+    //******************************************************************************************************/
+    //***************************************** OBJECT IMAGES MODULE ***************************************/
+    //******************************************************************************************************/
+
+    /**
+     * Prepare Object Images data to get corresponding object name of the image to render
+     * */
+    #prepObjectImagesEvent(data) {
+        const key = data.moduleKey;
+        const module = GM.MM.getModule(key);
+        const moduleData = data.sourceModuleData;
+        const remote = moduleData.remoteData;
+
+        // get object name from the search module input
+        GM.IM.prepObjectImagesModuleData(remote, key, data.sourceModuleKey);
+
+    }
+
+    async #setNewImagesEvent(data) {
+        if (!data.imagePopupExists) {
+            // get path of the images to render
+            const imagePaths = await GM.OM.getObjectImagePaths(data.objectToRender);
+            //console.log(imagePaths);
+
+            const imageModuleData = {
                 moduleKey: data.moduleKey,
                 moduleData: {
 
@@ -1357,9 +1382,19 @@ export default class Hub {
                 toggleModuleColor: true,
             };
             processed = this.#setModuleDataEvent(data);
-        }*/
-        // else show error
+        }
+        else {
+            // else show error
+        }
 
+        this.#setModuleDataEvent(imageModuleData);
+
+        // Render images in popup body (and date dropdown)
+        const module = GM.MM.getModule(data.moduleKey);
+        const moduleData = module.getData('moduleData');
+        module.renderObjectImages(data.moduleKey, moduleData);
+
+        if (!GM.PM.isPopupOpen(data.moduleKey)) this.#openModulePopup(data.moduleKey, 0, 0);
     }
 
 

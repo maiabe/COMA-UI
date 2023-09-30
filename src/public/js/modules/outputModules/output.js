@@ -182,6 +182,17 @@ export class OrbitalPlot extends Output {
         this.setPopupContent();
     }
 
+    #addPlotDiv () {
+        this.addData('orbitDiv', this.popupContentMaker.addPlotDiv(this.getData('key')));
+
+        const plotDiv = this.getData('orbitDiv');
+        let popupContent = plotDiv.closest('.popup-content');
+        popupContent.style.margin = 'none';
+        popupContent.style.width = '100%';
+
+        /*var popupContent = this.getData('popupContent');
+        popupContent.classList.add('plot-popup');*/
+    }
     /** --- PUBLIC ---
      * Creates the HTML content to be inserted into the Popup in the DOM. */
     setPopupContent = () => {

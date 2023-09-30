@@ -313,19 +313,38 @@ export class InspectorCardMaker {
     createCSVModuleInspectorCard(callback, moduleKey) {
         const contentWrapper = this.HF.createNewDiv('', '', ['wrapper', 'csv-inspector-wrapper'], []);
         const datasetTypeWrapper = this.HF.createNewDiv('', '', ['wrapper', 'dataset-type-wrapper'], []);
+        const objectsDropdownWrapper = this.HF.createNewDiv(`objects-dropdown-wrapper-${moduleKey}`, '', ['wrapper', 'objects-dropdown-wrapper'], []);
         const uploadWrapper = this.HF.createNewDiv('', '', ['wrapper', 'upload-wrapper'], []);
 
         contentWrapper.appendChild(datasetTypeWrapper);
+        contentWrapper.appendChild(objectsDropdownWrapper);
         contentWrapper.appendChild(uploadWrapper);
         this.inspectorCard.appendToBody(contentWrapper);
+        this.dataTable.set(`CSVInspectorCard_${moduleKey}`, contentWrapper);
 
+        // Create DatasetType dropdown
         const options = DatasetTypes.map(ds => { return ds.type });
         options.push('other');
-        var datasetTypeLabel = this.HF.createNewLabel('', '', '', ['dataset-type-label'], [], 'Dataset Type: ');
-        var datasetTypeDropdown = this.HF.createNewSelect('', '', ['dataset-type-dropdown'], [], options, options);
+        const datasetTypeLabel = this.HF.createNewLabel('', '', '', ['dataset-type-label'], [], 'Dataset Type: ');
+        const datasetTypeDropdown = this.HF.createNewSelect('', '', ['dataset-type-dropdown'], [], options, options);
         datasetTypeWrapper.appendChild(datasetTypeLabel);
         datasetTypeWrapper.appendChild(datasetTypeDropdown);
 
+        // Create objects dropdown field
+        const objectLabelDiv = this.HF.createNewDiv('', '', ['object-label-wrapper'], []);
+        const objectLabel = this.HF.createNewLabel('', '', `csv-objects-input-${moduleKey}`, ['objects-label'], [], 'Objects: ');
+        objectLabelDiv.appendChild(objectLabel);
+        objectsDropdownWrapper.appendChild(objectLabelDiv);
+
+        const objectInputDiv = this.HF.createNewDiv('', '', ['object-input-wrapper'], []);
+        let textInput = this.HF.createNewTextInput(`csv-objects-input-${moduleKey}`, 'objects', ['typeahead-input', 'objects-input'], [{ style: 'border', value: 'inset' }], 'text', '');
+        textInput.setAttribute('remote', true);
+        const resultContainer = this.HF.createNewDiv('', '', ['typeahead-result-container'], [{ style: 'display', value: "none" }]);
+        objectInputDiv.appendChild(textInput);
+        objectInputDiv.appendChild(resultContainer);
+        objectsDropdownWrapper.appendChild(objectInputDiv);
+
+        // Create CSV load component
         const upload = this.HF.createNewFileInput(`upload_csv-${moduleKey}`, 'upload_csv', [], [], 'file', false);
         uploadWrapper.appendChild(upload);
 
@@ -339,12 +358,21 @@ export class InspectorCardMaker {
                 //elementId: inspectorId,
                 moduleKey: moduleKey,
                 fileType: 'csv',
+                object: textInput.value,
             });
             this.sendMessage(message);
         });
 
         // Expand the size of the inspector card
         this.inspectorCard.maximizeCard();
+    }
+
+    addCSVObjectsFieldFunction(moduleKey) {
+        const csvInspectorWrapper = this.getField(`CSVInspectorCard_${moduleKey}`);
+        const objectInputField = csvInspectorWrapper.querySelector(`#csv-objects-input-${moduleKey}`);
+
+        this.inspectorCard.addCSVObjectFieldFunction(moduleKey, objectInputField);
+        //this.inspectorCard.maximizeCard();
     }
 
     /** --- PUBLIC ---
@@ -771,7 +799,49 @@ export class InspectorCardMaker {
 
         // add generate orbit button onclick event listener
 
+        generateOrbitButton.addEventListener(e => {
+            const data = {
+            
+            }
 
+            // send message
+            const message = new Message(OUTPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Set New Orbit Event', data);
+            this.sendMessage(message);
+        });
+
+    }
+
+    updateImageModuleInspectorCard(moduleKey, moduleData) {
+        var contentWrapper = this.HF.createNewDiv('', '', ['object-images-inspector-wrapper'], []);
+        this.inspectorCard.appendToBody(contentWrapper);
+
+        var object = this.inspectorCard.addRenderedObjectsList([moduleData.objectName]);
+        contentWrapper.appendChild(object);
+
+        var generateImagesButton = this.HF.createNewButton(`generate-images-button-${moduleKey}`, '', ['generate-images-button', 'button'], [], 'button', 'Generate Images', false);
+        contentWrapper.appendChild(generateImagesButton);
+
+        // add generate orbit button onclick event listener
+        generateImagesButton.addEventListener('click', (e) => {
+            console.log(moduleData);
+
+            let imagePopupContent = document.querySelector(`#popup-${moduleKey} .popup-content`);
+            const imagePopupExists = imagePopupContent.firstChild ? true : false;
+            //console.log(imagePopupExists);
+
+            var data = {
+                moduleKey: moduleKey,
+                //objectsData: moduleData.sourceData,
+                //eclipticData: moduleData.eclipticData,
+                objectToRender: moduleData.objectName,
+                imagePopupExists: imagePopupExists
+            }
+
+            // send message
+            const message = new Message(OUTPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Set New Images Event', data);
+            this.sendMessage(message);
+            
+        });
     }
 
 

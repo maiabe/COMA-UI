@@ -72,6 +72,7 @@ export class Csv extends Source {
         //this.addData('metadata', metadata);
 
         this.inspectorCardMaker.createCSVModuleInspectorCard(this.handleFiles.bind(this), this.getData('key'));
+        this.inspectorCardMaker.addCSVObjectsFieldFunction(this.getData('key'));
 
         //this.inspectorCardMaker.addSearchFormFields(metadata)
         // --> Add Date Range Field Min Max = date picker? (too many dates can be chosen from, slider may not be very useful)
