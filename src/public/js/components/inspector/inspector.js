@@ -94,8 +94,7 @@ export class Inspector {
         var success = false;
         try {
             // moduleKey, result
-            const fieldWrapper = document.querySelector(`#search-form-${moduleKey} #${fieldWrapperId}`);
-            var resultContainer = fieldWrapper.querySelector('.typeahead-result-container');
+            const fieldWrapper = document.getElementById(fieldWrapperId);            var resultContainer = fieldWrapper.querySelector('.typeahead-result-container');
             resultContainer.innerHTML = '';
             // get responseContainer
             resultContainer.style.display = 'block';

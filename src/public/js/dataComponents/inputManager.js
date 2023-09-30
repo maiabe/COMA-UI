@@ -16,14 +16,14 @@ export class InputManager {
     };
 
     // sets moduleData for CSV module
-    readFile = (moduleKey, fileId, fileType) => {
+    readFile = (moduleKey, fileId, fileType, object) => {
         var valid = this.#validateFileType(moduleKey, fileId, fileType);
         if (valid) {
             // Set moduleData (columnHeaders)
             //this.#csvReader.getColumns(moduleKey, this.setModuleDataCB);
             // TODO: set columnHeaders as: [{ fieldName: 'name', dataType: 'value' }, ...] .. 
             //          or for nested data, [{ fieldName: 'name', data: [{ fieldName: 'name', dataType: 'category' }, ...] }, ...]
-            this.#csvReader.getFileData(moduleKey, fileId, this.setModuleDataCB);
+            this.#csvReader.getFileData(moduleKey, fileId, object, this.setModuleDataCB);
         } else {
             console.log('File type expected does not match. Expected file type:' + fileType);
         }
@@ -266,8 +266,13 @@ export class InputManager {
     }
 
 
-    prepObjectImagesModuleData(moduleKey, fromKey) {
-        const dom = document.querySelector(`#Inspector-card-${fromKey} #search-form-${fromKey} #objects-${fromKey} input`);
+    prepObjectImagesModuleData(remote, moduleKey, fromKey) {
+        //const dom = document.querySelector(`#Inspector-card-${fromKey} #search-form-${fromKey} #objects-${fromKey} input`);
+        let dom = document.querySelector(`#Inspector-card-${fromKey} #search-form-${fromKey} #objects-${fromKey} input`);
+        if (!remote) {
+            dom = document.getElementById(`csv-objects-input-${fromKey}`);
+            }
+
         const objectName = dom.value;
 
         const data = {

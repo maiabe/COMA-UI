@@ -1406,7 +1406,7 @@ export default class Hub {
 
         if (remote) {
             // get object name from the search module input
-            GM.IM.prepObjectImagesModuleData(key, data.sourceModuleKey);
+            GM.IM.prepObjectImagesModuleData(remote, key, data.sourceModuleKey);
 
         }
         else {
