@@ -18,10 +18,11 @@ export class DomManager {
 
     #initializeLogo() {
         const elementDiv = this.HF.createNewDiv('', '', ['nav-content-wrapper'], []);
-        const element = this.HF.createNewIMG('logo', 'logo', '../../../images/logo/COMA-LOGO-NEW.png', ['logo'], [], 'COMA logo');
+        const leftNavDiv = this.HF.createNewDiv('', '', ['left-nav-wrapper', 'nav-content'], []);
+        const logoIMG = this.HF.createNewIMG('logo', 'logo', '../../../images/logo/COMA-LOGO-NEW.png', ['logo'], [], 'COMA logo');
         //const element = this.HF.createNewIMG('logo', 'logo', '../../../images/logo/COMA_LOGO_T.png', ['logo'], [], 'COMA logo');
-
-        elementDiv.appendChild(element);
+        leftNavDiv.appendChild(logoIMG);
+        elementDiv.appendChild(leftNavDiv);
         this.#domTable.get('navBarDiv').appendChild(elementDiv);
 
         return elementDiv;
