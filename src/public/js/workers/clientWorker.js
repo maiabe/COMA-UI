@@ -143,7 +143,8 @@ function handleDatabaseQueryReturn(data, response) {
         queryEntries: data.queryEntries,
         columnsToRender: data.columnsToRender,
         status: response.status,
-        sourceData: sourceData
+        sourceData: sourceData,
+        comet_orbit: response.comet_orbit,
     };
     postMessage(moduleData);
 }
@@ -334,6 +335,7 @@ async function getRemoteObjectsSuggestions(msg) {
  * */
 async function queryDatabase(e) {
     const url_searchfield = coma_api + e.data.queryType + '/' + formatQuery(e.data.queryEntries);
+    //console.log(e.data.queryEntries);
 
     try {
         //var response = undefined;

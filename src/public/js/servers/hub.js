@@ -602,6 +602,7 @@ export default class Hub {
                     status: data.status,
                     datasetType: data.datasetType,
                     sourceData: data.sourceData,
+                    cometOrbit: data.comet_orbit,
                 },
                 toggleModuleColor: true,
             };
@@ -1363,8 +1364,8 @@ export default class Hub {
      * */
     #prepOrbitDataEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceModuleData, 'sourceModuleData', 'object')], 'HUB', '#messageForOutputManager (Prep Orbit Data Event)')) return;
-
-        GM.IM.prepOrbitModuleData(data.moduleKey, data.sourceModuleData.remoteData, data.sourceModuleData.sourceData);
+        console.log(data.sourceModuleData);
+        GM.IM.prepOrbitModuleData(data.moduleKey, data.sourceModuleData.remoteData, data.sourceModuleData.sourceData, data.sourceModuleData.cometOrbit);
     }
 
     #setNewOrbitEvent(data) {

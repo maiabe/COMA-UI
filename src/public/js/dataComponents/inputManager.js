@@ -218,7 +218,7 @@ export class InputManager {
     /**
      * Prepare Orbit Module Data to get object and planet names to render and set its moduleData
      * */
-    prepOrbitModuleData(moduleKey, remote, sourceData) {
+    prepOrbitModuleData(moduleKey, remote, sourceData, cometOrbit) {
         // get objectNames & planetNames
         const objectNames = ['C/2017 K2'];
         const planetOrbits = JSON.parse(localStorage.getItem('Planet Orbits'));
@@ -237,8 +237,9 @@ export class InputManager {
             moduleKey: moduleKey,
             moduleData: {
                 sourceData: sourceData,
+                cometOrbit: cometOrbit,
                 objectNames: objectNames,
-                planetNames: planetNames, 
+                planetNames: planetNames,
             },
             toggleModuleColor: false,
         }

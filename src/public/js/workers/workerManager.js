@@ -137,6 +137,7 @@ export class WorkerManager {
                         const moduleData = event.data;
                         moduleData["moduleKey"] = workerObject.returnMessage.moduleKey;
                         moduleData["sourceData"] = event.data.sourceData;
+                        //moduleData["cometOrbit"] = event.data.comet_orbit;
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, moduleData));
                         workerObject.stopWorkerFunction(id);
                         break;

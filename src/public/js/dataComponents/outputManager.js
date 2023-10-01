@@ -8,7 +8,7 @@ import { Publisher, Message } from '../communication/index.js';
 import { ChartBuilder, CsvWriter, OrbitBuilder } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
 //import { getNumDigits } from '../sharedletiables/formatValues.js';
-import { getNumDigits, orbitColors } from '../sharedvariables/index.js';
+import { getNumDigits, orbitColors } from '../sharedVariables/index.js';
 //import { directoryPath } from '../../../images/fits_demo/Object_Images/'
 
 export class OutputManager {
@@ -361,6 +361,9 @@ export class OutputManager {
             // skip the rows with mag = 99
             if (Number(sd['mag']) !== 99) {
                 //console.log(sd['mag']);
+                if (fieldName == 'mag_err') {
+                    console.log(value);
+                }
                 return value;
             }
 
@@ -491,6 +494,9 @@ export class OutputManager {
     #getObjectOrbits(objectsToRender) {
         // call 'get-object-orbits'
         const objectOrbits = JSON.parse(localStorage.getItem('Object Orbits'));
+        // get comet_orbit here
+
+
         console.log(objectOrbits);
         let result = [];
         objectsToRender.forEach(orbit => {
