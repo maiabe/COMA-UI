@@ -358,7 +358,12 @@ export class OutputManager {
                 value = Number(Number(value).toFixed(digits));
             }
 
-            return value;
+            // skip the rows with mag = 99
+            if (Number(sd['mag']) !== 99) {
+                //console.log(sd['mag']);
+                return value;
+            }
+
         });
 
         return result;
