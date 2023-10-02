@@ -601,7 +601,6 @@ export default class Hub {
         const rjson = await response.json();
         console.log(rjson);
         const objectName = rjson.object.ui_name;
-        console.log(objectName);
 
         if (data.status === 'success') {
             const moduleData = {

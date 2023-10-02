@@ -71,7 +71,6 @@ export class OutputManager {
             }
             // otherwise set the key to activeChartMap
             else {
-                console.log(cd.data);
                 this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(cd.data, cd.type, div, width, height, cd.framework, cd.theme, cd.coordinateSystem) });
             }
         }
@@ -331,7 +330,7 @@ export class OutputManager {
             trace['data'] = result;
 
             if (trace.error && trace.error !== 'none') {
-                let errorData = this.#buildEChartsErrorSourceData(trace, trace.error, sourceData, chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
+                let errorData = this.#buildEChartsErrorSourceData(trace, sourceData, chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
                 trace['errorData'] = errorData;
             }
         });
@@ -382,20 +381,23 @@ export class OutputManager {
         return result;
     }
 
-    #buildEChartsErrorSourceData(trace, errorName, sourceData, xData, yData) {
+    #buildEChartsErrorSourceData(trace, sourceData, xData, yData) {
+
         let result = sourceData.map((sd, i) => {
-            let value = sd[errorName];
+            let errorVal = sd[trace.error];
             if (trace.fieldGroup !== 'undefined') {
                 value = sd[trace.fieldGroup];
             }
+
             let xvalue = xData[i];
             let yvalue = yData[i];
 
             let errorDigits = getNumDigits(trace.error);
             // round to the default number of digits if no default set it to 3 digits
-            let lowerVal = yvalue - Number(value[trace.error]);
+
+            let lowerVal = yvalue - errorVal;
             lowerVal = lowerVal.toFixed(errorDigits);
-            let higherVal = yvalue + Number(value[trace.error]);
+            let higherVal = yvalue + errorVal;
             higherVal = higherVal.toFixed(errorDigits);
 
             return [Number(xvalue), Number(lowerVal), Number(higherVal)];
@@ -499,7 +501,6 @@ export class OutputManager {
         const objectOrbits = cometOrbits.comet_orbit.replace(/'/g, '"').replace('True', 'true').replace('False', 'false');
         const objectOrbitsJson = JSON.parse(objectOrbits);
 
-        let result = [];
         /*objectsToRender.forEach(orbit => {
             const exists = Object.keys(objectOrbits[0]).some(name => name.includes(orbit));
             // if the object we are rendering exists in the localStorage data of Object Orbits, return vectors
@@ -522,6 +523,7 @@ export class OutputManager {
         const xvec = objectOrbitsJson['X-VEC'];
         const yvec = objectOrbitsJson['Y-VEC'];
         const zvec = objectOrbitsJson['Z-VEC'];
+        console.log(objectOrbitsJson);
         const vectors = objectOrbitsJson['MJD-VEC'].map((mjd, i) => {
             return { x: xvec[i], y: yvec[i], z: zvec[i] };
         });
