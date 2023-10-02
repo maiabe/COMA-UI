@@ -794,6 +794,8 @@ export class InspectorCardMaker {
         var contentWrapper = this.HF.createNewDiv('', '', ['orbit-inspector-wrapper'], []);
         this.inspectorCard.appendToBody(contentWrapper);
 
+        console.log(moduleData);
+
         // objectNames
         var objectList = this.inspectorCard.addRenderedObjectsList(moduleData.objectNames);
         contentWrapper.appendChild(objectList);

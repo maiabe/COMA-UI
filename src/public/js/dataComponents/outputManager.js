@@ -444,7 +444,7 @@ export class OutputManager {
      * 
      * 
      * */
-    prepOrbitData(objectsToRender, objectsData, orbitsToRender) {
+    prepOrbitData(objectsToRender, objectsData, orbitsToRender, objectOrbits) {
         let orbitData = {};
         console.log(objectsData);
         // Get object data points
@@ -452,7 +452,7 @@ export class OutputManager {
         orbitData['object_datapoints'] = objectVectors;
 
         // Get object orbits
-        let objectOrbitVectors = this.#getObjectOrbits(objectsToRender);
+        let objectOrbitVectors = this.#getObjectOrbits(objectsToRender, objectOrbits);
         orbitData['object_orbits'] = objectOrbitVectors;
         console.log(objectOrbitVectors);
 
@@ -491,15 +491,16 @@ export class OutputManager {
         return result;
     }
 
-    #getObjectOrbits(objectsToRender) {
+
+    #getObjectOrbits(objectName, cometOrbits) {
         // call 'get-object-orbits'
-        const objectOrbits = JSON.parse(localStorage.getItem('Object Orbits'));
+        //const objectOrbits = JSON.parse(localStorage.getItem('Object Orbits'));
         // get comet_orbit here
+        const objectOrbits = cometOrbits.comet_orbit.replace(/'/g, '"').replace('True', 'true').replace('False', 'false');
+        const objectOrbitsJson = JSON.parse(objectOrbits);
 
-
-        console.log(objectOrbits);
         let result = [];
-        objectsToRender.forEach(orbit => {
+        /*objectsToRender.forEach(orbit => {
             const exists = Object.keys(objectOrbits[0]).some(name => name.includes(orbit));
             // if the object we are rendering exists in the localStorage data of Object Orbits, return vectors
             if (exists) {
@@ -515,8 +516,19 @@ export class OutputManager {
                 orbitVectors['vectors'] = vectors;
                 result.push(orbitVectors);
             }
+        });*/
+        let orbitVectors = { name: objectName, color: "#C9C9C9" };
+
+        const xvec = objectOrbitsJson['X-VEC'];
+        const yvec = objectOrbitsJson['Y-VEC'];
+        const zvec = objectOrbitsJson['Z-VEC'];
+        const vectors = objectOrbitsJson['MJD-VEC'].map((mjd, i) => {
+            return { x: xvec[i], y: yvec[i], z: zvec[i] };
         });
-        return result;
+        orbitVectors['vectors'] = vectors;
+        console.log(orbitVectors);
+
+        return [orbitVectors];
     }
 
     #getPlanetOrbits(orbitsToRender) {

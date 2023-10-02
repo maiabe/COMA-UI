@@ -195,6 +195,9 @@ export class OrbitBuilder {
             //this.#addGuiElement(this.#LayersIndex, el.name, el.color, objectLayers, objectGui, camera);
         });
 
+        console.log(object_datapoints);
+        console.log(object_orbits);
+
         object_orbits.forEach((el) => {
             this.#plotWholePath(el.vectors, el.color, group);
             this.#addGuiElement(this.#LayersIndex, el.name, el.color, objectLayers, objectGui, camera);

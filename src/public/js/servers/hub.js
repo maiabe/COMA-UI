@@ -590,12 +590,21 @@ export default class Hub {
      *  @param {number} data.moduleKey
      *  @param {Object} data.val query entries and search taskResult data
      * */
-    #setSearchResultContent(data) {
+    async #setSearchResultContent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.status, 'status', 'string'), varTest(data.queryType, 'queryType', 'string'), varTest(data.queryEntries, 'queryEntries', 'object'), varTest(data.sourceData, 'sourceData', 'object')], 'HUB', '#messageForInputManager (Set Search Result Content)')) return;
-        var processed = false;
-        console.log(data);
+        let processed = false;
+        // get objectname here (from WM)
+
+        const objectFetchURL = 'http://coma.ifa.hawaii.edu:8000/api/v1/objects/' + data.queryEntries.objects;
+
+        const response = await fetch(objectFetchURL);
+        const rjson = await response.json();
+        console.log(rjson);
+        const objectName = rjson.object.ui_name;
+        console.log(objectName);
+
         if (data.status === 'success') {
-            var moduleData = {
+            const moduleData = {
                 moduleKey: data.moduleKey,
                 moduleData: {
                     remoteData: data.remoteData,
@@ -603,12 +612,13 @@ export default class Hub {
                     datasetType: data.datasetType,
                     sourceData: data.sourceData,
                     cometOrbit: data.comet_orbit,
+                    objectName: objectName,
                 },
                 toggleModuleColor: true,
             };
             processed = this.#setModuleDataEvent(moduleData);
 
-            var moduleName = GM.MM.getModule(data.moduleKey).getData('name').toLowerCase();
+            const moduleName = GM.MM.getModule(data.moduleKey).getData('name').toLowerCase();
             // update module popup content
             GM.MM.updatePopupContent(data.moduleKey, moduleName, data);
 
@@ -1364,8 +1374,8 @@ export default class Hub {
      * */
     #prepOrbitDataEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceModuleData, 'sourceModuleData', 'object')], 'HUB', '#messageForOutputManager (Prep Orbit Data Event)')) return;
-        console.log(data.sourceModuleData);
-        GM.IM.prepOrbitModuleData(data.moduleKey, data.sourceModuleData.remoteData, data.sourceModuleData.sourceData, data.sourceModuleData.cometOrbit);
+        GM.IM.prepOrbitModuleData(data.moduleKey, data.sourceModuleData.remoteData,
+            data.sourceModuleData.objectName, data.sourceModuleData.sourceData, data.sourceModuleData.cometOrbit);
     }
 
     #setNewOrbitEvent(data) {
@@ -1377,9 +1387,9 @@ export default class Hub {
             let moduleData = module.getData('moduleData');
             let div = module.getData('orbitDiv');
             console.log(GM.PM.getPopupWidth(key));
-
             console.log(moduleData);
-            let orbitData = GM.OM.prepOrbitData(data.objectsToRender, moduleData.sourceData, data.orbitsToRender);
+
+            let orbitData = GM.OM.prepOrbitData(data.objectsToRender, moduleData.sourceData, data.orbitsToRender, moduleData.cometOrbit);
             processed = GM.OM.storeOrbitData(key, orbitData, div);
             if (processed) {
                 GM.OM.drawOrbit(key, div, GM.PM.getPopupWidth(key), GM.PM.getPopupHeight(key));

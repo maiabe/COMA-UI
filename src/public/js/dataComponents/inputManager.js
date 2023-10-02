@@ -218,9 +218,16 @@ export class InputManager {
     /**
      * Prepare Orbit Module Data to get object and planet names to render and set its moduleData
      * */
-    prepOrbitModuleData(moduleKey, remote, sourceData, cometOrbit) {
-        // get objectNames & planetNames
-        const objectNames = ['C/2017 K2'];
+    async prepOrbitModuleData(moduleKey, remote, objectName, sourceData, cometOrbit) {
+        // Get objectNames & planetNames
+        /*const objectFetchURL = 'http://coma.ifa.hawaii.edu:8000/api/v1/objects/' + objectID;
+
+        const response = await fetch(objectFetchURL);
+        const rjson = await response.json();
+        console.log(rjson);
+        const objectName = rjson.object.ui_name;*/
+        //console.log(objectName);
+
         const planetOrbits = JSON.parse(localStorage.getItem('Planet Orbits'));
         console.log(planetOrbits);
         let planetNames = Object.keys(planetOrbits[0])
@@ -238,7 +245,7 @@ export class InputManager {
             moduleData: {
                 sourceData: sourceData,
                 cometOrbit: cometOrbit,
-                objectNames: objectNames,
+                objectNames: [objectName],
                 planetNames: planetNames,
             },
             toggleModuleColor: false,
@@ -262,9 +269,15 @@ export class InputManager {
         //}
     }
 
+    // just one object for now
+    getObjectName(objectID) {
+        const msg = new Message(MODULE_MANAGER, INPUT_MANAGER, 'Set Module Data Event', objectID);
+        this.publisher.publishMessage(msg);
+    }
+/*
     getObjectOrbits() {
         this.#csvReader.getObjectOrbits();
-    }
+    }*/
 
 
     prepObjectImagesModuleData(remote, moduleKey, fromKey) {

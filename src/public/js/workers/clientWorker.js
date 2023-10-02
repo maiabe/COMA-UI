@@ -17,6 +17,7 @@ onMessageTable.set('Query COMA Engine', queryDatabase);
 onMessageTable.set('Get Remote Dropdown Options', getRemoteDropdownOptions);
 onMessageTable.set('Get Remote Objects Suggestions', getRemoteObjectsSuggestions);
 onMessageTable.set('Get Planet Orbits', getPlanetOrbits);
+onMessageTable.set('Get Object Name', getObjectName);
 
 onmessage = e => onMessageTable.get(e.data.type)(e);
 
@@ -457,4 +458,10 @@ async function getPlanetOrbits() {
         .catch(error => {
             console.error(error);
         });
+}
+
+async function getObjectName(objectID) {
+    const url = coma_api + 'objects/' + objectID;
+    console.log(url);
+    return url;
 }

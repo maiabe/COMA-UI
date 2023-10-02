@@ -350,6 +350,20 @@ export class WorkerManager {
         }
     }
 
+    getObjectName(workerId, objectID) {
+        if (this.#workers.has(workerId)) {
+            /*const entries = {};
+            if (data.formdata) {
+                data.formdata.forEach((value, key) => { entries[key] = value });
+            }*/
+            this.#workers.get(workerId).worker.postMessage(
+                {
+                    type: 'Get Object Name',
+                    objectID: objectID
+                });
+        }
+    }
+
     getRemoteDropdownOptions(workerId, data) {
         // call clientworker to query the database
         if (this.#workers.has(workerId)) {
