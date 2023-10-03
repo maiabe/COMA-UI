@@ -201,9 +201,10 @@ export class ChartBuilder {
                 top: '5%',
             },
             grid: {
-                height: '65%',
+                height: '67%',
                 top: '15%',
                 bottom: '18%',
+                left: '12%',
                 //bottom: '30%'
             },
             toolbox: {
@@ -221,11 +222,12 @@ export class ChartBuilder {
                     type: 'shadow'
                 }
             },
-            dataZoom: {
+            dataZoom: [],
+            /*dataZoom: {
                 type: 'slider',
                 bottom: '3%',
                 height: '4%', 
-            },
+            },*/
             series: []
         };
         var chartAxis = Object.keys(data);
@@ -276,11 +278,11 @@ export class ChartBuilder {
                                 fontWeight: "bold",
                                 fontSize: 14,
                                 verticalAlign: "bottom",
-                                lineHeight: 60
+                                lineHeight: 50
                             },
                             position: t.position,
                             offset: t.offset,
-                            scale: "true",
+                            scale: 'true',
                             inverse: t.inverse,
                             minorTick: {
                                 show: t.ticks
@@ -299,6 +301,20 @@ export class ChartBuilder {
                 case "series":
                     trace.forEach(t => {
                         console.log(t);
+                        echartData['dataZoom'].push({
+                            type: 'slider',
+                            xAxisIndex: t.xAxisIndex,
+                            bottom: '4%',
+                            height: '20px',
+                        });
+                        echartData['dataZoom'].push({
+                            type: 'slider',
+                            yAxisIndex: t.yAxisIndex,
+                            /*bottom: '2%',
+                            height: '90%',*/
+                            left: '3%',
+                            width: '20px',
+                        });
                         echartData[axis].push({
                             type: type,
                             name: t.labelName,
@@ -322,8 +338,8 @@ export class ChartBuilder {
                                 },
                                 renderItem: function (params, api) {
                                     var xValue = api.value(0);
-                                    var highPoint = api.coord([xValue, api.value(1)]);
-                                    var lowPoint = api.coord([xValue, api.value(2)]);
+                                    var lowPoint = api.coord([xValue, api.value(1)]);
+                                    var highPoint = api.coord([xValue, api.value(2)]);
                                     var halfWidth = api.size([1, 0])[0] * 0.3;
                                     var style = api.style({
                                         stroke: api.visual('color'),
@@ -384,6 +400,8 @@ export class ChartBuilder {
                                 data: t.errorData,
                                 z: 100
                             };
+                            console.log(t.errorData);
+
                             echartData['series'].push(errorData);
                         }
                     });

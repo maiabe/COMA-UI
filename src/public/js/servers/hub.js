@@ -629,7 +629,7 @@ export default class Hub {
             // update module popup with error screen
         }
         
-        if (!GM.PM.isPopupOpen(data.moduleKey)) this.#openModulePopup(data.moduleKey, 0, 0);
+        //if (!GM.PM.isPopupOpen(data.moduleKey)) this.#openModulePopup(data.moduleKey, 0, 0);
     }
 
     /*
@@ -1259,6 +1259,7 @@ export default class Hub {
         var remoteData = data.sourceModuleData.remoteData;
         var fromDatasetType = data.sourceModuleData.datasetType;
         var fromSourceData = data.sourceModuleData.sourceData;
+        var fromObjectName = data.sourceModuleData.objectName;
         console.log(fromSourceData);
 
         if (fromSourceData) {
@@ -1273,6 +1274,7 @@ export default class Hub {
                     datasetType: fromDatasetType,
                     sourceData: fromSourceData,
                     chartAxisData: chartAxisData,
+                    objectName: fromObjectName,
                 },
                 toggleModuleColor: true,
             };

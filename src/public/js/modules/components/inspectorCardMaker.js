@@ -625,6 +625,7 @@ export class InspectorCardMaker {
     updateChartModuleInspectorCard(moduleKey, moduleData) {
         const chartAxisData = moduleData.chartAxisData;
         const datasetType = moduleData.datasetType;
+        console.log(moduleData);
 
         var contentWrapper = this.HF.createNewDiv('', '', ['chart-inspector-wrapper'], [{ style: 'padding', value: '4%' }]);
         this.inspectorCard.appendToBody(contentWrapper);
@@ -632,7 +633,7 @@ export class InspectorCardMaker {
         //-- Add Chart Title
         var chartTitleWrapper = this.HF.createNewDiv('', '', ['chart-title-wrapper'], [{ style: "width", value: "100%" }]);
         var chartTitleLabel = this.HF.createNewLabel('', '', `chart-title-${moduleKey}`, ['chart-title-label'], [], 'Chart Title: ');
-        var chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', datasetType)
+        var chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', moduleData.objectName)
         chartTitleWrapper.appendChild(chartTitleLabel);
         chartTitleWrapper.appendChild(chartTitleInput);
         contentWrapper.appendChild(chartTitleWrapper);

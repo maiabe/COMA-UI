@@ -201,7 +201,7 @@ export class SeriesCard {
         body.appendChild(datapointSymbolsDDWrapper);
 
         //-- Create data point Size range input (0 - 50)
-        let datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'trace-card-element'], [], 'Symbol Size: ', 0, 100, 1, 10);
+        let datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'trace-card-element'], [], 'Symbol Size: ', 0, 100, 1, 5);
         body.appendChild(datapointSizeRange);
 
 

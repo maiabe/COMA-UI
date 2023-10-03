@@ -174,7 +174,7 @@ const SearchFields = {
                     options: [{ Value: '--- None ---', Key: -1 }],
                 },
                 { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2010-01-01' },
-                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2022-06-27' },
+                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2023-10-08' },
                 /*{
                     remote: false,
                     labelName: "Object Type", fieldName: "objectType", type: 'dropdown',

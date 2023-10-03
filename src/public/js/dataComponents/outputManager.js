@@ -330,8 +330,9 @@ export class OutputManager {
             trace['data'] = result;
 
             if (trace.error && trace.error !== 'none') {
-                let errorData = this.#buildEChartsErrorSourceData(trace, sourceData, chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
-                trace['errorData'] = errorData;
+                let errorObj = this.#buildEChartsErrorSourceData(trace, sourceData, chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
+                trace['errorData'] = errorObj.errorArray;
+                trace['errorVal'] = errorObj.errorVal;
             }
         });
 
@@ -382,8 +383,8 @@ export class OutputManager {
     }
 
     #buildEChartsErrorSourceData(trace, sourceData, xData, yData) {
-
-        let result = sourceData.map((sd, i) => {
+        let data = [];
+        let errorArray = sourceData.map((sd, i) => {
             let errorVal = sd[trace.error];
             if (trace.fieldGroup !== 'undefined') {
                 value = sd[trace.fieldGroup];
@@ -400,10 +401,10 @@ export class OutputManager {
             let higherVal = yvalue + errorVal;
             higherVal = higherVal.toFixed(errorDigits);
 
+            data.push([xvalue, errorVal]);
             return [Number(xvalue), Number(lowerVal), Number(higherVal)];
-            
         });
-        return result;
+        return errorArray;
     }
 
 
@@ -498,8 +499,6 @@ export class OutputManager {
         // call 'get-object-orbits'
         //const objectOrbits = JSON.parse(localStorage.getItem('Object Orbits'));
         // get comet_orbit here
-        const objectOrbits = cometOrbits.comet_orbit.replace(/'/g, '"').replace('True', 'true').replace('False', 'false');
-        const objectOrbitsJson = JSON.parse(objectOrbits);
 
         /*objectsToRender.forEach(orbit => {
             const exists = Object.keys(objectOrbits[0]).some(name => name.includes(orbit));
@@ -520,15 +519,23 @@ export class OutputManager {
         });*/
         let orbitVectors = { name: objectName, color: "#C9C9C9" };
 
-        const xvec = objectOrbitsJson['X-VEC'];
-        const yvec = objectOrbitsJson['Y-VEC'];
-        const zvec = objectOrbitsJson['Z-VEC'];
-        console.log(objectOrbitsJson);
-        const vectors = objectOrbitsJson['MJD-VEC'].map((mjd, i) => {
-            return { x: xvec[i], y: yvec[i], z: zvec[i] };
-        });
-        orbitVectors['vectors'] = vectors;
-        console.log(orbitVectors);
+        if (cometOrbits) {
+            const objectOrbits = cometOrbits.comet_orbit.replace(/'/g, '"').replace('True', 'true').replace('False', 'false');
+            const objectOrbitsJson = JSON.parse(objectOrbits);
+
+            const xvec = objectOrbitsJson['X-VEC'];
+            const yvec = objectOrbitsJson['Y-VEC'];
+            const zvec = objectOrbitsJson['Z-VEC'];
+            console.log(objectOrbitsJson);
+            const vectors = objectOrbitsJson['MJD-VEC'].map((mjd, i) => {
+                return { x: xvec[i], y: yvec[i], z: zvec[i] };
+            });
+            orbitVectors['vectors'] = vectors;
+            console.log(orbitVectors);
+        }
+        else {
+            orbitVectors['vectors'] = [];
+        }
 
         return [orbitVectors];
     }

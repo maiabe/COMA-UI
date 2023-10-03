@@ -173,7 +173,7 @@ export class OrbitalPlot extends Output {
 
     #addPlotDiv () {
         this.addData('orbitDiv', this.popupContentMaker.addPlotDiv(this.getData('key')));
-
+        this.popupContentMaker.getPopupContentWrapper().style.margin = 0;
         /*var popupContent = this.getData('popupContent');
         popupContent.classList.add('plot-popup');*/
     }
