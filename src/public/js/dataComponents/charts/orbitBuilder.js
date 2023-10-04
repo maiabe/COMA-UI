@@ -154,7 +154,25 @@ export class OrbitBuilder {
         const group = new THREE.Group();
         scene.add(group);
 
-        const camera = new THREE.PerspectiveCamera(
+        console.log(div.width);
+        console.log(width);
+
+        const camera =
+            new THREE.OrthographicCamera(
+            width / -2, // left
+            width / 2, // right
+            height / 2, // top
+            height / - 2, // bottom
+            0.1, 10000000000); // near & far clipping plane
+
+        scene.add(camera);
+        camera.position.set(0, 3, 1);
+        camera.up.set(0, 0, 1);
+        camera.lookAt(0, 0, 0);
+        camera.layers.enableAll();
+
+
+        /*const camera = new THREE.PerspectiveCamera(
             75, // fov
             width / height,
             0.1, // near clipping plane
@@ -163,7 +181,7 @@ export class OrbitBuilder {
         camera.position.set(0, 5, 1);
         camera.up.set(0, 0, 1);
         camera.lookAt(0, 0, 0);
-        camera.layers.enableAll();
+        camera.layers.enableAll();*/
 
         // create legendDOM
         /*const legendDiv = this.#HF.createNewDiv('', '', ['orbit-legend'],
