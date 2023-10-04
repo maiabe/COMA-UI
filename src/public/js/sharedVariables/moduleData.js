@@ -113,7 +113,7 @@ const DatasetTypes = [
 const DefaultAxis = [
     {
         datasetType: "Photometry",
-        xAxis: { displayName: "MJD", fieldName: "mjd_mid", dataType: 'value' },
+        xAxis: { displayName: "ISO date", fieldName: "iso_date_mid", dataType: 'value' },
         yAxis: { displayName: "magnitude", fieldName: "mag", dataType: 'value', error: "mag_err", xAxisFieldName: "mjd_mid" }
     }
 ];

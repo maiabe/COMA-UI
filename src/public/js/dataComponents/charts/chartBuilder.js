@@ -201,8 +201,8 @@ export class ChartBuilder {
                 top: '5%',
             },
             grid: {
-                height: '67%',
-                top: '15%',
+                height: '66%',
+                top: '11%',
                 bottom: '18%',
                 left: '12%',
                 //bottom: '30%'
@@ -216,11 +216,17 @@ export class ChartBuilder {
                 right: '5%',
                 z: 2,
             },
+            /*tooltip: {
+                show: true,
+            },*/
             tooltip: {
                 trigger: 'axis',
                 axisPointer: {
-                    type: 'shadow'
-                }
+                    type: 'cross'
+                },
+                show: true,
+                //color: 'black'
+                //backgroundColor: 'rgba(255, 255, 255, 0.8)',
             },
             dataZoom: [],
             /*dataZoom: {
@@ -236,6 +242,7 @@ export class ChartBuilder {
             echartData[axis] = [];
             switch (axis) {
                 case "xAxis":
+                    console.log(trace);
                     trace.forEach(t => {
                         echartData[axis].push({
                             type: t.dataType,
@@ -248,6 +255,28 @@ export class ChartBuilder {
                             },
                             position: t.position,
                             offset: t.offset,
+                            axisLabel: {
+                                formatter: function (value) {
+                                    // Parse the datetime string to a Date object
+                                    const date = new Date(value);
+
+                                    // Extract the year and month components
+                                    const year = date.getFullYear();
+                                    let month = date.getMonth();
+                                    //let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is zero-based
+                                    const monthString = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+
+                                    // Format the label to display year and month
+                                    return year + '-' + monthString[month - 1];
+                                },
+                            },
+                            axisPointer: {
+                                label: {
+                                    show: true,
+                                    color: 'black',
+                                    //backgroundColor: '#333333'
+                                },
+                            },
                             data: t.data,
                             scale: 'true',
                             inverse: t.inverse,
@@ -255,13 +284,13 @@ export class ChartBuilder {
                                 show: t.ticks
                             },
                             splitLine: {
-                                show: (t.dataType === 'value') ? t.majorGridLines : false,
+                                show: t.majorGridLines,
                                 lineStyle: { type: 'solid' },
                             },
                             minorSplitLine: {
                                 show: t.minorGridLines,
                                 lineStyle: { type: 'dashed', opacity: 0.3, }
-                            }
+                            },
                         });
                     });
                     if (trace.length > 1) {
@@ -282,19 +311,26 @@ export class ChartBuilder {
                             },
                             position: t.position,
                             offset: t.offset,
+                            axisPointer: {
+                                label: {
+                                    show: true,
+                                    color: 'black',
+                                    //backgroundColor: '#333333'
+                                },
+                            },
                             scale: 'true',
                             inverse: t.inverse,
                             minorTick: {
                                 show: t.ticks
                             },
                             splitLine: {
-                                show: (t.dataType === 'value') ? t.majorGridLines : false,
+                                show: t.majorGridLines,
                                 lineStyle: { type: 'solid' },
                             },
                             minorSplitLine: {
                                 show: t.minorGridLines,
                                 lineStyle: { type: 'dashed', opacity: 0.3, }
-                            }
+                            },
                         });
                     });
                     break;
@@ -312,7 +348,7 @@ export class ChartBuilder {
                             yAxisIndex: t.yAxisIndex,
                             /*bottom: '2%',
                             height: '90%',*/
-                            left: '3%',
+                            left: '2%',
                             width: '20px',
                         });
                         echartData[axis].push({
@@ -325,8 +361,25 @@ export class ChartBuilder {
                             symbolSize: t.symbolSize,
                             itemStyle: {
                                 /*color: 'red',*/
+                            },
+                            tooltip: {
+                                trigger: 'axis',
+                                formatter: function (params) {
+                                    var seriesName = params[0].seriesName; // Get the series name
+                                    //var dataIndex = params[0].dataIndex; // Get the index of the data point
+                                    //var data = params[0].data; // Get the entire data array for the point
+
+                                    var data = params.value[params.encode.y[0]];
+
+
+                                    return [
+                                        //'Name: ' + seriesName + '<hr size=1 style="margin: 3px 0">',
+                                        'Y-datapoint: ' + data + '<br/>',
+                                    ].join('');
+                                }
                             }
                         });
+                        console.log(t.data);
                         // add error if any
                         if (t.errorData) {
                             var errorData =
@@ -398,7 +451,16 @@ export class ChartBuilder {
                                     y: [1, 2]
                                 },
                                 data: t.errorData,
-                                z: 100
+                                z: 100,
+                                /*tooltip: {
+                                    formatter: function (param) {
+                                      const errorVal = param;
+                                      return [
+                                        *//*'errorVal: ' + param.name + '<hr size=1 style="margin: 3px 0">',*//*
+                                        'error: ' + errorVal.data[3] + '<br/>',
+                                      ].join('');
+                                    }
+                                }*/
                             };
                             console.log(t.errorData);
 

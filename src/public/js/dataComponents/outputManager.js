@@ -326,13 +326,14 @@ export class OutputManager {
 
             let xi = trace.xAxisIndex;
             let yi = trace.yAxisIndex;
-            let result = this.#buildEChartsSeriesSourceData(chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
+            let result = this.#buildEChartsSeriesSourceData(chartData['xAxis'][xi].data, chartData['yAxis'][yi].data, trace.error);
             trace['data'] = result;
 
             if (trace.error && trace.error !== 'none') {
                 let errorObj = this.#buildEChartsErrorSourceData(trace, sourceData, chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
-                trace['errorData'] = errorObj.errorArray;
-                trace['errorVal'] = errorObj.errorVal;
+
+                //let errorObj = this.#buildEChartsErrorSourceData(trace, sourceData);
+                trace['errorData'] = errorObj;
             }
         });
 
@@ -343,8 +344,8 @@ export class OutputManager {
     }
 
     #buildEChartsAxisSourceData(trace, fieldName, sourceData) {
-        console.log(fieldName);
-        console.log(trace);
+        //console.log(fieldName);
+        //console.log(trace);
 
         let result = sourceData.map((sd, i) => {
             let value = sd[fieldName];
@@ -372,14 +373,33 @@ export class OutputManager {
         return result;
     }
 
-    #buildEChartsSeriesSourceData(xData, yData) {
+    #buildEChartsSeriesSourceData(xData, yData, error) {
+        //console.log(error);
+
         let result = undefined;
         if (xData && yData) {
             result = xData.map((xd, i) => {
+                if (error) {
+                    // get error value 
+                }
                 return [xd, yData[i]];
             });
         }
         return result;
+    }
+
+
+    ///////////////////// NEW 10/4/23
+    #buildEChartsErrorData(trace, sourceData) {
+        let errorArray = sourceData.map((sd, i) => {
+            let errorVal = sd[trace.error];
+            if (trace.fieldGroup !== 'undefined') {
+                value = sd[trace.fieldGroup];
+            }
+            let errorDigits = getNumDigits(trace.error);
+            return errorVal.toFixed(errorDigits);
+        });
+        return errorArray;
     }
 
     #buildEChartsErrorSourceData(trace, sourceData, xData, yData) {
@@ -402,7 +422,7 @@ export class OutputManager {
             higherVal = higherVal.toFixed(errorDigits);
 
             data.push([xvalue, errorVal]);
-            return [Number(xvalue), Number(lowerVal), Number(higherVal)];
+            return [Number(xvalue), Number(lowerVal), Number(higherVal), errorVal];
         });
         return errorArray;
     }
@@ -600,8 +620,9 @@ export class OutputManager {
             //console.log(name);
             const objRegex = /(\w+)_/;
             const object = name.match(objRegex);
-            //console.log(object[1]);
+            
 
+            //console.log(object);
             // check if the object name passed on is the same as the current object name
             if (objectName === object[1]) {
                 const dateRegex = /(\d{4}-\d{2}-\d{2})/;

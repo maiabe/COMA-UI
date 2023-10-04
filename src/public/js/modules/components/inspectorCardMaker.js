@@ -633,7 +633,7 @@ export class InspectorCardMaker {
         //-- Add Chart Title
         var chartTitleWrapper = this.HF.createNewDiv('', '', ['chart-title-wrapper'], [{ style: "width", value: "100%" }]);
         var chartTitleLabel = this.HF.createNewLabel('', '', `chart-title-${moduleKey}`, ['chart-title-label'], [], 'Chart Title: ');
-        var chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', moduleData.objectName)
+        var chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', moduleData.objectName);
         chartTitleWrapper.appendChild(chartTitleLabel);
         chartTitleWrapper.appendChild(chartTitleInput);
         contentWrapper.appendChild(chartTitleWrapper);
@@ -675,27 +675,31 @@ export class InspectorCardMaker {
         generateChartButton.addEventListener('click', (e) => {
             // get current trace card information
             const inspectorCard = e.target.closest('.inspector-card-body');
+            console.log(inspectorCard);
+
             const chartTitle = inspectorCard.querySelector('.chart-title');
             const axisCards = inspectorCard.querySelectorAll('.axis-card-wrapper');
             // foreach axisCards
             var traceData = {};
             axisCards.forEach(axisCard => {
-                var axis = axisCard.getAttribute('id');
-                var traceArea = axisCard.querySelector('.trace-area');
-                var traceCards = traceArea.querySelectorAll('.trace-card-wrapper');
+                const axis = axisCard.getAttribute('id');
+                const traceArea = axisCard.querySelector('.trace-area');
+                const traceCards = traceArea.querySelectorAll('.trace-card-wrapper');
                 traceData[axis] = [];
                 traceCards.forEach(traceCard => {
-                    var fieldName = traceCard.getAttribute('id');
-                    var dataType = traceCard.querySelector('.data-type');
-                    var fieldGroup = traceCard.querySelector('.field-group');
-                    var labelName = traceCard.querySelector('.label-input');
-                    var position = traceCard.querySelector('.position-options-dropdown');
-                    var offset = traceCard.querySelector('.offset-option-wrapper .text-input');
-                    var majorGridLines = traceCard.querySelector('.major-gridlines');
-                    var minorGridLines = traceCard.querySelector('.minor-gridlines');
-                    var ticks = traceCard.querySelector('.minor-ticks');
-                    var inverse = traceCard.querySelector('.inverse');
-                    var traceCardContent = {
+                    //console.log(traceCard.querySelector('.major-gridlines').checked);
+
+                    const fieldName = traceCard.getAttribute('id');
+                    const dataType = traceCard.querySelector('.data-type');
+                    const fieldGroup = traceCard.querySelector('.field-group');
+                    const labelName = traceCard.querySelector('.label-input');
+                    const position = traceCard.querySelector('.position-options-dropdown');
+                    const offset = traceCard.querySelector('.offset-option-wrapper .text-input');
+                    const majorGridLines = traceCard.querySelector('.major-gridlines');
+                    const minorGridLines = traceCard.querySelector('.minor-gridlines');
+                    const ticks = traceCard.querySelector('.minor-ticks');
+                    const inverse = traceCard.querySelector('.inverse');
+                    const traceCardContent = {
                         fieldName: fieldName,
                         dataType: dataType.value,
                         fieldGroup: fieldGroup.value,
