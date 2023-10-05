@@ -297,7 +297,7 @@ export class OutputManager {
     // ----------------------------------------- Chart Data Preparation -----------------------------------------
     /*********************************************** Mai 7/13/23 *******************************************************/
     /** --- PUBLIC ---
-     * Prepares the data for echarts and stores it in the traceData to be passed to chartBuilder
+     * Stores additional data to traceData, which is passed to chartBuilder.
      * @param {number} moduleKey key of the module is also a key to the outputMap table. 
      * @param {object} traceData data from the chart's inspector card. (e.g { fieldName: "date", labelName: "Date", gridLines: true, ticks: false  })
      * @param {object} sourceData unfiltered source data from the previous module (list of key-value objects)
@@ -308,7 +308,7 @@ export class OutputManager {
         let chartData = traceData;
         console.log(traceData);
 
-        // Build axis echartData
+        // build eChartsData
         let axisNames = ['xAxis', 'yAxis'];
         axisNames.forEach(axis => {
             chartData[axis].forEach(trace => {
@@ -326,15 +326,9 @@ export class OutputManager {
 
             let xi = trace.xAxisIndex;
             let yi = trace.yAxisIndex;
-            let result = this.#buildEChartsSeriesSourceData(chartData['xAxis'][xi].data, chartData['yAxis'][yi].data, trace.error);
+            let errorData = this.#buildEChartsErrorData(trace, sourceData);
+            let result = this.#buildEChartsSeriesSourceData(chartData['xAxis'][xi].data, chartData['yAxis'][yi].data, errorData);
             trace['data'] = result;
-
-            if (trace.error && trace.error !== 'none') {
-                let errorObj = this.#buildEChartsErrorSourceData(trace, sourceData, chartData['xAxis'][xi].data, chartData['yAxis'][yi].data);
-
-                //let errorObj = this.#buildEChartsErrorSourceData(trace, sourceData);
-                trace['errorData'] = errorObj;
-            }
         });
 
         chartData['chartTitle'] = chartTitle;
@@ -353,7 +347,6 @@ export class OutputManager {
                 let obj = sd[trace.fieldGroup];
                 value = obj[fieldName]; // value = value[trace.fieldGroup]
             }
-            /*console.log(value);*/
             if (trace.dataType === 'value') {
                 let digits = getNumDigits(fieldName);
                 value = Number(Number(value).toFixed(digits));
@@ -361,7 +354,6 @@ export class OutputManager {
 
             // skip the rows with mag = 99
             if (Number(sd['mag']) !== 99) {
-                //console.log(sd['mag']);
                 if (fieldName == 'mag_err') {
                     console.log(value);
                 }
@@ -373,57 +365,28 @@ export class OutputManager {
         return result;
     }
 
-    #buildEChartsSeriesSourceData(xData, yData, error) {
-        //console.log(error);
-
+    #buildEChartsSeriesSourceData(xData, yData, errorData) {
         let result = undefined;
         if (xData && yData) {
             result = xData.map((xd, i) => {
-                if (error) {
-                    // get error value 
-                }
-                return [xd, yData[i]];
+                return [xd, yData[i], errorData[i]];
             });
         }
         return result;
     }
 
-
-    ///////////////////// NEW 10/4/23
     #buildEChartsErrorData(trace, sourceData) {
+        console.log(sourceData);
         let errorArray = sourceData.map((sd, i) => {
             let errorVal = sd[trace.error];
             if (trace.fieldGroup !== 'undefined') {
                 value = sd[trace.fieldGroup];
             }
             let errorDigits = getNumDigits(trace.error);
-            return errorVal.toFixed(errorDigits);
+            //return errorVal.toFixed(errorDigits);
+            return errorVal;
         });
-        return errorArray;
-    }
-
-    #buildEChartsErrorSourceData(trace, sourceData, xData, yData) {
-        let data = [];
-        let errorArray = sourceData.map((sd, i) => {
-            let errorVal = sd[trace.error];
-            if (trace.fieldGroup !== 'undefined') {
-                value = sd[trace.fieldGroup];
-            }
-
-            let xvalue = xData[i];
-            let yvalue = yData[i];
-
-            let errorDigits = getNumDigits(trace.error);
-            // round to the default number of digits if no default set it to 3 digits
-
-            let lowerVal = yvalue - errorVal;
-            lowerVal = lowerVal.toFixed(errorDigits);
-            let higherVal = yvalue + errorVal;
-            higherVal = higherVal.toFixed(errorDigits);
-
-            data.push([xvalue, errorVal]);
-            return [Number(xvalue), Number(lowerVal), Number(higherVal), errorVal];
-        });
+        console.log(errorArray);
         return errorArray;
     }
 

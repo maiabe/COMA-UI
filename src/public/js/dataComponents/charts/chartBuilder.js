@@ -189,9 +189,6 @@ export class ChartBuilder {
      * @returns object wil all settings
      */
     #generate2dCartesianOptions(data, type, coordinateSystem) {
-        /*console.log(data);
-        console.log(type);
-        console.log(coordinateSystem);*/
         console.log(data);
 
         var echartData = {
@@ -201,7 +198,7 @@ export class ChartBuilder {
                 top: '5%',
             },
             grid: {
-                height: '66%',
+                height: '68%',
                 top: '11%',
                 bottom: '18%',
                 left: '12%',
@@ -216,24 +213,38 @@ export class ChartBuilder {
                 right: '5%',
                 z: 2,
             },
-            /*tooltip: {
-                show: true,
-            },*/
             tooltip: {
                 trigger: 'axis',
                 axisPointer: {
                     type: 'cross'
                 },
-                show: true,
+                formatter: function (param) {
+                    const result = [];
+                    const seriesName = param[0].seriesName; // Get the series name
+                    const seriesColor = param[0].color;
+                    var dataIndex = param[0].dataIndex; // Get the index of the data point
+                    const data = param[0].data; // Get the entire data array for the point
+
+
+                    const xAxis = data[0] + '<hr size=1 style="margin: 3px 0">';
+                    const color = `<span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:${seriesColor}; margin-right:5px;"></span>`;
+                    const seriesVal = `${seriesName}: ` + data[1] + '<br/>';
+                    const errorVal = `error: ` + data[2] + '<br/>';
+
+                    //result.push(dataIndex);
+                    result.push(xAxis);
+                    result.push(color);
+                    result.push(seriesVal);
+                    if (data[2]) {
+                        result.push(errorVal);
+                    }
+
+                    return result.join('');
+                },
                 //color: 'black'
-                //backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
             },
             dataZoom: [],
-            /*dataZoom: {
-                type: 'slider',
-                bottom: '3%',
-                height: '4%', 
-            },*/
             series: []
         };
         var chartAxis = Object.keys(data);
@@ -242,7 +253,6 @@ export class ChartBuilder {
             echartData[axis] = [];
             switch (axis) {
                 case "xAxis":
-                    console.log(trace);
                     trace.forEach(t => {
                         echartData[axis].push({
                             type: t.dataType,
@@ -273,9 +283,7 @@ export class ChartBuilder {
                             axisPointer: {
                                 label: {
                                     show: true,
-                                    color: 'black',
-                                    //backgroundColor: '#333333'
-                                },
+                                    color: 'black',                              },
                             },
                             data: t.data,
                             scale: 'true',
@@ -294,7 +302,7 @@ export class ChartBuilder {
                         });
                     });
                     if (trace.length > 1) {
-                        echartData['grid'].top = '20%';
+                        echartData['grid'].top = '15%';
                     }
                     break;
                 case "yAxis":
@@ -315,7 +323,6 @@ export class ChartBuilder {
                                 label: {
                                     show: true,
                                     color: 'black',
-                                    //backgroundColor: '#333333'
                                 },
                             },
                             scale: 'true',
@@ -346,8 +353,6 @@ export class ChartBuilder {
                         echartData['dataZoom'].push({
                             type: 'slider',
                             yAxisIndex: t.yAxisIndex,
-                            /*bottom: '2%',
-                            height: '90%',*/
                             left: '2%',
                             width: '20px',
                         });
@@ -359,30 +364,12 @@ export class ChartBuilder {
                             yAxisIndex: t.yAxisIndex,
                             symbol: t.symbol,
                             symbolSize: t.symbolSize,
-                            itemStyle: {
-                                /*color: 'red',*/
-                            },
-                            tooltip: {
-                                trigger: 'axis',
-                                formatter: function (params) {
-                                    var seriesName = params[0].seriesName; // Get the series name
-                                    //var dataIndex = params[0].dataIndex; // Get the index of the data point
-                                    //var data = params[0].data; // Get the entire data array for the point
-
-                                    var data = params.value[params.encode.y[0]];
-
-
-                                    return [
-                                        //'Name: ' + seriesName + '<hr size=1 style="margin: 3px 0">',
-                                        'Y-datapoint: ' + data + '<br/>',
-                                    ].join('');
-                                }
-                            }
+                            // add seriesColor
                         });
-                        console.log(t.data);
-                        // add error if any
-                        if (t.errorData) {
-                            var errorData =
+
+                        // draw error bar if any
+                        if (t.error) {
+                            const errorData =
                             {
                                 type: 'custom',
                                 name: 'error',
@@ -390,11 +377,16 @@ export class ChartBuilder {
                                     borderWidth: 1.5
                                 },
                                 renderItem: function (params, api) {
-                                    var xValue = api.value(0);
-                                    var lowPoint = api.coord([xValue, api.value(1)]);
-                                    var highPoint = api.coord([xValue, api.value(2)]);
-                                    var halfWidth = api.size([1, 0])[0] * 0.3;
-                                    var style = api.style({
+                                    const xValue = api.value(0);
+
+                                    const lowPos = api.value(1) - api.value(2);
+                                    const highPos = api.value(1) + api.value(2);
+                                    const lowPoint = api.coord([xValue, lowPos]);
+                                    const highPoint = api.coord([xValue, highPos]);
+
+                                    const halfWidth = api.size([1, 0])[0] * 0.05;
+
+                                    api.style({
                                         stroke: api.visual('color'),
                                         fill: undefined
                                     });
@@ -448,154 +440,23 @@ export class ChartBuilder {
                                 },
                                 encode: {
                                     x: 0,
-                                    y: [1, 2]
+                                    y: 1
                                 },
-                                data: t.errorData,
-                                z: 100,
-                                /*tooltip: {
-                                    formatter: function (param) {
-                                      const errorVal = param;
-                                      return [
-                                        *//*'errorVal: ' + param.name + '<hr size=1 style="margin: 3px 0">',*//*
-                                        'error: ' + errorVal.data[3] + '<br/>',
-                                      ].join('');
-                                    }
-                                }*/
+                                data: t.data,
+                                z: 100
                             };
-                            console.log(t.errorData);
 
                             echartData['series'].push(errorData);
                         }
                     });
                     break;
-                        /*var seriesData = { type: type, name: t.labelName, data: t.data, xAxisIndex: 0 };
-                        echartData['series'].push(seriesData);
-                        // if there are any errorData, include error bars
-                        if (t.errorData) {
-                            var errorData =
-                            {
-                                type: 'custom',
-                                name: 'error',
-                                *//*itemStyle: {
-                                    borderWidth: 1.5
-                                },*//*
-                                renderItem: function (params, api) {
-                                    var xValue = api.value(0);
-                                    var highPoint = api.coord([xValue, api.value(1)]);
-                                    var lowPoint = api.coord([xValue, api.value(2)]);
-                                    var halfWidth = api.size([1, 0])[0] * 0.3;
-                                    *//*var style = api.style({
-                                        stroke: api.visual('color'),
-                                        fill: undefined
-                                    });*//*
-                                    return {
-                                        type: 'group',
-                                        children: [
-                                            {
-                                                type: 'line',
-                                                transition: ['shape'],
-                                                shape: {
-                                                    x1: highPoint[0] - halfWidth,
-                                                    y1: highPoint[1],
-                                                    x2: highPoint[0] + halfWidth,
-                                                    y2: highPoint[1]
-                                                },
-                                                style: {
-                                                    stroke: '#5470c6',
-                                                    lineWidth: 1,
-                                                }
-                                            },
-                                            {
-                                                type: 'line',
-                                                transition: ['shape'],
-                                                shape: {
-                                                    x1: highPoint[0],
-                                                    y1: highPoint[1],
-                                                    x2: lowPoint[0],
-                                                    y2: lowPoint[1]
-                                                },
-                                                style: {
-                                                    stroke: '#5470c6',
-                                                    lineWidth: 1,
-                                                }
-                                            },
-                                            {
-                                                type: 'line',
-                                                transition: ['shape'],
-                                                shape: {
-                                                    x1: lowPoint[0] - halfWidth,
-                                                    y1: lowPoint[1],
-                                                    x2: lowPoint[0] + halfWidth,
-                                                    y2: lowPoint[1]
-                                                },
-                                                style: {
-                                                    stroke: '#5470c6',
-                                                    lineWidth: 1,
-                                                }
-                                            }
-                                        ]
-                                    };
-                                },
-                                encode: {
-                                    x: 0,
-                                    y: [1, 2]
-                                },
-                                data: t.errorData,
-                                z: 100
-                            };
-                            echartData['series'].push(errorData);
-                        }
-                    });
-                    break;*/
                 default:
                     return false;
             }
         });
-
         console.log(echartData);
 
         return echartData;
-
-        /*return {
-            toolbox: {
-                feature: {
-                    saveAsImage: {}
-                }
-            },
-            xAxis: {
-                type: 'category',
-                scale: 'true',
-                data: data.data.x,
-                name: xAxisLabel,
-                nameLocation: 'middle',
-                nameGap: 34,
-                minorTick: {
-                    show: xAxisTick
-                },
-                minorSplitLine: {
-                    show: xAxisGrid
-                }
-            },
-            yAxis: {
-                type: 'value',
-                scale: true,
-                name: yAxisLabel,
-                nameLocation: 'middle',
-                nameGap: 34,
-                minorTick: {
-                    show: yAxisTick
-                },
-                minorSplitLine: {
-                    show: yAxisGrid
-                }
-            },
-            dataZoom: [
-                {
-                    type: 'slider',
-                }
-            ],
-            series: this.#createSeries(data, type, coordinateSystem)
-        }*/
     }
 
     /** --- PRIVATE ---
