@@ -277,13 +277,16 @@ export class ChartBuilder {
                                     const monthString = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
                                     // Format the label to display year and month
-                                    return year + '-' + monthString[month - 1];
+                                    if (!Number.isNaN(year) && monthString[month-1]) {
+                                        return year + '-' + monthString[month - 1];
+                                    }
                                 },
                             },
                             axisPointer: {
                                 label: {
                                     show: true,
-                                    color: 'black',                              },
+                                    color: 'black',
+                                },
                             },
                             data: t.data,
                             scale: 'true',
@@ -346,15 +349,18 @@ export class ChartBuilder {
                         console.log(t);
                         echartData['dataZoom'].push({
                             type: 'slider',
-                            xAxisIndex: t.xAxisIndex,
-                            bottom: '4%',
+                            xAxisIndex: [t.xAxisIndex],
+                            bottom: '5%',
                             height: '20px',
                         });
                         echartData['dataZoom'].push({
                             type: 'slider',
-                            yAxisIndex: t.yAxisIndex,
-                            left: '2%',
+                            yAxisIndex: [t.yAxisIndex],
+                            //left: '3%',
+                            //top: '100px',
+                            //bottom: '8%',
                             width: '20px',
+                            //height: '68%',
                         });
                         echartData[axis].push({
                             type: type,

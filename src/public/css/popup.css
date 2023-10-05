@@ -161,7 +161,6 @@ button.tabulator-page {
     display: flex;
     padding: 1.5% 5%;
     position: absolute;
-    z-index: 1;
 }
 
 /***************************** Orbit Popup Card ******************************/
