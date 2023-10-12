@@ -62,8 +62,11 @@
     <Content Include="src\public\images\fits_demo\Object_Images\C2019T2_2019-12-03.png" />
     <Content Include="src\public\images\fits_demo\Object_Images\C2019T2_2020-08-12.png" />
     <Content Include="src\public\images\fits_demo\Object_Images\C2019T2_2022-12-23.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2019U5_2023-01-19.png" />
     <Content Include="src\public\images\fits_demo\Object_Images\C2019U5_2020-02-27.png" />
     <Content Include="src\public\images\fits_demo\Object_Images\C2019U5_2020-11-10.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2019U5_2022-04-24.png" />
+    <Content Include="src\public\images\fits_demo\Object_Images\C2019U5_2022-05-22.png" />
     <Content Include="src\public\images\fits_demo\Object_Images\C2020S4_2020-11-11.png" />
     <Content Include="src\public\images\fits_demo\Object_Images\C2020S4_2021-09-03.png" />
     <Content Include="src\public\images\fits_demo\Object_Images\C2020S4_2022-11-27.png" />

@@ -130,12 +130,16 @@ export class InputManager {
         return columnHeaders;
     }
 
-    buildColumnHeaders(dataRow, keys, columnHeaders) {
+    buildColumnHeaders(rowData, keys, columnHeaders) {
         keys.forEach(key => {
             if (!this.excludeFieldMatched(key)) {
-                var columnVal = Number(dataRow[key]);
-                columnVal = Number.isNaN(columnVal) ? dataRow[key] : columnVal;
-                var dataType = typeof (columnVal);
+                const dataType = this.getDataType(rowData[key]);
+                //console.log(key, ": ", dataType);
+                columnHeaders.push({ fieldName: key, dataType: dataType });
+
+                //-- nested column headers
+                //columnVal = Number.isNaN(columnVal) ? dataRow[key] : columnVal;
+                /*var dataType = typeof (columnVal);
                 if (dataType !== 'object' || columnVal === null) {
                     columnHeaders.push({ fieldName: key, dataType: (dataType === 'number' || columnVal === null) ? 'value' : 'category' });
                 }
@@ -146,10 +150,28 @@ export class InputManager {
                     columnHeaders.push({ fieldName: key, data: nestedColumnHeaders });
 
                     this.buildColumnHeaders(nestedDataRow, nestedKeys, nestedColumnHeaders);
-                }
+                }*/
             }
         });
         return columnHeaders;
+    }
+
+    /** Gets the dataType of that column values
+     *  @param {inputVal} string value of the first item in a column
+     *  @returns {dataType} of the input value - value, category, or time
+     * */
+    getDataType(inputVal) {
+        let dataType = 'category';
+
+        // Check if it's a numeric value
+        if (/^[-+]?\d*\.?\d+$/.test(inputVal)) {
+            dataType = 'value';
+        }
+        // Check if it's a date or time
+        else if (Date.parse(inputVal)) {
+            dataType = "time";
+        }
+        return dataType;
     }
 
     /** Helper function to exclude all the fields with the string 'id' (just 'id') and '_id' (at the end)

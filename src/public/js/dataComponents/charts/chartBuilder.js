@@ -266,7 +266,7 @@ export class ChartBuilder {
                             position: t.position,
                             offset: t.offset,
                             axisLabel: {
-                                formatter: function (value) {
+                                /*formatter: function (value) {
                                     // Parse the datetime string to a Date object
                                     const date = new Date(value);
 
@@ -277,10 +277,10 @@ export class ChartBuilder {
                                     const monthString = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
                                     // Format the label to display year and month
-                                    if (!Number.isNaN(year) && monthString[month-1]) {
-                                        return year + '-' + monthString[month - 1];
+                                    if (!Number.isNaN(year) && monthString[month]) {
+                                        return year + '-' + monthString[month];
                                     }
-                                },
+                                },*/
                             },
                             axisPointer: {
                                 label: {
@@ -289,7 +289,7 @@ export class ChartBuilder {
                                 },
                             },
                             data: t.data,
-                            scale: 'true',
+                            //scale: 'true',
                             inverse: t.inverse,
                             minorTick: {
                                 show: t.ticks
@@ -356,7 +356,7 @@ export class ChartBuilder {
                         echartData['dataZoom'].push({
                             type: 'slider',
                             yAxisIndex: [t.yAxisIndex],
-                            //left: '3%',
+                            left: '3%',
                             //top: '100px',
                             //bottom: '8%',
                             width: '20px',

@@ -631,9 +631,10 @@ export class InspectorCardMaker {
         this.inspectorCard.appendToBody(contentWrapper);
 
         //-- Add Chart Title
+        const chartTitle = moduleData.object ? moduleData.object : datasetType;
         var chartTitleWrapper = this.HF.createNewDiv('', '', ['chart-title-wrapper'], [{ style: "width", value: "100%" }]);
         var chartTitleLabel = this.HF.createNewLabel('', '', `chart-title-${moduleKey}`, ['chart-title-label'], [], 'Chart Title: ');
-        var chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', moduleData.objectName);
+        var chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', chartTitle);
         chartTitleWrapper.appendChild(chartTitleLabel);
         chartTitleWrapper.appendChild(chartTitleInput);
         contentWrapper.appendChild(chartTitleWrapper);
@@ -687,8 +688,6 @@ export class InspectorCardMaker {
                 const traceCards = traceArea.querySelectorAll('.trace-card-wrapper');
                 traceData[axis] = [];
                 traceCards.forEach(traceCard => {
-                    //console.log(traceCard.querySelector('.major-gridlines').checked);
-
                     const fieldName = traceCard.getAttribute('id');
                     const dataType = traceCard.querySelector('.data-type');
                     const fieldGroup = traceCard.querySelector('.field-group');
