@@ -1,3 +1,4 @@
+import { getNumDigits, getDataType } from '../../sharedVariables/index.js';
 
 export class CsvReader {
     constructor() {};
@@ -83,9 +84,12 @@ export class CsvReader {
     }
 
 
-    // -- This reader will delete all column headers with empty string, and deletes all values of that column index
+    /** This reader will delete all column headers with empty string, and deletes all values of that column index
+     * 
+     * 
+     * */
     // moduleData to pass.. { datasetType, columnHeaders, sourceData }
-    getFileData = (moduleKey, fileId, object, setModuleCB) => {
+    getFileData = (moduleKey, fileId, objectName, setModuleCB) => {
         var fileInput = document.getElementById(fileId);
         var file = fileInput.files[0];
         var datasetTypeDD = fileInput.closest('.csv-inspector-wrapper').querySelector('.dataset-type-dropdown');
@@ -100,7 +104,7 @@ export class CsvReader {
                 var moduleData = {
                     remoteData: false,
                     datasetType: datasetType,
-                    objectName: object,
+                    objectName: objectName,
                     sourceData: sourceData,
                 };
                 var toggleModuleColor = moduleData.sourceData ? true : false;
@@ -126,7 +130,10 @@ export class CsvReader {
             });
     }
 
-
+    /** Parses CSV input to return as a json data with correct dataTypes for each column values
+     *  @param {string} content of the csv input
+     *  @return {JSON} sourceData of the input read
+     * */
     #parseCSV(content) {
         var sourceData = [];
         if (content) {
@@ -156,8 +163,21 @@ export class CsvReader {
                     values.forEach((val, j) => {
                         val = val.replaceAll('\"', '');
                         val = val.trim();
-                        var key = columns[j].replaceAll('\"', '');
-                        rowObj[key] = val;
+                        if (columns[j]) {
+                            var key = columns[j].replaceAll('\"', '');
+                            //-- Determine data type of each value here and store it in rowObj accordingly
+                            const dataType = getDataType(val); // returns time, value, or category dataTypes
+                            switch (dataType) {
+                                /*case 'time':
+                                    val = Date(val); // convert to iso date
+                                    break;*/
+                                case 'value':
+                                    let digits = getNumDigits(key);
+                                    val = Number(Number(val).toFixed(digits));
+                                    break;
+                            }
+                            rowObj[key] = val;
+                        }
                     });
                     sourceData.push(rowObj);
                 }
@@ -169,5 +189,7 @@ export class CsvReader {
         }
         return sourceData;
     }
+
+
 
 }

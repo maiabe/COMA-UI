@@ -1,7 +1,7 @@
 import { Message, Publisher } from '../communication/index.js';
 import { CsvReader, DataTable } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
-import { DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, MODULE_MANAGER, getNumDigits, INSPECTOR_CARD } from '../sharedVariables/index.js';
+import { DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, MODULE_MANAGER, getNumDigits, INSPECTOR_CARD, getDataType } from '../sharedVariables/index.js';
 
 export class InputManager {
 
@@ -16,14 +16,14 @@ export class InputManager {
     };
 
     // sets moduleData for CSV module
-    readFile = (moduleKey, fileId, fileType, object) => {
+    readFile = (moduleKey, fileId, fileType, objectName) => {
         var valid = this.#validateFileType(moduleKey, fileId, fileType);
         if (valid) {
             // Set moduleData (columnHeaders)
             //this.#csvReader.getColumns(moduleKey, this.setModuleDataCB);
             // TODO: set columnHeaders as: [{ fieldName: 'name', dataType: 'value' }, ...] .. 
             //          or for nested data, [{ fieldName: 'name', data: [{ fieldName: 'name', dataType: 'category' }, ...] }, ...]
-            this.#csvReader.getFileData(moduleKey, fileId, object, this.setModuleDataCB);
+            this.#csvReader.getFileData(moduleKey, fileId, objectName, this.setModuleDataCB);
         } else {
             console.log('File type expected does not match. Expected file type:' + fileType);
         }
@@ -133,7 +133,7 @@ export class InputManager {
     buildColumnHeaders(rowData, keys, columnHeaders) {
         keys.forEach(key => {
             if (!this.excludeFieldMatched(key)) {
-                const dataType = this.getDataType(rowData[key]);
+                const dataType = getDataType(rowData[key]);
                 //console.log(key, ": ", dataType);
                 columnHeaders.push({ fieldName: key, dataType: dataType });
 
@@ -160,7 +160,7 @@ export class InputManager {
      *  @param {inputVal} string value of the first item in a column
      *  @returns {dataType} of the input value - value, category, or time
      * */
-    getDataType(inputVal) {
+    /*getDataType(inputVal) {
         let dataType = 'category';
 
         // Check if it's a numeric value
@@ -172,7 +172,7 @@ export class InputManager {
             dataType = "time";
         }
         return dataType;
-    }
+    }*/
 
     /** Helper function to exclude all the fields with the string 'id' (just 'id') and '_id' (at the end)
      * @param {fieldName} fieldName to check whether to exclude as columnHeader or not

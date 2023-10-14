@@ -301,6 +301,7 @@ export class OutputManager {
      * @param {number} moduleKey key of the module is also a key to the outputMap table. 
      * @param {object} traceData data from the chart's inspector card. (e.g { fieldName: "date", labelName: "Date", gridLines: true, ticks: false  })
      * @param {object} sourceData unfiltered source data from the previous module (list of key-value objects)
+     * @returns {object} chartData { xAxis: [{ data: [], dataType: '', }], yAxis: [{ data: [], dataType: '', }], series: [{ data: [], dataType: '', }] }
      * */
     // stores source data of the field and source data type of the field to traceData
     prepChartData(moduleKey, datasetType, chartTitle, traceData, sourceData) {
@@ -326,7 +327,7 @@ export class OutputManager {
 
             let xi = trace.xAxisIndex;
             let yi = trace.yAxisIndex;
-            let errorData = this.#buildEChartsErrorData(trace, sourceData);
+            let errorData = (trace.error !== 'none') ? this.#buildEChartsErrorData(trace.error, sourceData) : undefined;
             let result = this.#buildEChartsSeriesSourceData(chartData['xAxis'][xi].data, chartData['yAxis'][yi].data, errorData);
             trace['data'] = result;
         });
@@ -352,13 +353,15 @@ export class OutputManager {
                 value = Number(Number(value).toFixed(digits));
             }
 
+            return value;
+
             // skip the rows with mag = 99
-            if (Number(sd['mag']) !== 99) {
+            /*if (Number(sd['mag']) !== 99) {
                 if (fieldName == 'mag_err') {
                     console.log(value);
                 }
                 return value;
-            }
+            }*/
 
         });
 
@@ -369,22 +372,28 @@ export class OutputManager {
         let result = undefined;
         if (xData && yData) {
             result = xData.map((xd, i) => {
-                return [xd, yData[i], errorData[i]];
+                if (errorData) {
+                    return [xd, yData[i], errorData[i]];
+                }
+                else {
+                    return [xd, yData[i]];
+                }
             });
         }
         return result;
     }
 
-    #buildEChartsErrorData(trace, sourceData) {
+    //--TODO: need to find out which errorName 
+    #buildEChartsErrorData(errorName, sourceData) {
         console.log(sourceData);
         let errorArray = sourceData.map((sd, i) => {
-            let errorVal = sd[trace.error];
-            if (trace.fieldGroup !== 'undefined') {
+            let errorVal = sd[errorName];
+            /*if (trace.fieldGroup !== 'undefined') {
                 value = sd[trace.fieldGroup];
-            }
-            let errorDigits = getNumDigits(trace.error);
-            //return errorVal.toFixed(errorDigits);
-            return errorVal;
+            }*/
+            let errorDigits = getNumDigits(errorName);
+    
+            return errorVal.toFixed(errorDigits);
         });
         console.log(errorArray);
         return errorArray;

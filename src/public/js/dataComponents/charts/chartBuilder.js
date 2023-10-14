@@ -225,17 +225,16 @@ export class ChartBuilder {
                     var dataIndex = param[0].dataIndex; // Get the index of the data point
                     const data = param[0].data; // Get the entire data array for the point
 
-
                     const xAxis = data[0] + '<hr size=1 style="margin: 3px 0">';
                     const color = `<span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:${seriesColor}; margin-right:5px;"></span>`;
                     const seriesVal = `${seriesName}: ` + data[1] + '<br/>';
-                    const errorVal = `error: ` + data[2] + '<br/>';
+                    const errorVal = data[2] ? `error: ` + data[2] + '<br/>' : undefined;
 
                     //result.push(dataIndex);
                     result.push(xAxis);
                     result.push(color);
                     result.push(seriesVal);
-                    if (data[2]) {
+                    if (errorVal) {
                         result.push(errorVal);
                     }
 

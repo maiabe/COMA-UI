@@ -33,5 +33,23 @@ function decimalAlignFormatter(cell, formatterParams, onRendered) {
     return value;
 }
 
+/** Gets the dataType of that column values
+*  @param {inputVal} string value of the first item in a column
+*  @returns {dataType} of the input value - value, category, or time
+* */
+function getDataType(inputVal) {
+    let dataType = 'category';
 
-export { format_mapping, decimalAlignFormatter, getNumDigits }
+    // Check if it's a numeric value
+    if (/^[-+]?\d*\.?\d+$/.test(inputVal)) {
+        dataType = 'value';
+    }
+    // Check if it's a date or time
+    else if (Date.parse(inputVal)) {
+        dataType = "time";
+    }
+    return dataType;
+}
+
+
+export { format_mapping, decimalAlignFormatter, getNumDigits, getDataType }

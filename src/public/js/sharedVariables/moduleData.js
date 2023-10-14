@@ -161,20 +161,37 @@ const SearchFields = {
             "fields": [
                 {
                     index: 0, remote: true, dirName: "objects",
-                    labelName: "Object", fieldName: "objects", type: 'typeahead', value: '2017'
+                    labelName: "Object", fieldName: "objects",
+                    type: 'typeahead', value: '2017'
                 },
                 {
                     index: 0, remote: true, dirName: "telescopes",
-                    labelName: "Telescope", fieldName: "telescopes", type: 'dropdown',
+                    labelName: "Telescope", fieldName: "telescopes",
+                    type: 'dropdown',
                     options: [{ Value: '--- None ---', Key: -1 }],
                 },
                 {
                     index: 0, remote: true, dirName: "filters",
-                    labelName: "Filter", fieldName: "filters", type: 'dropdown',
+                    labelName: "Filter", fieldName: "filters",
+                    type: 'dropdown',
                     options: [{ Value: '--- None ---', Key: -1 }],
                 },
-                { index: 0, remote: false, labelName: "Begin", fieldName: "begin", type: 'date', value: '2010-01-01' },
-                { index: 0, remote: false, labelName: "End", fieldName: "end", type: 'date', value: '2023-10-08' },
+                {
+                    index: 0, remote: false,
+                    labelName: "Begin", fieldName: "begin",
+                    type: 'date', value: '2010-01-01'
+                },
+                {
+                    index: 0, remote: false,
+                    labelName: "End", fieldName: "end",
+                    type: 'date', value: '2023-10-08'
+                },
+                {
+                    index: 0, remote: false,
+                    labelName: 'Aperture', fieldName: 'aperture',
+                    type: 'dropdown',
+                    options: [{ Value: '--- All ---', Key: -1 }, { Value: '10', Key: 0 }, { Value: '16', Key: 1 }],
+                }
                 /*{
                     remote: false,
                     labelName: "Object Type", fieldName: "objectType", type: 'dropdown',

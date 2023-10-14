@@ -443,8 +443,6 @@ export class InspectorCard {
     addSearchFormCard(moduleKey, formName, fields) {
         const card = new FormCard(moduleKey, formName, fields);
 
-        
-
         // Append form message
         const btnWrapper = card.getCard().submitButton;
         card.appendMessage(btnWrapper, 'Empty fields will not be searched.');

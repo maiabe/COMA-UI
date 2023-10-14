@@ -126,6 +126,9 @@ export default class Hub {
         this.#messageForInputManager.set('Search Form Submit Event', this.#searchFormSubmit.bind(this));
         this.#messageForInputManager.set('Fetch Local Table Data Event', this.#fetchLocalTableDataEvent.bind(this));
         this.#messageForInputManager.set('Fetch Local Chart Data Event', this.#fetchLocalChartDataEvent.bind(this));
+
+        this.#messageForInputManager.set('Prep Filter Data Event', this.#prepFilterDataEvent.bind(this));
+
         this.#messageForInputManager.set('Prep Table Data Event', this.#prepTableDataEvent.bind(this));
         this.#messageForInputManager.set('Prep Chart Data Event', this.#prepChartDataEvent.bind(this));
         this.#messageForInputManager.set('Prep Orbit Data Event', this.#prepOrbitDataEvent.bind(this));
@@ -298,7 +301,14 @@ export default class Hub {
 
         // Processors are handled differently......................not needed?
         //if (linkedToData && type !== 'processor') this.#processNewDataLink(data.toNodeKey, data.fromNodeKey);
-        if (toNodetype == 'output') this.#processNewOutputLink(data.fromNodeKey, data.toNodeKey);
+        /*if (toNodetype == 'output' || toNodetype == 'processor') {
+            this.#processNewOutputLink(data.fromNodeKey, data.toNodeKey);
+        }*/
+        this.#updateToModuleInspectorCardContent(data.fromNodeKey, data.toNodeKey);
+
+
+        // type = processor same as above...?
+
         //else if (containsMetadata) this.#processMetadataLink(data.toNodeKey, data.fromNodeKey);
 
         // If this is a local Data connection, the Module Manager will update modules.
@@ -306,38 +316,77 @@ export default class Hub {
 
     }
 
+
     /** --- PRIVATE ---
-     * This is called by linkDrawnEvent when a new link is drawn between Source/Processor module and an Output Module.
-     * @param {Number} fromKey Key to recipient of the link.
-     * @param {Number} outputKey Key to node that originated the link
-     */
-    #processNewOutputLink(fromKey, outputKey) {
+    * This is called by linkDrawnEvent when a new link is drawn between two modules (previous to next).
+    * This function updates the inspector card content of toModule, which a link was drawn to.
+    * @param {Number} fromKey Key to recipient of the link.
+    * @param {Number} toKey Key to node that originated the link
+    */
+    #updateToModuleInspectorCardContent(fromKey, toKey) {
         const fromModule = GM.MM.getModule(fromKey);
         const fromModuleType = fromModule.getData('type').toLowerCase();
-        const outputModule = GM.MM.getModule(outputKey);
-
+        const toModule = GM.MM.getModule(toKey);
         if (fromModuleType === 'source') {
-            const outputModuleName = outputModule.getData('type').toLowerCase();
-            /*const moduleCommand = outputModule.getData('command');
-            console.log(moduleCommand);*/
+            var fromModuleData = fromModule.getData('moduleData');
 
-            switch (outputModuleName) {
+            console.log(fromModuleData);
+            // prepInspectorCardData sets the toModuleData from fromModuleData
+            toModule.prepInspectorCardData(toKey, fromModuleData, fromKey);
+
+            // The content of the moduleData parameter differs from module to module.
+            toModule.updateInspectorCard();
+
+            /*const toModuleName = toModule.getData('type').toLowerCase();
+            switch (toModuleName) {
                 case 'output':
                     var fromModuleData = fromModule.getData('moduleData');
                     console.log(fromModuleData);
                     // prepInspectorCardData sets the toModuleData from fromModuleData
-                    outputModule.prepInspectorCardData(outputModule.getData('key'), fromModuleData, fromKey);
+                    toModule.prepInspectorCardData(toModule.getData('key'), fromModuleData, fromKey);
 
                     // The content of the moduleData parameter differs from module to module.
-                    outputModule.updateInspectorCard();
+                    toModule.updateInspectorCard();
 
                     break;
                 default:
-                    console.log(outputModuleName);
+                    console.log(toModuleName);
+            }*/
+
+            // select the output node
+            this.#nodeSelectedEvent({ moduleKey: toKey });
+        }
+    }
+
+    /** --- PRIVATE ---
+     * This is called by linkDrawnEvent when a new link is drawn between Source/Processor module and an Output Module.
+     * @param {Number} fromKey Key to recipient of the link.
+     * @param {Number} toKey Key to node that originated the link
+     */
+    #processNewOutputLink(fromKey, toKey) {
+        const fromModule = GM.MM.getModule(fromKey);
+        const fromModuleType = fromModule.getData('type').toLowerCase();
+        const toModule = GM.MM.getModule(toKey);
+
+        if (fromModuleType === 'source') {
+            const toModuleName = toModule.getData('type').toLowerCase();
+            switch (toModuleName) {
+                case 'output':
+                    var fromModuleData = fromModule.getData('moduleData');
+                    console.log(fromModuleData);
+                    // prepInspectorCardData sets the toModuleData from fromModuleData
+                    toModule.prepInspectorCardData(toModule.getData('key'), fromModuleData, fromKey);
+
+                    // The content of the moduleData parameter differs from module to module.
+                    toModule.updateInspectorCard();
+
+                    break;
+                default:
+                    console.log(toModuleName);
             }
 
             // select the output node
-            this.#nodeSelectedEvent({ moduleKey: outputKey });           
+            this.#nodeSelectedEvent({ moduleKey: toKey });
         }
         // if fromModule is processor module
 
@@ -521,7 +570,7 @@ export default class Hub {
     #readFileEvent(data) {
         if (invalidVariables([varTest(data.fileType, 'fileType', 'string'), varTest(data.moduleKey, 'moduleKey', 'number')], 'HUB', '#messageForInputManager (Read File Event)')) return;
         // validateFile function and sets moduleData
-        GM.IM.readFile(data.moduleKey, data.fileId, data.fileType);
+        GM.IM.readFile(data.moduleKey, data.fileId, data.fileType, data.objectName);
     }
 
     #setModuleDataEvent(data) {
@@ -860,14 +909,25 @@ export default class Hub {
 
 
     ////////////////////////////////////////////// create fetchRemoteChartDataEvent ///////////////////////////////////////////////////
-
     #fetchLocalChartDataEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.remoteData, 'remoteData', 'boolean'), varTest(data.datasetType, 'datasetType', 'string'), varTest(data.fileId, 'fileId', 'string'), varTest(data.traceData, 'traceData', 'object')], 'HUB', '#messageForInputManager (Fetch Local Table Data Event)')) return;
         // Get Chart content from local target file
         GM.IM.getChartData(data);
     }
 
-    
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //************************************** PROCESSOR MODULE FUNCTIONS **************************************//
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    #prepFilterDataEvent(data) {
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.fromModuleData, 'fromModuleData', 'object')], 'HUB', '#messageForInputManager (Prep Filter Data Event)')) return;
+        // get module
+        const module = GM.MM.getModule(data.moduleKey);
+
+
+        console.log(data.fromModuleData);
+    };
+
 
     /** --- PRIVATE --- MESSAGE FOR WORKER MANAGER
      * Notifies the Worker Manager to transmit a pipeline to the server for processing
@@ -1260,8 +1320,7 @@ export default class Hub {
         var fromDatasetType = data.sourceModuleData.datasetType;
         var fromSourceData = data.sourceModuleData.sourceData;
         var fromObjectName = data.sourceModuleData.objectName;
-        console.log(fromSourceData);
-
+        
         if (fromSourceData) {
             // get columnHeaders
             var chartAxisData = GM.IM.getChartAxisData(remoteData, fromSourceData);
@@ -1270,7 +1329,6 @@ export default class Hub {
             var data = {
                 moduleKey: data.moduleKey,
                 moduleData: {
-
                     datasetType: fromDatasetType,
                     sourceData: fromSourceData,
                     chartAxisData: chartAxisData,

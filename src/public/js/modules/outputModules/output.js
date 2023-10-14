@@ -45,7 +45,6 @@ export class Chart_2D extends Output {
     }
 
     prepInspectorCardData(toModuleKey, fromModuleData) {
-        console.log(fromModuleData);
         this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Prep Chart Data Event', { moduleKey: toModuleKey, sourceModuleData: fromModuleData }));
     }
 

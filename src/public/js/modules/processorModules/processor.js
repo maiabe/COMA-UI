@@ -4,7 +4,7 @@
  * Date: 5/5/2022                                            *
  *************************************************************/
 import { Module } from "../module.js";
-import { LT_SOURCE, LT_PROCESSOR, LT_OUTPUT, MODULE, MODULE_MANAGER, DATA_MANAGER } from "../../sharedVariables/constants.js";
+import { LT_SOURCE, LT_PROCESSOR, LT_OUTPUT, MODULE, MODULE_MANAGER, DATA_MANAGER, INPUT_MANAGER } from "../../sharedVariables/constants.js";
 import { Message } from "../../communication/message.js";
 
 export class Processor extends Module {
@@ -20,10 +20,26 @@ export class Filter extends Processor {
             [{ name: 'PS_OUT', leftSide: false, type: LT_PROCESSOR }, { name: 'OUT', leftSide: false, type: LT_OUTPUT }], key);
         this.addData('inportType', [LT_PROCESSOR, LT_SOURCE]);
         this.addData('outportType', [LT_PROCESSOR, LT_OUTPUT]);
-        this.addData('description', 'Use this module to filter table data.');
+        //this.addData('description', 'Use this module to filter table data.');
         this.addData('popupWidth', 300);
         this.addData('popupHeight', 300);
         this.#createInspectorCardData();
+    }
+
+    /** When the module is connected from the source or another processor module, 
+     *  this function prepares and saves the moduleData for this module. 
+     *  (inputManager handles the preparation) (then sets moduleData for this processor module)
+     * */
+    prepInspectorCardData(toModuleKey, fromModuleData) {
+        this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Prep Filter Data Event', { moduleKey: toModuleKey, fromModuleData: fromModuleData }));
+    }
+
+    updateInspectorCard() {
+        var moduleKey = this.getData('key');
+        var moduleData = this.getData('moduleData');
+
+        console.log(moduleData);
+        // call inspectorCardMaker to create inspector card content
     }
 
     /** --- PRIVATE ---

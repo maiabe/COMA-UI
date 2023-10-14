@@ -233,7 +233,7 @@
     outline: 1px solid black;
     position: relative;
     top: 3vh;
-    z-index: 1000;
+    z-index: 0;
     display: flex;
     justify-content: space-between;
 }

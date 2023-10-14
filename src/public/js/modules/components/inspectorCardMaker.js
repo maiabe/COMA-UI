@@ -358,13 +358,14 @@ export class InspectorCardMaker {
 
         this.dataTable.set('readFileButton', this.HF.createNewButton('read-file-button', 'read-file-button', ['read-file-button', 'button'], [], 'button', 'Read File', true));
         uploadWrapper.appendChild(this.getField('readFileButton'));
-        this.getField('readFileButton').addEventListener('click', () => {
+        this.getField('readFileButton').addEventListener('click', (e) => {
+            const objectInput = e.target.closest('.csv-inspector-wrapper').querySelector('.objects-input');
             const message = new Message(INPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Read File Event', {
                 fileId: 'upload_csv-' + moduleKey,
                 //elementId: inspectorId,
                 moduleKey: moduleKey,
                 fileType: 'csv',
-                object: textInput.value,
+                objectName: objectInput.value
             });
             this.sendMessage(message);
         });
@@ -625,13 +626,13 @@ export class InspectorCardMaker {
     updateChartModuleInspectorCard(moduleKey, moduleData) {
         const chartAxisData = moduleData.chartAxisData;
         const datasetType = moduleData.datasetType;
-        console.log(moduleData);
+        //console.log(moduleData);
 
         var contentWrapper = this.HF.createNewDiv('', '', ['chart-inspector-wrapper'], [{ style: 'padding', value: '4%' }]);
         this.inspectorCard.appendToBody(contentWrapper);
 
         //-- Add Chart Title
-        const chartTitle = moduleData.object ? moduleData.object : datasetType;
+        const chartTitle = moduleData.objectName ? moduleData.objectName : datasetType;
         var chartTitleWrapper = this.HF.createNewDiv('', '', ['chart-title-wrapper'], [{ style: "width", value: "100%" }]);
         var chartTitleLabel = this.HF.createNewLabel('', '', `chart-title-${moduleKey}`, ['chart-title-label'], [], 'Chart Title: ');
         var chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', chartTitle);

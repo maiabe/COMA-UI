@@ -91,10 +91,11 @@ export class Inspector {
     /** --- PUBLIC ---
      * Sets remote objects suggestions for the search form object field */
     setRemoteObjectsSuggestions(moduleKey, fieldWrapperId, data) {
-        var success = false;
+        let success = false;
         try {
             // moduleKey, result
-            const fieldWrapper = document.getElementById(fieldWrapperId);            var resultContainer = fieldWrapper.querySelector('.typeahead-result-container');
+            const fieldWrapper = document.getElementById(fieldWrapperId);
+            let resultContainer = fieldWrapper.querySelector('.typeahead-result-container');
             resultContainer.innerHTML = '';
             // get responseContainer
             resultContainer.style.display = 'block';
@@ -102,7 +103,7 @@ export class Inspector {
             // append suggestions elements to the resultContainer
             data.forEach(suggestion => {
                 console.log(suggestion);
-                var suggestionElement = this.HF.createNewDiv('', '', ['object-suggestion'], []);
+                let suggestionElement = this.HF.createNewDiv('', '', ['object-suggestion'], []);
                 suggestionElement.textContent = suggestion.ui_name;
                 suggestionElement.addEventListener('click', () => {
                     // When a suggestion is clicked, populate the input with the suggestion
