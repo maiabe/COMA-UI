@@ -28,7 +28,7 @@ export class ObjectSearchCard {
         this.#text = GM.HF.createNewParagraph('','',[], [], 'Select Object');
     }
     #createWrapper() {
-        this.#wrapper = GM.HF.createNewDiv('', '', ['inspector-card-objects-search-wrapper'], []);
+        this.#wrapper = GM.HF.createNewDiv('', '', ['inspector-card-objects-search-wrapper'], [], [], '');
     }
 
     #createSearchBar() {

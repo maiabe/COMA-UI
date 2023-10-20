@@ -11,7 +11,7 @@ export class ConversionCard {
         this.inputDropdown = null;
         this.functionDropdown = null;
         this.convertButton = null;
-        this.card = GM.HF.createNewDiv('', '', ['conversion-card'], []);
+        this.card = GM.HF.createNewDiv('', '', ['conversion-card'], [], [], '');
         this.card.appendChild(this.#createUpperLevel(metadata));
         this.card.appendChild(this.#createMiddleLayer());
         this.card.appendChild(this.#createLowerLayer());
@@ -22,7 +22,7 @@ export class ConversionCard {
      * @param {JSON Object} metadata object containing all metadata
      * @returns HTML node */
     #createUpperLevel(metadata) {
-        const upperLevel = GM.HF.createNewDiv('', '', ['conversion-card-upper'], []);
+        const upperLevel = GM.HF.createNewDiv('', '', ['conversion-card-upper'], [], [], '');
         const left = this.#createUpperLevelLeft(metadata);
         const center = this.#createUpperLevelCenter();
         const right = this.#createUpperLevelRight();
@@ -41,7 +41,7 @@ export class ConversionCard {
         Object.values(metadata.columnHeaders).forEach(header => {
             options.push(header.name);
         });
-        const wrapper = GM.HF.createNewDiv('', '', ['conversion-card-upper-segment'], []);
+        const wrapper = GM.HF.createNewDiv('', '', ['conversion-card-upper-segment'], [], [], '');
         const label = GM.HF.createNewParagraph('','',[],[], 'Source');
         const select = GM.HF.createNewSelect('', '', [], [], options, options, options);
         wrapper.appendChild(label);
@@ -58,7 +58,7 @@ export class ConversionCard {
         conversionFunctions.forEach(fn => {
             options.push(fn.name);
         });
-        const wrapper = GM.HF.createNewDiv('', '', ['conversion-card-upper-segment'], []);
+        const wrapper = GM.HF.createNewDiv('', '', ['conversion-card-upper-segment'], [], [], '');
         const label = GM.HF.createNewParagraph('','',[],[], 'Function');
         const select = GM.HF.createNewSelect('', '', [], [], options, options, options);
         wrapper.appendChild(label);
@@ -71,7 +71,7 @@ export class ConversionCard {
      * Creates the arrow Icon in between the two dropdowns
      * @returns HTML node */
     #createUpperLevelCenter() {
-        const wrapper = GM.HF.createNewDiv('','',['conversion-card-upper-segment'], []);
+        const wrapper = GM.HF.createNewDiv('','',['conversion-card-upper-segment'], [], [], '');
         const image = GM.HF.createNewIMG('','','../../../../images/icons/right-arrow.png', [], [], '');
         wrapper.appendChild(image);
         return wrapper;
@@ -81,7 +81,7 @@ export class ConversionCard {
      * Creates the row containing the description of the function selected
      * @returns HTML Node */
     #createMiddleLayer() {
-        const wrapper = GM.HF.createNewDiv('','', ['conversion-card-middle-layer'], []);
+        const wrapper = GM.HF.createNewDiv('','', ['conversion-card-middle-layer'], [], [], '');
         const description = GM.HF.createNewParagraph('','',[],[], conversionFunctions[0].description);
         wrapper.appendChild(description);
         return wrapper;
@@ -91,7 +91,7 @@ export class ConversionCard {
      * Creates the bottom row with the conversion buttons
      * @return HTML element */
     #createLowerLayer() {
-        const wrapper = GM.HF.createNewDiv('','', ['conversion-card-middle-layer'], []);
+        const wrapper = GM.HF.createNewDiv('','', ['conversion-card-middle-layer'], [], [], '');
         const button = GM.HF.createNewButton('','',['conversion-card-button'],[], 'button', 'Convert');
         wrapper.appendChild(button);
         this.convertButton = button;

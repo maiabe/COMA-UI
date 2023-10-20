@@ -142,7 +142,7 @@
     </Content>
     <Content Include="src\public\js\htmlGeneration\elementGenerators\spanGenerator.js" />
     <Content Include="src\public\js\main.js" />
-    <Content Include="src\public\css\inspector\axisCard.css" />
+    <Content Include="src\public\css\inspector\chartInspectorCard.css" />
     <Content Include="src\public\css\inspector\conversionCard.css" />
     <Content Include="src\public\css\inspector\inspector.css" />
     <Content Include="src\public\css\inspector\inspectorCard.css" />

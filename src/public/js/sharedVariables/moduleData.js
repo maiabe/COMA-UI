@@ -110,11 +110,11 @@ const DatasetTypes = [
     /*{ type: "Images", queryKey: "images", responseKey: "images" },*/
 ];
 
-const DefaultAxis = [
+const DefaultAxes = [
     {
         datasetType: "Photometry",
-        xAxis: { displayName: "ISO date", fieldName: "iso_date_mid", dataType: 'value' },
-        yAxis: { displayName: "magnitude", fieldName: "mag", dataType: 'value', error: "mag_err", xAxisFieldName: "mjd_mid" }
+        xAxis: { name: "iso_date_mid", displayName: "ISO date", dataType: 'value' },
+        yAxis: { name: "mag", displayName: "magnitude", dataType: 'value', error: "mag_err" }
     }
 ];
 
@@ -238,4 +238,4 @@ const SearchFields = {
 }
 
 
-export { moduleDataObject, SearchFields, DatasetTypes, DatasetFields, DefaultAxis }
+export { moduleDataObject, SearchFields, DatasetTypes, DatasetFields, DefaultAxes }

@@ -20,7 +20,7 @@ export class RangeInput {
 
     // Create Wrapper
     #createWrapperElement() {
-        const wrapper = GM.HF.createNewDiv('', '', ['double-range-input-wrapper'], []);
+        const wrapper = GM.HF.createNewDiv('', '', ['double-range-input-wrapper'], [], [], '');
         this.dataTable.set('wrapper', wrapper);
     }
 

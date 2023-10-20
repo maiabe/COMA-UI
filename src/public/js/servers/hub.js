@@ -1323,7 +1323,7 @@ export default class Hub {
         
         if (fromSourceData) {
             // get columnHeaders
-            var chartAxisData = GM.IM.getChartAxisData(remoteData, fromSourceData);
+            var chartData = GM.IM.getChartData(remoteData, fromSourceData);
             
             // set moduleData for this table module
             var data = {
@@ -1331,7 +1331,7 @@ export default class Hub {
                 moduleData: {
                     datasetType: fromDatasetType,
                     sourceData: fromSourceData,
-                    chartAxisData: chartAxisData,
+                    chartData: chartData,
                     objectName: fromObjectName,
                 },
                 toggleModuleColor: true,

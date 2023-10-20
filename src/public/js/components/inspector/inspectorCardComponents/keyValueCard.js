@@ -29,12 +29,12 @@ export class KeyValueCard {
     }
 
     #createCardWrapper() {
-        const wrapper = GM.HF.createNewDiv('', '', ['static-key-value-card-wrapper'], []);
+        const wrapper = GM.HF.createNewDiv('', '', ['static-key-value-card-wrapper'], [], [], '');
         this.#storeData('wrapperElement', wrapper);
     }
 
     #createCardHeader() {
-        const header = GM.HF.createNewDiv('', '', ['static-key-value-card-header'], []);
+        const header = GM.HF.createNewDiv('', '', ['static-key-value-card-header'], [], [], '');
         header.innerHTML = this.#data.get('key');
         this.#storeData('headerElement', header);
     }

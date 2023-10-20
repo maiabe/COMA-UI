@@ -34,7 +34,7 @@ export class FormCard {
     }
 
     #createWrapper() {
-        this.#wrapper = GM.HF.createNewDiv('', '', ['form-wrapper'], []);
+        this.#wrapper = GM.HF.createNewDiv('', '', ['form-wrapper'], [], [], '');
     }
 
     /** --- PRIVATE ---
@@ -46,7 +46,7 @@ export class FormCard {
     #createForm(moduleKey, formName, fields) {
         this.#form = GM.HF.createNewForm(formName.name, '', [formName.className], []);
         fields.forEach((field) => {
-            const fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], []);
+            const fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], [], [], '');
 
             // create field label
             const fieldInputId = field.fieldName + '-' + moduleKey;
@@ -71,7 +71,7 @@ export class FormCard {
         var formField;
         switch (field.type) {
             case 'text':
-                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], []);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [], [], '');
                 var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
                 //formField.setAttribute('remote', field.remote);
                 if (field.value) {
@@ -80,7 +80,7 @@ export class FormCard {
                 formField.appendChild(textInput);
                 break;
             case 'date':
-                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], []);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [], [], '');
                 var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
                 //formField.setAttribute('remote', field.remote);
                 // set default value
@@ -101,7 +101,7 @@ export class FormCard {
                 formField.appendChild(textInput);
                 break;
             case 'dropdown':
-                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], []);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [], [], '');
                 const options = field.options;
                 var values = [];
                 var displayNames = [];
@@ -113,7 +113,7 @@ export class FormCard {
                 formField.appendChild(dropdown);
                 break;
             case 'checkbox':
-                formField = GM.HF.createNewDiv(fieldInputId, '', ['checkbox-wrapper', 'field-input-wrapper'], []);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['checkbox-wrapper', 'field-input-wrapper'], [], [], '');
                 const checkbox_options = field.options;
                 // foreach option, create check box
                 checkbox_options.forEach((option) => {
@@ -125,7 +125,7 @@ export class FormCard {
                 //formField.setAttribute('remote', field.remote);
                 break;
             case 'radio':
-                formField = GM.HF.createNewDiv(fieldInputId, '', ['radio-wrapper', 'field-input-wrapper'], []);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['radio-wrapper', 'field-input-wrapper'], [], [], '');
                 console.log(field);
                 const radio_options = field.options;
                 // foreach option, create radiobuttons
@@ -148,7 +148,7 @@ export class FormCard {
                 formField = minMaxFilter.getHTML();*/
                 break;
             case 'typeahead':
-                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [{ style: "position", value: "relative" }]);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [{ style: "position", value: "relative" }], [], '');
 
                 var textInput = GM.HF.createNewTextInput('', field.fieldName, ['typeahead-input', 'field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
                 textInput.setAttribute('remote', field.remote);
@@ -156,7 +156,7 @@ export class FormCard {
                     textInput.value = field.value;
                 }
                 // create empty container for result
-                const resultContainer = GM.HF.createNewDiv('', '', ['typeahead-result-container'], [{ style: 'display', value: "none" }]);
+                const resultContainer = GM.HF.createNewDiv('', '', ['typeahead-result-container'], [{ style: 'display', value: "none" }], [], '');
                 formField.appendChild(textInput);
                 formField.appendChild(resultContainer);
 
@@ -176,7 +176,7 @@ export class FormCard {
 
                 break;
             default:
-                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], []);
+                formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [], [], '');
                 var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
                 //formField.setAttribute('remote', field.remote);
                 if (field.value) {
@@ -193,7 +193,7 @@ export class FormCard {
      * @param {formName String} formName of the form to attach the submit button
      * */
     #createSubmitButton(formName) {
-        const submitButtonWrapper = GM.HF.createNewDiv('', '', ['button-wrapper'], []);
+        const submitButtonWrapper = GM.HF.createNewDiv('', '', ['button-wrapper'], [], [], '');
         const submitButton = GM.HF.createNewButton(formName.name + '-btn', '', ['btn', 'form-submit-btn'], [], 'button', formName.submitButton, false);
         //submitButton.setAttribute('form', formName.name);
         submitButtonWrapper.appendChild(submitButton);
@@ -210,7 +210,7 @@ export class FormCard {
     appendFormField(field) {
         var form = this.getCard().form;
         // create field elements for this field
-        var fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], []);
+        var fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], [], [], '');
         var label = GM.HF.createNewLabel('', '', [field.labelName], [], [], field.labelName + ': ');
         var input = this.#createFormField(field);
         if (field.value) {
@@ -240,7 +240,7 @@ export class FormCard {
         for (var i = 0; i < fields.length; i++) {
             var field = fields[i];
             // create field elements
-            var fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], []);
+            var fieldWrapper = GM.HF.createNewDiv('', '', ['field-wrapper'], [], [], '');
             const fieldInputId = field.fieldName + '-' + field.index;
             const label = GM.HF.createNewLabel('', '', [`${fieldInputId}`], [], [], field.labelName + ': ');
 
@@ -281,7 +281,7 @@ export class FormCard {
      * @param {fieldinfo String} fieldinfo tooltip
      * */
     appendToolTip(fieldinfo, tooltipElement) {
-        var tooltipDiv = GM.HF.createNewDiv('', '', ['tooltip-div'], []);
+        var tooltipDiv = GM.HF.createNewDiv('', '', ['tooltip-div'], [], [], '');
         //var tooltipIcon = GM.HF.createNewIMG('', '', '../../../images/icons/info.png', ['tooltip-img'], [{ style: 'width', value: '30px' }], 'form field format');
         var tooltipSpan = GM.HF.createNewSpan('', '', ['tooltip-text'], [], fieldinfo);
 
@@ -353,24 +353,24 @@ export class FormCard {
 /*
     // Create Layout
     #createLayout() {
-        //const wrapper = GM.HF.createNewDiv('', '', ['sql-query-wrapper'], []);
+        //const wrapper = GM.HF.createNewDiv('', '', ['sql-query-wrapper'], [], [], '');
 
-        const dateRangeWrapper = GM.HF.createNewDiv('', '', ['query-date-range-wrapper'], []);
-        const cometWrapper = GM.HF.createNewDiv('', '', ['query-comet-wrapper'], []);
-        const buttonsWrapper = GM.HF.createNewDiv('', '', ['query-buttons-wrapper'], []);
+        const dateRangeWrapper = GM.HF.createNewDiv('', '', ['query-date-range-wrapper'], [], [], '');
+        const cometWrapper = GM.HF.createNewDiv('', '', ['query-comet-wrapper'], [], [], '');
+        const buttonsWrapper = GM.HF.createNewDiv('', '', ['query-buttons-wrapper'], [], [], '');
 
         const dateRangeLabel = GM.HF.createNewLabel('', '', 'date-range-label', [], [], ['Dates Between: ']);
         const cometLabel = GM.HF.createNewLabel('', '', 'comet-label', [], [], ['Comet: ']);
 
-        //const dateRange = GM.HF.createNewDiv('query-date-range', '', ['range-slider-wrapper'], [], []);
+        //const dateRange = GM.HF.createNewDiv('query-date-range', '', ['range-slider-wrapper'], [], [], '');
         // create minMaxFilter here 
 
         const cometDropdown = GM.HF.createNewSelect('cometDD', '', [], [], ['objects', 'objecttypelink', 'objectname', 'tnos', 'centaurs' ], ['objects', 'objecttypelink', 'objectnames', 'tnos', 'centaurs']);
         const queryButton = GM.HF.createNewButton('queryBtn', [], ['query-button'], ['border-radius: 3px'], 'submit', 'Query', '');
 
-        *//*const rangeSliderBar = GM.HF.createNewDiv('', '', ['range-slider-background-bar'], [], []);
-        const rangeSliderBall_left = GM.HF.createNewDiv('', '', ['range-slider-ball'], [], []);
-        const rangeSliderBall_right = GM.HF.createNewDiv('', '', ['range-slider-ball-right'], [], []);*//*
+        *//*const rangeSliderBar = GM.HF.createNewDiv('', '', ['range-slider-background-bar'], [], [], '');
+        const rangeSliderBall_left = GM.HF.createNewDiv('', '', ['range-slider-ball'], [], [], '');
+        const rangeSliderBall_right = GM.HF.createNewDiv('', '', ['range-slider-ball-right'], [], [], '');*//*
 
         // Create Section Wrappers
         this.card.appendChild(dateRangeWrapper);

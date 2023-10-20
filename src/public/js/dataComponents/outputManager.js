@@ -309,7 +309,20 @@ export class OutputManager {
         let chartData = traceData;
         console.log(traceData);
 
-        // build eChartsData
+        // Build series data
+        // get series name
+        chartData['series'].forEach(trace => {
+            trace['dataType'] = trace.dataType;
+
+            const seriesName = trace.fieldName;
+            let xAxisName = trace.xAxisName;
+            let yAxisName = trace.yAxisName;
+            let errorData = (trace.error !== 'none') ? this.#buildEChartsErrorData(trace.error, sourceData) : undefined;
+            let result = this.#buildEChartsSeriesData(seriesName, xAxisName, yAxisName, sourceData, errorData);
+            trace['data'] = result;
+        });
+
+        // Build eChartsData
         let axisNames = ['xAxis', 'yAxis'];
         axisNames.forEach(axis => {
             chartData[axis].forEach(trace => {
@@ -323,6 +336,7 @@ export class OutputManager {
 
         // Build series echartData
         chartData['series'].forEach(trace => {
+            console.log(trace);
             trace['dataType'] = trace.dataType;
 
             let xi = trace.xAxisIndex;
@@ -336,6 +350,14 @@ export class OutputManager {
         console.log(chartData);
 
         return chartData;
+    }
+
+    #buildEChartsSeriesData(seriesName, xAxisName, yAxisName, sourceData, errorData) {
+        // get rows of selected seriesName values of sourceData[columnName]
+
+
+
+
     }
 
     #buildEChartsAxisSourceData(trace, fieldName, sourceData) {

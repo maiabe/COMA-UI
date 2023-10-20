@@ -40,7 +40,7 @@ export class MinMaxFilter {
     }
 
     #createWrapperElement() {
-        const wrapper = GM.HF.createNewDiv('', '', ['min-max-filter-wrapper'], []);
+        const wrapper = GM.HF.createNewDiv('', '', ['min-max-filter-wrapper'], [], [], '');
         this.dataTable.set('wrapper', wrapper);
     }
 
@@ -48,7 +48,7 @@ export class MinMaxFilter {
         // The slider gets two callback functions. One for when the slider is changed, and one for when the user changes some value in the input
         // And the slider must be changed to match.
         const sliderBar = GM.HF.createNewRangeSlider('', '', [], [], this.sliderCallback.bind(this), this.#setUpdateSliderFunction.bind(this));
-        const sliderWrapper = GM.HF.createNewDiv('', '', ['slider-wrapper'], []);
+        const sliderWrapper = GM.HF.createNewDiv('', '', ['slider-wrapper'], [], [], '');
         this.dataTable.get('wrapper').appendChild(sliderWrapper).appendChild(sliderBar);
     }
 
@@ -59,13 +59,13 @@ export class MinMaxFilter {
      * @param {*} max 
      */
     #createFirstLevel(labelText, min, max) {
-        const wrapper = GM.HF.createNewDiv('', '', ['min-max-first-level-wrapper'], []);
-        const labelWrapper = GM.HF.createNewDiv('', '', ['min-max-label-wrapper'], []);
+        const wrapper = GM.HF.createNewDiv('', '', ['min-max-first-level-wrapper'], [], [], '');
+        const labelWrapper = GM.HF.createNewDiv('', '', ['min-max-label-wrapper'], [], [], '');
         const label = GM.HF.createNewParagraph('', '', ['min-max-label'], [], labelText);
         const labelCheckbox = GM.HF.createNewCheckbox('', '', [], [], 'include-row', 'Include', true);
-        const leftInputWrapper = GM.HF.createNewDiv('', '', ['min-max-input-wrapper'], []);
-        const rightInputWrapper = GM.HF.createNewDiv('', '', ['min-max-input-wrapper'], []);
-        const dotMenuInputWrapper = GM.HF.createNewDiv('', '', ['min-max-input-wrapper', 'min-max-button'], []);
+        const leftInputWrapper = GM.HF.createNewDiv('', '', ['min-max-input-wrapper'], [], [], '');
+        const rightInputWrapper = GM.HF.createNewDiv('', '', ['min-max-input-wrapper'], [], [], '');
+        const dotMenuInputWrapper = GM.HF.createNewDiv('', '', ['min-max-input-wrapper', 'min-max-button'], [], [], '');
         const leftInputLabel = GM.HF.createNewParagraph('', '', [], [], 'Min');
         const leftInput = GM.HF.createNewTextInput('', '', [], [], 'text');
         leftInput.value = min;  // Set initial Min value in the input
@@ -103,9 +103,9 @@ export class MinMaxFilter {
      * show it when the user clicks on the 3 buttons.
      */
     #createOptionsMenu() {
-        const wrapper = GM.HF.createNewDiv('', '', ['min-max-options-wrapper'], []);
+        const wrapper = GM.HF.createNewDiv('', '', ['min-max-options-wrapper'], [], [], '');
         const flipButton = GM.HF.createNewButton('', '', ['min-max-flip-button'], [], 'button', 'Flip Min/Max');
-        const ddWrapper = GM.HF.createNewDiv('', '', ['min-max-dropdown-wrapper'], []);
+        const ddWrapper = GM.HF.createNewDiv('', '', ['min-max-dropdown-wrapper'], [], [], '');
         const changeTypeLabel = GM.HF.createNewParagraph('', '', [], [], 'Change Data Type');
         const changeTypeDropdown = GM.HF.createNewSelect('', '', [], [], ['number', 'date', 'category'], ['Number', 'Date', 'Category']);
         ddWrapper.appendChild(changeTypeLabel);

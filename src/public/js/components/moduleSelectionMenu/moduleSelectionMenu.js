@@ -81,8 +81,8 @@ class ModuleTopButton {
     };
 
     createButton = (subMenuItems) => {
-        this.wrapperElement = GM.HF.createNewDiv('module-selection-menu-wrapper', 'module-selection-menu-wrapper', ['menuSegmentWrapper'], []);
-        this.buttonElement = GM.HF.createNewDiv(`${this.text}_topMenuButton`, '', ['topMenuButton'], [{ style: 'backgroundColor', value: this.color }]);
+        this.wrapperElement = GM.HF.createNewDiv('module-selection-menu-wrapper', 'module-selection-menu-wrapper', ['menuSegmentWrapper'], [], [], '');
+        this.buttonElement = GM.HF.createNewDiv(`${this.text}_topMenuButton`, '', ['topMenuButton'], [{ style: 'backgroundColor', value: this.color }], [], '');
         this.buttonElement.append(GM.HF.createNewIMG('', '', this.image, [], [], 'Submenu Icon'));
         this.buttonElement.append(GM.HF.createNewParagraph('', '', [], [], this.text));
         this.wrapperElement.append(this.buttonElement);
@@ -109,7 +109,7 @@ class ModuleSubMenu {
 
     createSubMenu = () => {
         this.maxHeight = Math.ceil(this.dataArray.length / 4) * 100 + 'px';
-        this.wrapperElement = GM.HF.createNewDiv('msm-submenu-wrapper', 'msm-submenu-wrapper', ['subMenuWrapper'], [`height: ${this.maxHeight}`]);
+        this.wrapperElement = GM.HF.createNewDiv('msm-submenu-wrapper', 'msm-submenu-wrapper', ['subMenuWrapper'], [], [], '');
         this.dataArray.forEach(e => {
             const card = new SubMenuCard(e);
             this.cardArray.push(card);
@@ -141,7 +141,7 @@ class SubMenuCard {
         this.createCard();
     };
     createCard = () => {
-        this.element = GM.HF.createNewDiv('', '', ['menuIconCard'], []);
+        this.element = GM.HF.createNewDiv('', '', ['menuIconCard'], [], [], '');
         this.image = GM.HF.createNewIMG('', '', this.icon, [], [], 'menu icon');
         this.element.appendChild(this.image);
         this.textArea = GM.HF.createNewParagraph('', '', ['iconText'], [], this.text);

@@ -11,90 +11,93 @@ export class AxisCard {
     #axisName;
     #axisHeader;
     #axisContent;
-    #fieldDropdown;
-    #traceArea;
-    #addTraceButton;
+    #axisDropdown;
+    #axisArea;
+    #addAxisButton;
 
-    traceCards;
+    axisCards;
 
-    /** Creates an axis card for Chart Module inspector cards.
-     * @param {axisName object} axisName object consists of displayName and elementId of this AxisCard.
-     * @param {fields Array} fields consists of array of objects with the displayName and fieldName information.
-     * @param {defaultField object} defaultField object consists of displayName and fieldName information of specified default field.
-     *                                                  defaultField may be an undefined object
+    /** Creates an axis card for Chart Module inspector card.
+     * @param { moduleKey } Number key of the module
+     * @param { axisName } Object consists of elementId, displayName, and activeTab variables of this axisCard
+     *                            (e.g. { elementId: 'xAxis', displayName: 'X Axis', activeTab: true })
+     * @param { axes } Array of objects with name, displayName and dataType information
+     *                      (e.g. [{ name: 'iso_date_mjd', displayName: 'ISO Date', dataType: 'time' }, ..])
+     * @param { defaultAxis } Object that consists of name, displayName and dataType information of a specified default axis.
+     *                               defaultAxis will be an undefined object if it is not set for the current datasetType
+     *                               (e.g. { name: 'mag', displayName: 'magnitude', dataType: 'value' })
      */
-    constructor(axisName, fields, defaultField) {
+    constructor(moduleKey, axisName, axes, defaultAxis) {
         this.#axisName = axisName;
-        this.#createElements(axisName, fields, defaultField);
+        this.#createElements(moduleKey, axisName, axes, defaultAxis);
         this.#buildCard();
-        this.#addTraceFunction(axisName.elementName, fields);
+        this.#addAxisFunction(moduleKey, axisName.elementId, axes);
     }
 
-    #createElements(axisName, fields, defaultField) {
-        this.#createWrapper(axisName);
-        this.#createHeader(axisName);
-        this.#createContent(axisName, fields, defaultField);
+    #createElements(moduleKey, axisName, axes, defaultAxis) {
+        this.#createWrapper(moduleKey, axisName);
+        //this.#createHeader(axisName);
+        this.#createContent(moduleKey, axisName, axes, defaultAxis);
     }
 
     #buildCard() {
-        this.#wrapper.appendChild(this.#axisHeader);
+        //this.#wrapper.appendChild(this.#axisHeader);
         this.#wrapper.appendChild(this.#axisContent);
     }
 
-    #createWrapper(axisName) {
-        this.#wrapper = GM.HF.createNewDiv(`${axisName.elementName}`, '', ['axis-card-wrapper'], []);
+    #createWrapper(moduleKey, axisName) {
+        this.#wrapper = GM.HF.createNewDiv(`${axisName.elementId}-${moduleKey}`, '', ['axis-card-wrapper', 'tab-content'], [], [], '');
+        if (axisName.activeTab) {
+            this.#wrapper.classList.add('active');
+        }
     }
 
     // create header
     #createHeader(axisName) {
-        const axisCardHeader = GM.HF.createNewDiv('', '', ['axis-card-header', 'header'], []);
+        const axisCardHeader = GM.HF.createNewDiv('', '', ['axis-card-header', 'header'], [], [], '');
         axisCardHeader.innerHTML = axisName.displayName;
         this.#wrapper.appendChild(axisCardHeader);
         this.#axisHeader = axisCardHeader;
     }
 
     // create content --> dropdowns & labels & (other chart options) & addTrace button for each field (add function to addTrace button)
-    #createContent(axisName, fields, defaultField) {
-        console.log(fields);
-        console.log(defaultField);
+    #createContent(moduleKey, axisName, axes, defaultAxis) {
+        console.log(axes);
+        //console.log(defaultAxis);
         //console.log(errorFields);
-        if (fields) {
+        if (axes) {
             // create content wrapper
-            var contentWrapper = GM.HF.createNewDiv('', '', ['axis-content-wrapper'], []);
+            var contentWrapper = GM.HF.createNewDiv('', '', ['axis-content-wrapper'], [], [], '');
 
-            var fieldsWrapper = GM.HF.createNewDiv('', '', ['fields-dropdown-wrapper'], []);
+            var axesWrapper = GM.HF.createNewDiv('', '', ['axes-dropdown-wrapper'], [], [], '');
             // create dropdown wrapper
-            var options = { "---- Select ----": "none" };
+            var options = { "none": "---- Select ----" };
             // foreach field, create a dropdown and a label input
 
             // sort fields by the default selection then the name
-            fields.forEach(field => {
-                if (field.fieldName) {
-                    options[field.fieldName] = field.fieldName;
+            axes.forEach(axis => {
+                if (axis.name) {
+                    options[axis.name] = axis.displayName;
                 }
             });
-            this.#fieldDropdown = GM.HF.createNewSelect('', '', ['fields-dropdown'], [{ style: "width", value: "70%" }, { style: "height", value: "25px" }], Object.values(options), Object.keys(options));
-            this.#addTraceButton = GM.HF.createNewButton(`${axisName.elementName}-add-trace-button`, '', ['button', 'add-trace-button'], [{ style: "width", value: "30%" }, { style: "height", value: "25px" }], 'button', 'Add Trace', false);
-            fieldsWrapper.appendChild(this.#fieldDropdown);
-            fieldsWrapper.appendChild(this.#addTraceButton);
+            this.#axisDropdown = GM.HF.createNewSelect('', '', ['axes-dropdown'], [{ style: "width", value: "70%" }, { style: "height", value: "25px" }], Object.keys(options), Object.values(options));
+            this.#addAxisButton = GM.HF.createNewButton(`add-axis-button`, '', ['button', 'add-axis-button'], [{ style: "width", value: "30%" }, { style: "height", value: "25px" }], 'button', 'Add Axis', false);
+            axesWrapper.appendChild(this.#axisDropdown);
+            axesWrapper.appendChild(this.#addAxisButton);
 
             // create trace area (table with removeable items? add error dropdown here if any?)
-            this.#traceArea = GM.HF.createNewDiv('', '', ['trace-area'], []);
+            this.#axisArea = GM.HF.createNewDiv('', '', ['axis-area'], [], [], '');
 
             // add default traceCard
-            var field = fields[0];
-            if (defaultField) {
-                field = fields.filter(f => f.fieldName === defaultField.fieldName)[0];
-                if (!field) {
-                    field = fields[0];
-                }
+            var axis = axes[0];
+            if (defaultAxis) {
+                axis = axes.filter(a => a.name === defaultAxis.name)[0];
             }
-            console.log(field);
-            this.#createTraceCard(axisName.elementName, field);
+            this.#createAxisCard(axisName.elementId, axis);
 
             // label input for the added trace.. other options for the chart
-            contentWrapper.appendChild(fieldsWrapper);
-            contentWrapper.appendChild(this.#traceArea);
+            contentWrapper.appendChild(axesWrapper);
+            contentWrapper.appendChild(this.#axisArea);
 
             this.#axisContent = contentWrapper;
         }
@@ -104,96 +107,63 @@ export class AxisCard {
     }
 
 
-    #addTraceFunction(axisName, fields) {
-        const button = this.#addTraceButton;
+    #addAxisFunction(axisName, axes) {
+        const button = this.#addAxisButton;
         button.addEventListener('click', e => {
-            // get dropdown selection
+            //-- Get the selected axis option
             let dropdown = e.target.previousElementSibling;
             let selected = dropdown.options[dropdown.selectedIndex];
-            let selectedField = fields.filter(f => f.fieldName === selected.value)[0];
-            //let traceArea = e.target.closest('.axis-content-wrapper').querySelector('.trace-area');
-            // check if the field is already in there
-            // if it is, display error message
-            //var exists = traceArea.querySelector(`#${selected.value}`);
+            let selectedAxis = axes.filter(a => a.name === selected.value)[0];
+            //-- Create new Axis Card
             if (selected.value !== 'none') {
-                // create card entry
-                var traceCard = this.#createTraceCard(axisName, selectedField);
-                this.updateSeriesAxisOptions('add', axisName, traceCard);
-
-/*
-                var seriesTraceArea = e.target.closest('.chart-axis-wrapper').querySelector('.series-card-wrapper .trace-area');
-                var seriesTraces = seriesTraceArea.querySelectorAll('.trace-card-wrapper');
-
-                seriesTraces.forEach(trace => {
-                    console.log(trace);
-                    var option = { value: traceCard.getAttribute('id'), name: traceCard.getAttribute('id') };
-                    if (axisName.elementName === 'xAxis') {
-                        var xAxisDD = trace.querySelector('.xaxis-index-dropdown');
-                        console.log(xAxisDD);
-                        GM.HF.addSelectOption(xAxisDD, option);
-                        console.log(xAxisDD);
-                    }
-                    else if (axisName.elementName === 'yAxis') {
-                        var yAxisDD = trace.querySelector('.yaxis-index-dropdown');
-                        GM.HF.addSelectOption(yAxisDD, option);
-                        console.log(yAxisDD);
-                    }
-                });*/
+                var axisCard = this.#createAxisCard(axisName, selectedAxis);
+                //-- Update Axis reference options in Series cards
+                this.updateSeriesAxisOptions('add', axisName, axisCard);
             }
-            /*else {
-                let errorMessageWrapper = GM.HF.createNewDiv('', '', ['add-trace-error-wrapper'], []);
-                let errorMessage = GM.HF.createNewSpan('', '', ['add-trace-error'], [{ style: "color", value: "red" }], 'The field has already been selected');
-                errorMessageWrapper.appendChild(errorMessage);
-                traceArea.appendChild(errorMessageWrapper);
-            }*/
-
-
         });
     }
 
 
-    /** Creates a Trace Card in the axis card.
-     * @param {field object} field object consists of fieldName and dataType of the field to be added as a trace card.
-     * @param {traceArea HTML DOM} traceArea is an HTML object for the trace card to be added to.
+    /** Creates an Axis Card in the axis area
+     * @param { axisName } Object that consists of elementId and displayName of the axisCard
+     * @param { axis } Object that consists of axis information for the axisCard to be created
      * */
-    #createTraceCard(axisName, field) {
-        console.log(field);
-        var traceArea = this.#traceArea;
+    #createAxisCard(axisName, axis) {
+        console.log(axis);
+        var axisArea = this.#axisArea;
 
         //-- Create traceCard content
-        let traceCard = GM.HF.createNewDiv(field.fieldName, '', ['trace-card-wrapper'], []);
+        let axisCard = GM.HF.createNewDiv(axis.name, '', ['axis-card-wrapper'], [], [], '');
 
         //-- Create traceCard header
-        let header = GM.HF.createNewDiv('', '', ['trace-card-header'], []);
-        let fieldName = GM.HF.createNewSpan('', '', ['field-name'], [], field.fieldName);
-        let fieldDataType = GM.HF.createNewTextInput('', '', ['data-type'], [], 'hidden', field.dataType);
-        let fieldGroup = GM.HF.createNewTextInput('', '', ['field-group'], [], 'hidden', field.fieldGroup);
+        let header = GM.HF.createNewDiv('', '', ['axis-card-header'], [], [], '');
+        let axisTitle = GM.HF.createNewSpan('', 'axis-title', ['axis-title'], [], axis.name);
+        let axisDataType = GM.HF.createNewTextInput('', 'data-type', ['axis-data-type'], [], 'hidden', axis.dataType);
         let removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete_1.png', ['remove-button', 'button'], [], '');
-        header.appendChild(fieldName);
-        header.appendChild(fieldDataType);
-        header.appendChild(fieldGroup);
+        header.appendChild(axisTitle);
+        header.appendChild(axisDataType);
         header.appendChild(removeBtn);
-        traceCard.appendChild(header);
-        traceArea.appendChild(traceCard);
+        axisCard.appendChild(header);
+        axisArea.appendChild(axisCard);
 
         //-- Create removeFunction for this
-        this.#removeTraceFunction(removeBtn);
+        this.#removeAxisFunction(removeBtn);
 
-        let body = GM.HF.createNewDiv('', '', ['trace-card-body'], []);
+        let axisBody = GM.HF.createNewDiv('', '', ['axis-card-body'], [], [], '');
 
 
         //-- Create axis label input
-        let labelWrapper = GM.HF.createNewDiv('', '', ['label-wrapper', 'trace-card-element'], []);
+        let labelWrapper = GM.HF.createNewDiv('', '', ['label-wrapper', 'axis-card-element'], [], [], '');
         let labelText = GM.HF.createNewSpan('', '', ['label-text'], [], `Label Name: `);
         let label = GM.HF.createNewTextInput('', '', ['label-input'], [], 'text', false);
-        label.value = field.fieldName;
+        label.value = axis.name;
         labelWrapper.appendChild(labelText);
         labelWrapper.appendChild(label);
-        body.appendChild(labelWrapper);
+        axisBody.appendChild(labelWrapper);
 
         /*if (errorFields) {
             // add error bar option
-            let errorBarDDWrapper = GM.HF.createNewDiv('', '', ['errorbar-dropdown-wrapper', 'trace-card-element'], []);
+            let errorBarDDWrapper = GM.HF.createNewDiv('', '', ['errorbar-dropdown-wrapper', 'trace-card-element'], [], [], '');
             let errorBarLabel = GM.HF.createNewSpan('', '', ['errorbar-label'], [], 'Error Bar: ');
             let options = ['none'];
             let optionsText = ['-- None --'];
@@ -206,7 +176,7 @@ export class AxisCard {
         }*/
 
         // Add Corresponding x-axis field dropdown
-        /*let xFieldNameWrapper = GM.HF.createNewDiv('', '', ['xaxis-field-wrapper', 'trace-card-element'], []);
+        /*let xFieldNameWrapper = GM.HF.createNewDiv('', '', ['xaxis-field-wrapper', 'trace-card-element'], [], [], '');
         let xFieldNameLabel = GM.HF.createNewSpan('', '', ['xaxis-field-label'], [], 'X Axis Field: ');
         let xFieldNameDD = GM.HF.createNewSelect('', '', ['xaxis-field-dropdown'], [], [], []);
         xFieldNameWrapper.appendChild(xFieldNameLabel);
@@ -215,53 +185,52 @@ export class AxisCard {
 
 
         //-- Create positions options
-        let positionOptionsWrapper = GM.HF.createNewDiv('', '', ['position-options-wrapper', 'trace-card-element'], []);
+        let positionOptionsWrapper = GM.HF.createNewDiv('', '', ['position-options-wrapper', 'axis-card-element'], [], [], '');
         // position option
-        let positionOptions = this.#createPositionOptions(axisName);
+        let positionOptions = this.#createPositionOptions(axisName.elementId);
         let positionOptionsLabel = GM.HF.createNewSpan('', '', ['position-options-label'], [], `Axis Position: `);
         let positionOptionsDropdown = GM.HF.createNewSelect('', '', ['position-options-dropdown'], [], positionOptions, positionOptions);
         positionOptionsWrapper.appendChild(positionOptionsLabel);
         positionOptionsWrapper.appendChild(positionOptionsDropdown);
-        body.appendChild(positionOptionsWrapper);
+        axisBody.appendChild(positionOptionsWrapper);
 
         // offset option
-        //let offsetOptionWrapper = GM.HF.createNewDiv('', '', ['offset-option-wrapper', 'trace-card-element'], []);
+        //let offsetOptionWrapper = GM.HF.createNewDiv('', '', ['offset-option-wrapper', 'trace-card-element'], [], [], '');
         // create range input here
-        let offsetOptionRange = GM.HF.createNewRangeInputComponent('', '', ['offset-option-wrapper', 'trace-card-element'], [], 'Offset: ', 0, 50, 1, 0);
-        body.appendChild(offsetOptionRange);
+        let offsetOptionRange = GM.HF.createNewRangeInputComponent('', '', ['offset-option-wrapper', 'axis-card-element'], [], 'Offset: ', 0, 50, 1, 0);
+        axisBody.appendChild(offsetOptionRange);
 
         //-- Create options
-        let traceOptionsWrapper = GM.HF.createNewDiv('', '', ['trace-options-wrapper', 'trace-card-element'], []);
-        //let optionsWrapper = GM.HF.createNewDiv('', '', ['options-wrapper'], []);
+        let axisOptionsWrapper = GM.HF.createNewDiv('', '', ['axis-options-wrapper', 'axis-card-element'], [], [], '');
+        //let optionsWrapper = GM.HF.createNewDiv('', '', ['options-wrapper'], [], [], '');
 
         // major gridlines option
         let gridLinesOption = GM.HF.createNewCheckbox('', '', ['major-gridlines', 'checkbox'], [], '', 'Major Grid Lines', true);
-        traceOptionsWrapper.appendChild(gridLinesOption.wrapper);
+        axisOptionsWrapper.appendChild(gridLinesOption.wrapper);
 
         // minor gridlines option
         let minorTicksOption = GM.HF.createNewCheckbox('', '', ['minor-ticks', 'checkbox'], [{ style: 'margin-left', value: '22%' }], '', 'Ticks', false);
-        traceOptionsWrapper.appendChild(minorTicksOption.wrapper);
+        axisOptionsWrapper.appendChild(minorTicksOption.wrapper);
 
         // minor gridlines option
         let minorGridLinesOption = GM.HF.createNewCheckbox('', '', ['minor-gridlines', 'checkbox'], [], '', 'Minor Grid Lines', false);
-        traceOptionsWrapper.appendChild(minorGridLinesOption.wrapper);
+        axisOptionsWrapper.appendChild(minorGridLinesOption.wrapper);
 
         // inverse option
         var inverseChecked = false;
-        if (field.fieldName.includes('mag') && field.dataType === 'value') {
+        if (axis.name.includes('mag') && axis.dataType === 'value') {
             inverseChecked = true;
         }
         let inverseOption = GM.HF.createNewCheckbox('', '', ['inverse', 'checkbox'], [{ style: 'margin-left', value: '22%' }], '', 'Inverse', inverseChecked);
-        traceOptionsWrapper.appendChild(inverseOption.wrapper);
+        axisOptionsWrapper.appendChild(inverseOption.wrapper);
 
+        axisBody.appendChild(axisOptionsWrapper);
 
-        //traceOptionsWrapper.appendChild(optionsWrapper);
-        body.appendChild(traceOptionsWrapper);
-
-        traceCard.appendChild(body);
-        return traceCard;
+        axisCard.appendChild(axisBody);
+        return axisCard;
     }
 
+    //-- Creates options array for axis position configuration
     #createPositionOptions(axisName) {
         var positionOptions = [];
         if (axisName === 'xAxis') {
@@ -273,40 +242,40 @@ export class AxisCard {
         return positionOptions;
     }
 
-    #removeTraceFunction(button) {
-        // for xaxis don't remove if tracecard is less than or equal to 1
+    #removeAxisFunction(button) {
+        // for xaxis don't remove if axisCard is less than or equal to 1
         button.addEventListener('click', e => {
-            let axis = e.target.closest('.axis-card-wrapper').getAttribute('id');
-            let traceArea = e.target.closest('.trace-area');
-            let traceCard = e.target.closest('.trace-card-wrapper');
+            let axisName = e.target.closest('.axis-card-wrapper').getAttribute('id');
+            let axisArea = e.target.closest('.axis-area');
+            let axisCard = e.target.closest('.axis-card-wrapper');
 
-            let numTraceCards = traceArea.querySelectorAll('.trace-card-wrapper');
+            let numAxisCards = axisArea.querySelectorAll('.axis-card-wrapper');
 
-            if (axis === 'xAxis' && numTraceCards.length <= 1) {
-                // show error validation on the current traceCard
+            if (numAxisCards.length <= 1) {
+                // Don't remove axisCard if there is only one left in axisArea
             }
             else {
-                this.updateSeriesAxisOptions('remove', axis, traceCard);
-                traceArea.removeChild(traceCard);
+                this.updateSeriesAxisOptions('remove', axisName, axisCard);
+                axisArea.removeChild(axisCard);
             }
         });
     }
 
-    updateSeriesAxisOptions(action, axisName, axisTrace) {
-        console.log(axisTrace);
-        var axis = axisName.toLowerCase();
-        var fieldName = axisTrace.getAttribute('id');
-        var seriesCard = axisTrace.closest('.chart-axis-wrapper');
-        var seriesTraces = seriesCard.querySelectorAll('.series-card-wrapper .trace-area .trace-card-wrapper');
-        seriesTraces.forEach(t => {
-            var dropdown = t.querySelector(`.${axis}-index-dropdown`);
+    updateSeriesAxisOptions(action, axisName, axisCard) {
+        console.log(axisName);
+        console.log(axisCard);
+        var axisName = axisCard.getAttribute('id');
+        var axisCard = axisCard.closest('.chart-inspector-wrapper');
+        var series = seriesCard.querySelectorAll('.series-card-wrapper .axis-area .axis-card-wrapper');
+        series.forEach(t => {
+            var dropdown = t.querySelector(`.${axisName}-index-dropdown`);
             switch (action) {
                 case 'add':
                     var index = dropdown.options.length;
-                    GM.HF.addSelectOption(dropdown, { name: fieldName, value: index });
+                    GM.HF.addSelectOption(dropdown, { name: axisName, value: index });
                     break;
                 case 'remove':
-                    const optionElement = Array.from(dropdown.options).find(option => option.textContent === fieldName);
+                    const optionElement = Array.from(dropdown.options).find(option => option.textContent === axisName);
                     GM.HF.removeSelectOption(dropdown, optionElement);
                     break;
             }
@@ -344,7 +313,7 @@ export class AxisCard {
     /*#createWrapper(title) {
         var elementId = title.replaceAll(' ', '-').toLowerCase();
         console.log(elementId);
-        const wrapperElement = GM.HF.createNewDiv(`${elementId}-card-wrapper`, '', ['axis-card-wrapper'], []);
+        const wrapperElement = GM.HF.createNewDiv(`${elementId}-card-wrapper`, '', ['axis-card-wrapper'], [], [], '');
         this.storeElement('wrapperElement', wrapperElement);
     }*/
 
@@ -353,7 +322,7 @@ export class AxisCard {
      * @param {string} title 
      */
     #createTitleBarElement(title) {
-        const titleBarElement = GM.HF.createNewDiv('', '', ['axis-card-title-bar'], []);
+        const titleBarElement = GM.HF.createNewDiv('', '', ['axis-card-title-bar'], [], [], '');
         titleBarElement.innerHTML = title;
         this.storeElement('titleBar', titleBarElement);
         this.elementTable.get('wrapperElement').appendChild(titleBarElement);
@@ -367,8 +336,8 @@ export class AxisCard {
      * @param {HTML button} addTraceButton 
      */
     #createDataField(dropdown, errorDropDown, addTraceButton) {
-        const wrapper = GM.HF.createNewDiv('', '', ['axis-card-label-field-wrapper'], []);
-        const dropdownsWrapper = GM.HF.createNewDiv('', '', ['axis-card-dropdown-card-wrapper'], []);
+        const wrapper = GM.HF.createNewDiv('', '', ['axis-card-label-field-wrapper'], [], [], '');
+        const dropdownsWrapper = GM.HF.createNewDiv('', '', ['axis-card-dropdown-card-wrapper'], [], [], '');
         const dataCard = this.#createDropDownCard('Data', dropdown);
         dropdownsWrapper.appendChild(dataCard);
         if (errorDropDown) {
@@ -391,7 +360,7 @@ export class AxisCard {
      * @returns the html container of this mini card
      */
     #createDropDownCard(header, dropdown) {
-        const dropDownWrapper = GM.HF.createNewDiv('', '', ['axis-card-dropdown-wrapper'], []);
+        const dropDownWrapper = GM.HF.createNewDiv('', '', ['axis-card-dropdown-wrapper'], [], [], '');
         const headerText = GM.HF.createNewParagraph('', '', [], [], header);
         dropDownWrapper.appendChild(headerText);
         dropDownWrapper.appendChild(dropdown);
@@ -404,7 +373,7 @@ export class AxisCard {
      * @returns the container of the mini card
      */
     #createDropDownCardNoText(dropdown) {
-        const dropDownWrapper = GM.HF.createNewDiv('', '', ['axis-card-dropdown-wrapper'], []);
+        const dropDownWrapper = GM.HF.createNewDiv('', '', ['axis-card-dropdown-wrapper'], [], [], '');
         dropDownWrapper.appendChild(dropdown);
         return dropDownWrapper;
     }
@@ -415,7 +384,7 @@ export class AxisCard {
      * @param {HTML Input} labelInput 
      */
     #createLabelField(labelInput) {
-        const wrapper = GM.HF.createNewDiv('', '', ['axis-card-label-field-wrapper'], []);
+        const wrapper = GM.HF.createNewDiv('', '', ['axis-card-label-field-wrapper'], [], [], '');
         const header = GM.HF.createNewParagraph('', '', [], [], 'Label');
         wrapper.appendChild(header);
         wrapper.appendChild(labelInput);
@@ -429,7 +398,7 @@ export class AxisCard {
      * @param {HTML checkbox} tickCheckbox 
      */
     #createCheckboxField(gridCheckbox, tickCheckbox) {
-        const wrapper = GM.HF.createNewDiv('', '', ['axis-card-label-field-wrapper', 'justify-left'], []);
+        const wrapper = GM.HF.createNewDiv('', '', ['axis-card-label-field-wrapper', 'justify-left'], [], [], '');
         wrapper.appendChild(gridCheckbox);
         wrapper.appendChild(tickCheckbox);
         this.storeElement('labelFieldWrapper', wrapper);
@@ -442,7 +411,7 @@ export class AxisCard {
      * @param {HTML Select} errorDropdown 
      */
     addTraceDropdown(dropdown, errorDropdown) {
-        const dropdownsWrapper = GM.HF.createNewDiv('', '', ['axis-card-dropdown-card-wrapper'], []);
+        const dropdownsWrapper = GM.HF.createNewDiv('', '', ['axis-card-dropdown-card-wrapper'], [], [], '');
         dropdownsWrapper.appendChild(this.#createDropDownCardNoText(dropdown));
         dropdownsWrapper.appendChild(this.#createDropDownCardNoText(errorDropdown));
         this.elementTable.get('lastDropdown').after(dropdownsWrapper);
@@ -467,10 +436,13 @@ export class AxisCard {
     }
 
     getCard() {
-        return { card: this, wrapper: this.#wrapper, content: this.#axisContent, fieldDropdown: this.#fieldDropdown, traceArea: this.#traceArea, addTraceButton: this.#addTraceButton };
+        return {
+            card: this, wrapper: this.#wrapper, content: this.#axisContent, axisName: this.#axisName,
+            axisDropdown: this.#axisDropdown, axisArea: this.#axisArea, addAxisButton: this.#addAxisButton
+        };
     }
 }
-
+/*
 export class XAxisCard extends AxisCard {
     constructor(dropdown, labelInput, gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown) {
         super(dropdown, labelInput, 'X Axis', gridCheckbox, tickCheckbox, addTraceButton, addTraceFunction, errorDropDown);
@@ -488,6 +460,6 @@ export class ZAxisCard extends AxisCard {
         super(dropdown, labelInput, 'Z Axis', gridCheckbox, tickCheckbox, addTraceButton, errorDropDown);
     }
 }
-
+*/
 
 

@@ -2,8 +2,8 @@ let id = -1;
 let messageDataObject = {};
 const baseUrl = 'http://localhost:8080/';
 //const baseUrl = 'http://localhost:1366/ ';
-//const coma_api = 'http://coma.ifa.hawaii.edu:8000/api/v1/';
-const coma_api = 'http://localhost:8000/api/v1/';
+const coma_api = 'http://coma.ifa.hawaii.edu:8000/api/v1/';
+//const coma_api = 'http://localhost:8000/api/v1/';
 
 const onMessageTable = new Map();
 onMessageTable.set('Execute Pipeline', executePipeline);

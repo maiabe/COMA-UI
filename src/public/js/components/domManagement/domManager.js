@@ -17,8 +17,8 @@ export class DomManager {
     }
 
     #initializeLogo() {
-        const elementDiv = this.HF.createNewDiv('', '', ['nav-content-wrapper'], []);
-        const leftNavDiv = this.HF.createNewDiv('', '', ['left-nav-wrapper', 'nav-content'], []);
+        const elementDiv = this.HF.createNewDiv('', '', ['nav-content-wrapper'], [], [], '');
+        const leftNavDiv = this.HF.createNewDiv('', '', ['left-nav-wrapper', 'nav-content'], [], [], '');
         const logoIMG = this.HF.createNewIMG('logo', 'logo', '../../../images/logo/COMA-LOGO-NEW.png', ['logo'], [], 'COMA logo');
         //const element = this.HF.createNewIMG('logo', 'logo', '../../../images/logo/COMA_LOGO_T.png', ['logo'], [], 'COMA logo');
         leftNavDiv.appendChild(logoIMG);

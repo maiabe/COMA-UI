@@ -34,7 +34,7 @@ export const printErrorMessage = (type, msg) => {
 export const displayErrorMessage = (type, msg, div) => {
     // div.append();
     const HF = HTMLFactory();
-    let errorMessageDiv = HF.createNewDiv('', '', ['errorMessage'], []);
+    let errorMessageDiv = HF.createNewDiv('', '', ['errorMessage'], [], [], '');
     div.appendChild(errorMessageDiv);
 }
 

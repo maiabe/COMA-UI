@@ -1,0 +1,356 @@
+
+.chart-inspector-wrapper {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+}
+
+.chart-inspector-wrapper {
+    width: 100%;
+    display: flex;
+    flex-flow: wrap;
+    justify-content: space-between;
+    margin: 2% 0;
+}
+
+.chart-title-wrapper {
+    width: 100%;
+    margin-bottom: 2.5%;
+    display: flex;
+    align-items: center;
+}
+
+    .chart-title-wrapper label {
+        font-size: 14px;
+        white-space: nowrap;
+        margin-right: 5px;
+    }
+
+    .chart-title-wrapper input {
+        width: -webkit-fill-available;
+    }
+
+@media screen and (max-width: 1200px) {
+    .chart-title-wrapper label {
+        width: 25%;
+    }
+
+    .chart-title-wrapper input {
+        width: 60%;
+    }
+}
+
+
+
+/*--------------------------- Chart Tabs styles -----------------------------*/
+.chart-tabs {
+    display: flex;
+}
+
+.tab-button {
+    cursor: pointer;
+    padding: 0.5% 2%;
+    border: 0.5px solid gray;
+    border-radius: 5px 5px 0 0;
+    font-size: 14px;
+}
+
+.tab-button.active {
+    background-color: #ed4a4a;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active{
+    display: block;
+}
+
+/***************************************************************************/
+/*--------------------------- axisCard Styles -----------------------------*/
+/***************************************************************************/
+.axis-card-wrapper {
+    width: 100%;
+    border-radius: 2px;
+    padding: 3% 2%;
+    font-size: 85%;
+    height: 300px;
+    box-shadow: 0.5px 0.5px 4px 0.5px gray;
+    overflow: auto;
+}
+
+.axis-content-wrapper {
+    height: 100%;
+}
+
+.axis-content-wrapper .axes-dropdown-wrapper {
+    width: 100%;
+    display: flex;
+    margin: 5% 0;
+}
+.axis-content-wrapper .axes-dropdown {
+    width: 70%;
+    height: 25px;
+    border: 0.5px solid darkgray;
+}
+.add-axis-button {
+    width: 30%;
+    height: 25px;
+    font-size: 80%;
+    padding: 1%;
+    border: 0.5px solid darkgray;
+    border-radius: 2px;
+}
+
+.axis-content-wrapper .axis-area {
+    padding: 3% 0;
+}
+
+.axis-card-wrapper {
+    border: 0.5px solid gray;
+    border-radius: 3px;
+    width: 100%;
+    margin-bottom: 5%;
+}
+.axis-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2% 4%;
+    border-bottom: 0.5px solid darkgray;
+}
+.axis-card-header span {
+    font-size: 90%;
+}
+.axis-card-header img {
+    width: 6%;
+    height: 6%;
+}
+.axis-card-body {
+    padding: 3% 5%;
+}
+.axis-card-wrapper .axis-card-element {
+    font-size: 80%;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-bottom: 3%;
+}
+.axis-card-wrapper .label-input {
+    height: 1.2rem;
+}
+.axis-card-wrapper .axis-card-element span,
+.axis-card-wrapper .axis-card-element select,
+.axis-card-wrapper .axis-card-element input,
+.axis-card-wrapper .axis-card-element label
+{
+    width: 50%;
+    box-sizing: border-box;
+    text-align: start;
+}
+
+.axis-card-body .offset-option-wrapper {
+    display: flex;
+    flex-flow: wrap;
+}
+.axis-card-body .offset-option-wrapper label {
+    width: 100%;
+}
+
+.axis-card-body .offset-option-wrapper .range-input {
+    width: 70%;
+    height: 1rem;
+    padding: 0;
+}
+.axis-card-body .offset-option-wrapper .text-input {
+    width: 20%;
+    height: 1rem;
+}
+
+.axis-card-wrapper .axis-options-wrapper {
+    flex-flow: wrap;
+}
+.axis-card-wrapper .axis-options-wrapper .options-wrapper {
+    
+}
+.axis-card-wrapper .axis-options-wrapper .checkbox-wrapper {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    content-visibility: auto;
+}
+.axis-card-wrapper .axis-options-wrapper .checkbox-wrapper label {
+    font-size: smaller;
+    white-space: nowrap;
+    width: fit-content;
+}
+.axis-card-wrapper .axis-options-wrapper .checkbox-wrapper .checkbox {
+    width: 15%;
+}
+
+
+.generate-chart-button {
+    width: 100%;
+    height: 5%;
+    margin: 3% 0;
+    padding: 0.5% 5%;
+    justify-content: center;
+    border: 1px solid darkgray;
+    border-radius: 2px;
+}
+
+
+
+
+
+
+/***************************************************************************/
+/*-------------------------- seriesCard Styles ----------------------------*/
+/***************************************************************************/
+.series-inspector-wrapper {
+    width: 100%;
+    border-radius: 2px;
+    margin-top: 3%;
+    font-size: 85%;
+    height: 350px;
+    box-shadow: 0.5px 0.5px 4px 0.5px gray;
+    flex-flow: column;
+    overflow: auto;
+    padding: 4%;
+}
+
+.series-content-wrapper {
+    height: 100%;
+}
+
+.series-content-wrapper .series-dropdown-wrapper {
+    width: 100%;
+    display: flex;
+    margin: 4% 0 2% 0;
+}
+
+.series-content-wrapper .series-dropdown {
+    width: 80%;
+    height: 25px;
+    border: 0.5px solid darkgray;
+}
+
+.series-content-wrapper .add-series-button {
+    width: 20%;
+    height: 25px;
+    font-size: 80%;
+    padding: 1%;
+    border: 0.5px solid darkgray;
+    border-radius: 2px;
+}
+
+/** series Area **/
+.series-content-wrapper .series-area {
+    padding: 3% 0;
+}
+
+.series-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1% 4%;
+    border-bottom: 0.5px solid darkgray;
+}
+
+    .series-card-header span {
+        font-size: 90%;
+    }
+
+    .series-card-header img {
+        width: 3%;
+    }
+
+
+.series-content-wrapper .series-card-body {
+    /*display: flex;
+    flex-flow: wrap;
+    justify-content: center;*/
+    padding: 3% 5%;
+    display: grid;
+    column-gap: 3%;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+        'label label'
+        'xaxis yaxis'
+        'symbol error'
+        'size size';
+}
+
+.series-content-wrapper .series-card-wrapper .series-card-element {
+    margin-bottom: 3%;
+}
+    .series-content-wrapper .series-card-wrapper select {
+        height: 1.2rem;
+    }
+
+.series-card-body .label-wrapper {
+    grid-area: label;
+}
+    .series-card-body .label-wrapper .label-text {
+        width: 20%;
+        text-align: right;
+        margin-right: 5px;
+        white-space: nowrap;
+    }
+    .series-card-body .label-wrapper .label-input {
+        width: 80%;
+        height: 1.5rem;
+    }
+
+
+.series-card-body .xaxis-index-dropdown-wrapper {
+    grid-area: xaxis;
+}
+.series-card-body .yaxis-index-dropdown-wrapper {
+    grid-area: yaxis;
+}
+.series-card-body .error-dropdown-wrapper {
+    grid-area: error;
+}
+.series-card-body .symbols-dropdown-wrapper {
+    grid-area: symbol;
+}
+
+    .series-card-body .xaxis-index-dropdown-wrapper .xaxis-index-label,
+    .series-card-body .yaxis-index-dropdown-wrapper .yaxis-index-label,
+    .series-card-body .error-dropdown-wrapper .error-label,
+    .series-card-body .symbols-dropdown-wrapper .symbols-label 
+    {
+        width: 40%;
+        text-align: right;
+        margin-right: 5px;
+    }
+    .series-card-body .xaxis-index-dropdown-wrapper .xaxis-index-dropdown,
+    .series-card-body .yaxis-index-dropdown-wrapper .yaxis-index-dropdown,
+    .series-card-body .error-dropdown-wrapper .error-dropdown,
+    .series-card-body .symbols-dropdown-wrapper .symbols-dropdown 
+    {
+        width: 60%;
+    }
+
+.series-card-body .symbols-size-range-wrapper {
+    grid-area: size;
+}
+    .series-card-body .symbols-size-range-wrapper label {
+        width: 25%;
+        white-space: nowrap;
+    }
+    .series-card-body .symbols-size-range-wrapper .range-input {
+        width: 60%;
+    }
+    .series-card-body .symbols-size-range-wrapper .text-input {
+        width: 15% !important;
+        height: 1.2rem;
+    }
+
+
+
+
+

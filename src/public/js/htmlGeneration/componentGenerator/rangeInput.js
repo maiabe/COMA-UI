@@ -15,7 +15,7 @@ export class RangeInput {
 
     // Create wrapper
     #createWrapper(id, name, classlist, customStyles) {
-        return this.#HF.createNewDiv(id, name, classlist, customStyles);
+        return this.#HF.createNewDiv(id, name, classlist, customStyles, [], '');
     }
 
     #createElements(labelName, min, max, step, value) {

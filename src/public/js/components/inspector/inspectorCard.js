@@ -4,7 +4,7 @@
  * Date: 5/5/2022                                            *
  *************************************************************/
 import { printErrorMessage } from '../../errorHandling/errorHandlers.js';
-import { AxisCard, XAxisCard, YAxisCard } from './inspectorCardComponents/axisCard.js';
+import { AxisCard } from './inspectorCardComponents/axisCard.js';
 import { SeriesCard } from './inspectorCardComponents/seriesCard.js';
 import { ObjectSearchCard } from './inspectorCardComponents/objectSearchCard.js';
 import { KeyValueCard } from './inspectorCardComponents/keyValueCard.js';
@@ -85,15 +85,15 @@ export class InspectorCard {
     }
 
     #createWrapperNode() {
-        return this.HF.createNewDiv(`Inspector-card-${this.#cardId}`, `Inspector-card-${this.#cardId}`, ['inspector-card'], []);
+        return this.HF.createNewDiv(`Inspector-card-${this.#cardId}`, `Inspector-card-${this.#cardId}`, ['inspector-card'], [], [], '');
     }
 
     #createHeaderNode() {
-        return this.HF.createNewDiv(`Inspector-card-header-${this.#cardId}`, `Inspector-card-header-${this.#cardId}`, ['inspector-card-header'], [{ style: 'backgroundColor', value: this.#color }]);
+        return this.HF.createNewDiv(`Inspector-card-header-${this.#cardId}`, `Inspector-card-header-${this.#cardId}`, ['inspector-card-header'], [{ style: 'backgroundColor', value: this.#color }], [], '');
     }
 
     #createBodyNode() {
-        return this.HF.createNewDiv(`Inspector-card-body-${this.#cardId}`, `Inspector-card-body-${this.#cardId}`, ['inspector-card-body'], []);
+        return this.HF.createNewDiv(`Inspector-card-body-${this.#cardId}`, `Inspector-card-body-${this.#cardId}`, ['inspector-card-body'], [], [], '');
     }
 
     #createTitleNode() {
@@ -101,26 +101,26 @@ export class InspectorCard {
     }
 
     #createDragElement() {
-        return this.HF.createNewDiv('', '', ['inspector-card-drag-element'], []);
+        return this.HF.createNewDiv('', '', ['inspector-card-drag-element'], [], [], '');
     }
 
 
     #createMaxButton() {
-        const buttonDiv = this.HF.createNewDiv('', '', ['inspector-card-max-button'], []);
+        const buttonDiv = this.HF.createNewDiv('', '', ['inspector-card-max-button'], [], [], '');
         const img = this.HF.createNewIMG('', '', '../../../images/icons/maximize.png', [], [], 'Minimize or Maximize Inspector Card Button');
         buttonDiv.appendChild(img);
         return buttonDiv;
     }
 
     #createCollapseButton() {
-        const buttonDiv = this.HF.createNewDiv('', '', ['inspector-card-collapse-button'], []);
+        const buttonDiv = this.HF.createNewDiv('', '', ['inspector-card-collapse-button'], [], [], '');
         const img = this.HF.createNewIMG('', '', '../../../images/icons/minus.png', [], [], 'Collapse Inspector Card Button');
         buttonDiv.appendChild(img);
         return buttonDiv;
     }
 
     #createExpandButton() {
-        const buttonDiv = this.HF.createNewDiv('', '', ['inspector-card-expand-button'], []);
+        const buttonDiv = this.HF.createNewDiv('', '', ['inspector-card-expand-button'], [], [], '');
         const img = this.HF.createNewIMG('', '', '../../../images/icons/squares.png', [], [], 'Expand Inspector Card Button');
         buttonDiv.appendChild(img);
         return buttonDiv;
@@ -292,13 +292,13 @@ export class InspectorCard {
 
 
     // add Xaxis card for Chart modules
-    addAxisCard(axisName, fields, defaultField) {
-        const card = new AxisCard(axisName, fields, defaultField);
+    addAxisCard(moduleKey, axisName, fields, defaultField) {
+        const card = new AxisCard(moduleKey, axisName, fields, defaultField);
         return card;
     }
 
-    addSeriesCard(fields, defaultField, xAxisCard, yAxisCard) {
-        const card = new SeriesCard(fields, defaultField, xAxisCard, yAxisCard);
+    addSeriesCard(moduleKey, fieldName, series) {
+        const card = new SeriesCard(moduleKey, fieldName, series);
         return card;
     }
 
@@ -616,11 +616,11 @@ export class InspectorCard {
 
     //------------------------------------------- ORBIT MODULE ------------------------------------------------
     addRenderedObjectsList(objectNames) {
-        let wrapper = this.HF.createNewDiv('', '', ['rendered-objects'], []);
+        let wrapper = this.HF.createNewDiv('', '', ['rendered-objects'], [], [], '');
         let objectsLabel = this.HF.createNewLabel('', '', '', ['rendered-objects-title'], [], 'Objects: ');
         wrapper.appendChild(objectsLabel);
 
-        let objectsGroupWrapper = this.HF.createNewDiv('', '', ['rendered-objects-group', 'objects-group'], []);
+        let objectsGroupWrapper = this.HF.createNewDiv('', '', ['rendered-objects-group', 'objects-group'], [], [], '');
         objectNames.forEach(objectName => {
             if (objectName) {
                 let item = this.HF.createNewSpan('', '', ['rendered-object', 'item'], [], objectName);
@@ -634,11 +634,11 @@ export class InspectorCard {
 
     // Add object names for data points
     addObjectOptions(objectNames) {
-        var wrapper = this.HF.createNewDiv('', '', ['object-options', 'options'], []);
+        var wrapper = this.HF.createNewDiv('', '', ['object-options', 'options'], [], [], '');
         var objectsLabel = this.HF.createNewLabel('', '', '', ['objects-title'], [], 'Objects: ');
         wrapper.appendChild(objectsLabel);
         
-        var checkboxGroupWrapper = this.HF.createNewDiv('', '', ['object-checkbox-group', 'checkbox-group'], []);
+        var checkboxGroupWrapper = this.HF.createNewDiv('', '', ['object-checkbox-group', 'checkbox-group'], [],  [], '');
         objectNames.forEach(object => {
             if (object) {
                 var checkbox = this.HF.createNewCheckbox('', '', ['object-checkbox'], [], object, object, true);
@@ -654,11 +654,11 @@ export class InspectorCard {
 
     // Add planet names for eliptic data
     addPlanetOptions(planetNames) {
-        var wrapper = this.HF.createNewDiv('', '', ['orbit-options', 'options'], []);
+        var wrapper = this.HF.createNewDiv('', '', ['orbit-options', 'options'], [], [], '');
         var orbitLabel = this.HF.createNewLabel('', '', '', ['orbit-title'], [], 'Orbits: ');
         wrapper.appendChild(orbitLabel);
 
-        var checkboxGroupWrapper = this.HF.createNewDiv('', '', ['orbit-checkbox-group', 'checkbox-group'], []);
+        var checkboxGroupWrapper = this.HF.createNewDiv('', '', ['orbit-checkbox-group', 'checkbox-group'], [], [], '');
         /*var planetNames = Object.keys(eclipticData[0]).map(key => {
             if (!key.includes('id')) {
                 var lastIndex = key.lastIndexOf('_');

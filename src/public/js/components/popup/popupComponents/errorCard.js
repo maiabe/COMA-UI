@@ -28,14 +28,14 @@ export class ErrorCard {
     }
 
     #createWrapper() {
-        this.#wrapper = GM.HF.createNewDiv('', '', ['error-wrapper'], []);
+        this.#wrapper = GM.HF.createNewDiv('', '', ['error-wrapper'], [], [], '');
     }
 
     //-------- create base error display template
     // create error base template
     #createTemplate(type, category, data) {
-        var errorHeader = this.HF.createNewDiv('', '', ['error-header'], [{ style: 'height', value: '2rem' }]);
-        var errorBody = this.HF.createNewDiv('', '', ['error-body'], [{ style: 'height', value: '70%' }]);
+        var errorHeader = this.HF.createNewDiv('', '', ['error-header'], [{ style: 'height', value: '2rem' }], [], '');
+        var errorBody = this.HF.createNewDiv('', '', ['error-body'], [{ style: 'height', value: '70%' }], [], '');
         var errorTitle = this.HF.createNewH1('', '', ['error-title'], [], 'Error');
 
 

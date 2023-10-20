@@ -20,17 +20,17 @@ export class CompositeDetailsCard {
         this.buildCard();
     }
     createWrapperElement = () => {
-        return GM.HF.createNewDiv('', '', ['composite-details-card'], []);
+        return GM.HF.createNewDiv('', '', ['composite-details-card'], [], [], '');
     }
 
     createHeader() {
-        const header = GM.HF.createNewDiv('','', ['composite-details-card-header'], []);
+        const header = GM.HF.createNewDiv('','', ['composite-details-card-header'], [], [], '');
         header.appendChild(GM.HF.createNewParagraph('','',[],[],'Composite Details'));
         return header;
     }
 
     createNodesRow(nodes) {
-        const div = GM.HF.createNewDiv('','',[], []);
+        const div = GM.HF.createNewDiv('','', [], [], [], '');
         const left = GM.HF.createNewParagraph('','',[],[], 'Nodes: ');
         let nodesString = '';
         nodes.forEach((node, index) => {

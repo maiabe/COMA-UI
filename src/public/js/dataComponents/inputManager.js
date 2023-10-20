@@ -36,12 +36,12 @@ export class InputManager {
         }
     }
 
-    // Gets chart data to set its content ... not needed?
-    getChartData = (moduleData) => {
+    // (deprecated) Gets chart data to set its content ... not needed?
+    /*getChartData = (moduleData) => {
         if (moduleData.fileId) {
             this.#csvReader.getData(moduleData, this.setChartCB);
         }
-    }
+    }*/
     
 
 
@@ -192,12 +192,14 @@ export class InputManager {
 
     // ----------------------------------------- Chart Inspector Data Organization -----------------------------------------
     // build Chart axis information from columnHeaders (to build Chart Module Inspector Card)
-    getChartAxisData(remoteData, sourceData) {
-        var columnHeaders = this.getColumnHeaders(sourceData);
-        var chartAxisData = [];
-        var xAxisData = { axis: 'xaxis', fields: [] };
-        var yAxisData = { axis: 'yaxis', fields: [] };
-        var errorData = { axis: 'error', fields: [] };
+    getChartData(remoteData, sourceData) {
+        const columnHeaders = this.getColumnHeaders(sourceData);
+        let chartData = [];
+        let xAxisData = { name: 'xaxis', axes: [] };
+        let yAxisData = { name: 'yaxis', axes: [] };
+        let errorData = { name: 'error', axes: [] };
+        let seriesData = { name: 'series', series: [] };
+
         columnHeaders.forEach(columnHeader => {
             /*if (remoteData) {
                 if (columnHeader.hasOwnProperty('data')) {
@@ -221,19 +223,39 @@ export class InputManager {
             }
             // local csv data
             else {*/
-                if (columnHeader.fieldName.includes('error') || columnHeader.fieldName.includes('err')) {
-                    errorData['fields'].push(columnHeader);
-                }
-                else {
-                    xAxisData['fields'].push(columnHeader);
-                    yAxisData['fields'].push(columnHeader);
-                }
-            //}
+
+            // change this to configuration data set in moduleData for chart data preparation
+            if (columnHeader.fieldName.includes('error') || columnHeader.fieldName.includes('err')) {
+                errorData['axes'].push(columnHeader);
+            }
+            else {
+                let words = columnHeader.fieldName.split('_');
+                // Capitalize the first letter of each word
+                const displayName = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
+                xAxisData['axes'].push({ name: columnHeader.fieldName, displayName: displayName.join(' '), dataType: columnHeader.dataType });
+                yAxisData['axes'].push({ name: columnHeader.fieldName, displayName: displayName.join(' '), dataType: columnHeader.dataType });
+            }
+
+            // prepare seriesData
+            // get fieldName (e.g. telescope) and series (e.g. [{ name: 'assasn', displayName: 'ASSASN', dataType: 'category' }, ..])
+            if (columnHeader.dataType === 'category') {
+                seriesData['fieldName'] = columnHeader.fieldName;
+                const uniqueColVals = Array.from(new Set(sourceData.map(sd => sd[columnHeader.fieldName] )));
+                uniqueColVals.forEach(val => {
+                    const seriesName = val.replace(/\([^)]+\)/g, '').trim().replace('/', '_').replaceAll(' ', '-').toLowerCase();
+                    seriesData['series'].push({ name: seriesName, displayName: val, dataType: 'category' });
+                });
+                //console.log(columnVals);
+            }
         });
-        chartAxisData.push(xAxisData);
-        chartAxisData.push(yAxisData);
-        chartAxisData.push(errorData);
-        return chartAxisData;
+        chartData.push(xAxisData);
+        chartData.push(yAxisData);
+        chartData.push(errorData);
+        chartData.push(seriesData);
+
+        console.log(chartData);
+
+        return chartData;
     }
 
 

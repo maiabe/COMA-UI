@@ -12,7 +12,7 @@ import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
 import { DatasetTypes, DatasetFields, SearchFields, DefaultAxis } from '../../sharedVariables/moduleData.js';*/
 import {
     INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, WORKER_MANAGER,
-    DatasetTypes, DatasetFields, SearchFields, DefaultAxis,
+    DatasetTypes, DatasetFields, SearchFields, DefaultAxes,
 } from '../../sharedVariables/index.js'
 import g from '../../dataComponents/charts/lil-gui.module.min.js';
 
@@ -622,52 +622,73 @@ export class InspectorCardMaker {
 
 
     // send message to setModuleData (x and y values and plotly options)
-    // --------------------------- Chart Module ---------------------------
-    updateChartModuleInspectorCard(moduleKey, moduleData) {
-        const chartAxisData = moduleData.chartAxisData;
-        const datasetType = moduleData.datasetType;
-        //console.log(moduleData);
+    /**********************************************************************************************************************************/
+    /**********************************************************************************************************************************/
+    /**********************************************************************************************************************************/
 
-        var contentWrapper = this.HF.createNewDiv('', '', ['chart-inspector-wrapper'], [{ style: 'padding', value: '4%' }]);
+    /** 
+     *  Updates Chart module inspectorCard when link is drawn from a previous module (source/processor)
+     *  @param { moduleKey } Number key specific to this chart module
+     *  @param { moduleData } Object of the data passed on from the previous module
+     * */
+    updateChartModuleInspectorCard(moduleKey, moduleData) {
+        const chartData = moduleData.chartData; // change variable name to chartData?
+        const datasetType = moduleData.datasetType;
+        console.log(moduleData);
+
+        let contentWrapper = this.HF.createNewDiv(`chart-inspector-${moduleKey}`, '', ['chart-inspector-wrapper'], [{ style: 'padding', value: '4%' }]);
         this.inspectorCard.appendToBody(contentWrapper);
 
         //-- Add Chart Title
         const chartTitle = moduleData.objectName ? moduleData.objectName : datasetType;
-        var chartTitleWrapper = this.HF.createNewDiv('', '', ['chart-title-wrapper'], [{ style: "width", value: "100%" }]);
-        var chartTitleLabel = this.HF.createNewLabel('', '', `chart-title-${moduleKey}`, ['chart-title-label'], [], 'Chart Title: ');
-        var chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', chartTitle);
+        let chartTitleWrapper = this.HF.createNewDiv('', '', ['chart-title-wrapper'], [{ style: "width", value: "100%" }]);
+        const chartTitleLabel = this.HF.createNewLabel('', '', `chart-title-${moduleKey}`, ['chart-title-label'], [], 'Chart Title: ');
+        const chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', chartTitle);
         chartTitleWrapper.appendChild(chartTitleLabel);
         chartTitleWrapper.appendChild(chartTitleInput);
         contentWrapper.appendChild(chartTitleWrapper);
 
-        var chartAxisWrapper = this.HF.createNewDiv('', '', ['chart-axis-wrapper'], [{ style: "width", value: "100%" }]);
-        contentWrapper.appendChild(chartAxisWrapper);
+        let chartInspectorWrapper = this.HF.createNewDiv('', '', ['chart-inspector-wrapper'], [{ style: "width", value: "100%" }]);
+        contentWrapper.appendChild(chartInspectorWrapper);
+
+        //-- Create xAxis, yAxis, series tabs
+        var tabsWrapper = this.HF.createNewDiv('', '', ['chart-tabs'], [{ style: "width", value: "100%" }]);
+        var xAxisTab = this.HF.createNewDiv('', '', ['x-axis-tab', 'tab-button', 'active'], [{ style: "width", value: "15%" }], [{ attribute: 'data-tab', value: `xAxis-${moduleKey}` }], 'X Axis');
+        var yAxisTab = this.HF.createNewDiv('', '', ['y-axis-tab', 'tab-button'], [{ style: "width", value: "15%" }], [{ attribute: 'data-tab', value: `yAxis-${moduleKey}` }], 'Y Axis');
+        var seriesTab = this.HF.createNewDiv('', '', ['series-tab', 'tab-button'], [{ style: "width", value: "15%" }], [{ attribute: 'data-tab', value: `series-${moduleKey}` }], 'Series');
+        tabsWrapper.appendChild(xAxisTab);
+        tabsWrapper.appendChild(yAxisTab);
+        tabsWrapper.appendChild(seriesTab);
+        chartInspectorWrapper.appendChild(tabsWrapper);
 
         //-- Add Axis Cards
-        var xAxisFields = chartAxisData.filter(column => column.axis === 'xaxis');
-        var yAxisFields = chartAxisData.filter(column => column.axis === 'yaxis');
-        var errorFields = chartAxisData.filter(column => column.axis === 'error');
+        var xAxisData = chartData.filter(cd => cd.name === 'xaxis')[0];
+        var yAxisData = chartData.filter(cd => cd.name === 'yaxis')[0];
 
         // Find default field object to load (e.g. {type: "lightcurve", xaxis: "imagedate", yaxis: "mag", error: "mag_err"})
-        console.log(datasetType);
-        var defaultField = DefaultAxis.map(axisObj => { if (axisObj.datasetType == datasetType) { return axisObj } });
+        var defaultAxis = DefaultAxes.filter(da=> da.datasetType == datasetType)[0];
 
-        // Create X axis card
-        var xAxisName = { displayName: "X Axis", elementName: "xAxis" };
-        var xAxisDefault = (defaultField.length > 0) ? defaultField[0] ? defaultField[0].xAxis : undefined : undefined;
-        var xAxisCard = this.inspectorCard.addAxisCard(xAxisName, xAxisFields[0].fields, xAxisDefault);
-        chartAxisWrapper.appendChild(xAxisCard.getCard().wrapper);
+        //-- Create X axis card
+        var xAxisName = { displayName: "X Axis", elementId: "xAxis", activeTab: true };
+        var defaultXAxis = defaultAxis ? defaultAxis.xAxis : undefined;
+        var xAxisCard = this.inspectorCard.addAxisCard(moduleKey, xAxisName, xAxisData.axes, defaultXAxis);
+        chartInspectorWrapper.appendChild(xAxisCard.getCard().wrapper);
 
-        // Create Y axis card
-        var yAxisName = { displayName: "Y Axis", elementName: "yAxis" };
-        var yAxisDefault = (defaultField.length > 0) ? defaultField[0] ? defaultField[0].yAxis : undefined : undefined;
-        var yAxisCard = this.inspectorCard.addAxisCard(yAxisName, yAxisFields[0].fields, yAxisDefault);
-        chartAxisWrapper.appendChild(yAxisCard.getCard().wrapper);
+        //-- Create Y axis card
+        var yAxisName = { displayName: "Y Axis", elementId: "yAxis", activeTab: false };
+        var defaultYAxis = defaultAxis ? defaultAxis.yAxis : undefined;
+        var yAxisCard = this.inspectorCard.addAxisCard(moduleKey, yAxisName, yAxisData.axes, defaultYAxis);
+        chartInspectorWrapper.appendChild(yAxisCard.getCard().wrapper);
 
-        var seriesCard = this.inspectorCard.addSeriesCard(yAxisFields[0].fields, yAxisDefault, errorFields[0].fields, this.updateSeriesAxisOptions);
-        chartAxisWrapper.appendChild(seriesCard.getCard().wrapper);
+        //-- Prepare series fields here
+        const seriesData = chartData.filter(field => field.name === 'series')[0];
+        
+        //-- Create series card
+        const seriesCard = this.inspectorCard.addSeriesCard(moduleKey, seriesData.fieldName, seriesData.series);
+        chartInspectorWrapper.appendChild(seriesCard.getCard().wrapper);
 
-        this.addSeriesAxisOptions(xAxisCard, yAxisCard, seriesCard);
+        //-- Add tab button event listener
+        this.#createTabButtonEventListener(chartInspectorWrapper);
 
         //-- Add generateChartButton
         var generateChartButton = this.HF.createNewButton(`generate-chart-button-${moduleKey}`, '', ['generate-chart-button', 'button'], [{ style: 'width', value: '100%' }], 'button', 'Generate Chart', false);
@@ -691,7 +712,6 @@ export class InspectorCardMaker {
                 traceCards.forEach(traceCard => {
                     const fieldName = traceCard.getAttribute('id');
                     const dataType = traceCard.querySelector('.data-type');
-                    const fieldGroup = traceCard.querySelector('.field-group');
                     const labelName = traceCard.querySelector('.label-input');
                     const position = traceCard.querySelector('.position-options-dropdown');
                     const offset = traceCard.querySelector('.offset-option-wrapper .text-input');
@@ -702,7 +722,6 @@ export class InspectorCardMaker {
                     const traceCardContent = {
                         fieldName: fieldName,
                         dataType: dataType.value,
-                        fieldGroup: fieldGroup.value,
                         labelName: labelName ? labelName.value : fieldName,
                         position: position[position.selectedIndex].value,
                         offset: Number(offset.value),
@@ -716,29 +735,28 @@ export class InspectorCardMaker {
             });
             // add series data
             traceData['series'] = [];
-            const seriesCard = inspectorCard.querySelector('.series-card-wrapper');
-            var seriesTraceCards = seriesCard.querySelectorAll('.trace-card-wrapper');
-            seriesTraceCards.forEach(traceCard => {
-                var fieldName = traceCard.getAttribute('id');
-                var dataType = traceCard.querySelector('.data-type');
-                var fieldGroup = traceCard.querySelector('.field-group');
-                var labelName = traceCard.querySelector('.label-input');
-                var xAxisIndexDD = traceCard.querySelector('.xaxis-index-dropdown');
+            const seriesInspector = inspectorCard.querySelector('.series-inspector-wrapper');
+            var seriesCards = seriesInspector.querySelectorAll('.series-card-wrapper');
+            seriesCards.forEach(seriesCard => {
+                var fieldName = seriesCard.getAttribute('id');
+                var dataType = seriesCard.querySelector('.data-type');
+                var labelName = seriesCard.querySelector('.label-input');
+                var xAxisIndexDD = seriesCard.querySelector('.xaxis-index-dropdown');
                 var xAxisIndex = xAxisIndexDD.selectedIndex;
                 var xAxisName = xAxisIndexDD[xAxisIndexDD.selectedIndex].textContent;
-                var yAxisIndexDD = traceCard.querySelector('.yaxis-index-dropdown');
+                var yAxisIndexDD = seriesCard.querySelector('.yaxis-index-dropdown');
                 var yAxisIndex = yAxisIndexDD.selectedIndex;
                 var yAxisName = yAxisIndexDD[yAxisIndexDD.selectedIndex].textContent;
-                var errorDD = traceCard.querySelector('.error-dropdown');
+                var errorDD = seriesCard.querySelector('.error-dropdown');
                 var error = errorDD[errorDD.selectedIndex];
-                var symbolsDD = traceCard.querySelector('.symbols-dropdown');
+                var symbolsDD = seriesCard.querySelector('.symbols-dropdown');
                 var symbol = symbolsDD[symbolsDD.selectedIndex];
-                var datapointSize = traceCard.querySelector('.symbols-size-range-wrapper .text-input');
+                var datapointSize = seriesCard.querySelector('.symbols-size-range-wrapper .text-input');
 
                 var seriesContent = {
                     fieldName: fieldName,
+                    // add seriesName
                     dataType: dataType.value,
-                    fieldGroup: fieldGroup.value,
                     labelName: (labelName !== '') ? labelName.value : fieldName,
                     xAxisIndex: xAxisIndex,
                     xAxisName: xAxisName,
@@ -762,6 +780,31 @@ export class InspectorCardMaker {
         });
     }
 
+    // Create function in HTMLFactory?
+    #createTabButtonEventListener(chartInspectorWrapper) {
+        const tabButtons = chartInspectorWrapper.querySelectorAll('.tab-button');
+        const tabContents = chartInspectorWrapper.querySelectorAll('.tab-content');
+
+        // Add click event listeners to all tab buttons
+        tabButtons.forEach(button => {
+            button.addEventListener('click', e => {
+                // Remove 'active' classes from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => { content.classList.remove('active') });
+                // Add 'active' class to the clicked button
+                button.classList.add('active');
+
+                // Show the associated content
+                const tabId = button.getAttribute('data-tab');
+                const tabContent = document.getElementById(tabId);
+                tabContent.classList.add('active');
+            });
+        });
+
+
+    }
+
+
     /** Adds xAxisIndex & yAxisIndex dropdown options on initial inspector card load
      * @param {xAxisCard object} xAxisCard object for getting the xAxis traces
      * @param {yAxisCard object} yAxisCard object for getting the yAxis traces
@@ -776,14 +819,14 @@ export class InspectorCardMaker {
         var yTraces = yAxisTraceArea.querySelectorAll('.trace-card-wrapper');
         var seriesTraces = seriesTraceArea.querySelectorAll('.trace-card-wrapper');
 
-        /*console.log(xTraces);
+        console.log(xTraces);
         console.log(yTraces);
-        console.log(seriesTraces);*/
+        console.log(seriesTraces);
 
         var xOptions = [];
         var yOptions = [];
         xTraces.forEach((x, i) => { xOptions.push({ value: i, name: x.getAttribute('id') }) });
-        yTraces.forEach((x, i) => { yOptions.push({ value: i, name: x.getAttribute('id') }) });
+        yTraces.forEach((y, i) => { yOptions.push({ value: i, name: y.getAttribute('id') }) });
      
         // append to xAxisIndex & yAxisIndex dropdowns in each series trace cards
         seriesTraces.forEach(trace => {

@@ -47,13 +47,16 @@ export class HTMLFactory {
      * @param id -> the id of the element (if not adding id, use empty string '')
      * @param name -> the name of the element (if not adding name, use empty string '')
      * @param classlist -> Array of strings, each string is a css classname
-     * @param customStyles -> array of objects in the following format
-     *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
-     *                         value: 'green;}
+     * @param customStyles -> array of objects that contains custom style information
+     *                        style variable is in camelCase format for styles
+     *                        (e.g. [{ style: 'backgroundColor', value: 'white'  }, ...])
+     * @param customAttributes -> array of objects that contains custom attribute information
+     *                        (e.g. [{ attribute: 'data-tab', value: 'tab1' }, ...])
+     * @param text -> string of innerHTML value
      * @return the new div
      */
-    createNewDiv(id, name, classlist, customStyles) {
-        return this.#divGenerator.generateSimpleDiv(id, name, classlist, customStyles);
+    createNewDiv(id, name, classlist, customStyles, customAttributes, text) {
+        return this.#divGenerator.generateSimpleDiv(id, name, classlist, customStyles, customAttributes, text);
     }
 
     /** Creates a new HTML img element

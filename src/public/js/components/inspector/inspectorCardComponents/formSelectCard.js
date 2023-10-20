@@ -29,7 +29,7 @@ export class FormSelectCard {
     }
 
     #createWrapper() {
-        this.#wrapper = GM.HF.createNewDiv('', '', ['select-field-wrapper'], []);
+        this.#wrapper = GM.HF.createNewDiv('', '', ['select-field-wrapper'], [], [], '');
     }
 
     #createLabel(label) {
@@ -65,7 +65,7 @@ export class FormSelectCard {
      * @param {fieldinfo String} fieldinfo tooltip
      * */
     appendToolTip(fieldinfo, tooltipElement) {
-        var tooltipDiv = GM.HF.createNewDiv('', '', ['tooltip-div'], []);
+        var tooltipDiv = GM.HF.createNewDiv('', '', ['tooltip-div'], [], [], '');
         //var tooltipIcon = GM.HF.createNewIMG('', '', '../../../images/icons/info.png', ['tooltip-img'], [{ style: 'width', value: '30px' }], 'form field format');
         var tooltipSpan = GM.HF.createNewSpan('', '', ['tooltip-text'], [], fieldinfo);
 

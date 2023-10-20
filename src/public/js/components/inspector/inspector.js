@@ -33,7 +33,7 @@ export class Inspector {
     /** --- PRIVATE ---
      * Creates the HTML element and stores it in the domNodes object. */
     #createInspectorModuleCardContainer() {
-        this.domNodes.moduleCardContainer = GM.HF.createNewDiv('inspector-module-card-container', 'inspector-card-container', ['inspector-card-container'], []);
+        this.domNodes.moduleCardContainer = GM.HF.createNewDiv('inspector-module-card-container', 'inspector-card-container', ['inspector-card-container'], [], [], '');
         this.domNodes.container.appendChild(this.domNodes.moduleCardContainer);
     }
 
@@ -103,8 +103,8 @@ export class Inspector {
             // append suggestions elements to the resultContainer
             data.forEach(suggestion => {
                 console.log(suggestion);
-                let suggestionElement = this.HF.createNewDiv('', '', ['object-suggestion'], []);
-                suggestionElement.textContent = suggestion.ui_name;
+                let suggestionElement = this.HF.createNewDiv('', '', ['object-suggestion'], [], [], suggestion.ui_name);
+                //suggestionElement.textContent = suggestion.ui_name;
                 suggestionElement.addEventListener('click', () => {
                     // When a suggestion is clicked, populate the input with the suggestion
                     fieldWrapper.querySelector('input').setAttribute("object-id", suggestion.id);

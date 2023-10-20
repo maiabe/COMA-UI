@@ -48,9 +48,9 @@ export class Popup {
      * @param {string} headerText text to display in popup header.
      */
     #createHTMLElement = headerText => {
-        this.element = this.HF.createNewDiv(`popup-${this.key}`, `popup-${this.key}`, ['popup'], [{ style: 'visibility', value: 'hidden' }]);
+        this.element = this.HF.createNewDiv(`popup-${this.key}`, `popup-${this.key}`, ['popup'], [{ style: 'visibility', value: 'hidden' }], [], '');
         this.#createHeader(headerText);
-        this.body = this.HF.createNewDiv(`popup-body-${this.key}`, `popup-body-${this.key}`, ['popupBody'], []);
+        this.body = this.HF.createNewDiv(`popup-body-${this.key}`, `popup-body-${this.key}`, ['popupBody'], [], [], '');
         this.element.appendChild(this.header);
         this.element.appendChild(this.body);
         this.#setBodyContent(this.content);
@@ -63,10 +63,10 @@ export class Popup {
      * @param {string} headerText ext to display in popup header.
      */
     #createHeader = headerText => {
-        this.header = this.HF.createNewDiv(`popup-header-${this.key}`, `popup-header-${this.key}`, ['popupHeader'], [{ style: 'backgroundColor', value: this.headerColor }]);
+        this.header = this.HF.createNewDiv(`popup-header-${this.key}`, `popup-header-${this.key}`, ['popupHeader'], [{ style: 'backgroundColor', value: this.headerColor }], [], '');
         this.headerTitle = this.HF.createNewParagraph('', '', ['popupHeaderTitle'], [], headerText);
         this.header.appendChild(this.headerTitle);
-        const closeIcon = this.HF.createNewDiv('', '', ['closePopupIcon'], []);
+        const closeIcon = this.HF.createNewDiv('', '', ['closePopupIcon'], [], [], '');
         const img = this.HF.createNewIMG('', '', 'images/icons/cancel.png', [], [], 'Close Popup Button');
         closeIcon.appendChild(img);
         closeIcon.addEventListener('click', this.close);
@@ -77,7 +77,7 @@ export class Popup {
      * Creates the HTML element that goes in the corner of the popup. User places cursor in this area to begin resize.
      */
     #createResizeDiv = () => {
-        this.resizeDiv = this.HF.createNewDiv(`popup-resize-${this.id}`, `popup-resize-${this.id}`, ['popupResize'], []);
+        this.resizeDiv = this.HF.createNewDiv(`popup-resize-${this.id}`, `popup-resize-${this.id}`, ['popupResize'], [], [], '');
         this.element.appendChild(this.resizeDiv);
     }
 

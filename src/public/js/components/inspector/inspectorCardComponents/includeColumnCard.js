@@ -15,7 +15,7 @@ export class IncludeColumnCard {
 
     // params: fields object includes the { fieldName, displayName, units (temp) }
     constructor(moduleKey, columnHeaders, buttonName) {
-        this.#wrapper = GM.HF.createNewDiv('include-column-card-' + moduleKey, '', ['include-column-card'], []);
+        this.#wrapper = GM.HF.createNewDiv('include-column-card-' + moduleKey, '', ['include-column-card'], [], [], '');
 
         //this.#appendChildren(this.#wrapper, header, checkboxArray);
         this.#createElements(moduleKey, columnHeaders, buttonName);
@@ -40,8 +40,8 @@ export class IncludeColumnCard {
     }
 
     #createFieldsInputTable(columnHeaders) {
-        const bodyWrapper = GM.HF.createNewDiv('', '', ['body-wrapper'], []);
-        const columnTitleWrapper = GM.HF.createNewDiv('', '', ['title-wrapper'], []);
+        const bodyWrapper = GM.HF.createNewDiv('', '', ['body-wrapper'], [], [], '');
+        const columnTitleWrapper = GM.HF.createNewDiv('', '', ['title-wrapper'], [], [], '');
 
         // create column title
         //const columnTitle_Include = GM.HF.createNewH3('', '', ['include-column-card-title'], [{ style: 'width', value: '23.33%' }, { style: 'text-align', value: 'center' }], 'Include');
@@ -53,7 +53,7 @@ export class IncludeColumnCard {
         //columnTitleWrapper.appendChild(columnTitle_Units);
         bodyWrapper.appendChild(columnTitleWrapper);
 
-        const includeColumnsWrapper = GM.HF.createNewDiv('', '', ['include-columns-wrapper'], []);
+        const includeColumnsWrapper = GM.HF.createNewDiv('', '', ['include-columns-wrapper'], [], [], '');
         bodyWrapper.appendChild(includeColumnsWrapper);
 
         /*columnHeaders = [
@@ -71,9 +71,9 @@ export class IncludeColumnCard {
             var column = columnHeader;
             if (column.hasOwnProperty('data')) {
                 var columnData = column.data;
-                var columnGroupWrapper = GM.HF.createNewDiv('', '', ['column-group-wrapper'], []);
+                var columnGroupWrapper = GM.HF.createNewDiv('', '', ['column-group-wrapper'], [], [], '');
                 var columnDataLabel = GM.HF.createNewLabel('', '', `column-group-${column.fieldName}`, ['column-group-label'], [], column.fieldName)
-                var columnDataWrapper = GM.HF.createNewDiv(`column-group-${column.fieldName}`, `${column.fieldName}`, ['column-group'], []);
+                var columnDataWrapper = GM.HF.createNewDiv(`column-group-${column.fieldName}`, `${column.fieldName}`, ['column-group'], [], [], '');
                 columnGroupWrapper.appendChild(columnDataLabel);
                 columnData.forEach(cd => {
                     column = cd;
@@ -94,9 +94,9 @@ export class IncludeColumnCard {
     #createColumnGroups(columnHeaders, columnWrapper) {
         columnHeaders.forEach(columnHeader => {
             if (columnHeader.hasOwnProperty('data')) {
-                var columnGroupWrapper = GM.HF.createNewDiv('', '', ['column-group-wrapper'], []);
+                var columnGroupWrapper = GM.HF.createNewDiv('', '', ['column-group-wrapper'], [], [], '');
                 var columnDataLabel = GM.HF.createNewLabel('', '', `column-group-${columnHeader.fieldName}`, ['column-group-label'], [], columnHeader.fieldName)
-                var columnDataWrapper = GM.HF.createNewDiv(`column-group-${columnHeader.fieldName}`, `${columnHeader.fieldName}`, ['column-group'], []);
+                var columnDataWrapper = GM.HF.createNewDiv(`column-group-${columnHeader.fieldName}`, `${columnHeader.fieldName}`, ['column-group'], [], [], '');
                 columnGroupWrapper.appendChild(columnDataLabel);
                 columnGroupWrapper.appendChild(columnDataWrapper);
                 columnWrapper.appendChild(columnGroupWrapper);
@@ -112,10 +112,10 @@ export class IncludeColumnCard {
     }
 
     #createFieldElements(column) {
-        const columnInputWrapper = GM.HF.createNewDiv('', '', ['column-wrapper'], []);
+        const columnInputWrapper = GM.HF.createNewDiv('', '', ['column-wrapper'], [], [], '');
 
         var checkbox = GM.HF.createNewCheckbox('checkbox-' + column.fieldName, column.fieldName, ['include-column-checkbox'], [], column.fieldName, column.fieldName, true);
-        var unitsWrapper = GM.HF.createNewDiv('', '', ['dropdown-wrapper'], []);
+        var unitsWrapper = GM.HF.createNewDiv('', '', ['dropdown-wrapper'], [], [], '');
         if (column.units) {
             var unitsDropdown = GM.HF.createNewSelect('dropdown-' + column.fieldName, column.fieldName, ['include-column-dropdown'], [], Object.keys(column.units), Object.keys(column.units));
             unitsWrapper.appendChild(unitsDropdown);
@@ -128,7 +128,7 @@ export class IncludeColumnCard {
     
 
     #createViewButton(moduleKey, buttonName) {
-        const viewButtonWrapper = GM.HF.createNewDiv('', '', ['view-button-wrapper'], []);
+        const viewButtonWrapper = GM.HF.createNewDiv('', '', ['view-button-wrapper'], [], [], '');
         const viewButton = GM.HF.createNewButton('view-button-'+ moduleKey, '', ['btn', 'view-btn'], [], 'button', buttonName, false);
         viewButtonWrapper.appendChild(viewButton);
         this.#viewButton = viewButtonWrapper;

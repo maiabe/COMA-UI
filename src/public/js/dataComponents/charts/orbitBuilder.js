@@ -102,7 +102,7 @@ export class OrbitBuilder {
     /*#addLegend(name, color, legendDiv) {
         // list? use span and set backgroundColor to create color lines?
 
-        const legendItem = this.#HF.createNewDiv('', '', ['orbit-legend-item'], []);
+        const legendItem = this.#HF.createNewDiv('', '', ['orbit-legend-item'], [], [], '');
 
         // get planet code here
         const planetCodeObject = PlanetCodes.filter(p => p.name === name);
@@ -185,7 +185,7 @@ export class OrbitBuilder {
 
         // create legendDOM
         /*const legendDiv = this.#HF.createNewDiv('', '', ['orbit-legend'],
-            [{ style: 'position', value: 'absolute' }, { style: 'z-index', value: '2' }, { style: 'color', value: 'white' }, { style: 'top', value: '50px' }, { style: 'left', value: '50px' }, { style: 'margin', value: '2% 0' }]);
+            [{ style: 'position', value: 'absolute' }, { style: 'z-index', value: '2' }, { style: 'color', value: 'white' }, { style: 'top', value: '50px' }, { style: 'left', value: '50px' }, { style: 'margin', value: '2% 0' }], [], '');
         div.appendChild(legendDiv);
 */
 
