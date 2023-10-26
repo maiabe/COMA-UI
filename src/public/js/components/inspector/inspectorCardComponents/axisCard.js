@@ -8,7 +8,7 @@ import { GM } from "../../../main.js";
 export class AxisCard {
 
     #wrapper;
-    #axisName;
+    #axisContentInfo;
     #axisHeader;
     #axisContent;
     #axisDropdown;
@@ -19,25 +19,25 @@ export class AxisCard {
 
     /** Creates an axis card for Chart Module inspector card.
      * @param { moduleKey } Number key of the module
-     * @param { axisName } Object consists of elementId, displayName, and activeTab variables of this axisCard
-     *                            (e.g. { elementId: 'xAxis', displayName: 'X Axis', activeTab: true })
+     * @param { axisContentInfo } Object consists of name, displayName, and activeTab information of this axisCard
+     *                            (e.g. { name: 'xAxis', displayName: 'X Axis', activeTab: true })
      * @param { axes } Array of objects with name, displayName and dataType information
      *                      (e.g. [{ name: 'iso_date_mjd', displayName: 'ISO Date', dataType: 'time' }, ..])
      * @param { defaultAxis } Object that consists of name, displayName and dataType information of a specified default axis.
      *                               defaultAxis will be an undefined object if it is not set for the current datasetType
      *                               (e.g. { name: 'mag', displayName: 'magnitude', dataType: 'value' })
      */
-    constructor(moduleKey, axisName, axes, defaultAxis) {
-        this.#axisName = axisName;
-        this.#createElements(moduleKey, axisName, axes, defaultAxis);
+    constructor(moduleKey, axisContentInfo, axes, defaultAxis) {
+        this.#axisContentInfo= axisContentInfo;
+        this.#createElements(moduleKey, axisContentInfo, axes, defaultAxis);
         this.#buildCard();
-        this.#addAxisFunction(moduleKey, axisName.elementId, axes);
+        this.#addAxisFunction(axisContentInfo.name, axes);
     }
 
-    #createElements(moduleKey, axisName, axes, defaultAxis) {
-        this.#createWrapper(moduleKey, axisName);
+    #createElements(moduleKey, axisContentInfo, axes, defaultAxis) {
+        this.#createWrapper(moduleKey, axisContentInfo);
         //this.#createHeader(axisName);
-        this.#createContent(moduleKey, axisName, axes, defaultAxis);
+        this.#createContent(axisContentInfo, axes, defaultAxis);
     }
 
     #buildCard() {
@@ -45,24 +45,24 @@ export class AxisCard {
         this.#wrapper.appendChild(this.#axisContent);
     }
 
-    #createWrapper(moduleKey, axisName) {
-        this.#wrapper = GM.HF.createNewDiv(`${axisName.elementId}-${moduleKey}`, '', ['axis-card-wrapper', 'tab-content'], [], [], '');
-        if (axisName.activeTab) {
+    #createWrapper(moduleKey, axisContentInfo) {
+        this.#wrapper = GM.HF.createNewDiv(`${axisContentInfo.name}-${moduleKey}`, axisContentInfo.name, ['axis-tab-content', 'tab-content'], [], [], '');
+        if (axisContentInfo.activeTab) {
             this.#wrapper.classList.add('active');
         }
     }
 
     // create header
-    #createHeader(axisName) {
+    #createHeader(axisContentInfo) {
         const axisCardHeader = GM.HF.createNewDiv('', '', ['axis-card-header', 'header'], [], [], '');
-        axisCardHeader.innerHTML = axisName.displayName;
+        axisCardHeader.innerHTML = axisContentInfo.displayName;
         this.#wrapper.appendChild(axisCardHeader);
         this.#axisHeader = axisCardHeader;
     }
 
     // create content --> dropdowns & labels & (other chart options) & addTrace button for each field (add function to addTrace button)
-    #createContent(moduleKey, axisName, axes, defaultAxis) {
-        console.log(axes);
+    #createContent(axisContentInfo, axes, defaultAxis) {
+        //console.log(axes);
         //console.log(defaultAxis);
         //console.log(errorFields);
         if (axes) {
@@ -93,7 +93,7 @@ export class AxisCard {
             if (defaultAxis) {
                 axis = axes.filter(a => a.name === defaultAxis.name)[0];
             }
-            this.#createAxisCard(axisName.elementId, axis);
+            this.#createAxisCard(axisContentInfo.name, axis);
 
             // label input for the added trace.. other options for the chart
             contentWrapper.appendChild(axesWrapper);
@@ -107,7 +107,8 @@ export class AxisCard {
     }
 
 
-    #addAxisFunction(axisName, axes) {
+    #addAxisFunction(axisContentName, axes) {
+        //console.log(axes);
         const button = this.#addAxisButton;
         button.addEventListener('click', e => {
             //-- Get the selected axis option
@@ -116,9 +117,9 @@ export class AxisCard {
             let selectedAxis = axes.filter(a => a.name === selected.value)[0];
             //-- Create new Axis Card
             if (selected.value !== 'none') {
-                var axisCard = this.#createAxisCard(axisName, selectedAxis);
+                var axisCard = this.#createAxisCard(axisContentName, selectedAxis);
                 //-- Update Axis reference options in Series cards
-                this.updateSeriesAxisOptions('add', axisName, axisCard);
+                this.updateSeriesAxisOptions('add', axisContentName, axisCard);
             }
         });
     }
@@ -128,8 +129,8 @@ export class AxisCard {
      * @param { axisName } Object that consists of elementId and displayName of the axisCard
      * @param { axis } Object that consists of axis information for the axisCard to be created
      * */
-    #createAxisCard(axisName, axis) {
-        console.log(axis);
+    #createAxisCard(axisContentName, axis) {
+        //console.log(axis);
         var axisArea = this.#axisArea;
 
         //-- Create traceCard content
@@ -138,7 +139,7 @@ export class AxisCard {
         //-- Create traceCard header
         let header = GM.HF.createNewDiv('', '', ['axis-card-header'], [], [], '');
         let axisTitle = GM.HF.createNewSpan('', 'axis-title', ['axis-title'], [], axis.name);
-        let axisDataType = GM.HF.createNewTextInput('', 'data-type', ['axis-data-type'], [], 'hidden', axis.dataType);
+        let axisDataType = GM.HF.createNewTextInput('', '', ['data-type'], [], 'hidden', axis.dataType);
         let removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete_1.png', ['remove-button', 'button'], [], '');
         header.appendChild(axisTitle);
         header.appendChild(axisDataType);
@@ -187,7 +188,7 @@ export class AxisCard {
         //-- Create positions options
         let positionOptionsWrapper = GM.HF.createNewDiv('', '', ['position-options-wrapper', 'axis-card-element'], [], [], '');
         // position option
-        let positionOptions = this.#createPositionOptions(axisName.elementId);
+        let positionOptions = this.#createPositionOptions(axisContentName.name);
         let positionOptionsLabel = GM.HF.createNewSpan('', '', ['position-options-label'], [], `Axis Position: `);
         let positionOptionsDropdown = GM.HF.createNewSelect('', '', ['position-options-dropdown'], [], positionOptions, positionOptions);
         positionOptionsWrapper.appendChild(positionOptionsLabel);
@@ -231,9 +232,9 @@ export class AxisCard {
     }
 
     //-- Creates options array for axis position configuration
-    #createPositionOptions(axisName) {
+    #createPositionOptions(axisContentName) {
         var positionOptions = [];
-        if (axisName === 'xAxis') {
+        if (axisContentName === 'xAxis') {
             positionOptions = ['bottom', 'top'];
         }
         else {
@@ -245,7 +246,7 @@ export class AxisCard {
     #removeAxisFunction(button) {
         // for xaxis don't remove if axisCard is less than or equal to 1
         button.addEventListener('click', e => {
-            let axisName = e.target.closest('.axis-card-wrapper').getAttribute('id');
+            let axisContentName = e.target.closest('.axis-tab-content').getAttribute('name');
             let axisArea = e.target.closest('.axis-area');
             let axisCard = e.target.closest('.axis-card-wrapper');
 
@@ -255,20 +256,29 @@ export class AxisCard {
                 // Don't remove axisCard if there is only one left in axisArea
             }
             else {
-                this.updateSeriesAxisOptions('remove', axisName, axisCard);
+                //-- Update the axis reference dropdown in series content
+                this.updateSeriesAxisOptions('remove', axisContentName, axisCard);
                 axisArea.removeChild(axisCard);
             }
         });
     }
 
-    updateSeriesAxisOptions(action, axisName, axisCard) {
-        console.log(axisName);
-        console.log(axisCard);
-        var axisName = axisCard.getAttribute('id');
-        var axisCard = axisCard.closest('.chart-inspector-wrapper');
-        var series = seriesCard.querySelectorAll('.series-card-wrapper .axis-area .axis-card-wrapper');
-        series.forEach(t => {
-            var dropdown = t.querySelector(`.${axisName}-index-dropdown`);
+
+    /** 
+     *  Updates the Series Axis Reference Options in the series content
+     *  If the action is to 'add' an axis, the name of the axis will be added to the axis reference dropdown in series content
+     *  If the action is to 'remove' an axis, the name of the axis will be removed from the axis reference dropdown in series content
+     *  @param { action } String of the action to add or remove an axis from axisArea
+     *  @param { axisContentName } String of the axis content name, either xAxis or yAxis
+     *  @param { axisCard } HTMLObject of the axisCard added/removed from axisArea
+     * */
+    updateSeriesAxisOptions(action, axisContentName, axisCard) {
+        const axisName = axisCard.getAttribute('id'); // xaxis or yaxis
+        const inspectorWrapper = axisCard.closest('.chart-inspector-wrapper');
+        //-- Select corresponding seriesCards and add/remove from axis reference dropdown
+        const seriesCards = inspectorWrapper.querySelectorAll('.series-tab-content .series-area .series-card-wrapper');
+        seriesCards.forEach(seriesCard => {
+            const dropdown = seriesCard.querySelector(`.${axisContentName.toLowerCase()}-index-dropdown`);
             switch (action) {
                 case 'add':
                     var index = dropdown.options.length;
@@ -437,7 +447,7 @@ export class AxisCard {
 
     getCard() {
         return {
-            card: this, wrapper: this.#wrapper, content: this.#axisContent, axisName: this.#axisName,
+            card: this, wrapper: this.#wrapper, content: this.#axisContent, axisContentInfo: this.#axisContentInfo,
             axisDropdown: this.#axisDropdown, axisArea: this.#axisArea, addAxisButton: this.#addAxisButton
         };
     }

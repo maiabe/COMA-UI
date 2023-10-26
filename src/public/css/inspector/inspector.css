@@ -1,17 +1,9 @@
 /* Inspector is on the far right side of the screen */
 #inspector {
   width: 38%;
-  height: 100%;
-  position: relative;
   float: right;
   border: 0.1px solid transparent;
   border-radius: 10px 10px 0 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  /* outline: 1px solid black; */
 }
 #inspector > h1 {
   width: 100%;
@@ -43,7 +35,7 @@
 .inspector-header-button:hover {
   background-color: #5b8c5a;
 }
-.inspector-card-container {
+/*.inspector-card-container {
   position: relative;
   top: -100px;
   width: 100%;
@@ -51,7 +43,7 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-}
+}*/
 
 .active-header-button {
   background-color: #5b8c5a;

@@ -652,77 +652,77 @@ export class InspectorCardMaker {
         contentWrapper.appendChild(chartInspectorWrapper);
 
         //-- Create xAxis, yAxis, series tabs
-        var tabsWrapper = this.HF.createNewDiv('', '', ['chart-tabs'], [{ style: "width", value: "100%" }]);
-        var xAxisTab = this.HF.createNewDiv('', '', ['x-axis-tab', 'tab-button', 'active'], [{ style: "width", value: "15%" }], [{ attribute: 'data-tab', value: `xAxis-${moduleKey}` }], 'X Axis');
-        var yAxisTab = this.HF.createNewDiv('', '', ['y-axis-tab', 'tab-button'], [{ style: "width", value: "15%" }], [{ attribute: 'data-tab', value: `yAxis-${moduleKey}` }], 'Y Axis');
-        var seriesTab = this.HF.createNewDiv('', '', ['series-tab', 'tab-button'], [{ style: "width", value: "15%" }], [{ attribute: 'data-tab', value: `series-${moduleKey}` }], 'Series');
+        const tabsWrapper = this.HF.createNewDiv('', '', ['chart-tabs'], [{ style: "width", value: "100%" }]);
+        const xAxisTab = this.HF.createNewDiv('', '', ['x-axis-tab', 'tab-button', 'active'], [{ style: "width", value: "15%" }], [{ attribute: 'data-tab', value: `xAxis-${moduleKey}` }], 'X Axis');
+        const yAxisTab = this.HF.createNewDiv('', '', ['y-axis-tab', 'tab-button'], [{ style: "width", value: "15%" }], [{ attribute: 'data-tab', value: `yAxis-${moduleKey}` }], 'Y Axis');
+        const seriesTab = this.HF.createNewDiv('', '', ['series-tab', 'tab-button'], [{ style: "width", value: "15%" }], [{ attribute: 'data-tab', value: `series-${moduleKey}` }], 'Series');
         tabsWrapper.appendChild(xAxisTab);
         tabsWrapper.appendChild(yAxisTab);
         tabsWrapper.appendChild(seriesTab);
         chartInspectorWrapper.appendChild(tabsWrapper);
 
         //-- Add Axis Cards
-        var xAxisData = chartData.filter(cd => cd.name === 'xaxis')[0];
-        var yAxisData = chartData.filter(cd => cd.name === 'yaxis')[0];
+        const xAxisData = chartData.filter(cd => cd.name === 'xaxis')[0];
+        const yAxisData = chartData.filter(cd => cd.name === 'yaxis')[0];
 
         // Find default field object to load (e.g. {type: "lightcurve", xaxis: "imagedate", yaxis: "mag", error: "mag_err"})
-        var defaultAxis = DefaultAxes.filter(da=> da.datasetType == datasetType)[0];
+        const defaultAxis = DefaultAxes.filter(da=> da.datasetType == datasetType)[0];
 
         //-- Create X axis card
-        var xAxisName = { displayName: "X Axis", elementId: "xAxis", activeTab: true };
-        var defaultXAxis = defaultAxis ? defaultAxis.xAxis : undefined;
-        var xAxisCard = this.inspectorCard.addAxisCard(moduleKey, xAxisName, xAxisData.axes, defaultXAxis);
+        const xAxisContentInfo = { name: 'xAxis', displayName: 'X Axis', activeTab: true };
+        const defaultXAxis = defaultAxis ? defaultAxis.xAxis : undefined;
+        const xAxisCard = this.inspectorCard.addAxisCard(moduleKey, xAxisContentInfo, xAxisData.axes, defaultXAxis);
         chartInspectorWrapper.appendChild(xAxisCard.getCard().wrapper);
 
         //-- Create Y axis card
-        var yAxisName = { displayName: "Y Axis", elementId: "yAxis", activeTab: false };
-        var defaultYAxis = defaultAxis ? defaultAxis.yAxis : undefined;
-        var yAxisCard = this.inspectorCard.addAxisCard(moduleKey, yAxisName, yAxisData.axes, defaultYAxis);
+        const yAxisContentInfo = { name: 'yAxis', displayName: 'Y Axis', activeTab: false };
+        const defaultYAxis = defaultAxis ? defaultAxis.yAxis : undefined;
+        const yAxisCard = this.inspectorCard.addAxisCard(moduleKey, yAxisContentInfo, yAxisData.axes, defaultYAxis);
         chartInspectorWrapper.appendChild(yAxisCard.getCard().wrapper);
 
         //-- Prepare series fields here
-        const seriesData = chartData.filter(field => field.name === 'series')[0];
-        
+        const seriesData = chartData.filter(cd => cd.name === 'series')[0];
+
         //-- Create series card
-        const seriesCard = this.inspectorCard.addSeriesCard(moduleKey, seriesData.fieldName, seriesData.series);
+        const seriesCard = this.inspectorCard.addSeriesCard(moduleKey, seriesData.fields);
         chartInspectorWrapper.appendChild(seriesCard.getCard().wrapper);
 
         //-- Add tab button event listener
         this.#createTabButtonEventListener(chartInspectorWrapper);
 
         //-- Add generateChartButton
-        var generateChartButton = this.HF.createNewButton(`generate-chart-button-${moduleKey}`, '', ['generate-chart-button', 'button'], [{ style: 'width', value: '100%' }], 'button', 'Generate Chart', false);
+        const generateChartButton = this.HF.createNewButton(`generate-chart-button-${moduleKey}`, '', ['generate-chart-button', 'button'], [{ style: 'width', value: '100%' }], 'button', 'Generate Chart', false);
         contentWrapper.appendChild(generateChartButton);
 
-        // Send message to Output Manager
+        //-- Send message to Output Manager
         generateChartButton.addEventListener('click', (e) => {
-            // get current trace card information
+            //-- Get current axis card information
             const inspectorCard = e.target.closest('.inspector-card-body');
-            console.log(inspectorCard);
-
             const chartTitle = inspectorCard.querySelector('.chart-title');
-            const axisCards = inspectorCard.querySelectorAll('.axis-card-wrapper');
+
+            //-- Get axisData
+            const axisTabContents = inspectorCard.querySelectorAll('.axis-tab-content'); // xAxis and yAxis contents
             // foreach axisCards
-            var traceData = {};
-            axisCards.forEach(axisCard => {
-                const axis = axisCard.getAttribute('id');
-                const traceArea = axisCard.querySelector('.trace-area');
-                const traceCards = traceArea.querySelectorAll('.trace-card-wrapper');
-                traceData[axis] = [];
-                traceCards.forEach(traceCard => {
-                    const fieldName = traceCard.getAttribute('id');
-                    const dataType = traceCard.querySelector('.data-type');
-                    const labelName = traceCard.querySelector('.label-input');
-                    const position = traceCard.querySelector('.position-options-dropdown');
-                    const offset = traceCard.querySelector('.offset-option-wrapper .text-input');
-                    const majorGridLines = traceCard.querySelector('.major-gridlines');
-                    const minorGridLines = traceCard.querySelector('.minor-gridlines');
-                    const ticks = traceCard.querySelector('.minor-ticks');
-                    const inverse = traceCard.querySelector('.inverse');
-                    const traceCardContent = {
-                        fieldName: fieldName,
+            const chartData = {};
+            axisTabContents.forEach(axisTabContent => {
+                const axisContentName = axisTabContent.getAttribute('id').split('-')[0];
+                const axisArea = axisTabContent.querySelector('.axis-area');
+                const axisCards = axisArea.querySelectorAll('.axis-card-wrapper');
+                chartData[axisContentName] = [];
+                axisCards.forEach(axisCard => {
+                    const axisName = axisCard.getAttribute('id');
+                    const dataType = axisCard.querySelector('.data-type');
+                    const labelName = axisCard.querySelector('.label-input');
+                    const position = axisCard.querySelector('.position-options-dropdown');
+                    const offset = axisCard.querySelector('.offset-option-wrapper .text-input');
+                    const majorGridLines = axisCard.querySelector('.major-gridlines');
+                    const minorGridLines = axisCard.querySelector('.minor-gridlines');
+                    const ticks = axisCard.querySelector('.minor-ticks');
+                    const inverse = axisCard.querySelector('.inverse');
+                    const axisCardContent = {
+                        axisName: axisName,
                         dataType: dataType.value,
-                        labelName: labelName ? labelName.value : fieldName,
+                        labelName: labelName ? labelName.value : axisName,
                         position: position[position.selectedIndex].value,
                         offset: Number(offset.value),
                         majorGridLines: majorGridLines ? majorGridLines.checked : false,
@@ -730,34 +730,39 @@ export class InspectorCardMaker {
                         ticks: ticks ? ticks.checked : false,
                         inverse: inverse ? inverse.checked : false, 
                     };
-                    traceData[axis].push(traceCardContent);
+                    chartData[axisContentName].push(axisCardContent);
                 });
             });
-            // add series data
-            traceData['series'] = [];
-            const seriesInspector = inspectorCard.querySelector('.series-inspector-wrapper');
-            var seriesCards = seriesInspector.querySelectorAll('.series-card-wrapper');
-            seriesCards.forEach(seriesCard => {
-                var fieldName = seriesCard.getAttribute('id');
-                var dataType = seriesCard.querySelector('.data-type');
-                var labelName = seriesCard.querySelector('.label-input');
-                var xAxisIndexDD = seriesCard.querySelector('.xaxis-index-dropdown');
-                var xAxisIndex = xAxisIndexDD.selectedIndex;
-                var xAxisName = xAxisIndexDD[xAxisIndexDD.selectedIndex].textContent;
-                var yAxisIndexDD = seriesCard.querySelector('.yaxis-index-dropdown');
-                var yAxisIndex = yAxisIndexDD.selectedIndex;
-                var yAxisName = yAxisIndexDD[yAxisIndexDD.selectedIndex].textContent;
-                var errorDD = seriesCard.querySelector('.error-dropdown');
-                var error = errorDD[errorDD.selectedIndex];
-                var symbolsDD = seriesCard.querySelector('.symbols-dropdown');
-                var symbol = symbolsDD[symbolsDD.selectedIndex];
-                var datapointSize = seriesCard.querySelector('.symbols-size-range-wrapper .text-input');
 
-                var seriesContent = {
+            // add series data
+            chartData['series'] = [];
+            const seriesTabContent = inspectorCard.querySelector('.series-tab-content');
+            const seriesCards = seriesTabContent.querySelectorAll('.series-card-wrapper');
+            seriesCards.forEach(seriesCard => {
+                const seriesCardId = seriesCard.getAttribute('id');
+                const fieldName = seriesCardId.split('-')[0];
+
+                const header = seriesCard.querySelector('.series-card-header span');
+                const dataType = seriesCard.querySelector('.data-type');
+                const labelName = seriesCard.querySelector('.label-input');
+                const xAxisIndexDD = seriesCard.querySelector('.xaxis-index-dropdown');
+                const xAxisIndex = xAxisIndexDD.selectedIndex;
+                const xAxisName = xAxisIndexDD[xAxisIndexDD.selectedIndex].textContent;
+                const yAxisIndexDD = seriesCard.querySelector('.yaxis-index-dropdown');
+                const yAxisIndex = yAxisIndexDD.selectedIndex;
+                const yAxisName = yAxisIndexDD[yAxisIndexDD.selectedIndex].textContent;
+                const errorDD = seriesCard.querySelector('.error-dropdown');
+                const error = errorDD[errorDD.selectedIndex];
+                const symbolsDD = seriesCard.querySelector('.symbols-dropdown');
+                const symbol = symbolsDD[symbolsDD.selectedIndex];
+                const datapointSize = seriesCard.querySelector('.symbols-size-range-wrapper .text-input');
+
+                const seriesContent = {
                     fieldName: fieldName,
+                    seriesName: header.textContent,
                     // add seriesName
                     dataType: dataType.value,
-                    labelName: (labelName !== '') ? labelName.value : fieldName,
+                    labelName: (labelName !== '') ? labelName.value : seriesName,
                     xAxisIndex: xAxisIndex,
                     xAxisName: xAxisName,
                     yAxisIndex: yAxisIndex,
@@ -766,21 +771,23 @@ export class InspectorCardMaker {
                     symbol: symbol.value,
                     symbolSize: Number(datapointSize.value),
                 };
-                traceData['series'].push(seriesContent);
+                chartData['series'].push(seriesContent);
             });
 
-            moduleData['moduleKey'] = moduleKey;
             moduleData['datasetType'] = datasetType;
             moduleData['chartTitle'] = chartTitle ? chartTitle.value : datasetType;
-            moduleData['traceData'] = traceData;
+            moduleData['chartData'] = chartData;
 
             console.log(moduleData);
-            const message = new Message(OUTPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Set New Chart Event', moduleData);
+            const message = new Message(OUTPUT_MANAGER, INSPECTOR_CARD_MAKER, 'Set New Chart Event', { moduleKey: moduleKey, moduleData: moduleData });
             this.sendMessage(message);
         });
     }
 
-    // Create function in HTMLFactory?
+    /** 
+     *  Creates a tab button event listener for toggling tab contents
+     *  @param { chartInspectorWrapper } HTMLObject of a chart inspector card
+     */
     #createTabButtonEventListener(chartInspectorWrapper) {
         const tabButtons = chartInspectorWrapper.querySelectorAll('.tab-button');
         const tabContents = chartInspectorWrapper.querySelectorAll('.tab-content');

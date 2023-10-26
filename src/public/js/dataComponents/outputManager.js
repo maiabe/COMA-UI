@@ -297,54 +297,115 @@ export class OutputManager {
     // ----------------------------------------- Chart Data Preparation -----------------------------------------
     /*********************************************** Mai 7/13/23 *******************************************************/
     /** --- PUBLIC ---
-     * Stores additional data to traceData, which is passed to chartBuilder.
+     * Stores additional data to chartData, which is passed to chartBuilder.
      * @param {number} moduleKey key of the module is also a key to the outputMap table. 
-     * @param {object} traceData data from the chart's inspector card. (e.g { fieldName: "date", labelName: "Date", gridLines: true, ticks: false  })
+     * @param {object} chartData data from the chart's inspector card. 
+     *                           (e.g { fieldName: "date", labelName: "Date", gridLines: true, ticks: false  })
      * @param {object} sourceData unfiltered source data from the previous module (list of key-value objects)
      * @returns {object} chartData { xAxis: [{ data: [], dataType: '', }], yAxis: [{ data: [], dataType: '', }], series: [{ data: [], dataType: '', }] }
      * */
-    // stores source data of the field and source data type of the field to traceData
-    prepChartData(moduleKey, datasetType, chartTitle, traceData, sourceData) {
+    // stores source data of the field and source data type of the field to chartData
+    prepChartData(moduleKey, datasetType, chartTitle, chartData, sourceData) {
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(sourceData, 'sourceData', 'object')], 'OutputManager', 'prepEchartData')) return;
-        let chartData = traceData;
-        console.log(traceData);
 
-        // Build series data
-        // get series name
-        chartData['series'].forEach(trace => {
-            trace['dataType'] = trace.dataType;
 
-            const seriesName = trace.fieldName;
-            let xAxisName = trace.xAxisName;
-            let yAxisName = trace.yAxisName;
-            let errorData = (trace.error !== 'none') ? this.#buildEChartsErrorData(trace.error, sourceData) : undefined;
-            let result = this.#buildEChartsSeriesData(seriesName, xAxisName, yAxisName, sourceData, errorData);
-            trace['data'] = result;
+        //-- Prep ECharts source data for dataset option (e.g. [['product', '2015', '2016', '2017'],
+        //                                                      ['Matcha Latte', 43.3, 85.8, 93.7],
+        //                                                      ['Milk Tea', 83.1, 73.4, 55.1],
+        //                                                      ['Cheese Cocoa', 86.4, 65.2, 82.5]])
+
+        // Build column header of dataset source
+        const dataset = { source: [], };
+        const columnHeader = [];
+        // for each xAxis
+        chartData['xAxis'].forEach(xAxis => {
+            const axisName = xAxis.axisName;
+            columnHeader.push(axisName);
+        });
+        chartData['yAxis'].forEach(yAxis => {
+            const axisName = yAxis.axisName;
+            columnHeader.push(axisName);
+        });
+        chartData['series'].forEach(series => {
+            const fieldName = series.fieldName;
+            const seriesName = series.seriesName;
+            columnHeader.push(seriesName);
+
+            // Get all sourcedata rows that has the series name
+            const seriesSourceData = sourceData.filter(sd => sd[fieldName] === seriesName);
+            console.log(seriesSourceData);
+            
+        });
+        dataset['source'].push(columnHeader);
+
+        // Foreach data row in sourceData, get values of the corresponding axis/series field
+        sourceData.forEach(sd => {
+            const dataRow = [];
+            columnHeader.forEach(header => {
+                // Check if current header is a series header or not
+                const seriesNames = chartData['series'].map(series => series.seriesName);
+                if (seriesNames.includes(header)) {
+                    const series = chartData['series'].filter(series => series.seriesName === header)[0];
+                    //console.log(series);
+                    const fieldName = series.fieldName;
+                    if (sd[fieldName] === series.seriesName) {
+                        const yAxisName = series.yAxisName;
+                        dataRow.push(sd[yAxisName]);
+                    }
+                    else {
+                        dataRow.push(null);
+                    }
+                }
+                else {
+                    // xAxis or yAxis values
+                    dataRow.push(sd[header]);
+                    dataset['source'].push(dataRow);
+                }
+
+            });
         });
 
-        // Build eChartsData
+        console.log(dataset);
+        chartData['dataset'] = dataset;
+
+
+        //-- Build seriesData
+        chartData['series'].forEach(seriesData => {
+            seriesData['dataType'] = seriesData.dataType;
+
+            const seriesName = seriesData.fieldName;
+            const xAxisName = seriesData.xAxisName;
+            const yAxisName = seriesData.yAxisName;
+            const errorName = seriesData.error;
+            //let errorData = (seriesData.error !== 'none') ? this.#buildEChartsErrorData(seriesData.error, sourceData) : undefined;
+            const result =
+                this.#buildEChartsSeriesSourceData(seriesName, xAxisName, yAxisName, errorName, sourceData);
+            seriesData['data'] = result;
+        });
+
+        //-- Build axisData
         let axisNames = ['xAxis', 'yAxis'];
         axisNames.forEach(axis => {
-            chartData[axis].forEach(trace => {
+            chartData[axis].forEach(axisData => {
                 // Store sourceData type of the field to determine whether the field is categorical or value type
-                trace['dataType'] = trace.dataType;
+                axisData['dataType'] = axisData.dataType;
 
-                let result = this.#buildEChartsAxisSourceData(trace, trace.fieldName, sourceData);
-                trace['data'] = result;
+                const result = this.#buildEChartsAxisSourceData(axisData.axisName, axisData.dataType, sourceData);
+                axisData['data'] = result;
             });
         });
 
         // Build series echartData
-        chartData['series'].forEach(trace => {
-            console.log(trace);
-            trace['dataType'] = trace.dataType;
+        /*chartData['series'].forEach(seriesData => {
+            console.log(seriesData);
+            seriesData['dataType'] = seriesData.dataType;
 
-            let xi = trace.xAxisIndex;
-            let yi = trace.yAxisIndex;
-            let errorData = (trace.error !== 'none') ? this.#buildEChartsErrorData(trace.error, sourceData) : undefined;
+            let xi = seriesData.xAxisIndex;
+            let yi = seriesData.yAxisIndex;
+            let errorData = (seriesData.error !== 'none') ? this.#buildEChartsErrorData(seriesData.error, sourceData) : undefined;
             let result = this.#buildEChartsSeriesSourceData(chartData['xAxis'][xi].data, chartData['yAxis'][yi].data, errorData);
-            trace['data'] = result;
-        });
+            seriesData['data'] = result;
+        });*/
 
         chartData['chartTitle'] = chartTitle;
         console.log(chartData);
@@ -352,26 +413,14 @@ export class OutputManager {
         return chartData;
     }
 
-    #buildEChartsSeriesData(seriesName, xAxisName, yAxisName, sourceData, errorData) {
-        // get rows of selected seriesName values of sourceData[columnName]
-
-
-
-
-    }
-
-    #buildEChartsAxisSourceData(trace, fieldName, sourceData) {
+    #buildEChartsAxisSourceData(axisName, dataType, sourceData) {
         //console.log(fieldName);
         //console.log(trace);
 
-        let result = sourceData.map((sd, i) => {
-            let value = sd[fieldName];
-            if (trace.fieldGroup !== 'undefined') {
-                let obj = sd[trace.fieldGroup];
-                value = obj[fieldName]; // value = value[trace.fieldGroup]
-            }
-            if (trace.dataType === 'value') {
-                let digits = getNumDigits(fieldName);
+        const result = sourceData.map((sd, i) => {
+            let value = sd[axisName];
+            if (dataType === 'value') {
+                const digits = getNumDigits(axisName);
                 value = Number(Number(value).toFixed(digits));
             }
 
@@ -384,13 +433,16 @@ export class OutputManager {
                 }
                 return value;
             }*/
-
         });
 
         return result;
     }
 
     #buildEChartsSeriesSourceData(xData, yData, errorData) {
+        
+    }
+
+    /*#buildEChartsSeriesData(xData, yData, errorData) {
         let result = undefined;
         if (xData && yData) {
             result = xData.map((xd, i) => {
@@ -403,7 +455,7 @@ export class OutputManager {
             });
         }
         return result;
-    }
+    }*/
 
     //--TODO: need to find out which errorName 
     #buildEChartsErrorData(errorName, sourceData) {

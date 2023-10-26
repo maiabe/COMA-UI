@@ -1342,17 +1342,18 @@ export default class Hub {
 
     }
 
-    #setNewChartEvent(moduleData) {
+    #setNewChartEvent(data) {
         // moduleKey, datasetType, chartData, status, tableData
-        if (invalidVariables([varTest(moduleData, 'moduleData', 'object')], 'HUB', '#messageForOutputManager (Set New Chart Event)')) return;
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.moduleData, 'moduleData', 'object')], 'HUB', '#messageForOutputManager (Set New Chart Event)')) return;
         // get chart type
-        var key = moduleData.moduleKey;
-        var module = GM.MM.getModule(key);
-        var div = module.getData('plotDiv');
+        const key = data.moduleKey;
+        const moduleData = data.moduleData;
+        const module = GM.MM.getModule(key);
+        const div = module.getData('plotDiv');
 
         // Organize the chartData for Echart
-        var chartData = GM.OM.prepChartData(key, moduleData.datasetType, moduleData.chartTitle, moduleData.traceData, moduleData.sourceData);
-        var processed = GM.OM.storeChartData(key, chartData, div, module.getData('chartType'), module.getData('coordinateSystem'));
+        const chartData = GM.OM.prepChartData(key, moduleData.datasetType, moduleData.chartTitle, moduleData.chartData, moduleData.sourceData);
+        const processed = GM.OM.storeChartData(key, chartData, div, module.getData('chartType'), module.getData('coordinateSystem'));
         if (processed)
         {
             GM.OM.drawChart(key, div, GM.PM.getPopupWidth(key), GM.PM.getPopupHeight(key));
@@ -1360,7 +1361,7 @@ export default class Hub {
         }
 
         // toggle module color and inspector/popup header color
-        this.#toggleModuleColorEvent(moduleData.moduleKey, processed);
+        this.#toggleModuleColorEvent(key, processed);
     }
 
 

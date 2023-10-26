@@ -190,6 +190,7 @@ export class ChartBuilder {
      */
     #generate2dCartesianOptions(data, type, coordinateSystem) {
         console.log(data);
+        console.log(data.dataset.source);
 
         var echartData = {
             title: {
@@ -287,7 +288,7 @@ export class ChartBuilder {
                                     color: 'black',
                                 },
                             },
-                            data: t.data,
+                            //data: t.data,
                             //scale: 'true',
                             inverse: t.inverse,
                             minorTick: {
@@ -373,7 +374,7 @@ export class ChartBuilder {
                         });
 
                         // draw error bar if any
-                        if (t.error) {
+                        /*if (t.error) {
                             const errorData =
                             {
                                 type: 'custom',
@@ -381,7 +382,7 @@ export class ChartBuilder {
                                 itemStyle: {
                                     borderWidth: 1.5
                                 },
-                                renderItem: function (params, api) {
+                                *//*renderItem: function (params, api) {
                                     const xValue = api.value(0);
 
                                     const lowPos = api.value(1) - api.value(2);
@@ -442,23 +443,24 @@ export class ChartBuilder {
                                             }
                                         ]
                                     };
-                                },
+                                },*//*
                                 encode: {
                                     x: 0,
                                     y: 1
                                 },
-                                data: t.data,
+                                //data: t.data,
                                 z: 100
                             };
 
                             echartData['series'].push(errorData);
-                        }
+                        }*/
                     });
                     break;
                 default:
                     return false;
             }
         });
+        echartData['dataset'].push(data.dataset);
         console.log(echartData);
 
         return echartData;

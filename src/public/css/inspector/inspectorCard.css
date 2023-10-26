@@ -1,14 +1,7 @@
 .inspector-card {
-  position: relative;
-  width: 100%;
-  top: 100px;
-  border: white solid 0.5px;
+  border: white solid 1px;
   border-radius: 10px;
-  display: flex;
   flex-direction: column;
-  margin: 4px 0 4px 0;
-  align-items: flex-start;
-  align-content:flex-start;
 }
 
 .inspector-card-header {

@@ -54,11 +54,9 @@ export class PopupManager {
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(content, 'content', 'object')], 'Popup Manager', 'createModulePopup')) return;
         // Only allow one popup for each module at any given time.
         if (!this.#popupList.has(moduleKey)) {
-            console.log(content)
             // Check window size before building.
             let width = content.width ? content.width : 900;
             let height = content.height ? content.height : 500;
-            console.log(content);
             const p = new Popup(width, height, 50, 50, moduleKey, content.color, content.content, content.headerText);
             p.publisher.subscribe(this.subscriber);
             this.#popupList.set(moduleKey, { type: 'module', element: p });

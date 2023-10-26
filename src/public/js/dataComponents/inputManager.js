@@ -192,13 +192,14 @@ export class InputManager {
 
     // ----------------------------------------- Chart Inspector Data Organization -----------------------------------------
     // build Chart axis information from columnHeaders (to build Chart Module Inspector Card)
+    // seriesData = {  name: 'series', fields: [{ fieldName: 'telescope', series: [{ name: '', displayName: '', dataType: '' }, ..] }, ..]}
     getChartData(remoteData, sourceData) {
         const columnHeaders = this.getColumnHeaders(sourceData);
         let chartData = [];
         let xAxisData = { name: 'xaxis', axes: [] };
         let yAxisData = { name: 'yaxis', axes: [] };
         let errorData = { name: 'error', axes: [] };
-        let seriesData = { name: 'series', series: [] };
+        let seriesData = { name: 'series', fields: [] };
 
         columnHeaders.forEach(columnHeader => {
             /*if (remoteData) {
@@ -239,12 +240,17 @@ export class InputManager {
             // prepare seriesData
             // get fieldName (e.g. telescope) and series (e.g. [{ name: 'assasn', displayName: 'ASSASN', dataType: 'category' }, ..])
             if (columnHeader.dataType === 'category') {
-                seriesData['fieldName'] = columnHeader.fieldName;
+                const fieldName = columnHeader.fieldName;
+                const series = [];
+
+                //seriesData['fieldName'].push(columnHeader.fieldName);
                 const uniqueColVals = Array.from(new Set(sourceData.map(sd => sd[columnHeader.fieldName] )));
                 uniqueColVals.forEach(val => {
                     const seriesName = val.replace(/\([^)]+\)/g, '').trim().replace('/', '_').replaceAll(' ', '-').toLowerCase();
-                    seriesData['series'].push({ name: seriesName, displayName: val, dataType: 'category' });
+                    series.push({ name: seriesName, displayName: val, dataType: 'category' });
                 });
+
+                seriesData['fields'].push({ fieldName: fieldName, series: series });
                 //console.log(columnVals);
             }
         });
@@ -253,7 +259,7 @@ export class InputManager {
         chartData.push(errorData);
         chartData.push(seriesData);
 
-        console.log(chartData);
+        //console.log(chartData);
 
         return chartData;
     }
