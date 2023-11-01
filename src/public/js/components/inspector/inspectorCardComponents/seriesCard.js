@@ -75,12 +75,14 @@ export class SeriesCard {
                 });
 
                 //-- Create series dropdown
-                const dropdown = GM.HF.createNewSelect(`${fieldName}-${moduleKey}-dropdown`, '', ['series-dropdown'], [{ style: "width", value: "70%" }, { style: "height", value: "25px" }], Object.keys(options), Object.values(options));
-                const button = GM.HF.createNewButton('', '', ['button', 'add-series-button'], [{ style: "width", value: "30%" }, { style: "height", value: "25px" }], 'button', 'Add Series', false);
+                const dropdown = GM.HF.createNewSelect(`${fieldName}-${moduleKey}-dropdown`, '', ['series-dropdown'], [], Object.keys(options), Object.values(options));
+                const buttonWrapper = GM.HF.createNewDiv('', '', ['add-series-button-wrapper'], [], [], '');
+                const button = GM.HF.createNewButton('', '', ['button', 'add-series-button'], [], 'button', 'Add Series', false);
 
                 seriesDropdownWrapper.appendChild(dropdownLabel);
                 seriesDropdownWrapper.appendChild(dropdown);
-                seriesDropdownWrapper.appendChild(button);
+                buttonWrapper.appendChild(button);
+                seriesDropdownWrapper.appendChild(buttonWrapper);
                 seriesDropdownArea.appendChild(seriesDropdownWrapper);
 
                 this.#createAddSeriesCardFunction(moduleKey, fieldName, series, button);
@@ -128,7 +130,7 @@ export class SeriesCard {
     #createAddSeriesCardFunction(moduleKey, fieldName, series, button) {
         button.addEventListener('click', e => {
             //-- Get selected option of a series dropdown
-            let dropdown = e.target.previousElementSibling;
+            let dropdown = e.target.closest('.series-dropdown-wrapper').querySelector('select');
             let selected = dropdown.options[dropdown.selectedIndex];
             let selectedSeries = series.filter(s => s.name === selected.value)[0];
 
@@ -191,7 +193,7 @@ export class SeriesCard {
         let headerText = GM.HF.createNewSpan('', seriesName, ['series-name'], [], selectedSeries.displayName);
 
         let seriesDataType = GM.HF.createNewTextInput('', '', ['data-type'], [], 'hidden', selectedSeries.dataType);
-        let removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete_1.png', ['remove-button', 'button'], [], '');
+        let removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete-icon.png', ['remove-button', 'button'], [], '');
         header.appendChild(headerText);
         header.appendChild(seriesDataType);
         header.appendChild(removeBtn);

@@ -12,6 +12,7 @@
     flex-flow: wrap;
     justify-content: space-between;
     margin: 2% 0;
+    padding: 1% 2%;
 }
 
 .chart-title-wrapper {
@@ -100,21 +101,23 @@
 .axis-content-wrapper .axes-dropdown-wrapper {
     width: 100%;
     display: flex;
-    margin: 5% 0;
+    margin: 2% 0 5% 0;
 }
 .axis-content-wrapper .axes-dropdown {
-    width: 70%;
+    width: -webkit-fill-available;
     height: 25px;
     border: 0.5px solid darkgray;
+    border-radius: 5px;
 }
 .add-axis-button {
-    width: 30%;
+    width: fit-content;
     height: 25px;
     font-size: 80%;
     padding: 1%;
     border: 0.5px solid darkgray;
-    border-radius: 2px;
+    border-radius: 5px;
     justify-content: space-between;
+    margin-left: 1%;
 }
 
 .axis-content-wrapper .axis-area {
@@ -147,7 +150,7 @@
     font-size: 90%;
 }
 .axis-card-header img {
-    width: 4%;
+    width: 6%;
 }
 .axis-card-body {
     padding: 3% 5%;
@@ -160,8 +163,16 @@
     align-items: center;
     margin-bottom: 3%;
 }
+
+.axis-card-wrapper .label-wrapper {
+    flex-flow: column;
+    align-items: start;
+    margin-bottom: 5%;
+}
+
 .axis-card-wrapper .label-input {
     height: 1.2rem;
+    width: -webkit-fill-available !important;
 }
 .axis-card-wrapper .axis-card-element span,
 .axis-card-wrapper .axis-card-element select,
@@ -220,7 +231,7 @@
     justify-content: center;
     border: 1px solid darkgray;
     border-radius: 5px;
-    background-color: rgba(5, 117, 255, 0.5);
+    background-color: rgba(5, 117, 255, 1);
     color: white;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
 }
@@ -248,30 +259,54 @@
     height: 100%;
 }
 
-.series-content-wrapper .series-dropdown-wrapper {
-    width: 100%;
+.series-content-wrapper .series-dropdown-area,
+.series-content-wrapper .series-dropdown-wrapper
+{
     display: flex;
-    margin: 4% 0 2% 0;
+}
+
+.series-content-wrapper .series-dropdown-wrapper {
+    width: 50%;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 2% 1% 2% 1%;
 }
 
 .series-content-wrapper .series-dropdown {
-    width: 80%;
+    width: -webkit-fill-available;
     height: 25px;
     border: 0.5px solid darkgray;
+    border-radius: 5px;
+    margin: 2% 0;
+}
+
+.series-content-wrapper .add-series-button-wrapper {
+    width: 100%;
 }
 
 .series-content-wrapper .add-series-button {
-    width: 20%;
+    width: fit-content;
     height: 25px;
     font-size: 80%;
-    padding: 1%;
+    padding: 0 2%;
     border: 0.5px solid darkgray;
-    border-radius: 2px;
+    border-radius: 5px;
+    margin-left: 2%;
+    float: right;
 }
 
 /** series Area **/
 .series-content-wrapper .series-area {
-    padding: 3% 0;
+    width: 100%;
+    display: flex;
+}
+
+.series-card-wrapper {
+    width: 100%;
+    margin: 4% 0;
+    border-radius: 8px;
+    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
+    background-color: white;
 }
 
 .series-card-header {
@@ -280,6 +315,9 @@
     justify-content: space-between;
     padding: 1% 4%;
     border-bottom: 0.5px solid darkgray;
+    background-color: #464655;
+    border-radius: 8px 8px 0 0;
+    color: white;
 }
 
     .series-card-header span {
@@ -287,7 +325,7 @@
     }
 
     .series-card-header img {
-        width: 3%;
+        width: 4%;
     }
 
 
@@ -307,10 +345,12 @@
 }
 
 .series-content-wrapper .series-card-wrapper .series-card-element {
-    margin-bottom: 3%;
-    height: 1.5rem;
+    font-size: 80%;
+    width: 100%;
     display: flex;
+    justify-content: space-evenly;
     align-items: center;
+    margin-bottom: 3%;
 }
     .series-content-wrapper .series-card-wrapper select {
         height: 1.2rem;
@@ -318,6 +358,7 @@
 
 .series-card-body .label-wrapper {
     grid-area: label;
+    height: 20px;
 }
     .series-card-body .label-wrapper .label-text {
         text-align: right;
@@ -326,6 +367,7 @@
     }
     .series-card-body .label-wrapper .label-input {
         width: 80%;
+        padding: 0 2%;
     }
 
 
@@ -361,6 +403,7 @@
 
 .series-card-body .symbols-size-range-wrapper {
     grid-area: size;
+    margin-bottom: 0 !important;
 }
     .series-card-body .symbols-size-range-wrapper label {
         width: 25%;
@@ -371,6 +414,7 @@
     }
     .series-card-body .symbols-size-range-wrapper .text-input {
         width: 8% !important;
+        padding: 0.5%;
     }
 
 

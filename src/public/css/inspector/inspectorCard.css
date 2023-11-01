@@ -2,6 +2,7 @@
   border: white solid 1px;
   border-radius: 10px;
   flex-direction: column;
+  position: relative;
 }
 
 .inspector-card-header {

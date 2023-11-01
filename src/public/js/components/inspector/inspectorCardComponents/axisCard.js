@@ -80,8 +80,8 @@ export class AxisCard {
                     options[axis.name] = axis.displayName;
                 }
             });
-            this.#axisDropdown = GM.HF.createNewSelect('', '', ['axes-dropdown'], [{ style: "width", value: "70%" }, { style: "height", value: "25px" }], Object.keys(options), Object.values(options));
-            this.#addAxisButton = GM.HF.createNewButton(`add-axis-button`, '', ['button', 'add-axis-button'], [{ style: "width", value: "30%" }, { style: "height", value: "25px" }], 'button', 'Add Axis', false);
+            this.#axisDropdown = GM.HF.createNewSelect('', '', ['axes-dropdown'], [], Object.keys(options), Object.values(options));
+            this.#addAxisButton = GM.HF.createNewButton(`add-axis-button`, '', ['button', 'add-axis-button'], [], 'button', 'Add Axis', false);
             axesWrapper.appendChild(this.#axisDropdown);
             axesWrapper.appendChild(this.#addAxisButton);
 
@@ -140,7 +140,7 @@ export class AxisCard {
         let header = GM.HF.createNewDiv('', '', ['axis-card-header'], [], [], '');
         let axisTitle = GM.HF.createNewSpan('', 'axis-title', ['axis-title'], [], axis.name);
         let axisDataType = GM.HF.createNewTextInput('', '', ['data-type'], [], 'hidden', axis.dataType);
-        let removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete_1.png', ['remove-button', 'button'], [], '');
+        let removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete-icon.png', ['remove-button', 'button'], [], '');
         header.appendChild(axisTitle);
         header.appendChild(axisDataType);
         header.appendChild(removeBtn);
