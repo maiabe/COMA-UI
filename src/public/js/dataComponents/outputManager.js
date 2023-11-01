@@ -308,6 +308,17 @@ export class OutputManager {
     prepChartData(moduleKey, datasetType, chartTitle, chartData, sourceData) {
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(sourceData, 'sourceData', 'object')], 'OutputManager', 'prepEchartData')) return;
 
+        /* dataset: {
+                source: [
+                    ['date', '2012-05-10', '2013-06-20', '2014-10-01', '2015-01-01'],
+                    ['ATLAS-HKO', 41.1, null, 65.1, 53.3],
+                    ['ATLAS-RIO', 86.5, null, null, null],
+                    ['ATLAS-MLO', null, 67.2, null, 86.4]
+                ]
+        },*/
+
+
+
 
         //-- Prep ECharts source data for dataset option (e.g. [['product', '2015', '2016', '2017'],
         //                                                      ['Matcha Latte', 43.3, 85.8, 93.7],
@@ -322,10 +333,10 @@ export class OutputManager {
             const axisName = xAxis.axisName;
             columnHeader.push(axisName);
         });
-        chartData['yAxis'].forEach(yAxis => {
+        /*chartData['yAxis'].forEach(yAxis => {
             const axisName = yAxis.axisName;
             columnHeader.push(axisName);
-        });
+        });*/
         chartData['series'].forEach(series => {
             const fieldName = series.fieldName;
             const seriesName = series.seriesName;
@@ -336,18 +347,147 @@ export class OutputManager {
             console.log(seriesSourceData);
             
         });
+        console.log(columnHeader);
         dataset['source'].push(columnHeader);
 
+        console.log(sourceData);
+        console.log(chartData['series']);
+
+        // filter source data
+        //const seriesNames = chartData['series'].filter(series => series.seriesName);
+        const numSeries = chartData['series'].length;
+        const numXAxis = chartData['xAxis'].length;
+        //console.log(numSeries);
+        //console.log(numXAxis);
+
+        const result = [];
+        sourceData.forEach((sd, i) => {
+            const dataRow = new Array(numSeries + numXAxis).fill(null);
+            const seriesIndices = [];
+            if (chartData['series'].length > 0) {
+                chartData['series'].forEach((seriesData, seriesIndex) => {
+                    seriesIndices.push(numXAxis + seriesIndex);
+                    const fieldName = seriesData.fieldName;
+                    const seriesName = seriesData.seriesName;
+                    if (sd[fieldName] === seriesName) {
+                        // Store xAxis value to xAxisIndex of dataRow
+                        const xAxisName = seriesData.xAxisName; 
+                        dataRow[seriesData.xAxisIndex] = sd[xAxisName];
+
+                        // Store series value (corresponding yAxis value of that series) to seriesIndex
+                        // Store at [numXAxis + seriesIndex] because series slot in the array comes after xAxis values
+                        const yAxisName = seriesData.yAxisName;
+                        if (sd[yAxisName] !== 99) {
+                            const numDigits = getNumDigits(yAxisName);
+                            const value = Number(sd[yAxisName]).toFixed(numDigits);
+                            dataRow[numXAxis + seriesIndex] = value;
+                        }
+                    }
+                });
+
+            }
+            // When there is no series selected, just prepare xAxis and yAxis values
+            /*else {
+                // just build array of arrays that containst x and y axis values
+                chartData['xAxis'].forEach(xa => {
+                    console.log(xa);
+                    console.log(sd[xa.axisName]);
+                    dataRow.push(sd[xa.axisName]);
+                });
+
+            }*/
+            // Add dataRow to the dataset source only if all the values in a series indices of the dataRow is null
+            //const allNull = dataRow.every(item => item === null); //-- remove
+            const seriesNull = this.#hasNullAtIndex(dataRow, seriesIndices);
+            if (!seriesNull) {
+
+                dataset['source'].push(dataRow);
+            }
+
+        });
+        console.log(result);
+
+
+        // 1. Foreach columnHeader add a column value to the dataRow from sourceData
+        /*sourceData.forEach((sd, i) => {
+            const dataRow = [];
+            columnHeader.forEach(columnHeader => {
+                const seriesData = chartData['series'].filter(series => series.seriesName === columnHeader);
+                // series column header
+                if (i > 10 && i < 20) { // for testing
+                    console.log(seriesData[0]);
+                }
+                const seriesNames = chartData['series'].map(series => series.seriesName);
+                if (seriesData[0]) {
+                    const series = seriesData[0];
+                    const fieldName = series.fieldName;
+                    if (i > 10 && i < 20) { // for testing
+                        console.log(sd[fieldName]);
+                        console.log(columnHeader);
+                    }
+
+                    if (sd[fieldName] === columnHeader) {
+                        const yAxisName = series.yAxisName;
+                        if (i > 10 && i < 20) { // for testing
+                            console.log(sd[yAxisName]);
+                        }
+                        dataRow.push(sd[yAxisName]);
+                    }
+                    else {
+                        dataRow.push(null);
+                    }
+                }
+                // axis column header
+                else {
+                    dataRow.push(sd[columnHeader]);
+                }
+            });
+            //find a way to not push dataRow if there is no value
+
+            dataset['source'].push(dataRow);
+        });*/
+        
+
+
+
         // Foreach data row in sourceData, get values of the corresponding axis/series field
-        sourceData.forEach(sd => {
+        /*sourceData.forEach((sd, i) => {
             const dataRow = [];
             columnHeader.forEach(header => {
                 // Check if current header is a series header or not
-                const seriesNames = chartData['series'].map(series => series.seriesName);
-                if (seriesNames.includes(header)) {
-                    const series = chartData['series'].filter(series => series.seriesName === header)[0];
-                    //console.log(series);
+                const seriesData = chartData['series'].find(series => sd[series.fieldName] === header);
+
+                console.log(seriesData);
+                if (seriesData) {
+                    const fieldName = seriesData.fieldName;
+                    if (i < 20) {
+                        console.log(sd);
+                        console.log(header);
+                    }
+                    if (sd[fieldName] === header) {
+                        const yAxisName = seriesData.yAxisName;
+                        dataRow.push(sd[yAxisName]);
+                        if (i < 20) {
+                            console.log(yAxisName);
+                        }
+                    }
+
+                }
+                else {
+                    dataRow.push(sd[header]);
+                    dataset['source'].push(dataRow);
+                }
+*//*                const seriesNames = chartData['series'].map(series => series.seriesName);
+                if (seriesNames.includes(sd[header])) {
+                    const series = chartData['series'].find(series => series.seriesName === sd[header]);
+                    if (i < 20) {
+                        console.log(series);
+                    } 
                     const fieldName = series.fieldName;
+                    if (i < 20) {
+                        console.log(sd[fieldName]);
+                        console.log(series.seriesName);
+                    }
                     if (sd[fieldName] === series.seriesName) {
                         const yAxisName = series.yAxisName;
                         dataRow.push(sd[yAxisName]);
@@ -360,17 +500,17 @@ export class OutputManager {
                     // xAxis or yAxis values
                     dataRow.push(sd[header]);
                     dataset['source'].push(dataRow);
-                }
+                }*//*
 
             });
-        });
+        });*/
 
         console.log(dataset);
         chartData['dataset'] = dataset;
 
 
         //-- Build seriesData
-        chartData['series'].forEach(seriesData => {
+        /*chartData['series'].forEach(seriesData => {
             seriesData['dataType'] = seriesData.dataType;
 
             const seriesName = seriesData.fieldName;
@@ -381,19 +521,19 @@ export class OutputManager {
             const result =
                 this.#buildEChartsSeriesSourceData(seriesName, xAxisName, yAxisName, errorName, sourceData);
             seriesData['data'] = result;
-        });
+        });*/
 
         //-- Build axisData
-        let axisNames = ['xAxis', 'yAxis'];
+        /*let axisNames = ['xAxis', 'yAxis'];
         axisNames.forEach(axis => {
             chartData[axis].forEach(axisData => {
                 // Store sourceData type of the field to determine whether the field is categorical or value type
-                axisData['dataType'] = axisData.dataType;
+                //axisData['dataType'] = axisData.dataType;
 
                 const result = this.#buildEChartsAxisSourceData(axisData.axisName, axisData.dataType, sourceData);
                 axisData['data'] = result;
             });
-        });
+        });*/
 
         // Build series echartData
         /*chartData['series'].forEach(seriesData => {
@@ -411,6 +551,18 @@ export class OutputManager {
         console.log(chartData);
 
         return chartData;
+    }
+
+    /** Checks if any specified indices of the array have null values
+     * 
+     * */
+    #hasNullAtIndex(array, indices) {
+        for (const index of indices) {
+            if (index < 0 || index >= array.length || array[index] !== null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     #buildEChartsAxisSourceData(axisName, dataType, sourceData) {

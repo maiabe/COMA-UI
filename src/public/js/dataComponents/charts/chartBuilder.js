@@ -193,6 +193,9 @@ export class ChartBuilder {
         console.log(data.dataset.source);
 
         var echartData = {
+            dataset: {
+                source: data.dataset.source
+            },
             title: {
                 text: data.chartTitle,
                 left: 'center',
@@ -214,12 +217,13 @@ export class ChartBuilder {
                 right: '5%',
                 z: 2,
             },
-            tooltip: {
+            tooltip: {},
+            /*tooltip: {
                 trigger: 'axis',
                 axisPointer: {
                     type: 'cross'
                 },
-                formatter: function (param) {
+                *//*formatter: function (param) {
                     const result = [];
                     const seriesName = param[0].seriesName; // Get the series name
                     const seriesColor = param[0].color;
@@ -229,24 +233,157 @@ export class ChartBuilder {
                     const xAxis = data[0] + '<hr size=1 style="margin: 3px 0">';
                     const color = `<span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:${seriesColor}; margin-right:5px;"></span>`;
                     const seriesVal = `${seriesName}: ` + data[1] + '<br/>';
-                    const errorVal = data[2] ? `error: ` + data[2] + '<br/>' : undefined;
+                    //const errorVal = data[2] ? `error: ` + data[2] + '<br/>' : undefined;
 
                     //result.push(dataIndex);
                     result.push(xAxis);
                     result.push(color);
                     result.push(seriesVal);
-                    if (errorVal) {
+                    *//*if (errorVal) {
                         result.push(errorVal);
-                    }
+                    }*//*
 
                     return result.join('');
-                },
+                },*//*
                 //color: 'black'
                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            },
+            },*/
             dataZoom: [],
             series: []
         };
+
+        //-- Set Dataset
+        //echartData['dataset'].push(data.dataset);
+        // TEST DATA
+
+
+        //-- Set X Axis Options
+        echartData['xAxis'] = [];
+        data['xAxis'].forEach((xAxis, i) => {
+            echartData['xAxis'].push({
+                type: xAxis.dataType,
+                name: xAxis.labelName,
+                nameLocation: "middle",
+                nameTextStyle: {
+                    fontWeight: "bold",
+                    fontSize: 14,
+                    lineHeight: 35,
+                },
+                position: xAxis.position,
+                offset: xAxis.offset,
+                //axisLabel: {
+                    /*formatter: function (value) {
+                        // Parse the datetime string to a Date object
+                        const date = new Date(value);
+
+                        // Extract the year and month components
+                        const year = date.getFullYear();
+                        let month = date.getMonth();
+                        //let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is zero-based
+                        const monthString = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+
+                        // Format the label to display year and month
+                        if (!Number.isNaN(year) && monthString[month]) {
+                            return year + '-' + monthString[month];
+                        }
+                    },*/
+                //},
+                axisPointer: {
+                    label: {
+                        show: true,
+                        color: 'black',
+                    },
+                },
+                //data: t.data,
+                //scale: 'true',
+                inverse: xAxis.inverse,
+                minorTick: {
+                    show: xAxis.ticks
+                },
+                splitLine: {
+                    show: xAxis.majorGridLines,
+                    lineStyle: { type: 'solid' },
+                },
+                minorSplitLine: {
+                    show: xAxis.minorGridLines,
+                    lineStyle: { type: 'dashed', opacity: 0.3, }
+                }, 
+            });
+            // Add data range slider for each x axis
+            echartData['dataZoom'].push({
+                type: 'slider',
+                xAxisIndex: i,
+                bottom: '5%',
+                height: '20px',
+            });
+        });
+        if (data['xAxis'].length > 1) {
+            echartData['grid'].top = '15%';
+        }
+
+        //-- Set Y Axis Options
+        echartData['yAxis'] = [];
+        data['yAxis'].forEach((yAxis, i) => {
+            echartData['yAxis'].push({
+                type: yAxis.dataType,
+                name: yAxis.labelName,
+                nameLocation: "middle",
+                nameTextStyle: {
+                    fontWeight: "bold",
+                    fontSize: 14,
+                    verticalAlign: "bottom",
+                    lineHeight: 50
+                },
+                position: yAxis.position,
+                offset: yAxis.offset,
+                axisPointer: {
+                    label: {
+                        show: true,
+                        color: 'black',
+                    },
+                },
+                scale: 'true',
+                inverse: yAxis.inverse,
+                minorTick: {
+                    show: yAxis.ticks
+                },
+                splitLine: {
+                    show: yAxis.majorGridLines,
+                    lineStyle: { type: 'solid' },
+                },
+                minorSplitLine: {
+                    show: yAxis.minorGridLines,
+                    lineStyle: { type: 'dashed', opacity: 0.3, }
+                },
+            });
+            // Add data range slider for each y axis
+            echartData['dataZoom'].push({
+                type: 'slider',
+                yAxisIndex: i,
+                left: '3%',
+                //top: '100px',
+                //bottom: '8%',
+                width: '20px',
+                            //height: '68%',
+            });
+        });
+
+        //-- Set Series Options
+        echartData['series'] = [];
+        data['series'].forEach(o => {
+            console.log(o.xAxisIndex);
+            echartData['series'].push({
+                encode: { x: o.xAxisName, y: o.seriesName  },
+                type: type,
+                name: o.labelName,
+                data: o.data,
+                xAxisIndex: o.xAxisIndex,
+                //yAxisIndex: o.yAxisIndex,
+                symbol: o.symbol,
+                symbolSize: o.symbolSize,
+            });
+        });
+/*
         var chartAxis = Object.keys(data);
         chartAxis.forEach(axis => {
             var trace = data[axis];
@@ -266,7 +403,7 @@ export class ChartBuilder {
                             position: t.position,
                             offset: t.offset,
                             axisLabel: {
-                                /*formatter: function (value) {
+                                *//*formatter: function (value) {
                                     // Parse the datetime string to a Date object
                                     const date = new Date(value);
 
@@ -280,7 +417,7 @@ export class ChartBuilder {
                                     if (!Number.isNaN(year) && monthString[month]) {
                                         return year + '-' + monthString[month];
                                     }
-                                },*/
+                                },*//*
                             },
                             axisPointer: {
                                 label: {
@@ -374,7 +511,7 @@ export class ChartBuilder {
                         });
 
                         // draw error bar if any
-                        /*if (t.error) {
+                        *//*if (t.error) {
                             const errorData =
                             {
                                 type: 'custom',
@@ -453,14 +590,13 @@ export class ChartBuilder {
                             };
 
                             echartData['series'].push(errorData);
-                        }*/
+                        }*//*
                     });
                     break;
                 default:
                     return false;
             }
-        });
-        echartData['dataset'].push(data.dataset);
+        });*/
         console.log(echartData);
 
         return echartData;

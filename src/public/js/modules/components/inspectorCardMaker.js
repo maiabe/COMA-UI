@@ -636,7 +636,7 @@ export class InspectorCardMaker {
         const datasetType = moduleData.datasetType;
         console.log(moduleData);
 
-        let contentWrapper = this.HF.createNewDiv(`chart-inspector-${moduleKey}`, '', ['chart-inspector-wrapper'], [{ style: 'padding', value: '4%' }]);
+        let contentWrapper = this.HF.createNewDiv(`chart-inspector-${moduleKey}`, '', ['chart-inspector-wrapper'], []);
         this.inspectorCard.appendToBody(contentWrapper);
 
         //-- Add Chart Title
@@ -648,7 +648,7 @@ export class InspectorCardMaker {
         chartTitleWrapper.appendChild(chartTitleInput);
         contentWrapper.appendChild(chartTitleWrapper);
 
-        let chartInspectorWrapper = this.HF.createNewDiv('', '', ['chart-inspector-wrapper'], [{ style: "width", value: "100%" }]);
+        let chartInspectorWrapper = this.HF.createNewDiv('', '', ['chart-tabs-wrapper'], [{ style: "width", value: "100%" }]);
         contentWrapper.appendChild(chartInspectorWrapper);
 
         //-- Create xAxis, yAxis, series tabs
@@ -763,7 +763,7 @@ export class InspectorCardMaker {
                     // add seriesName
                     dataType: dataType.value,
                     labelName: (labelName !== '') ? labelName.value : seriesName,
-                    xAxisIndex: xAxisIndex,
+                    xAxisIndex: Number(xAxisIndex),
                     xAxisName: xAxisName,
                     yAxisIndex: yAxisIndex,
                     yAxisName: yAxisName,

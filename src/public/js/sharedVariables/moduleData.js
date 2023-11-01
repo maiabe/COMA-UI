@@ -179,7 +179,7 @@ const SearchFields = {
                 {
                     index: 0, remote: false,
                     labelName: "Begin", fieldName: "begin",
-                    type: 'date', value: '2010-01-01'
+                    type: 'date', value: '2015-01-01'
                 },
                 {
                     index: 0, remote: false,
