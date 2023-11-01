@@ -1,0 +1,25 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx parcel src/index.html"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "d3": "^7.8.5",
+    "echarts": "^5.4.3",
+    "esm": "^3.2.25",
+    "flatpickr": "^4.6.13",
+    "gojs": "^2.2.17",
+    "mathjs": "^9.4.4",
+    "tabulator-tables": "^5.5.0",
+    "three": "^0.156.1"
+  },
+  "devDependencies": {
+    "parcel": "^2.10.1"
+  }
+}

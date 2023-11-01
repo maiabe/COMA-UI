@@ -1,0 +1,186 @@
+.select-field-wrapper {
+  align-items: center;
+  margin: 5% 5% 3%;
+  display: flex;
+}
+
+.select-field-wrapper .select-field-label {
+  white-space: nowrap;
+  align-self: center;
+  width: 15%;
+}
+
+.select-field-wrapper .select-field-dropdown {
+  inline-size: -webkit-fill-available;
+  border: ridge;
+  width: 85%;
+  margin-left: 2%;
+}
+
+.select-field-wrapper .select-field-button:active {
+  transform: translateY(1.5px);
+}
+
+.search-card-wrapper select {
+  height: 2.2rem;
+}
+
+.form-wrapper {
+  margin: 2%;
+}
+
+.form-wrapper .flatpickr-calendar {
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+.search-form .field-wrapper {
+  justify-content: space-between;
+  align-items: center;
+  margin: 2% 8%;
+  display: flex;
+}
+
+.search-form .field-wrapper label {
+  width: 40%;
+  font-size: 85%;
+}
+
+.field-wrapper .tooltip-div {
+  align-self: center;
+  width: 30%;
+  padding: .1%;
+  display: inline-block;
+  position: relative;
+}
+
+.tooltip-div img {
+  vertical-align: middle;
+}
+
+.tooltip-div .tooltip-text {
+  visibility: hidden;
+  color: #fff;
+  white-space: break-spaces;
+  background-color: #000;
+  border-radius: 6px;
+  padding: .8%;
+  font-size: small;
+  position: fixed;
+  top: 0;
+  right: 0;
+}
+
+.tooltip-div .tooltip-text:after {
+  content: "";
+  border: 6px solid #0000;
+  border-left-color: #000;
+  margin-top: -6px;
+  display: block;
+  position: absolute;
+  top: 12px;
+  left: 100%;
+}
+
+.tooltip-div:hover .tooltip-text {
+  visibility: visible;
+  z-index: 3;
+  transition-delay: .4s;
+}
+
+.search-form .field-input-wrapper {
+  width: 60%;
+}
+
+.field-input-wrapper .field-input {
+  text-align-last: start;
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.2rem;
+}
+
+.search-form select {
+  cursor: pointer;
+  border: inset;
+  height: 2.2rem !important;
+}
+
+.search-form .field-input-wrapper .typeahead-input {
+  min-width: -webkit-fill-available;
+  display: flex;
+}
+
+.search-form .field-input-wrapper .typeahead-result-container {
+  box-sizing: border-box;
+  background-color: #fff;
+  border: inset;
+  width: 100%;
+  max-height: 300px;
+  position: absolute;
+  overflow: auto;
+}
+
+.search-form .field-input-wrapper .typeahead-result-container .object-suggestion {
+  white-space: nowrap;
+  justify-content: flex-start;
+  padding: .5px 3px;
+  font-size: small;
+  display: flex;
+}
+
+.search-form .checkbox-wrapper.field-input-wrapper {
+  flex-flow: row;
+  justify-content: space-evenly;
+  display: flex;
+}
+
+.search-form .checkbox-wrapper {
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.search-form .radio-wrapper {
+  justify-content: flex-start;
+  align-items: center;
+  display: flex;
+}
+
+.search-form .radio-wrapper input {
+  margin: 5%;
+}
+
+.search-form .radio-wrapper label {
+  width: -moz-fit-content;
+  width: fit-content;
+}
+
+.search-card-wrapper .button-wrapper {
+  text-align: end;
+  margin: 5% 8% 8%;
+}
+
+.search-card-wrapper .button-wrapper p {
+  margin: 2% 0;
+}
+
+.search-card-wrapper .button-wrapper .form-submit-btn {
+  border: outset;
+}
+
+.search-card-wrapper .button-wrapper .form-submit-btn:active {
+  transform: translateY(1.5px);
+}
+
+@media screen and (width <= 1200px) {
+  .search-form .field-input-wrapper, .select-field-wrapper .select-field-dropdown, .search-form select, .search-form .field-input {
+    height: 1.5rem !important;
+  }
+
+  .tooltip-div img {
+    width: 20px !important;
+  }
+}
+
+/*# sourceMappingURL=index.1e7e13a5.css.map */

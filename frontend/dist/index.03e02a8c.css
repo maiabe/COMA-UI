@@ -1,0 +1,55 @@
+.save-popup-wrapper {
+  flex-direction: column;
+  width: 100%;
+  display: flex;
+  position: relative;
+  left: 0;
+}
+
+.save-popup-input-wrapper {
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  display: flex;
+  position: relative;
+  left: 0;
+}
+
+.save-popup-input-wrapper > p {
+  width: 35%;
+  padding: 4px;
+}
+
+.save-popup-input-wrapper > input {
+  height: 25px;
+}
+
+.save-popup-input-wrapper > textArea {
+  height: 80px;
+}
+
+.save-popup-input-wrapper > textArea, input {
+  width: 25%;
+  inline-size: -moz-fit-content;
+  inline-size: fit-content;
+  padding: 5px;
+}
+
+.save-popup-save-button {
+  color: #fff;
+  background-color: #000;
+  border: 2px solid #000;
+  border-radius: 10px;
+  width: 80px;
+  height: 30px;
+  transition: opacity .2s ease-out;
+  position: relative;
+  top: 10px;
+  left: calc(50% - 40px);
+}
+
+.save-popup-save-button:hover {
+  opacity: .7;
+}
+
+/*# sourceMappingURL=index.03e02a8c.css.map */

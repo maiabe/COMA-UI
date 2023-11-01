@@ -1,0 +1,150 @@
+.popup {
+  opacity: 1;
+  z-index: 10000;
+  background-color: #fff;
+  border-radius: 10px;
+  flex-flow: wrap;
+  width: -moz-fit-content;
+  width: fit-content;
+  min-width: 300px;
+  display: flex;
+  position: absolute;
+  top: 2%;
+  left: 2%;
+  overflow: hidden;
+  box-shadow: 0 3px 10px #0003;
+}
+
+.popup > .popupHeader {
+  cursor: pointer;
+  z-index: 2;
+  background-color: #00f;
+  border-radius: 10px 10px 0 0;
+  width: 100%;
+  height: 3rem;
+  position: relative;
+}
+
+.popupHeader > p {
+  float: left;
+  color: #fff;
+  margin-left: 2vw;
+  position: relative;
+}
+
+.popupBody {
+  width: 100%;
+  height: calc(100% - 3rem);
+}
+
+.popup-body-wrapper {
+  flex-flow: column;
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.popup-loading-wrapper {
+  display: flex;
+}
+
+.popup-content {
+  width: 95%;
+  height: 100%;
+  margin: auto;
+}
+
+.closePopupIcon {
+  float: right;
+  width: 30px;
+  height: 30px;
+  margin-top: 10px;
+  margin-right: 10px;
+  position: relative;
+}
+
+.closePopupIcon > img {
+  background-color: #fff;
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+}
+
+.popupResize {
+  z-index: 10001;
+  opacity: .4;
+  cursor: nwse-resize;
+  background-color: #142990;
+  border-radius: 10px 3px;
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.popupResize:hover {
+  opacity: .2;
+  background-color: #1d2951;
+}
+
+.download-wrapper {
+  padding: 2%;
+}
+
+.table-wrapper {
+  margin: 0 2% 2%;
+}
+
+.tabulator .tabulator-header .tabulator-col {
+  align-items: center;
+  justify-content: center !important;
+}
+
+.tabulator .tabulator-header .tabulator-col-group .tabulator-col-content {
+  align-self: start;
+  padding: 4px 10px;
+}
+
+.popup-content.plot-popup {
+  width: 100%;
+  margin: 0;
+}
+
+.tabulator-table {
+  font-family: monospace;
+}
+
+button.tabulator-page {
+  width: 3vw;
+}
+
+.chart-theme-wrapper {
+  width: 10%;
+  padding: 1.5% 5%;
+  display: flex;
+  position: absolute;
+}
+
+.lil-gui.autoPlace {
+  z-index: 1;
+  width: 15%;
+  position: absolute;
+  top: 12%;
+  left: 3%;
+}
+
+.lil-gui.autoPlace.toggle-object {
+  left: 20%;
+}
+
+.image-popup-content .dropdown-wrapper {
+  padding: 2%;
+}
+
+.image-popup-content .image-wrapper {
+  text-align-last: center;
+  padding: 5%;
+}
+
+/*# sourceMappingURL=index.653b96b2.css.map */

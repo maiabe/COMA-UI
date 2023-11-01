@@ -1,0 +1,34 @@
+.conversion-card {
+  flex-direction: column;
+  width: 100%;
+  display: flex;
+}
+
+.conversion-card-upper {
+  width: inherit;
+  justify-content: space-around;
+  display: flex;
+}
+
+.conversion-card-upper-segment {
+  flex-direction: column;
+  display: flex;
+}
+
+.conversion-card-upper-segment > img {
+  width: 32px;
+  height: 32px;
+  padding-top: 27px;
+}
+
+.conversion-card-middle-layer, .conversion-card-lower-layer {
+  width: inherit;
+  justify-content: center;
+  display: flex;
+}
+
+.conversion-card-button {
+  width: 40%;
+}
+
+/*# sourceMappingURL=index.e666908e.css.map */

@@ -1,0 +1,6 @@
+dist/*
+*.njsproj
+*.sln
+bin/*
+.vs/*
+obj/*

@@ -1,0 +1,79 @@
+.min-max-first-level-wrapper {
+  flex-direction: row;
+  width: 100%;
+  display: flex;
+}
+
+.min-max-input-wrapper {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.min-max-input-wrapper > img {
+  height: 30px;
+}
+
+.min-max-button {
+  opacity: .6;
+  transition: opacity .2s ease-in;
+}
+
+.min-max-button:hover {
+  opacity: 1;
+}
+
+.min-max-filter-wrapper {
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  display: flex;
+  position: relative;
+  top: 10px;
+}
+
+.min-max-label-wrapper {
+  flex-direction: column;
+  width: 100px;
+  display: flex;
+}
+
+.min-max-label-wrapper > .checkbox-wrapper {
+  display: flex;
+}
+
+.slider-wrapper {
+  justify-content: center;
+  width: 70%;
+  padding-top: 10px;
+  display: flex;
+}
+
+.min-max-options-wrapper {
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  display: flex;
+}
+
+.min-max-flip-button {
+  width: 25%;
+  height: 32px;
+}
+
+.min-max-dropdown-wrapper {
+  align-items: center;
+  display: flex;
+}
+
+.min-max-dropdown-wrapper > p {
+  padding-right: 10px;
+}
+
+.min-max-dropdown-wrapper > select {
+  height: 32px;
+  padding-left: 5px;
+}
+
+/*# sourceMappingURL=index.f2f397ae.css.map */

@@ -1,0 +1,39 @@
+#inspector {
+  float: right;
+  border: .1px solid #0000;
+  border-radius: 10px 10px 0 0;
+  width: 38%;
+}
+
+#inspector > h1 {
+  text-align: center;
+  color: #fff;
+  width: 100%;
+}
+
+.inspector-header {
+  justify-content: space-around;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  position: relative;
+  top: 0;
+}
+
+.inspector-header-button {
+  color: #fff;
+  z-index: 1;
+  background-color: #0000;
+  border: 1px solid #5b8c5a;
+  border-radius: 10px;
+  width: 140px;
+  height: 40px;
+  transition: background-color .2s ease-in;
+}
+
+.inspector-header-button:hover, .active-header-button {
+  background-color: #5b8c5a;
+}
+
+/*# sourceMappingURL=index.f93e985c.css.map */

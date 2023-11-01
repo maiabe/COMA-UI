@@ -1,0 +1,282 @@
+@font-face {
+  font-family: Sora;
+  src: url("Sora-VariableFont_wght.770f672d.ttf");
+}
+
+:root {
+  --color-red: #931621;
+  --color-slate-gray: #28464b;
+  --color-ming: #326771;
+  --color-blue: #2c8c99;
+  --color-turquoise: #42d9c8;
+  --color-middle-green: #5b8c5a;
+  --color-dark-gray: #363434;
+  --color-light-gray: #c9c9c9;
+  --color-very-light-gray: #eee;
+  --color-logo-green: #00e17b;
+}
+
+body {
+  color: var(--color-dark-gray);
+  background-color: #252323;
+  border: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Sora, Fallback, sans-serif;
+  overflow-x: hidden;
+}
+
+.wrapper {
+  align-items: center;
+  display: flex;
+}
+
+input {
+  cursor: auto;
+}
+
+button {
+  width: 15vw;
+  padding: 1vw;
+  font-size: 1em;
+  overflow: hidden;
+}
+
+.button {
+  transition: transform 50ms;
+}
+
+.button:active {
+  transform: translateY(1.5px);
+}
+
+h1 {
+  font-size: 1.2em;
+  font-weight: 800;
+}
+
+h2 {
+  font-size: 1em;
+  font-weight: 600;
+}
+
+select, .btn, .pointer {
+  cursor: pointer;
+}
+
+.show {
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+.nav {
+  color: #fff;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+  width: 100vw;
+  height: 70px;
+  padding: 1% 0;
+  display: flex;
+  position: relative;
+}
+
+.nav-content-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.nav-content-wrapper .left-nav-wrapper {
+  float: left;
+  width: 47%;
+  height: 100%;
+  padding-left: 3%;
+}
+
+.nav-two-column {
+  border-radius: 10px;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 5px;
+  font-size: 14px;
+  display: flex;
+}
+
+.nav-two-column > select {
+  height: 30px;
+}
+
+.nav img {
+  align-self: center;
+  height: 100%;
+}
+
+.nav > h1 {
+  color: var(--color-very-light-gray);
+  font-size: 32px;
+}
+
+#mainWrapper {
+  justify-content: center;
+  height: 85vh;
+  margin: 1.5% 4%;
+  display: flex;
+  position: relative;
+}
+
+#left-side-wrapper {
+  float: left;
+  width: 21%;
+  height: 100%;
+  max-height: 1000px;
+  margin-right: 1vw;
+  position: relative;
+}
+
+#right-side-wrapper {
+  width: 76.5%;
+  height: 100%;
+  max-height: 1000px;
+  display: inline-block;
+  position: relative;
+}
+
+#runButton {
+  z-index: 10000;
+  color: #fff;
+  cursor: pointer;
+  background-color: #000;
+  border: 2px solid #000;
+  border-radius: 5px;
+  width: 6em;
+  height: 2em;
+  font-size: .8em;
+  font-weight: 500;
+  transition: opacity .2s ease-in;
+  position: absolute;
+  top: 92%;
+  left: 50%;
+}
+
+#runButton:hover {
+  opacity: .7;
+}
+
+#environmentDiv {
+  text-align: center;
+  background-color: #fff;
+  border: .1px solid #0000;
+  border-radius: 10px 10px 0 0;
+  outline: 1px solid #000;
+  width: 60%;
+  height: 100%;
+  max-height: 1000px;
+  margin-right: 1vw;
+  display: inline-block;
+  position: relative;
+}
+
+#environmentDiv > button {
+  height: 8vh;
+  position: relative;
+  top: calc(50% - 4vh);
+}
+
+.plot_sidebar {
+  vertical-align: top;
+  outline: 1px solid #000;
+  width: 30%;
+  height: 60%;
+  display: inline-block;
+  position: relative;
+  top: 0;
+}
+
+.plot {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
+.setValueWrapper {
+  text-align: center;
+  width: 100%;
+  position: relative;
+}
+
+.setValueWrapper > input {
+  width: 40px;
+  height: 40px;
+  font-size: 1.3em;
+  position: relative;
+  top: 20px;
+  left: -30%;
+}
+
+.numberDataArea {
+  text-align: center;
+  width: 100%;
+  position: relative;
+}
+
+.numberDataArea > p {
+  font-size: 2.5em;
+  position: relative;
+  top: 50px;
+}
+
+.plot-dd {
+  z-index: 1;
+  width: 140px;
+  height: 20px;
+  position: absolute;
+  top: 52px;
+  left: calc(50% - 70px);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  opacity: .2;
+  background-color: #363538;
+  border: .5px solid #fff;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  opacity: .2;
+  background-color: #4a6cdb;
+}
+
+@media (width >= 2049px) {
+  #left-side-wrapper, #right-side-wrapper, #environmentDiv {
+    max-height: 2100px;
+  }
+}
+
+@media screen and (width <= 1200px) {
+  .inspector-card-body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: smaller;
+  }
+
+  #moduleMenu > .menuSegmentWrapper > .topMenuButton {
+    height: 40px;
+  }
+
+  #moduleMenu > .menuSegmentWrapper > .topMenuButton p {
+    width: auto !important;
+    padding-left: 14% !important;
+  }
+}
+
+/*# sourceMappingURL=index.34df27b5.css.map */
