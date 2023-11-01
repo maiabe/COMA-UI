@@ -84,6 +84,7 @@
     <Content Include="src\public\images\fits_demo\Object_Images\C2021X1_2022-12-15.png" />
     <Content Include="src\public\images\icons\database.png" />
     <Content Include="src\public\images\icons\db-image.png" />
+    <Content Include="src\public\images\icons\delete-icon.png" />
     <Content Include="src\public\images\icons\delete_0.png" />
     <Content Include="src\public\images\icons\delete_1.png" />
     <Content Include="src\public\images\icons\download_dark.png" />
@@ -93,6 +94,7 @@
     <Content Include="src\public\images\icons\loading_spinner.gif" />
     <Content Include="src\public\images\icons\plus.png" />
     <Content Include="src\public\images\icons\table_inv.png" />
+    <Content Include="src\public\images\icons\trashcan-icon.png" />
     <Content Include="src\public\images\logo\COMA-LOGO-NEW.png" />
     <Content Include="src\public\images\logo\COMA_LOGO_T.png" />
     <Content Include="src\public\images\logo\COMA_LOGO_V1.png" />
