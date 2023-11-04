@@ -751,10 +751,10 @@ export class InspectorCardMaker {
                 const yAxisIndexDD = seriesCard.querySelector('.yaxis-index-dropdown');
                 const yAxisIndex = yAxisIndexDD.selectedIndex;
                 const yAxisName = yAxisIndexDD[yAxisIndexDD.selectedIndex].textContent;
-                const errorDD = seriesCard.querySelector('.error-dropdown');
-                const error = errorDD[errorDD.selectedIndex];
-                const symbolsDD = seriesCard.querySelector('.symbols-dropdown');
-                const symbol = symbolsDD[symbolsDD.selectedIndex];
+                const symbolShapeDD = seriesCard.querySelector('.symbol-shape-dropdown');
+                const symbolShape = symbolShapeDD[symbolShapeDD.selectedIndex];
+                const symbolColorDD = seriesCard.querySelector('.symbol-color-dropdown');
+                const symbolColor = symbolColorDD[symbolColorDD.selectedIndex];
                 const datapointSize = seriesCard.querySelector('.symbols-size-range-wrapper .text-input');
 
                 const seriesContent = {
@@ -767,8 +767,8 @@ export class InspectorCardMaker {
                     xAxisName: xAxisName,
                     yAxisIndex: yAxisIndex,
                     yAxisName: yAxisName,
-                    error: error.value,
-                    symbol: symbol.value,
+                    symbolShape: symbolShape.value,
+                    symbolColor: symbolColor.value,
                     symbolSize: Number(datapointSize.value),
                 };
                 chartData['series'].push(seriesContent);

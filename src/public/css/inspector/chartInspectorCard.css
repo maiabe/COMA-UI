@@ -340,12 +340,12 @@
     grid-template-areas: 
         'label label'
         'xaxis yaxis'
-        'symbol error'
+        'shape color'
         'size size';
 }
 
 .series-content-wrapper .series-card-wrapper .series-card-element {
-    font-size: 80%;
+    font-size: 75%;
     width: 100%;
     display: flex;
     justify-content: space-evenly;
@@ -380,23 +380,29 @@
 .series-card-body .error-dropdown-wrapper {
     grid-area: error;
 }
-.series-card-body .symbols-dropdown-wrapper {
-    grid-area: symbol;
+.series-card-body .symbol-shape-dropdown-wrapper {
+    grid-area: shape;
+}
+.series-card-body .symbol-color-dropdown-wrapper {
+    grid-area: color;
 }
 
     .series-card-body .xaxis-index-dropdown-wrapper .xaxis-index-label,
     .series-card-body .yaxis-index-dropdown-wrapper .yaxis-index-label,
     .series-card-body .error-dropdown-wrapper .error-label,
-    .series-card-body .symbols-dropdown-wrapper .symbols-label 
+    .series-card-body .symbol-shape-dropdown-wrapper .symbol-shape-label,
+    .series-card-body .symbol-color-dropdown-wrapper .symbol-color-label
     {
         width: 40%;
         text-align: right;
         margin-right: 5px;
+        text-wrap: nowrap;
     }
     .series-card-body .xaxis-index-dropdown-wrapper .xaxis-index-dropdown,
     .series-card-body .yaxis-index-dropdown-wrapper .yaxis-index-dropdown,
     .series-card-body .error-dropdown-wrapper .error-dropdown,
-    .series-card-body .symbols-dropdown-wrapper .symbols-dropdown 
+    .series-card-body .symbol-shape-dropdown-wrapper .symbol-shape-dropdown,
+    .series-card-body .symbol-color-dropdown-wrapper .symbol-color-dropdown
     {
         width: 60%;
     }
