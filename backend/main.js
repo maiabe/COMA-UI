@@ -1,12 +1,15 @@
 // server.js
-const express = require("express");
-const https = require("https");
-const JobManager = require("./customModules/jobManager");
-const req = require("express/lib/request");
-const fs = require("fs");
+import express from "express";
+
+import fs from "fs";
+import cors from "cors";
+
+// Routes
+import { apiRouter } from "./api/router.js";
 
 // Define Express App
 const app = express();
+app.use(cors());
 app.use(express.json());
 // app.use(express.static('./src/public'));
 
@@ -59,23 +62,15 @@ app.listen(PORT, () => {
   console.log("Server connected at:", PORT);
 });
 
-const JM = new JobManager();
+// API Routes
+app.use("/api", apiRouter);
 
-// app.post("/", function (req, res) {
+// app.get("/", function (req, res) {
 //   res.set({
 //     "Content-Type": "application/json",
-//     //"Access-Control-Allow-Origin": "*",
+//     //"Access-Control-Allow-Origin": "*"
 //   });
-//   const data = JM.addJob(req.body);
+//   const data = handleIncomingPost(req.body);
+//   console.log(req.body);
 //   res.end(JSON.stringify({ response: data }));
 // });
-
-app.get("/", function (req, res) {
-  res.set({
-    "Content-Type": "application/json",
-    //"Access-Control-Allow-Origin": "*"
-  });
-  // const data = handleIncomingPost(req.body);
-  console.log(req.body);
-  // res.end(JSON.stringify({ response: data }));
-});

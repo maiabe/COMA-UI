@@ -252,9 +252,10 @@ async function getRequest(url1) {
 }
 // Example POST method implementation:
 async function postData(url1, data) {
-    console.log(JSON.stringify(data));
+    const post_url = `${baseUrl}api/load_saved_modules`;
+    console.log(post_url);
     // Default options are marked with *
-    const response = await fetch(url1, {
+    const response = await fetch(post_url, {
         method: "POST",
         mode: "cors",
         cache: "no-cache",
@@ -264,7 +265,7 @@ async function postData(url1, data) {
         },
         //redirect: 'follow', // manual, *follow, error
         //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(data) // body data type must match "Content-Type" header
+        body: JSON.stringify(data)
     });
     return response.json(); // parses JSON response into native JavaScript objects
 }
@@ -311,7 +312,7 @@ async function getRemoteObjectsSuggestions(msg) {
     // handle error func
     }
 }
-/** 
+/**
  * Post search data to get the task result back
  * @param {object} data object containing moduleKey, queryType, queryEntries
  * */ /*function queryDatabase(e) {
@@ -325,7 +326,7 @@ async function getRemoteObjectsSuggestions(msg) {
             handleFetchError(e.data.queryType, entries, error);
             console.error(error);
         });
-}*/ /** 
+}*/ /**
  * queries the COMA database
  * @param {object} data object containing moduleKey, queryType, queryEntries
  * */ async function queryDatabase(e) {
@@ -360,7 +361,7 @@ async function getCOMATaskData(url1) {
     const response = await fetch(url1, {
         method: "GET",
         headers: {
-            "Accept": "application/json"
+            Accept: "application/json"
         }
     });
     //const r = await response.json();
@@ -384,7 +385,7 @@ async function postCOMATaskData(url1, body) {
         },
         //redirect: 'follow', // manual, *follow, error
         //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: body // body data type must match "Content-Type" header
+        body: body
     });
     const r = await response.json();
     //console.log(r.task.id);

@@ -590,7 +590,7 @@ function init() {
 }
 window.addEventListener("DOMContentLoaded", init);
 
-},{"./global/index.js":"47ru8","gojs":"4LcTn","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"47ru8":[function(require,module,exports) {
+},{"./global/index.js":"47ru8","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","gojs":"4LcTn"}],"47ru8":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "GlobalManager", ()=>(0, _globalManagerJs.GlobalManager));
@@ -47838,7 +47838,7 @@ parcelHelpers.defineInteropFlag(exports);
  * The menu is a series of sections.
  * The outer layer is the Module Selection Menu.
  * The module top button is the heading that says Composite or source etc. This is a button that when clicked expands the sub menu.
- * Module sub menu is the inner menus that have the buttons for actually choosing a module 
+ * Module sub menu is the inner menus that have the buttons for actually choosing a module
  * Sub menu cards are the icon and text buttons.
  */ parcelHelpers.export(exports, "ModuleSelectionMenu", ()=>ModuleSelectionMenu);
 var _indexJs = require("../../sharedVariables/index.js");
@@ -47846,6 +47846,7 @@ var _indexJs1 = require("../../communication/index.js");
 var _mainJs = require("../../main.js");
 var _indexJs2 = require("../../htmlGeneration/index.js");
 var _moduleDataJs = require("../../sharedVariables/moduleData.js");
+const flowDiagramWhite = new URL(require("16a14a1bb332f5c4"));
 class ModuleSelectionMenu {
     publisher;
     constructor(){
@@ -47861,7 +47862,7 @@ class ModuleSelectionMenu {
                 color: (0, _indexJs.moduleMenuColor),
                 subMenuItems: this.compositeSubMenuItems,
                 subMenu: null,
-                buttonIcon: "images/icons/flow-diagram-white.png"
+                buttonIcon: flowDiagramWhite
             },
             {
                 text: "Source",
@@ -48053,7 +48054,10 @@ class SubMenuCard {
     };
 }
 
-},{"../../sharedVariables/index.js":"1uX14","../../communication/index.js":"eT70M","../../main.js":"1SICI","../../htmlGeneration/index.js":"f3jdF","../../sharedVariables/moduleData.js":"87R3y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2dJqk":[function(require,module,exports) {
+},{"../../sharedVariables/index.js":"1uX14","../../communication/index.js":"eT70M","../../main.js":"1SICI","../../htmlGeneration/index.js":"f3jdF","../../sharedVariables/moduleData.js":"87R3y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","16a14a1bb332f5c4":"3yiox"}],"3yiox":[function(require,module,exports) {
+module.exports = require("2ff0e9c599799434").getBundleURL("10Mjw") + "flow-diagram-white.97130cbb.png" + "?" + Date.now();
+
+},{"2ff0e9c599799434":"lgJ39"}],"2dJqk":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _indexJs = require("../communication/index.js");
