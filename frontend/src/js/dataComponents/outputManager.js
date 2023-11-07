@@ -325,7 +325,7 @@ export class OutputManager {
         //                                                      ['Milk Tea', 83.1, 73.4, 55.1],
         //                                                      ['Cheese Cocoa', 86.4, 65.2, 82.5]])
 
-        // Build column header of dataset source
+        //-- Build column header of dataset source
         const dataset = { source: [], };
         const columnHeader = [];
         // for each xAxis
@@ -347,6 +347,7 @@ export class OutputManager {
             console.log(seriesSourceData);
             
         });
+        columnHeader.push('error');
         console.log(columnHeader);
         dataset['source'].push(columnHeader);
 
@@ -357,6 +358,8 @@ export class OutputManager {
         //const seriesNames = chartData['series'].filter(series => series.seriesName);
         const numSeries = chartData['series'].length;
         const numXAxis = chartData['xAxis'].length;
+        const errorIndex = columnHeader.indexOf('error');
+
         //console.log(numSeries);
         //console.log(numXAxis);
 
@@ -365,22 +368,33 @@ export class OutputManager {
             const dataRow = new Array(numSeries + numXAxis).fill(null);
             const seriesIndices = [];
             if (chartData['series'].length > 0) {
-                chartData['series'].forEach((seriesData, seriesIndex) => {
-                    seriesIndices.push(numXAxis + seriesIndex);
+                chartData['series'].forEach((seriesData) => {
                     const fieldName = seriesData.fieldName;
                     const seriesName = seriesData.seriesName;
+                    const seriesIndex = columnHeader.indexOf(seriesName);
+                    seriesIndices.push(seriesIndex);
+                    //-- If sourceData row contains the serieName, store corresponding values to the right column of the dataset
                     if (sd[fieldName] === seriesName) {
-                        // Store xAxis value to xAxisIndex of dataRow
+                        // 1. Store xAxis value to xAxisIndex of dataRow
                         const xAxisName = seriesData.xAxisName; 
                         dataRow[seriesData.xAxisIndex] = sd[xAxisName];
-
-                        // Store series value (corresponding yAxis value of that series) to seriesIndex
-                        // Store at [numXAxis + seriesIndex] because series slot in the array comes after xAxis values
+                        // 2. Store series value (corresponding yAxis value of that series) to seriesIndex
                         const yAxisName = seriesData.yAxisName;
                         if (sd[yAxisName] !== 99) {
                             const numDigits = getNumDigits(yAxisName);
                             const value = Number(sd[yAxisName]).toFixed(numDigits);
-                            dataRow[numXAxis + seriesIndex] = value;
+                            dataRow[seriesIndex] = value;
+                        }
+                        // 3. Store series error value
+                        // Get error name corresponding to the yAxisName
+                        // TODO: use hidden input field in inspectorCard to assign corresponding error name to the seriesData
+                        const errorName = `${yAxisName}_err`;
+
+                        // Store error value to errorIndex
+                        const errorVal = sd[errorName];
+                        if (errorVal) {
+                            seriesData['errorIndex'] = errorIndex;
+                            dataRow[errorIndex] = errorVal;
                         }
                     }
                 });
@@ -400,7 +414,6 @@ export class OutputManager {
             //const allNull = dataRow.every(item => item === null); //-- remove
             const seriesNull = this.#hasNullAtIndex(dataRow, seriesIndices);
             if (!seriesNull) {
-
                 dataset['source'].push(dataRow);
             }
 

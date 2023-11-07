@@ -188,7 +188,7 @@ export class AxisCard {
         //-- Create positions options
         let positionOptionsWrapper = GM.HF.createNewDiv('', '', ['position-options-wrapper', 'axis-card-element'], [], [], '');
         // position option
-        let positionOptions = this.#createPositionOptions(axisContentName.name);
+        let positionOptions = this.#createPositionOptions(axisContentName);
         let positionOptionsLabel = GM.HF.createNewSpan('', '', ['position-options-label'], [], `Axis Position: `);
         let positionOptionsDropdown = GM.HF.createNewSelect('', '', ['position-options-dropdown'], [], positionOptions, positionOptions);
         positionOptionsWrapper.appendChild(positionOptionsLabel);

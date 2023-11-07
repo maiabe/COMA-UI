@@ -217,6 +217,7 @@ export class ChartBuilder {
                 right: '5%',
                 z: 2,
             },
+            legend: {},
             tooltip: {},
             /*tooltip: {
                 trigger: 'axis',
@@ -364,24 +365,115 @@ export class ChartBuilder {
                 //top: '100px',
                 //bottom: '8%',
                 width: '20px',
-                            //height: '68%',
+                //height: '68%',
             });
         });
 
         //-- Set Series Options
         echartData['series'] = [];
         data['series'].forEach(o => {
-            console.log(o.xAxisIndex);
+            //console.log(o.xAxisIndex);
             echartData['series'].push({
-                encode: { x: o.xAxisName, y: o.seriesName  },
+                encode: { x: o.xAxisName, y: o.seriesName },
                 type: type,
                 name: o.labelName,
-                data: o.data,
                 xAxisIndex: o.xAxisIndex,
                 //yAxisIndex: o.yAxisIndex,
-                symbol: o.symbol,
+                symbol: o.symbolShape,
                 symbolSize: o.symbolSize,
+                itemStyle: {
+                    color: o.symbolColor
+                }
             });
+            echartData['series'].push({
+                encode: {
+                    x: o.xAxisName,
+                    y: o.seriesName,
+                    e: `error`
+                },
+                type: 'custom',
+                name: `${o.seriesName}_error`,
+                itemStyle: {
+                    color: '#5470c6'
+                },
+                renderItem: function (params, api) {
+                    //console.log(api.value(3)); // this is getting series2 not error column
+                    const xIndex = params.encode.x;
+                    const yIndex = params.encode.y;
+                    const eIndex = params.encode.e;
+                    const xValue = api.value(xIndex);
+                    const yValue = api.value(yIndex);
+                    const eValue = api.value(eIndex);
+                    //const lowPos = api.value(3);
+                    //const highPos = api.value(4);
+                    const highPos = yValue + eValue;
+                    const lowPos = yValue - eValue;
+                    const highPoint = api.coord([xValue, highPos]);
+                    const lowPoint = api.coord([xValue, lowPos]);
+
+                    const halfWidth = api.size([1, 0])[0] * 0.05; // how is it calculating the width of horizontal lines of error bar?
+
+                    api.style({
+                        stroke: api.visual('color'),
+                        fill: undefined
+                    });
+                    return {
+                        type: 'group',
+                        children: [
+                            {
+                                type: 'line',
+                                transition: ['shape'],
+                                shape: {
+                                    x1: highPoint[0] - halfWidth,
+                                    y1: highPoint[1],
+                                    x2: highPoint[0] + halfWidth,
+                                    y2: highPoint[1]
+                                },
+                                style: {
+                                    stroke: '#5470c6',
+                                    lineWidth: 1,
+                                }
+                            },
+                            {
+                                type: 'line',
+                                transition: ['shape'],
+                                shape: {
+                                    x1: highPoint[0],
+                                    y1: highPoint[1],
+                                    x2: lowPoint[0],
+                                    y2: lowPoint[1]
+                                },
+                                style: {
+                                    stroke: '#5470c6',
+                                    lineWidth: 1,
+                                }
+                            },
+                            {
+                                type: 'line',
+                                transition: ['shape'],
+                                shape: {
+                                    x1: lowPoint[0] - halfWidth,
+                                    y1: lowPoint[1],
+                                    x2: lowPoint[0] + halfWidth,
+                                    y2: lowPoint[1]
+                                },
+                                style: {
+                                    stroke: '#5470c6',
+                                    lineWidth: 1,
+                                }
+                            }
+                        ]
+                    };
+                },
+                itemStyle: {
+                    borderWidth: 1.2
+                },
+                z: 100
+            });
+            // set legend color to match error colors
+            /*echartData.legend['data'].push({
+                name: `${o.seriesName}_error`, itemStyle: { color: '#5470c6' }
+            });*/
         });
 /*
         var chartAxis = Object.keys(data);

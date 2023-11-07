@@ -126,6 +126,7 @@ export class SeriesCard {
      *                              (e.g. "ui_name" (current temporary name for the object name from the dataset))
      *  @param { series } Array of objects that contains the series information
      *                          (e.g. [{ name: "c-2019-u5", displayName: "C/2019 U5 (PanSTARRS)", dataType: 'category' },..])
+     *  @param { button } HTMLObject of the button that was clicked
      * */
     #createAddSeriesCardFunction(moduleKey, fieldName, series, button) {
         button.addEventListener('click', e => {
@@ -179,7 +180,7 @@ export class SeriesCard {
      *  @param { xAxisRefs } Object that contains the current xAxis[0] information
      *                          (e.g. { index: 0, name: "iso_date_mid", displayName: 'date' dataType: 'time' })
      *  @param { yAxisRefs } Object that contains the series information
-     *                          (e.g. { index: 0, name: "mag", displayName: "magnitude", dataType: 'category', errorName: 'mag_err' })
+     *                          (e.g. { index: 0, name: "mag", displayName: "magnitude", dataType: 'category' })
      * */
     #createSeriesCard(fieldName, selectedSeries, xAxisRefs, yAxisRefs) {
         //-- Load this seriesCard to seriesArea
@@ -236,25 +237,37 @@ export class SeriesCard {
         seriesBody.appendChild(yAxisIndexDDWrapper);
 
         //-- Create error dropdown (if any)
-        var errorVals = ['none', yAxisRefs[0].errorName];
+        /*var errorVals = ['none', yAxisRefs[0].errorName];
         var errorNames = ['-- None --', yAxisRefs[0].errorName];
         let errorDDWrapper = GM.HF.createNewDiv('', '', ['error-dropdown-wrapper', 'series-card-element'], [], [], '');
         let errorLabel = GM.HF.createNewSpan('', '', ['error-label'], [], 'Error: ')
         let errorDropdown = GM.HF.createNewSelect('', '', ['error-dropdown'], [], errorVals, errorNames);
         errorDDWrapper.appendChild(errorLabel);
         errorDDWrapper.appendChild(errorDropdown);
-        seriesBody.appendChild(errorDDWrapper);
+        seriesBody.appendChild(errorDDWrapper);*/
 
-        //-- Create data point Symbols dropdown
-        let datapointSymbolsDDWrapper = GM.HF.createNewDiv('', '', ['symbols-dropdown-wrapper', 'series-card-element'], [], [], '');
-        let datapointSymbolsOptions = ['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'pin', 'arrow'];
-        let datapointSymbolsLabel = GM.HF.createNewSpan('', '', ['symbols-label'], [], 'Symbols: ')
-        let datapointSymbolsDropdown = GM.HF.createNewSelect('', '', ['symbols-dropdown'], [], datapointSymbolsOptions, datapointSymbolsOptions)
+        //-- Create data point Symbol shape dropdown
+        let symbolShapeDDWrapper = GM.HF.createNewDiv('', '', ['symbol-shape-dropdown-wrapper', 'series-card-element'], [], [], '');
+        let symbolShapeOptions = ['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'pin', 'arrow'];
+        let symbolShapeLabel = GM.HF.createNewSpan('', '', ['symbol-shape-label'], [], 'Symbol Shape: ');
+        let symbolShapeDropdown = GM.HF.createNewSelect('', '', ['symbol-shape-dropdown'], [], symbolShapeOptions, symbolShapeOptions);
         // select circle as default
-        datapointSymbolsDropdown.selectedIndex = 0;
-        datapointSymbolsDDWrapper.appendChild(datapointSymbolsLabel);
-        datapointSymbolsDDWrapper.appendChild(datapointSymbolsDropdown);
-        seriesBody.appendChild(datapointSymbolsDDWrapper);
+        symbolShapeDropdown.selectedIndex = 0;
+        symbolShapeDDWrapper.appendChild(symbolShapeLabel);
+        symbolShapeDDWrapper.appendChild(symbolShapeDropdown);
+        seriesBody.appendChild(symbolShapeDDWrapper);
+
+        //-- Create data point Symbol color dropdown
+        let symbolColorDDWrapper = GM.HF.createNewDiv('', '', ['symbol-color-dropdown-wrapper', 'series-card-element'], [], [], '');
+        let symbolColorOptions = { red: '#dd6b66', blue: '#9dc7c8', yellow: '#ffcb77', purple: '#f2d5f8' };
+        let symbolColorLabel = GM.HF.createNewSpan('', '', ['symbol-color-label'], [], 'Symbol Color: ');
+        let symbolColorDropdown = GM.HF.createNewSelect('', '', ['symbol-color-dropdown'], [], Object.values(symbolColorOptions), Object.keys(symbolColorOptions));
+        // select red as default
+        symbolColorDropdown.selectedIndex = 0;
+        symbolColorDDWrapper.appendChild(symbolColorLabel);
+        symbolColorDDWrapper.appendChild(symbolColorDropdown);
+        seriesBody.appendChild(symbolColorDDWrapper);
+
 
         //-- Create data point Size range input (0 - 50)
         let datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'series-card-element'], [], 'Symbol Size: ', 0, 50, 1, 5);
