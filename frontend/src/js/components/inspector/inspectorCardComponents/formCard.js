@@ -1,6 +1,6 @@
 import { GM } from "../../../main.js";
 import { MinMaxFilter } from "./minMaxFilter.js";
-import { rangePlugin } from "flatpickr/dist/plugins/rangePlugin.js";
+import rangePlugin from "flatpickr/dist/plugins/rangePlugin";
 import flatpickr from "flatpickr";
 
 /**

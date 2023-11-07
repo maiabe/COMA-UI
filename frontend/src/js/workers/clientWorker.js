@@ -293,7 +293,7 @@ async function getRequest(url) {
 
 // Example POST method implementation:
 async function postData(url, data) {
-  const post_url = `${baseUrl}api/load_saved_modules`;
+  const post_url = `${baseUrl}`;
   console.log(post_url);
   // Default options are marked with *
   const response = await fetch(post_url, {

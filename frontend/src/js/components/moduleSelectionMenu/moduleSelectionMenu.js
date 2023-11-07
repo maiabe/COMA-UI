@@ -11,10 +11,6 @@ import { Publisher, Message } from "../../communication/index.js";
 import { GM } from "../../main.js";
 import { HTMLFactory } from "../../htmlGeneration/index.js";
 import { moduleDataObject } from "../../sharedVariables/moduleData.js";
-const flowDiagramWhite = new URL(
-  "../../../../public/images/icons/flow-diagram-white.png",
-  import.meta.url
-);
 
 /************************************************************************************************
  * This file creates the HTML and JS interactions for the module selection menu on the left side of the UI.
@@ -39,7 +35,7 @@ export class ModuleSelectionMenu {
         color: moduleMenuColor,
         subMenuItems: this.compositeSubMenuItems,
         subMenu: null,
-        buttonIcon: flowDiagramWhite,
+        buttonIcon: "../../assets/images/icons/database-storage.png",
       },
       {
         text: "Source",

@@ -1,16 +1,14 @@
 // server.js
-import express from "express";
-
-import fs from "fs";
-import cors from "cors";
-
-// Routes
-import { apiRouter } from "./api/router.js";
+const express = require("express");
+const JobManager = require("./customModules/jobManager");
+const cors = require("cors");
+const fs = require("fs");
 
 // Define Express App
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 // app.use(express.static('./src/public'));
 
 //app.use('/tabulator-tables', express.static(__dirname + 'node_modules/tabulator-tables'));
@@ -28,7 +26,7 @@ app.use(express.json());
 })*/
 app.get("/get-object-orbits", (req, res) => {
   //const csvFilePath = './localFileStorage/planetary-xyz.csv'; // Replace with the actual path
-  const csvFilePath = "./assets/object_orbits.csv"; // Replace with the actual path
+  const csvFilePath = "./localFileStorage/object_orbits.csv"; // Replace with the actual path
   const csvContent = fs.readFileSync(csvFilePath, "utf-8");
 
   res.setHeader("Content-Disposition", 'attachment; filename="data.csv"');
@@ -37,7 +35,7 @@ app.get("/get-object-orbits", (req, res) => {
 });
 app.get("/get-ecliptic", (req, res) => {
   //const csvFilePath = './localFileStorage/planetary-xyz.csv'; // Replace with the actual path
-  const csvFilePath = "./assets/xyz_ephem_ecliptic.csv"; // Replace with the actual path
+  const csvFilePath = "./localFileStorage/xyz_ephem_ecliptic.csv"; // Replace with the actual path
   const csvContent = fs.readFileSync(csvFilePath, "utf-8");
 
   res.setHeader("Content-Disposition", 'attachment; filename="data.csv"');
@@ -62,8 +60,20 @@ app.listen(PORT, () => {
   console.log("Server connected at:", PORT);
 });
 
-// API Routes
-app.use("/api", apiRouter);
+const JM = new JobManager();
+
+/*module.exports = {
+  go: go,
+};*/
+
+app.post("/", function (req, res) {
+  res.set({
+    "Content-Type": "application/json",
+    //"Access-Control-Allow-Origin": "*",
+  });
+  const data = JM.addJob(req.body);
+  res.end(JSON.stringify({ response: data }));
+});
 
 // app.get("/", function (req, res) {
 //   res.set({
@@ -71,6 +81,5 @@ app.use("/api", apiRouter);
 //     //"Access-Control-Allow-Origin": "*"
 //   });
 //   const data = handleIncomingPost(req.body);
-//   console.log(req.body);
 //   res.end(JSON.stringify({ response: data }));
 // });
