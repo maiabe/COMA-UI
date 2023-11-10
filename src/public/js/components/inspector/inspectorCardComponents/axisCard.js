@@ -276,7 +276,7 @@ export class AxisCard {
         const axisName = axisCard.getAttribute('id'); // xaxis or yaxis
         const inspectorWrapper = axisCard.closest('.chart-inspector-wrapper');
         //-- Select corresponding seriesCards and add/remove from axis reference dropdown
-        const seriesCards = inspectorWrapper.querySelectorAll('.series-tab-content .series-area .series-card-wrapper');
+        const seriesCards = inspectorWrapper.querySelectorAll('.series-tab-content .series-card-area .series-card-wrapper');
         seriesCards.forEach(seriesCard => {
             const dropdown = seriesCard.querySelector(`.${axisContentName.toLowerCase()}-index-dropdown`);
             switch (action) {

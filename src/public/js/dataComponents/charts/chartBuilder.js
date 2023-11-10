@@ -199,11 +199,11 @@ export class ChartBuilder {
             title: {
                 text: data.chartTitle,
                 left: 'center',
-                top: '5%',
+                top: '6%',
             },
             grid: {
-                height: '68%',
-                top: '11%',
+                height: '70%',
+                top: '12%',
                 bottom: '18%',
                 left: '12%',
                 //bottom: '30%'
@@ -219,12 +219,12 @@ export class ChartBuilder {
             },
             legend: {},
             tooltip: {},
-            /*tooltip: {
+            tooltip: {
                 trigger: 'axis',
                 axisPointer: {
                     type: 'cross'
                 },
-                *//*formatter: function (param) {
+                /*formatter: function (param) {
                     const result = [];
                     const seriesName = param[0].seriesName; // Get the series name
                     const seriesColor = param[0].color;
@@ -240,17 +240,19 @@ export class ChartBuilder {
                     result.push(xAxis);
                     result.push(color);
                     result.push(seriesVal);
-                    *//*if (errorVal) {
+                    if (errorVal) {
                         result.push(errorVal);
-                    }*//*
+                    }
 
                     return result.join('');
-                },*//*
+                },*/
                 //color: 'black'
                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            },*/
+            },
             dataZoom: [],
-            series: []
+            series: [],
+            // defines custom series colors
+            color: data.colors
         };
 
         //-- Set Dataset
@@ -381,9 +383,9 @@ export class ChartBuilder {
                 //yAxisIndex: o.yAxisIndex,
                 symbol: o.symbolShape,
                 symbolSize: o.symbolSize,
-                itemStyle: {
+                /*itemStyle: {
                     color: o.symbolColor
-                }
+                }*/
             });
             echartData['series'].push({
                 encode: {

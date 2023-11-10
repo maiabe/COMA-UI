@@ -734,6 +734,9 @@ export class InspectorCardMaker {
                 });
             });
 
+            // add colors
+            chartData['colors'] = [];
+
             // add series data
             chartData['series'] = [];
             const seriesTabContent = inspectorCard.querySelector('.series-tab-content');
@@ -768,10 +771,12 @@ export class InspectorCardMaker {
                     yAxisIndex: yAxisIndex,
                     yAxisName: yAxisName,
                     symbolShape: symbolShape.value,
-                    symbolColor: symbolColor.value,
+                    //symbolColor: symbolColor.value,
                     symbolSize: Number(datapointSize.value),
                 };
                 chartData['series'].push(seriesContent);
+                chartData['colors'].push(symbolColor.value);
+                chartData['colors'].push('#5470c6');
             });
 
             moduleData['datasetType'] = datasetType;

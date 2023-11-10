@@ -393,8 +393,10 @@ export class OutputManager {
                         // Store error value to errorIndex
                         const errorVal = sd[errorName];
                         if (errorVal) {
+                            const errorDigits = getNumDigits(errorName);
+                            dataRow[errorIndex] = Number(errorVal).toFixed(errorDigits);
+                            // for later reference to draw error bars
                             seriesData['errorIndex'] = errorIndex;
-                            dataRow[errorIndex] = errorVal;
                         }
                     }
                 });

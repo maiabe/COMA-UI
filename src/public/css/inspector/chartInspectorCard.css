@@ -259,6 +259,18 @@
     height: 100%;
 }
 
+.series-content-wrapper .clear-all-wrapper {
+    display: flex;
+    justify-content: start;
+}
+.series-content-wrapper .clear-all {
+    font-size: 90%;
+    color: rgba(5, 117, 255, 1);
+    text-decoration: underline;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .series-content-wrapper .series-dropdown-area,
 .series-content-wrapper .series-dropdown-wrapper
 {
@@ -269,7 +281,7 @@
     width: 50%;
     display: flex;
     flex-wrap: wrap;
-    margin: 2% 1% 2% 1%;
+    margin: 0 1% 2% 1%;
 }
 
 .series-content-wrapper .series-dropdown {
