@@ -216,7 +216,7 @@ export class SeriesCard {
         const currentSeriesArea = document.getElementById(`series-${moduleKey}`).querySelector('.series-card-area');
         const seriesExists = currentSeriesArea.querySelector(`#${fieldName}-${seriesName}`);
 
-        if (seriesExists === null) {
+        if (seriesExists === null) { // Only create series card if the selected series doesn't exist already'
             let seriesCard = GM.HF.createNewDiv(fieldName + '-' + seriesName, '', ['series-card-wrapper'], [], [], '');
             seriesArea.appendChild(seriesCard);
 

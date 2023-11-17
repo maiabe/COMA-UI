@@ -328,28 +328,48 @@ export class OutputManager {
         //-- Build column header of dataset source
         const dataset = { source: [], };
         const columnHeader = [];
-        // for each xAxis
-        chartData['xAxis'].forEach(xAxis => {
-            const axisName = xAxis.axisName;
-            columnHeader.push(axisName);
-        });
-        /*chartData['yAxis'].forEach(yAxis => {
-            const axisName = yAxis.axisName;
-            columnHeader.push(axisName);
-        });*/
-        chartData['series'].forEach(series => {
-            const fieldName = series.fieldName;
-            const seriesName = series.seriesName;
-            columnHeader.push(seriesName);
 
-            // Get all sourcedata rows that has the series name
-            const seriesSourceData = sourceData.filter(sd => sd[fieldName] === seriesName);
-            console.log(seriesSourceData);
-            
-        });
-        columnHeader.push('error');
-        console.log(columnHeader);
-        dataset['source'].push(columnHeader);
+        if (chartData['series'].length > 0) {
+            // for each xAxis
+            chartData['xAxis'].forEach(xAxis => {
+                const axisName = xAxis.axisName;
+                columnHeader.push(axisName);
+            });
+            chartData['series'].forEach(series => {
+                const fieldName = series.fieldName;
+                const seriesName = series.seriesName;
+                columnHeader.push(seriesName);
+
+                // Get all sourcedata rows that has the series name
+                const seriesSourceData = sourceData.filter(sd => sd[fieldName] === seriesName);
+
+            });
+            columnHeader.push('error');
+            dataset['source'].push(columnHeader);
+        }
+        else {
+            // for each xAxis
+            chartData['xAxis'].forEach(xAxis => {
+                const axisName = xAxis.axisName;
+                columnHeader.push(axisName);
+            });
+            chartData['yAxis'].forEach(yAxis => {
+                const axisName = yAxis.axisName;
+                columnHeader.push(axisName);
+                chartData['series'].push(
+                    {
+                        seriesName: axisName,
+                        labelName: yAxis.labelName,
+                        xAxisIndex: 0,
+                        // xAxisName
+                        yAxisName: axisName,
+                        symbolShape: 'circle',
+                        symbolSize: 5,
+                    });
+            });
+            columnHeader.push('error');
+            dataset['source'].push(columnHeader);
+        }
 
         console.log(sourceData);
         console.log(chartData['series']);
@@ -357,70 +377,91 @@ export class OutputManager {
         // filter source data
         //const seriesNames = chartData['series'].filter(series => series.seriesName);
         const numSeries = chartData['series'].length;
+        console.log(numSeries);
         const numXAxis = chartData['xAxis'].length;
         const errorIndex = columnHeader.indexOf('error');
+        chartData['series'].forEach(seriesData => { seriesData['errorIndex'] = errorIndex });
 
         //console.log(numSeries);
         //console.log(numXAxis);
 
-        const result = [];
         sourceData.forEach((sd, i) => {
             const dataRow = new Array(numSeries + numXAxis).fill(null);
             const seriesIndices = [];
-            if (chartData['series'].length > 0) {
+
+            //if (chartData['series'].length > 0) {
+                // 1. Store x-axis values in dataRow
+                chartData['xAxis'].forEach((xAxisData, xi) => {
+                    const xAxisName = xAxisData.axisName;
+                    dataRow[xi] = sd[xAxisName];
+
+                });
+
+                // 2. Store series values in dataRow
                 chartData['series'].forEach((seriesData) => {
                     const fieldName = seriesData.fieldName;
                     const seriesName = seriesData.seriesName;
                     const seriesIndex = columnHeader.indexOf(seriesName);
                     seriesIndices.push(seriesIndex);
                     //-- If sourceData row contains the serieName, store corresponding values to the right column of the dataset
-                    if (sd[fieldName] === seriesName) {
-                        // 1. Store xAxis value to xAxisIndex of dataRow
-                        const xAxisName = seriesData.xAxisName; 
-                        dataRow[seriesData.xAxisIndex] = sd[xAxisName];
-                        // 2. Store series value (corresponding yAxis value of that series) to seriesIndex
+                    if (fieldName) {
+                        // Store the series value only if this row of sourceData has the target series name
+                        if (sd[fieldName] === seriesName) {
+                            //-- Store series value to seriesIndex
+                            const yAxisName = seriesData.yAxisName;
+                            if (sd[yAxisName] !== 99) {
+                                const numDigits = getNumDigits(yAxisName);
+                                const value = Number(sd[yAxisName]).toFixed(numDigits);
+                                dataRow[seriesIndex] = value;
+                            }
+
+                            //-- Store series error value
+                            // Get error name corresponding to the yAxisName
+                            // TODO: use hidden input field in inspectorCard to assign corresponding error name to the seriesData
+                            const errorName = `${yAxisName}_err`;
+
+                            // Store error value to errorIndex
+                            const errorVal = sd[errorName];
+                            if (errorVal) {
+                                const errorDigits = getNumDigits(errorName);
+                                dataRow[errorIndex] = Number(errorVal).toFixed(errorDigits);
+                                // for later reference to draw error bars
+                                //seriesData['errorIndex'] = errorIndex;
+                            }
+                        }
+                    }
+                    // A case where there is no series selected
+                    else {
+                        //-- Store series value to seriesIndex
                         const yAxisName = seriesData.yAxisName;
                         if (sd[yAxisName] !== 99) {
                             const numDigits = getNumDigits(yAxisName);
                             const value = Number(sd[yAxisName]).toFixed(numDigits);
                             dataRow[seriesIndex] = value;
                         }
-                        // 3. Store series error value
-                        // Get error name corresponding to the yAxisName
-                        // TODO: use hidden input field in inspectorCard to assign corresponding error name to the seriesData
-                        const errorName = `${yAxisName}_err`;
 
-                        // Store error value to errorIndex
+                        //-- Store series error value
+                        const errorName = `${yAxisName}_err`;
                         const errorVal = sd[errorName];
                         if (errorVal) {
                             const errorDigits = getNumDigits(errorName);
                             dataRow[errorIndex] = Number(errorVal).toFixed(errorDigits);
-                            // for later reference to draw error bars
-                            seriesData['errorIndex'] = errorIndex;
                         }
                     }
+
                 });
 
-            }
-            // When there is no series selected, just prepare xAxis and yAxis values
-            /*else {
-                // just build array of arrays that containst x and y axis values
-                chartData['xAxis'].forEach(xa => {
-                    console.log(xa);
-                    console.log(sd[xa.axisName]);
-                    dataRow.push(sd[xa.axisName]);
-                });
-
-            }*/
             // Add dataRow to the dataset source only if all the values in a series indices of the dataRow is null
             //const allNull = dataRow.every(item => item === null); //-- remove
+            if (i < 5) {
+                console.log(dataRow);
+            }
             const seriesNull = this.#hasNullAtIndex(dataRow, seriesIndices);
             if (!seriesNull) {
                 dataset['source'].push(dataRow);
             }
 
         });
-        console.log(result);
 
 
         // 1. Foreach columnHeader add a column value to the dataRow from sourceData
@@ -461,7 +502,7 @@ export class OutputManager {
 
             dataset['source'].push(dataRow);
         });*/
-        
+
 
 
 
@@ -520,7 +561,8 @@ export class OutputManager {
             });
         });*/
 
-        console.log(dataset);
+
+        //console.log(dataset);
         chartData['dataset'] = dataset;
 
 

@@ -201,13 +201,17 @@ export class ChartBuilder {
                 left: 'center',
                 top: '6%',
             },
-            grid: {
-                height: '70%',
-                top: '12%',
-                bottom: '18%',
-                left: '12%',
-                //bottom: '30%'
-            },
+            grid:
+            [
+                {
+                    height: '70%',
+                    top: '12%',
+                    bottom: '18%',
+                    left: '12%',
+                },
+                    /*{ bottom: '55%', containLabel: true },
+                    { top: '45%', bottom: '5%', containLabel: true }*/
+            ],
             toolbox: {
                 show: true,
                 feature: {
@@ -218,7 +222,7 @@ export class ChartBuilder {
                 z: 2,
             },
             legend: {},
-            tooltip: {},
+            //tooltip: {},
             tooltip: {
                 trigger: 'axis',
                 axisPointer: {
@@ -265,6 +269,8 @@ export class ChartBuilder {
         data['xAxis'].forEach((xAxis, i) => {
             echartData['xAxis'].push({
                 type: xAxis.dataType,
+                min: xAxis.min,
+                max: xAxis.max,
                 name: xAxis.labelName,
                 nameLocation: "middle",
                 nameTextStyle: {
@@ -282,7 +288,7 @@ export class ChartBuilder {
                         // Extract the year and month components
                         const year = date.getFullYear();
                         let month = date.getMonth();
-                        //let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is zero-based
+                        //let month = (date.getMonth() + 1).toStrin0g().padStart(2, '0'); // Month is zero-based
                         const monthString = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
                         // Format the label to display year and month
@@ -313,12 +319,12 @@ export class ChartBuilder {
                 }, 
             });
             // Add data range slider for each x axis
-            echartData['dataZoom'].push({
+            /*echartData['dataZoom'].push({
                 type: 'slider',
                 xAxisIndex: i,
                 bottom: '5%',
                 height: '20px',
-            });
+            });*/
         });
         if (data['xAxis'].length > 1) {
             echartData['grid'].top = '15%';
@@ -360,7 +366,7 @@ export class ChartBuilder {
                 },
             });
             // Add data range slider for each y axis
-            echartData['dataZoom'].push({
+            /*echartData['dataZoom'].push({
                 type: 'slider',
                 yAxisIndex: i,
                 left: '3%',
@@ -368,7 +374,7 @@ export class ChartBuilder {
                 //bottom: '8%',
                 width: '20px',
                 //height: '68%',
-            });
+            });*/
         });
 
         //-- Set Series Options
@@ -399,7 +405,6 @@ export class ChartBuilder {
                     color: '#5470c6'
                 },
                 renderItem: function (params, api) {
-                    //console.log(api.value(3)); // this is getting series2 not error column
                     const xIndex = params.encode.x;
                     const yIndex = params.encode.y;
                     const eIndex = params.encode.e;
