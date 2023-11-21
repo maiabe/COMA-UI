@@ -329,12 +329,17 @@ export class OutputManager {
         const dataset = { source: [], };
         const columnHeader = [];
 
+        // for each xAxis
+        chartData['xAxis'].forEach(xAxis => {
+            const axisName = xAxis.axisName;
+            columnHeader.push(axisName);
+            if (axisName == 'iso_date_mid') {
+                xAxis.type = 'category';
+            }
+        });
+
         if (chartData['series'].length > 0) {
-            // for each xAxis
-            chartData['xAxis'].forEach(xAxis => {
-                const axisName = xAxis.axisName;
-                columnHeader.push(axisName);
-            });
+            
             chartData['series'].forEach(series => {
                 const fieldName = series.fieldName;
                 const seriesName = series.seriesName;
@@ -344,15 +349,8 @@ export class OutputManager {
                 const seriesSourceData = sourceData.filter(sd => sd[fieldName] === seriesName);
 
             });
-            columnHeader.push('error');
-            dataset['source'].push(columnHeader);
         }
         else {
-            // for each xAxis
-            chartData['xAxis'].forEach(xAxis => {
-                const axisName = xAxis.axisName;
-                columnHeader.push(axisName);
-            });
             chartData['yAxis'].forEach(yAxis => {
                 const axisName = yAxis.axisName;
                 columnHeader.push(axisName);
@@ -367,9 +365,10 @@ export class OutputManager {
                         symbolSize: 5,
                     });
             });
-            columnHeader.push('error');
-            dataset['source'].push(columnHeader);
         }
+
+        //columnHeader.push('error');
+        dataset['source'].push(columnHeader);
 
         console.log(sourceData);
         console.log(chartData['series']);
@@ -394,7 +393,6 @@ export class OutputManager {
                 chartData['xAxis'].forEach((xAxisData, xi) => {
                     const xAxisName = xAxisData.axisName;
                     dataRow[xi] = sd[xAxisName];
-
                 });
 
                 // 2. Store series values in dataRow
@@ -418,16 +416,14 @@ export class OutputManager {
                             //-- Store series error value
                             // Get error name corresponding to the yAxisName
                             // TODO: use hidden input field in inspectorCard to assign corresponding error name to the seriesData
-                            const errorName = `${yAxisName}_err`;
+                            //const errorName = `${yAxisName}_err`;
 
                             // Store error value to errorIndex
-                            const errorVal = sd[errorName];
+                            /*const errorVal = sd[errorName];
                             if (errorVal) {
                                 const errorDigits = getNumDigits(errorName);
                                 dataRow[errorIndex] = Number(errorVal).toFixed(errorDigits);
-                                // for later reference to draw error bars
-                                //seriesData['errorIndex'] = errorIndex;
-                            }
+                            }*/
                         }
                     }
                     // A case where there is no series selected
@@ -441,12 +437,12 @@ export class OutputManager {
                         }
 
                         //-- Store series error value
-                        const errorName = `${yAxisName}_err`;
+                        /*const errorName = `${yAxisName}_err`;
                         const errorVal = sd[errorName];
                         if (errorVal) {
                             const errorDigits = getNumDigits(errorName);
                             dataRow[errorIndex] = Number(errorVal).toFixed(errorDigits);
-                        }
+                        }*/
                     }
 
                 });

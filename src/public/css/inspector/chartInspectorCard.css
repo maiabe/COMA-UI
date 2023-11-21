@@ -123,6 +123,8 @@
 .axis-content-wrapper .axis-area {
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
+    padding-bottom: 5%;
     /*padding: 3% 2%;*/
     /*background-color: rgba(67, 80, 88, 0.1);
     box-shadow: inset 0 0 3px 5px rgba(0, 0, 0, 0.1);*/
@@ -134,6 +136,10 @@
     border-radius: 8px;
     box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
     background-color: white;
+}
+.axis-card-wrapper.primary {
+    border-radius: 12px;
+    border: solid 3px rgba(5, 117, 255, 1);
 }
 
 .axis-card-header {
@@ -308,9 +314,9 @@
 }
 
 /** series Area **/
-.series-content-wrapper .series-area {
+.series-content-wrapper .series-card-area {
     width: 100%;
-    display: flex;
+    padding-bottom: 5%;
 }
 
 .series-card-wrapper {
@@ -364,25 +370,6 @@
     align-items: center;
     margin-bottom: 3%;
 }
-    .series-content-wrapper .series-card-wrapper select {
-        height: 1.2rem;
-    }
-
-.series-card-body .label-wrapper {
-    grid-area: label;
-    height: 20px;
-}
-    .series-card-body .label-wrapper .label-text {
-        text-align: right;
-        margin-right: 5px;
-        white-space: nowrap;
-    }
-    .series-card-body .label-wrapper .label-input {
-        width: 80%;
-        padding: 0 2%;
-    }
-
-
 .series-card-body .xaxis-index-dropdown-wrapper {
     grid-area: xaxis;
 }
@@ -399,7 +386,25 @@
     grid-area: color;
 }
 
-    .series-card-body .xaxis-index-dropdown-wrapper .xaxis-index-label,
+.series-content-wrapper .series-card-wrapper select {
+    height: 1.2rem;
+}
+
+.series-card-body .label-wrapper {
+    grid-area: label;
+    height: 20px;
+}
+    .series-card-body .label-wrapper .label-text {
+        text-align: right;
+        margin-right: 5px;
+        white-space: nowrap;
+    }
+    .series-card-body .label-wrapper .label-input {
+        width: 80%;
+        padding: 0 2%;
+    }
+
+    .series-card-body .xaxis-index-ref-wrapper .xaxis-index-label,
     .series-card-body .yaxis-index-dropdown-wrapper .yaxis-index-label,
     .series-card-body .error-dropdown-wrapper .error-label,
     .series-card-body .symbol-shape-dropdown-wrapper .symbol-shape-label,
@@ -410,13 +415,18 @@
         margin-right: 5px;
         text-wrap: nowrap;
     }
-    .series-card-body .xaxis-index-dropdown-wrapper .xaxis-index-dropdown,
     .series-card-body .yaxis-index-dropdown-wrapper .yaxis-index-dropdown,
     .series-card-body .error-dropdown-wrapper .error-dropdown,
     .series-card-body .symbol-shape-dropdown-wrapper .symbol-shape-dropdown,
     .series-card-body .symbol-color-dropdown-wrapper .symbol-color-dropdown
     {
         width: 60%;
+    }
+
+    .series-card-body .xaxis-index-ref-wrapper .xaxis-index-ref 
+    {
+        width: 60%;
+        font-size: 110%;
     }
 
 .series-card-body .symbols-size-range-wrapper {

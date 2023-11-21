@@ -13,4 +13,13 @@ export class SpanGenerator {
         HTMLFactory.setCustomStyles(e, customStyles)
         return e;
     }
+
+    updateTextContent(element, text) {
+        console.log(element);
+        console.log(text);
+        const textContent = document.createTextNode(text);
+        element.appendChild(textContent);
+        console.log(textContent);
+
+    }
 }

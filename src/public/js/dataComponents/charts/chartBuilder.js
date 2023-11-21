@@ -268,9 +268,10 @@ export class ChartBuilder {
         echartData['xAxis'] = [];
         data['xAxis'].forEach((xAxis, i) => {
             echartData['xAxis'].push({
-                type: xAxis.dataType,
-                min: xAxis.min,
-                max: xAxis.max,
+                type: (xAxis.axisName == 'iso_date_mid') ? 'category' : 'value',
+                //min: (xAxis.axisName == 'iso_date_mid') ? '2015-07-29' : 0,
+                //max: (xAxis.axisName == 'iso_date_mid') ? '2023-07-06' : 360,
+                axisLabel: { show: true },
                 name: xAxis.labelName,
                 nameLocation: "middle",
                 nameTextStyle: {
@@ -316,15 +317,16 @@ export class ChartBuilder {
                 minorSplitLine: {
                     show: xAxis.minorGridLines,
                     lineStyle: { type: 'dashed', opacity: 0.3, }
-                }, 
+                },
             });
+
             // Add data range slider for each x axis
-            /*echartData['dataZoom'].push({
+            echartData['dataZoom'].push({
                 type: 'slider',
                 xAxisIndex: i,
                 bottom: '5%',
                 height: '20px',
-            });*/
+            });
         });
         if (data['xAxis'].length > 1) {
             echartData['grid'].top = '15%';
@@ -366,7 +368,7 @@ export class ChartBuilder {
                 },
             });
             // Add data range slider for each y axis
-            /*echartData['dataZoom'].push({
+            echartData['dataZoom'].push({
                 type: 'slider',
                 yAxisIndex: i,
                 left: '3%',
@@ -374,7 +376,7 @@ export class ChartBuilder {
                 //bottom: '8%',
                 width: '20px',
                 //height: '68%',
-            });*/
+            });
         });
 
         //-- Set Series Options
@@ -393,7 +395,16 @@ export class ChartBuilder {
                     color: o.symbolColor
                 }*/
             });
-            echartData['series'].push({
+            /*echartData['series'].push({
+                type: 'scatter',
+                symbolSize: 0,
+                encode: {
+                    x: o.xAxisIndex,
+                    y: o.yAxisIndex,
+                }
+
+            });*/
+            /*echartData['series'].push({
                 encode: {
                     x: o.xAxisName,
                     y: o.seriesName,
@@ -476,7 +487,7 @@ export class ChartBuilder {
                     borderWidth: 1.2
                 },
                 z: 100
-            });
+            });*/
             // set legend color to match error colors
             /*echartData.legend['data'].push({
                 name: `${o.seriesName}_error`, itemStyle: { color: '#5470c6' }

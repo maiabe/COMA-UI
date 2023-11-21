@@ -101,6 +101,16 @@ export class HTMLFactory {
     createNewSpan(id, name, classlist, customStyles, text) {
         return this.#spanGenerator.generateNewSpan(id, name, classlist, customStyles, text);
     }
+    
+    /** Updates a text content of span element
+     * @param element -> the HTML Object of the span 
+     * @param text -> string of the textContent to update the span element with
+     * @return the updated span
+     */
+    updateSpanText(element, text) {
+        return this.#spanGenerator.updateTextContent(element, text);
+    }
+
 
     /** Creates a new HTML label element
      * @param id -> the id of the element (if not adding id, use empty string '')
@@ -191,16 +201,16 @@ export class HTMLFactory {
     }
 
     /** Creates a new HTML text input element
-             * @param id -> the id of the element (if not adding id, use empty string '')
-             * @param name -> the name of the element (if not adding name, use empty string '')
-             * @param classlist -> Array of strings, each string is a css classname
-             * @param customStyles -> array of objects in the following format
-             *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
-             *                         value: 'green;}
-             * @param type -> must be 'text' (string)
-             * @param disabled -> boolean (true = disabeled, false = enabeled )
-             * @return the new button
-             */
+    * @param id -> the id of the element (if not adding id, use empty string '')
+    * @param name -> the name of the element (if not adding name, use empty string '')
+    * @param classlist -> Array of strings, each string is a css classname
+    * @param customStyles -> array of objects in the following format
+    *                        {style: string (in camelCase)}  ex style: 'backgroundColor',
+    *                         value: 'green;}
+    * @param type -> must be 'text' (string)
+    * @param disabled -> boolean (true = disabeled, false = enabeled )
+    * @return the new button
+    */
     createNewRangeInput(id, name, classlist, customStyles, min, max, step, value) {
         return this.#inputGenerator.generateRangeInput(id, name, classlist, customStyles, min, max, step, value);
     }

@@ -147,37 +147,35 @@ export class SeriesCard {
             /*console.log(series);
             console.log(selected.value);*/
 
-            //-- Get all xAxisRefs and yAxisRefs of currently loaded axisCards in axisAreas
+            //-- Get xAxisRef and all yAxisRefs of currently loaded axisCards in axisAreas
             const chartInspectorWrapper = document.getElementById(`chart-inspector-${moduleKey}`);
 
-            //-- Get xAxisRefs information
-            const xTraceArea = chartInspectorWrapper.querySelector(`#xAxis-${moduleKey}`);
-            const xAxisElements = xTraceArea.querySelectorAll('.axis-card-wrapper');
-            const xAxisRefs = [];
-            xAxisElements.forEach((xEl, i) => {
-                const axisName = xEl.getAttribute('id');
-                const dataType = xEl.querySelector('.data-type').value;
-                xAxisRefs.push({ index: i, name: axisName, displayName: axisName, dataType: dataType });
-            });
+            //-- Get xAxisRef information
+            const xAxisArea = chartInspectorWrapper.querySelector(`#xAxis-${moduleKey}`);
+            const xAxisCard = xAxisArea.querySelector('.axis-card-wrapper.primary');
+            const xAxisIndex = Array.from(xAxisArea.children).indexOf(xAxisCard);
+            const xAxisName = xAxisCard.getAttribute('id');
+            const xDataType = xAxisCard.querySelector('.data-type').value;
+            const xAxisRef = { index: xAxisIndex, name: xAxisName, displayName: xAxisName, dataType: xDataType };
 
             //-- Get yAxisRefs information
-            const yTraceArea = chartInspectorWrapper.querySelector(`#yAxis-${moduleKey}`);
-            const yAxisElements = yTraceArea.querySelectorAll('.axis-card-wrapper');
+            const yAxisArea = chartInspectorWrapper.querySelector(`#yAxis-${moduleKey}`);
+            const yAxisCards = yAxisArea.querySelectorAll('.axis-card-wrapper');
             const yAxisRefs = [];
-            yAxisElements.forEach((yEl, i) => {
-                const axisName = yEl.getAttribute('id');
-                const dataType = yEl.querySelector('.data-type').value;
-                yAxisRefs.push({ index: i, name: axisName, displayName: axisName, dataType: dataType });
+            yAxisCards.forEach((card, i) => {
+                const yAxisName = card.getAttribute('id');
+                const yDataType = card.querySelector('.data-type').value;
+                yAxisRefs.push({ index: i, name: yAxisName, displayName: yAxisName, dataType: yDataType });
             });
 
             if (selected.value === 'all') {
                 series.forEach(s => {
-                    this.#createSeriesCard(moduleKey, fieldName, s, xAxisRefs, yAxisRefs);
+                    this.#createSeriesCard(moduleKey, fieldName, s, xAxisRef, yAxisRefs);
                 });
             }
             else {
                 //-- Create a seriesCard
-                this.#createSeriesCard(moduleKey, fieldName, selectedSeries, xAxisRefs, yAxisRefs);
+                this.#createSeriesCard(moduleKey, fieldName, selectedSeries, xAxisRef, yAxisRefs);
             }
                 //-- Create a seriesCard
                 //-- Updates axis options for this seriesCard ........................................TODO: revise
@@ -203,12 +201,12 @@ export class SeriesCard {
      *                              (e.g. "ui_name" (current temporary name for the object name from the dataset))
      *  @param { series } Object that contains the series information
      *                          (e.g. { name: "c-2019-u5", displayName: "C/2019 U5 (PanSTARRS)", dataType: 'category' })
-     *  @param { xAxisRefs } Object that contains the current xAxis[0] information
+     *  @param { xAxisRef } Object that contains the current primary xAxis information
      *                          (e.g. { index: 0, name: "iso_date_mid", displayName: 'date' dataType: 'time' })
-     *  @param { yAxisRefs } Object that contains the series information
+     *  @param { yAxisRefs } Array of objects that contains the series information
      *                          (e.g. { index: 0, name: "mag", displayName: "magnitude", dataType: 'category' })
      * */
-    #createSeriesCard(moduleKey, fieldName, selectedSeries, xAxisRefs, yAxisRefs) {
+    #createSeriesCard(moduleKey, fieldName, selectedSeries, xAxisRef, yAxisRefs) {
         //-- Load this seriesCard to seriesArea if it doesn't exist in the series area already
         let seriesArea = this.#seriesArea;
         const seriesName = selectedSeries.name;
@@ -249,7 +247,7 @@ export class SeriesCard {
             seriesBody.appendChild(labelWrapper);
 
             //-- Create xAxisIndex dropdown
-            let xAxisIndexVals = xAxisRefs.map(xAxisRef => { return xAxisRef.index });
+            /*let xAxisIndexVals = xAxisRefs.map(xAxisRef => { return xAxisRef.index });
             let xAxisIndexNames = xAxisRefs.map(xAxisRef => { return xAxisRef.name });
 
             let xAxisIndexDDWrapper = GM.HF.createNewDiv('', '', ['xaxis-index-dropdown-wrapper', 'series-card-element'], [], [], '');
@@ -257,7 +255,16 @@ export class SeriesCard {
             let xAxisIndexDropdown = GM.HF.createNewSelect('', '', ['xaxis-index-dropdown'], [], xAxisIndexVals, xAxisIndexNames);
             xAxisIndexDDWrapper.appendChild(xAxisIndexLabel);
             xAxisIndexDDWrapper.appendChild(xAxisIndexDropdown);
-            seriesBody.appendChild(xAxisIndexDDWrapper);
+            seriesBody.appendChild(xAxisIndexDDWrapper);*/
+            let xAxisIndexRefWrapper = GM.HF.createNewDiv('', '', ['xaxis-index-ref-wrapper', 'series-card-element'], [], [], '');
+            let xAxisIndexLabel = GM.HF.createNewSpan('', '', ['xaxis-index-label'], [], 'X Axis:');
+            let xAxisIndexRef = GM.HF.createNewSpan('', '', ['xaxis-index-ref'], [], xAxisRef.name);
+            let xAxisIndexInput = GM.HF.createNewTextInput('', '', ['xaxis-index-input'], [], 'hidden', xAxisRef.index)
+            xAxisIndexRefWrapper.appendChild(xAxisIndexLabel);
+            xAxisIndexRefWrapper.appendChild(xAxisIndexRef);
+            xAxisIndexRefWrapper.appendChild(xAxisIndexInput);
+            seriesBody.appendChild(xAxisIndexRefWrapper);
+
 
             //-- Create yAxisIndex dropdown
             let yAxisIndexVals = yAxisRefs.map(yAxisRef => { return yAxisRef.index });
