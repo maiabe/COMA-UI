@@ -150,7 +150,8 @@ export class AxisCard {
             let removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete-icon.png', ['remove-button', 'button'], [], '');
             header.appendChild(axisTitle);
             header.appendChild(axisDataType);
-            header.appendChild(removeBtn);
+            //header.appendChild(removeBtn);
+            axisCard.appendChild(removeBtn);
             axisCard.appendChild(header);
             axisArea.appendChild(axisCard);
 
@@ -289,16 +290,23 @@ export class AxisCard {
         button.addEventListener('click', e => {
             let axisArea = e.target.closest('.axis-area');
             let axisCard = e.target.closest('.axis-card-wrapper');
-
             let numAxisCards = axisArea.querySelectorAll('.axis-card-wrapper');
 
             // Don't remove axisCard if there is only one left in axisArea
             if (numAxisCards.length > 1) {
+                axisArea.removeChild(axisCard);
+                // Update Primary
+                if (axisType == 'xAxis' && axisCard.classList.contains('primary')) {
+                    const newPrimaryAxisCard = axisArea.querySelector('.axis-card-wrapper');
+                    newPrimaryAxisCard.classList.add('primary');
+                    // update xAxisRef of currently loaded series cards
+                    const xAxisIndex = Array.from(axisArea.children).indexOf(newPrimaryAxisCard);
+                    this.updateSeriesAxisOptions('update', newPrimaryAxisCard, xAxisIndex);
+                }
                 //-- Update the yaxis reference dropdown in series content
                 if (axisType == 'yAxis') {
                     this.updateSeriesAxisOptions('remove', axisCard);
                 }
-                axisArea.removeChild(axisCard);
             }
         });
     }
@@ -313,29 +321,34 @@ export class AxisCard {
      *  @param { xAxisIndex } Number of the index of axisCard in axisArea
      * */
     updateSeriesAxisOptions(action, axisCard, xAxisIndex) {
+        console.log(action);
+        console.log(axisCard);
         const axisName = axisCard.getAttribute('id'); // xaxis or yaxis
         const inspectorWrapper = axisCard.closest('.chart-inspector-wrapper');
         //-- Select corresponding seriesCards and add/remove from axis reference dropdown
         const seriesCards = inspectorWrapper.querySelectorAll('.series-tab-content .series-card-area .series-card-wrapper');
-        seriesCards.forEach(seriesCard => {
-            const dropdown = seriesCard.querySelector(`.yaxis-index-dropdown`);
-            switch (action) {
-                case 'add':
-                    var index = dropdown.options.length;
-                    GM.HF.addSelectOption(dropdown, { name: axisName, value: index });
-                    break;
-                case 'remove':
-                    const optionElement = Array.from(dropdown.options).find(option => option.textContent === axisName);
-                    GM.HF.removeSelectOption(dropdown, optionElement);
-                    break;
-                case 'update':
-                    const xAxisIndexRef = seriesCard.querySelector('.xaxis-index-ref');
-                    const xAxisIndexInput = xAxisIndexRef.nextElementSibling;
-                    //GM.HF.updateSpanText(xAxisIndexRef, axisName);
-                    xAxisIndexRef.textContent = axisName;
-                    xAxisIndexInput.value = xAxisIndex;
-            }
-        });
+        if (seriesCards.length > 0) {
+            seriesCards.forEach(seriesCard => {
+                const dropdown = seriesCard.querySelector(`.yaxis-index-dropdown`);
+                switch (action) {
+                    case 'add':
+                        var index = dropdown.options.length;
+                        GM.HF.addSelectOption(dropdown, { name: axisName, value: index });
+                        break;
+                    case 'remove':
+                        const optionElement = Array.from(dropdown.options).find(option => option.textContent === axisName);
+                        GM.HF.removeSelectOption(dropdown, optionElement);
+                        break;
+                    case 'update':
+                        const xAxisIndexRef = seriesCard.querySelector('.xaxis-index-ref');
+                        const xAxisIndexInput = xAxisIndexRef.nextElementSibling;
+                        //GM.HF.updateSpanText(xAxisIndexRef, axisName);
+                        xAxisIndexRef.textContent = axisName;
+                        xAxisIndexInput.value = xAxisIndex;
+                }
+            });
+        }
+
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

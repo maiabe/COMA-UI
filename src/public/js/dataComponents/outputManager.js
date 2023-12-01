@@ -307,7 +307,6 @@ export class OutputManager {
     // stores source data of the field and source data type of the field to chartData
     prepChartData(moduleKey, datasetType, chartTitle, chartData, sourceData) {
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(sourceData, 'sourceData', 'object')], 'OutputManager', 'prepEchartData')) return;
-
         /* dataset: {
                 source: [
                     ['date', '2012-05-10', '2013-06-20', '2014-10-01', '2015-01-01'],
@@ -316,9 +315,6 @@ export class OutputManager {
                     ['ATLAS-MLO', null, 67.2, null, 86.4]
                 ]
         },*/
-
-
-
 
         //-- Prep ECharts source data for dataset option (e.g. [['product', '2015', '2016', '2017'],
         //                                                      ['Matcha Latte', 43.3, 85.8, 93.7],
@@ -330,11 +326,28 @@ export class OutputManager {
         const columnHeader = [];
 
         // for each xAxis
-        chartData['xAxis'].forEach(xAxis => {
+        chartData['xAxis'].forEach((xAxis, xi) => {
             const axisName = xAxis.axisName;
             columnHeader.push(axisName);
-            if (axisName == 'iso_date_mid') {
-                xAxis.type = 'category';
+
+            console.log(xAxis);
+            if (!xAxis.primary) {
+                // set dataType as category
+                xAxis['dataType'] = 'category';
+                // create invisible series for non-Primary x axis
+                chartData['series'].push(
+                    {
+                        seriesName: chartData['primaryXAxisName'],
+                        dataType: 'category',
+                        labelName: axisName,
+                        xAxisIndex: xi,
+                        xAxisName: axisName,
+                        yAxisIndex: 0,
+                        yAxisName: chartData['primaryXAxisName'],
+                        symbolSize: 0,
+                        visible: false,
+                    }
+                );
             }
         });
 
@@ -358,7 +371,7 @@ export class OutputManager {
                     {
                         seriesName: axisName,
                         labelName: yAxis.labelName,
-                        xAxisIndex: 0,
+                        xAxisIndex: 0,  // TODO: add invisible input element to y-axis card to reference xAxis index and name
                         // xAxisName
                         yAxisName: axisName,
                         symbolShape: 'circle',
@@ -367,7 +380,7 @@ export class OutputManager {
             });
         }
 
-        //columnHeader.push('error');
+        columnHeader.push('error');
         dataset['source'].push(columnHeader);
 
         console.log(sourceData);
@@ -383,6 +396,13 @@ export class OutputManager {
 
         //console.log(numSeries);
         //console.log(numXAxis);
+
+        //******************* Sort SourceData according to the Primary X-Axis **********************/
+
+        //******************* Create invisible Series for all non-Primary X-Axis **********************/
+
+        //******************* Set datasetType as category for all non-Primary X-Axis **********************/
+
 
         sourceData.forEach((sd, i) => {
             const dataRow = new Array(numSeries + numXAxis).fill(null);
@@ -416,14 +436,14 @@ export class OutputManager {
                             //-- Store series error value
                             // Get error name corresponding to the yAxisName
                             // TODO: use hidden input field in inspectorCard to assign corresponding error name to the seriesData
-                            //const errorName = `${yAxisName}_err`;
+                            const errorName = `${yAxisName}_err`;
 
                             // Store error value to errorIndex
-                            /*const errorVal = sd[errorName];
+                            const errorVal = sd[errorName];
                             if (errorVal) {
                                 const errorDigits = getNumDigits(errorName);
                                 dataRow[errorIndex] = Number(errorVal).toFixed(errorDigits);
-                            }*/
+                            }
                         }
                     }
                     // A case where there is no series selected
@@ -437,12 +457,12 @@ export class OutputManager {
                         }
 
                         //-- Store series error value
-                        /*const errorName = `${yAxisName}_err`;
+                        const errorName = `${yAxisName}_err`;
                         const errorVal = sd[errorName];
                         if (errorVal) {
                             const errorDigits = getNumDigits(errorName);
                             dataRow[errorIndex] = Number(errorVal).toFixed(errorDigits);
-                        }*/
+                        }
                     }
 
                 });

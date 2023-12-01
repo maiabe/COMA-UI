@@ -710,6 +710,8 @@ export class InspectorCardMaker {
                 const axisCards = axisArea.querySelectorAll('.axis-card-wrapper');
                 chartData[axisContentName] = [];
                 axisCards.forEach(axisCard => {
+                    const primary = axisCard.classList.contains('primary');
+                    console.log(primary);
                     const axisName = axisCard.getAttribute('id');
                     const dataType = axisCard.querySelector('.data-type');
                     const labelName = axisCard.querySelector('.label-input');
@@ -720,6 +722,7 @@ export class InspectorCardMaker {
                     const ticks = axisCard.querySelector('.minor-ticks');
                     const inverse = axisCard.querySelector('.inverse');
                     const axisCardContent = {
+                        primary: primary,
                         axisName: axisName,
                         dataType: dataType.value,
                         labelName: labelName ? labelName.value : axisName,
@@ -728,14 +731,19 @@ export class InspectorCardMaker {
                         majorGridLines: majorGridLines ? majorGridLines.checked : false,
                         minorGridLines: minorGridLines ? minorGridLines.checked : false,
                         ticks: ticks ? ticks.checked : false,
-                        inverse: inverse ? inverse.checked : false, 
+                        inverse: inverse ? inverse.checked : false,
                     };
+                    if (primary) {
+                        chartData['primaryXAxisName'] = axisName;
+                        console.log(chartData['primaryXAxisName']);
+                    }
                     chartData[axisContentName].push(axisCardContent);
                 });
             });
 
             // add colors
             chartData['colors'] = [];
+            chartData['legendData'] = [];
 
             // add series data
             chartData['series'] = [];
@@ -748,9 +756,10 @@ export class InspectorCardMaker {
                 const header = seriesCard.querySelector('.series-card-header span');
                 const dataType = seriesCard.querySelector('.data-type');
                 const labelName = seriesCard.querySelector('.label-input');
-                const xAxisIndexDD = seriesCard.querySelector('.xaxis-index-dropdown');
-                const xAxisIndex = xAxisIndexDD.selectedIndex;
-                const xAxisName = xAxisIndexDD[xAxisIndexDD.selectedIndex].textContent;
+                const xAxisIndexRef = seriesCard.querySelector('.xaxis-index-ref');
+                const xAxisIndexInput = seriesCard.querySelector('.xaxis-index-input');
+                const xAxisIndex = xAxisIndexInput.value;
+                const xAxisName = xAxisIndexRef.textContent;
                 const yAxisIndexDD = seriesCard.querySelector('.yaxis-index-dropdown');
                 const yAxisIndex = yAxisIndexDD.selectedIndex;
                 const yAxisName = yAxisIndexDD[yAxisIndexDD.selectedIndex].textContent;
@@ -773,10 +782,12 @@ export class InspectorCardMaker {
                     symbolShape: symbolShape.value,
                     //symbolColor: symbolColor.value,
                     symbolSize: Number(datapointSize.value),
+                    visible: true,
                 };
                 chartData['series'].push(seriesContent);
                 chartData['colors'].push(symbolColor.value);
                 chartData['colors'].push('#5470c6');
+                chartData['legendData'].push(seriesContent.seriesName);
             });
 
             moduleData['datasetType'] = datasetType;

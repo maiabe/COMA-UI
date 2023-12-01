@@ -136,10 +136,18 @@
     border-radius: 8px;
     box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
     background-color: white;
+    position: relative;
 }
 .axis-card-wrapper.primary {
     border-radius: 12px;
     border: solid 3px rgba(5, 117, 255, 1);
+}
+
+.axis-card-wrapper .remove-button  {
+    width: 6%;
+    position: absolute;
+    right: 5%;
+    top: 3%;
 }
 
 .axis-card-header {
@@ -155,9 +163,9 @@
 .axis-card-header span {
     font-size: 90%;
 }
-.axis-card-header img {
+/*.axis-card-header img {
     width: 6%;
-}
+}*/
 .axis-card-body {
     padding: 3% 5%;
 }

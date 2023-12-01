@@ -204,9 +204,9 @@ export class ChartBuilder {
             grid:
             [
                 {
-                    height: '70%',
-                    top: '12%',
-                    bottom: '18%',
+                    height: '63%',
+                    top: '20%',
+                    bottom: '10%',
                     left: '12%',
                 },
                     /*{ bottom: '55%', containLabel: true },
@@ -221,7 +221,10 @@ export class ChartBuilder {
                 right: '5%',
                 z: 2,
             },
-            legend: {},
+            legend: {
+                zIndex: 2,
+                data: data.legendData,
+            },
             //tooltip: {},
             tooltip: {
                 trigger: 'axis',
@@ -268,7 +271,7 @@ export class ChartBuilder {
         echartData['xAxis'] = [];
         data['xAxis'].forEach((xAxis, i) => {
             echartData['xAxis'].push({
-                type: (xAxis.axisName == 'iso_date_mid') ? 'category' : 'value',
+                type: xAxis.dataType,
                 //min: (xAxis.axisName == 'iso_date_mid') ? '2015-07-29' : 0,
                 //max: (xAxis.axisName == 'iso_date_mid') ? '2023-07-06' : 360,
                 axisLabel: { show: true },
@@ -276,7 +279,7 @@ export class ChartBuilder {
                 nameLocation: "middle",
                 nameTextStyle: {
                     fontWeight: "bold",
-                    fontSize: 14,
+                    fontSize: 11,
                     lineHeight: 35,
                 },
                 position: xAxis.position,
@@ -319,14 +322,15 @@ export class ChartBuilder {
                     lineStyle: { type: 'dashed', opacity: 0.3, }
                 },
             });
-
-            // Add data range slider for each x axis
-            echartData['dataZoom'].push({
-                type: 'slider',
-                xAxisIndex: i,
-                bottom: '5%',
-                height: '20px',
-            });
+            if (xAxis.primary) {
+                // Add data range slider for each x axis
+                echartData['dataZoom'].push({
+                    type: 'slider',
+                    xAxisIndex: i,
+                    bottom: '3%',
+                    height: '18px',
+                });
+            }
         });
         if (data['xAxis'].length > 1) {
             echartData['grid'].top = '15%';
@@ -341,7 +345,7 @@ export class ChartBuilder {
                 nameLocation: "middle",
                 nameTextStyle: {
                     fontWeight: "bold",
-                    fontSize: 14,
+                    fontSize: 11,
                     verticalAlign: "bottom",
                     lineHeight: 50
                 },
@@ -374,7 +378,7 @@ export class ChartBuilder {
                 left: '3%',
                 //top: '100px',
                 //bottom: '8%',
-                width: '20px',
+                width: '18px',
                 //height: '68%',
             });
         });
@@ -388,9 +392,10 @@ export class ChartBuilder {
                 type: type,
                 name: o.labelName,
                 xAxisIndex: o.xAxisIndex,
-                //yAxisIndex: o.yAxisIndex,
+                yAxisIndex: o.yAxisIndex,
                 symbol: o.symbolShape,
                 symbolSize: o.symbolSize,
+                visible: o.visible
                 /*itemStyle: {
                     color: o.symbolColor
                 }*/
@@ -404,90 +409,93 @@ export class ChartBuilder {
                 }
 
             });*/
-            /*echartData['series'].push({
-                encode: {
-                    x: o.xAxisName,
-                    y: o.seriesName,
-                    e: `error`
-                },
-                type: 'custom',
-                name: `${o.seriesName}_error`,
-                itemStyle: {
-                    color: '#5470c6'
-                },
-                renderItem: function (params, api) {
-                    const xIndex = params.encode.x;
-                    const yIndex = params.encode.y;
-                    const eIndex = params.encode.e;
-                    const xValue = api.value(xIndex);
-                    const yValue = api.value(yIndex);
-                    const eValue = api.value(eIndex);
-                    //const lowPos = api.value(3);
-                    //const highPos = api.value(4);
-                    const highPos = yValue + eValue;
-                    const lowPos = yValue - eValue;
-                    const highPoint = api.coord([xValue, highPos]);
-                    const lowPoint = api.coord([xValue, lowPos]);
+            if (o.visible) {
+                echartData['series'].push({
+                    encode: {
+                        x: o.xAxisName,
+                        y: o.seriesName,
+                        e: `error`
+                    },
+                    type: 'custom',
+                    name: `${o.seriesName}_error`,
+                    itemStyle: {
+                        color: '#5470c6'
+                    },
+                    renderItem: function (params, api) {
+                        const xIndex = params.encode.x;
+                        const yIndex = params.encode.y;
+                        const eIndex = params.encode.e;
+                        const xValue = api.value(xIndex);
+                        const yValue = api.value(yIndex);
+                        const eValue = api.value(eIndex);
+                        //const lowPos = api.value(3);
+                        //const highPos = api.value(4);
+                        const highPos = yValue + eValue;
+                        const lowPos = yValue - eValue;
+                        const highPoint = api.coord([xValue, highPos]);
+                        const lowPoint = api.coord([xValue, lowPos]);
 
-                    const halfWidth = api.size([1, 0])[0] * 0.05; // how is it calculating the width of horizontal lines of error bar?
+                        const halfWidth = api.size([1, 0])[0] * 0.05; // how is it calculating the width of horizontal lines of error bar?
 
-                    api.style({
-                        stroke: api.visual('color'),
-                        fill: undefined
-                    });
-                    return {
-                        type: 'group',
-                        children: [
-                            {
-                                type: 'line',
-                                transition: ['shape'],
-                                shape: {
-                                    x1: highPoint[0] - halfWidth,
-                                    y1: highPoint[1],
-                                    x2: highPoint[0] + halfWidth,
-                                    y2: highPoint[1]
+                        api.style({
+                            stroke: api.visual('color'),
+                            fill: undefined
+                        });
+                        return {
+                            type: 'group',
+                            children: [
+                                {
+                                    type: 'line',
+                                    transition: ['shape'],
+                                    shape: {
+                                        x1: highPoint[0] - halfWidth,
+                                        y1: highPoint[1],
+                                        x2: highPoint[0] + halfWidth,
+                                        y2: highPoint[1]
+                                    },
+                                    style: {
+                                        stroke: '#5470c6',
+                                        lineWidth: 1,
+                                    }
                                 },
-                                style: {
-                                    stroke: '#5470c6',
-                                    lineWidth: 1,
-                                }
-                            },
-                            {
-                                type: 'line',
-                                transition: ['shape'],
-                                shape: {
-                                    x1: highPoint[0],
-                                    y1: highPoint[1],
-                                    x2: lowPoint[0],
-                                    y2: lowPoint[1]
+                                {
+                                    type: 'line',
+                                    transition: ['shape'],
+                                    shape: {
+                                        x1: highPoint[0],
+                                        y1: highPoint[1],
+                                        x2: lowPoint[0],
+                                        y2: lowPoint[1]
+                                    },
+                                    style: {
+                                        stroke: '#5470c6',
+                                        lineWidth: 1,
+                                    }
                                 },
-                                style: {
-                                    stroke: '#5470c6',
-                                    lineWidth: 1,
+                                {
+                                    type: 'line',
+                                    transition: ['shape'],
+                                    shape: {
+                                        x1: lowPoint[0] - halfWidth,
+                                        y1: lowPoint[1],
+                                        x2: lowPoint[0] + halfWidth,
+                                        y2: lowPoint[1]
+                                    },
+                                    style: {
+                                        stroke: '#5470c6',
+                                        lineWidth: 1,
+                                    }
                                 }
-                            },
-                            {
-                                type: 'line',
-                                transition: ['shape'],
-                                shape: {
-                                    x1: lowPoint[0] - halfWidth,
-                                    y1: lowPoint[1],
-                                    x2: lowPoint[0] + halfWidth,
-                                    y2: lowPoint[1]
-                                },
-                                style: {
-                                    stroke: '#5470c6',
-                                    lineWidth: 1,
-                                }
-                            }
-                        ]
-                    };
-                },
-                itemStyle: {
-                    borderWidth: 1.2
-                },
-                z: 100
-            });*/
+                            ]
+                        };
+                    },
+                    itemStyle: {
+                        borderWidth: 1.2
+                    },
+                    z: 1
+                });
+            }
+
             // set legend color to match error colors
             /*echartData.legend['data'].push({
                 name: `${o.seriesName}_error`, itemStyle: { color: '#5470c6' }

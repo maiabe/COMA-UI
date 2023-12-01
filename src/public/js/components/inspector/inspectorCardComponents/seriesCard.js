@@ -151,7 +151,7 @@ export class SeriesCard {
             const chartInspectorWrapper = document.getElementById(`chart-inspector-${moduleKey}`);
 
             //-- Get xAxisRef information
-            const xAxisArea = chartInspectorWrapper.querySelector(`#xAxis-${moduleKey}`);
+            const xAxisArea = chartInspectorWrapper.querySelector(`#xAxis-${moduleKey} .axis-area`);
             const xAxisCard = xAxisArea.querySelector('.axis-card-wrapper.primary');
             const xAxisIndex = Array.from(xAxisArea.children).indexOf(xAxisCard);
             const xAxisName = xAxisCard.getAttribute('id');
