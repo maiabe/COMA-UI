@@ -113,7 +113,8 @@ const DatasetTypes = [
 const DefaultAxes = [
     {
         datasetType: "Photometry",
-        xAxis: { name: "iso_date_mid", displayName: "ISO date", dataType: 'value' },
+        /*xAxis: { name: "iso_date_mid", displayName: "ISO date", dataType: 'time' },*/
+        xAxis: { name: "true_anomaly", displayName: "True Anomaly", dataType: 'value' },
         yAxis: { name: "mag", displayName: "magnitude", dataType: 'value', error: "mag_err" }
     }
 ];

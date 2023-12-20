@@ -5,10 +5,10 @@
  *************************************************************/
 
 import { Publisher, Message } from '../communication/index.js';
-import { ChartBuilder, CsvWriter, OrbitBuilder } from './index.js';
+import { ChartBuilder, CsvWriter, OrbitBuilder, ChartGenerator } from './index.js';
 import { invalidVariables, varTest, printErrorMessage } from '../errorHandling/errorHandlers.js';
 //import { getNumDigits } from '../sharedletiables/formatValues.js';
-import { getNumDigits, orbitColors } from '../sharedVariables/index.js';
+import { getNumDigits, orbitColors, getDataType } from '../sharedVariables/index.js';
 //import { directoryPath } from '../../../images/fits_demo/Object_Images/'
 
 export class OutputManager {
@@ -16,6 +16,7 @@ export class OutputManager {
     #outputMap;         // When a chart is created, parameters are stored here. If popup is closed, it can be recreatd from this data.
     #chartBuilder;
     #activeChartMap;
+    #chartGenerator;
     #orbitBuilder;
     #activeOrbitMap;
     #csvWriter;
@@ -27,6 +28,7 @@ export class OutputManager {
         this.#chartBuilder = new ChartBuilder();
         this.#activeChartMap = new Map();
         this.#activeOrbitMap = new Map();
+        this.#chartGenerator = new ChartGenerator(); // New D3 Chart Generator
         this.#orbitBuilder = new OrbitBuilder();
         this.#csvWriter = new CsvWriter();
         this.#dataTable = new Map();
@@ -45,8 +47,9 @@ export class OutputManager {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(data, 'data', 'object'), varTest(div, 'div', 'object'), varTest(type, 'type', 'string')], 'OutputManager', 'storeChartData')) return false;
          this.#outputMap.set(key, { data: data, type: type, div: div, outputType: 'chart', framework: this.#getFramework(type), theme: 'dark', coordinateSystem: coordinateSystem });
          console.log(this.#outputMap);
+
          return true;
-    }
+     }
     
 
     /** --- PUBLIC ---
@@ -58,21 +61,25 @@ export class OutputManager {
      * @param {string} framework 'echart' or 'plotly' */
     drawChart = (key, div, width, height) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(div, 'div', 'object'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'OutputManager', 'drawChart')) return;
+        console.log(this.#outputMap.get(key));
         if (this.#outputMap.has(key)) {
             const cd = this.#outputMap.get(key);
             // if activeChartMap contains the key, updateChart
-            let activeChart = this.#activeChartMap.get(key);
+            const activeChartMap = this.#activeChartMap.get(key);
             if (this.popupHasActiveChart(key)) {
                 // get the div of chartObject
-                let activeChartDiv = activeChart.chartObject.getDom();
+                div.firstChild.remove();
+                /*let activeChartDiv = activeChart.chartObject.getDom();*/
                 
                 // set activeChartMap with updated chartObject
-                this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.updatePlotData(cd.data, cd.type, activeChartDiv, width, height, cd.framework, cd.coordinateSystem) });
+                /*this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.updatePlotData(cd.data, cd.type, activeChartDiv, width, height, cd.framework, cd.coordinateSystem) });*/
             }
             // otherwise set the key to activeChartMap
-            else {
-                this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(cd.data, cd.type, div, width, height, cd.framework, cd.theme, cd.coordinateSystem) });
-            }
+            
+            /*this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(cd.data, cd.type, div, width, height, cd.framework, cd.theme, cd.coordinateSystem) });*/
+            /*console.log('initial active map set up');*/
+            this.#activeChartMap.set(key, { chartObject: this.#chartGenerator.plotData(cd.data, cd.type, div, width, height, cd.theme, cd.coordinateSystem) });
+            
         }
         else printErrorMessage(`Missing Data.`, `key: ${key} - OutputManager -> drawChart`);
     }
@@ -118,7 +125,7 @@ export class OutputManager {
      * @param {number} width 
      * @param {number} height 
      * @returns true if successful, false if not */
-    resizeChart = (key, width, height) => {
+    /*resizeChart = (key, width, height) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'Output Mangaer', 'resizeChart')) return false;
         if (this.popupHasActiveChart(key)) {
             if (this.#thisIsAnEchart(key)) this.#chartBuilder.resizeEchart(this.#activeChartMap.get(key).chartObject, width, height);
@@ -133,11 +140,29 @@ export class OutputManager {
             }
         } else return false;
         return true;
-    }
+    }*/
 
-    #thisIsAnEchart = key => this.#getActiveChartFramework(key) === 'echart';
+/*    #thisIsAnEchart = key => this.#getActiveChartFramework(key) === 'echart';
     #thisIsAPlotlyChart = key => this.#getActiveChartFramework(key) === 'plotly';
     #thisIsAChart = outputObject => outputObject.outputType === 'chart';
+*/
+
+    resizeChart = (key, width, height) => {
+        if (invalidVariables([varTest(key, 'key', 'number'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'Output Mangaer', 'resizeChart')) return false;
+        /*if (this.popupHasActiveChart(key)) {
+            const chart = this.#outputMap.get(key);
+            chart.div.querySelector('.plot-wrapper').remove(); // remove content of chart wrapper
+            this.#chartGenerator.plotData(chart.data, chart.type, chart.div, width, height);
+            return true;
+        }
+        else if (this.#outputMap.has(key)) {
+            const outputObject = this.#outputMap.get(key);
+            this.drawChart(key, outputObject.div, width, height);
+            return true;
+        }*/
+        return false;
+    }
+
 
     /**
      * Gets the correct framework string for the type of chart requested.
@@ -150,7 +175,8 @@ export class OutputManager {
             case 'line':
             case 'bar':
             case 'scatter':
-                return 'echart';
+                return 'd3';
+                /*return 'echart';*/
             case 'table':
                 return 'tabulator';
         }
@@ -307,6 +333,65 @@ export class OutputManager {
     // stores source data of the field and source data type of the field to chartData
     prepChartData(moduleKey, datasetType, chartTitle, chartData, sourceData) {
         if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(sourceData, 'sourceData', 'object')], 'OutputManager', 'prepEchartData')) return;
+
+        //-- Dataset example format
+        /* chartData['dataset'] = [
+            { series: "A", data: [{ x: 1, y: 10 }, { x: 2, y: 20 }, { x: 3, y: 15 }] },
+            { series: "B", data: [{ x: 1, y: 5 }, { x: 2, y: 10 }, { x: 3, y: 8 }] },
+        ];*/
+
+        // for each sourceData, build data array for each series
+        const dataset = [];
+        // Store x-axis and y-axis data
+        chartData['series'].forEach(series => {
+            const fieldName = series.fieldName;
+            const seriesName = series.seriesName;
+
+            series['data'] = sourceData.map((sd, i) => {
+                if (sd[fieldName] == seriesName) {
+                    let xAxisVal = sd[series.xAxisName];
+                    let yAxisVal = sd[series.yAxisName];
+
+                    xAxisVal = getDataType(xAxisVal) == 'time' ? new Date(xAxisVal) : xAxisVal;
+                    yAxisVal = getDataType(yAxisVal) == 'time' ? new Date(yAxisVal) : yAxisVal;
+
+                    return { x: xAxisVal, y: yAxisVal };
+                }
+            }).filter(data => (data) && (data.y < 99));
+        });
+
+        // Store data for xAxis (for building xAxis scale)
+        chartData['xAxis'].forEach(xAxis => {
+            xAxis['data'] = sourceData.map((sd, i) => {
+                let xAxisVal = sd[xAxis.axisName];
+                if (getDataType(xAxisVal) == 'time') {
+                    // Split the string into date and time parts
+                    const splitDate = xAxisVal.split(" ");
+                    xAxisVal = splitDate[0];
+                }
+                return xAxisVal;
+            });
+        });
+
+        // Store data for yAxis (for building yAxis scale)
+        chartData['yAxis'].forEach(yAxis => {
+            yAxis['data'] = sourceData.map((sd, i) => {
+                return sd[yAxis.axisName];
+            }).filter(data => (data) && (data < 99));
+        });
+
+        // Get selected labels from chartData['xAxis'] directly (non primary x-axis are all labels)
+        // build labels array
+        /*chartData['xAxis'].forEach(xAxis => {
+            if (!xAxis.primary) {
+
+            }
+        });*/
+
+        console.log(chartData['series']);
+        /*chartData['dataset'] = dataset;
+*/
+
         /* dataset: {
                 source: [
                     ['date', '2012-05-10', '2013-06-20', '2014-10-01', '2015-01-01'],
@@ -322,7 +407,7 @@ export class OutputManager {
         //                                                      ['Cheese Cocoa', 86.4, 65.2, 82.5]])
 
         //-- Build column header of dataset source
-        const dataset = { source: [], };
+        /*const dataset = { source: [], };
         const columnHeader = [];
 
         // for each xAxis
@@ -387,24 +472,13 @@ export class OutputManager {
         console.log(chartData['series']);
 
         // filter source data
-        //const seriesNames = chartData['series'].filter(series => series.seriesName);
         const numSeries = chartData['series'].length;
         console.log(numSeries);
         const numXAxis = chartData['xAxis'].length;
         const errorIndex = columnHeader.indexOf('error');
-        chartData['series'].forEach(seriesData => { seriesData['errorIndex'] = errorIndex });
+        chartData['series'].forEach(seriesData => { seriesData['errorIndex'] = errorIndex });*/
 
-        //console.log(numSeries);
-        //console.log(numXAxis);
-
-        //******************* Sort SourceData according to the Primary X-Axis **********************/
-
-        //******************* Create invisible Series for all non-Primary X-Axis **********************/
-
-        //******************* Set datasetType as category for all non-Primary X-Axis **********************/
-
-
-        sourceData.forEach((sd, i) => {
+        /*sourceData.forEach((sd, i) => {
             const dataRow = new Array(numSeries + numXAxis).fill(null);
             const seriesIndices = [];
 
@@ -477,7 +551,7 @@ export class OutputManager {
                 dataset['source'].push(dataRow);
             }
 
-        });
+        });*/
 
 
         // 1. Foreach columnHeader add a column value to the dataRow from sourceData
@@ -579,7 +653,7 @@ export class OutputManager {
 
 
         //console.log(dataset);
-        chartData['dataset'] = dataset;
+        //chartData['dataset'] = dataset;
 
 
         //-- Build seriesData

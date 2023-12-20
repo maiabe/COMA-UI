@@ -56,7 +56,7 @@ export class PopupManager {
         if (!this.#popupList.has(moduleKey)) {
             // Check window size before building.
             let width = content.width ? content.width : 900;
-            let height = content.height ? content.height : 500;
+            let height = content.height ? content.height : 600;
             const p = new Popup(width, height, 50, 50, moduleKey, content.color, content.content, content.headerText);
             p.publisher.subscribe(this.subscriber);
             this.#popupList.set(moduleKey, { type: 'module', element: p });

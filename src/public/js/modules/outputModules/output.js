@@ -30,7 +30,7 @@ export class Chart_2D extends Output {
      * Creates the HTML content to be inserted into the Popup in the DOM. */
     setPopupContent = () => {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper());
-        this.addData('themeDD', this.popupContentMaker.addEChartThemeDropdown(this.getData('key')), false, '', false);
+        //this.addData('themeDD', this.popupContentMaker.addEChartThemeDropdown(this.getData('key')), false, '', false);
 
         this.addData('plotDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
         var popupContent = this.getData('popupContent');

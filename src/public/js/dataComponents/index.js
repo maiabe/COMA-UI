@@ -6,3 +6,4 @@ export {CsvReader} from './csv/csvReader.js';
 export {CsvWriter} from './csv/csvWriter.js';
 export {ChartBuilder} from './charts/chartBuilder.js';
 export {OrbitBuilder} from './charts/orbitBuilder.js';
+export {ChartGenerator} from './charts/chartGenerator.js';

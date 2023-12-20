@@ -125,6 +125,9 @@
     <Content Include="src\public\js\components\popup\popupComponents\errorCard.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\public\js\dataComponents\charts\chartGenerator.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\public\js\dataComponents\charts\CSS2DRenderer.js" />
     <Content Include="src\public\js\dataComponents\charts\lil-gui.module.min.js" />
     <Content Include="src\public\js\dataComponents\charts\orbitBuilder.js">

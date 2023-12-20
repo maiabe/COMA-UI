@@ -780,7 +780,7 @@ export class InspectorCardMaker {
                     yAxisIndex: yAxisIndex,
                     yAxisName: yAxisName,
                     symbolShape: symbolShape.value,
-                    //symbolColor: symbolColor.value,
+                    symbolColor: symbolColor.value,
                     symbolSize: Number(datapointSize.value),
                     visible: true,
                 };

@@ -300,7 +300,7 @@ export class SeriesCard {
 
             //-- Create data point Symbol color dropdown
             let symbolColorDDWrapper = GM.HF.createNewDiv('', '', ['symbol-color-dropdown-wrapper', 'series-card-element'], [], [], '');
-            let symbolColorOptions = { red: '#dd6b66', blue: '#9dc7c8', yellow: '#ffcb77', purple: '#f2d5f8' };
+            let symbolColorOptions = { red: '#e65e5e', blue: '#187fc4', yellow: '#e6c45e', purple: '#9e66ed' };
             let symbolColorLabel = GM.HF.createNewSpan('', '', ['symbol-color-label'], [], 'Color: ');
             let symbolColorDropdown = GM.HF.createNewSelect('', '', ['symbol-color-dropdown'], [], Object.values(symbolColorOptions), Object.keys(symbolColorOptions));
             // get index of the seriesCard
@@ -316,7 +316,7 @@ export class SeriesCard {
 
 
             //-- Create data point Size range input (0 - 50)
-            let datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'series-card-element'], [], 'Symbol Size: ', 0, 50, 1, 5);
+            let datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'series-card-element'], [], 'Symbol Size: ', 0, 50, 1, 3);
             seriesBody.appendChild(datapointSizeRange);
 
 
