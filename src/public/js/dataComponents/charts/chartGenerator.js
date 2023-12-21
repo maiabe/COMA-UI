@@ -63,6 +63,7 @@ export class ChartGenerator {
 
         console.log(chartData);
 
+
         // top margin space should depend on the length of x-axis label and chart title
         const margin = { top: 150, right: 60, bottom: 45, left: 65 };
 
@@ -73,6 +74,17 @@ export class ChartGenerator {
             .attr("viewBox", `0 0 ${width} ${height}`)
             .attr("preserveAsoectRatio", 'none');
             /*.attr("preserveAsoectRatio", 'xMidYMid meet');*/
+
+
+        // Add Chart Title
+        const titleWrapper = svg.append('g')
+            .attr('class', 'title-group-' + chartData.chartTitle);
+        titleWrapper.append('text')
+            .attr('class', 'chart-title')
+            .attr('text-anchor', 'middle')
+            .attr('x', width / 2)
+            .attr('y', margin.top / 4)
+            .text(chartData.chartTitle);
 
 
         /**************** x-axis ****************/
@@ -108,14 +120,14 @@ export class ChartGenerator {
             .text(primaryXAxis.labelName);
 
 
-        /************* custom label *************/
+        /************* custom label (custom ticks) *************/
         const xAxisLabels = chartData['xAxis'].filter(xa => !xa.primary);
         if (xAxisLabels.length > 0) {
             xAxisLabels.forEach((xAxisLabel, i) => {
                 console.log(xAxisLabel);
 
-                const customLabels = xAxisLabel.data;
-                const tickInterval = Math.ceil(customLabels.length / (width / 200));
+                const customLabelData = xAxisLabel.data;
+                const tickInterval = Math.ceil(customLabelData.length / (width / 200));
                 const axisPosition = xAxisLabel.position;
                 const yPos = (axisPosition == 'top') ? margin.top : (height - margin.bottom);
 
@@ -123,50 +135,63 @@ export class ChartGenerator {
                     .attr("class", "custom-label-group");
 
                 // Add custom x-axis labels
-                const customTicks = customLabelGroupWrapper.selectAll(".custom-tick")
+                const customLabels = customLabelGroupWrapper.selectAll(".custom-tick")
                                         .data(xAxisData.filter((d, i) => i % tickInterval === 0))
                                         .enter().append("text")
                                         .attr("class", "custom-tick")
                                         .attr("text-anchor", "middle")
                                         .style("font-size", "12px")
-                                        .text(function (d, i) { return customLabels[Math.floor(i * tickInterval)]; });
+                                        .text(function (d, i) { return customLabelData[Math.floor(i * tickInterval)]; });
 
-                // Adjust position and rotation
-                customTicks.each(function (d) {
+                // Adjust position and rotation and create tick marks
+                customLabels.each(function (d) {
+                    // Adjust label positions
                     const textElement = d3.select(this);
                     const x = xScale(d);
                     const textWidth = this.getBBox().width;
-                    const adjustedYPos = yPos - (textWidth / 2);
+                    const textHeight = this.getBBox().height;
+
+                    const adjustedYPos = yPos - (textWidth / 2) - 3; // 1 for some spacing between the axis line
+                    const adjustedXPos = x + (textHeight / 3);
                     textElement
-                        .attr('transform', `rotate(-90, ${x}, ${adjustedYPos})`)
-                        .attr('x', x)
+                        .attr('transform', `rotate(-90, ${adjustedXPos}, ${adjustedYPos})`)
+                        .attr('x', adjustedXPos)
                         .attr('y', adjustedYPos);
+
+                    // Add custom ticks
+                    const tickLength = 6; // Length of the tick lines
+                    const tickOffset = 0; // Spacing between tick and label
+                    const tickY1 = yPos + tickOffset;
+                    const tickY2 = yPos + tickOffset + tickLength;
+
+                    // Append tick line
+                    customLabelGroupWrapper.append("line")
+                        .attr("class", "custom-tick-line")
+                        .attr("x1", x)
+                        .attr("y1", tickY1)
+                        .attr("x2", x)
+                        .attr("y2", tickY2)
+                        .style("stroke", "black")
+                        .style("stroke-width", "0.5px");
                 });
+
+
+                // Add a line to represent the x-axis
+                const axisLine = customLabelGroupWrapper.append("line")
+                    .attr("class", "custom-axis-line")
+                    .style("stroke", "black")
+                    .style("stroke-width", "0.5px");
+
+                // Position the line based on the axis position
+                axisLine.attr('x1', margin.left)
+                    .attr('y1', yPos)
+                    .attr('x2', width - margin.right)
+                    .attr('y2', yPos);
+
+
 
             });
         }
-        /*const customTicks = [232.133, 298.911, 357.857, 19.647];
-        const customLabels = ["2015-07-29", "2022-03-21", "2023-03-19", "2023-07-06"];
-
-
-        const customLabelGroupWrapper = svg.append("g")
-                                           .attr("class", "custom-label-group");
-        // Add custom x-axis labels
-        customLabelGroupWrapper.selectAll(".custom-tick")
-            .data(customTicks)
-            .enter().append("text")
-            .attr("class", "custom-tick")
-            .attr("x", function (d) { return xScale(d); })
-            .attr("y", margin.top/2)
-            *//*.attr("dy", ".35em")*//*
-            .attr("text-anchor", "middle")
-            .attr("transform", function (d) {
-                const x = xScale(d);
-                const y = margin.top/2;
-                return `rotate(-90, ${x}, ${y})`;
-            }) // Rotate the text vertically around its position
-            .style("font-size", "12px")
-            .text(function (d, i) { return customLabels[i]; });*/
 
 
         /**************** y-axis ****************/
