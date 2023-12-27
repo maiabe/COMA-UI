@@ -27,7 +27,6 @@ export class RangeInput {
         // Append eventListeners
         rangeInput.addEventListener('input', (e) => {
             let ti = e.target.nextElementSibling;
-            console.log(ti);
             ti.value = e.target.value;
         });
 
@@ -36,7 +35,7 @@ export class RangeInput {
             if (!isNaN(newValue) && newValue >= min && newValue <= max) {
                 rangeInput.value = newValue;
             }
-        });   
+        });
 
         wrapper.appendChild(label);
         wrapper.appendChild(rangeInput);

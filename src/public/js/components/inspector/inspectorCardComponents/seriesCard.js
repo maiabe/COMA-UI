@@ -208,25 +208,25 @@ export class SeriesCard {
      * */
     #createSeriesCard(moduleKey, fieldName, selectedSeries, xAxisRef, yAxisRefs) {
         //-- Load this seriesCard to seriesArea if it doesn't exist in the series area already
-        let seriesArea = this.#seriesArea;
+        const seriesArea = this.#seriesArea;
         const seriesName = selectedSeries.name;
         
         const currentSeriesArea = document.getElementById(`series-${moduleKey}`).querySelector('.series-card-area');
         const seriesExists = currentSeriesArea.querySelector(`#${fieldName}-${seriesName}`);
 
         if (seriesExists === null) { // Only create series card if the selected series doesn't exist already'
-            let seriesCard = GM.HF.createNewDiv(fieldName + '-' + seriesName, '', ['series-card-wrapper'], [], [], '');
+            const seriesCard = GM.HF.createNewDiv(fieldName + '-' + seriesName, '', ['series-card-wrapper'], [], [], '');
             seriesArea.appendChild(seriesCard);
 
             console.log(seriesArea);
             
 
             //-- Create seriesCard header
-            let header = GM.HF.createNewDiv('', '', ['series-card-header'], [], [], '');
-            let headerText = GM.HF.createNewSpan('', seriesName, ['series-name'], [], selectedSeries.displayName);
+            const header = GM.HF.createNewDiv('', '', ['series-card-header'], [], [], '');
+            const headerText = GM.HF.createNewSpan('', seriesName, ['series-name'], [], selectedSeries.displayName);
 
-            let seriesDataType = GM.HF.createNewTextInput('', '', ['data-type'], [], 'hidden', selectedSeries.dataType);
-            let removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete-icon.png', ['remove-button', 'button'], [], '');
+            const seriesDataType = GM.HF.createNewTextInput('', '', ['data-type'], [], 'hidden', selectedSeries.dataType);
+            const removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete-icon.png', ['remove-button', 'button'], [], '');
             header.appendChild(headerText);
             header.appendChild(seriesDataType);
             header.appendChild(removeBtn);
@@ -235,12 +235,12 @@ export class SeriesCard {
             //-- Create removeFunction for this seriesCard
             this.#removeSeriesCardFunction(removeBtn);
 
-            let seriesBody = GM.HF.createNewDiv('', '', ['series-card-body'], [], [], '');
+            const seriesBody = GM.HF.createNewDiv('', '', ['series-card-body'], [], [], '');
 
             //-- Create series label input
-            let labelWrapper = GM.HF.createNewDiv('', '', ['label-wrapper', 'series-card-element'], [], [], '');
-            let labelText = GM.HF.createNewSpan('', '', ['label-text'], [], 'Label Name: ');
-            let label = GM.HF.createNewTextInput('', '', ['label-input'], [], 'text', false);
+            const labelWrapper = GM.HF.createNewDiv('', '', ['label-wrapper', 'series-card-element'], [], [], '');
+            const labelText = GM.HF.createNewSpan('', '', ['label-text'], [], 'Label Name: ');
+            const label = GM.HF.createNewTextInput('', '', ['label-input'], [], 'text', false);
             label.value = selectedSeries.displayName;
             labelWrapper.appendChild(labelText);
             labelWrapper.appendChild(label);
@@ -256,10 +256,10 @@ export class SeriesCard {
             xAxisIndexDDWrapper.appendChild(xAxisIndexLabel);
             xAxisIndexDDWrapper.appendChild(xAxisIndexDropdown);
             seriesBody.appendChild(xAxisIndexDDWrapper);*/
-            let xAxisIndexRefWrapper = GM.HF.createNewDiv('', '', ['xaxis-index-ref-wrapper', 'series-card-element'], [], [], '');
-            let xAxisIndexLabel = GM.HF.createNewSpan('', '', ['xaxis-index-label'], [], 'X Axis:');
-            let xAxisIndexRef = GM.HF.createNewSpan('', '', ['xaxis-index-ref'], [], xAxisRef.name);
-            let xAxisIndexInput = GM.HF.createNewTextInput('', '', ['xaxis-index-input'], [], 'hidden', xAxisRef.index)
+            const xAxisIndexRefWrapper = GM.HF.createNewDiv('', '', ['xaxis-index-ref-wrapper', 'series-card-element'], [], [], '');
+            const xAxisIndexLabel = GM.HF.createNewSpan('', '', ['xaxis-index-label'], [], 'X Axis:');
+            const xAxisIndexRef = GM.HF.createNewSpan('', '', ['xaxis-index-ref'], [], xAxisRef.name);
+            const xAxisIndexInput = GM.HF.createNewTextInput('', '', ['xaxis-index-input'], [], 'hidden', xAxisRef.index)
             xAxisIndexRefWrapper.appendChild(xAxisIndexLabel);
             xAxisIndexRefWrapper.appendChild(xAxisIndexRef);
             xAxisIndexRefWrapper.appendChild(xAxisIndexInput);
@@ -267,12 +267,12 @@ export class SeriesCard {
 
 
             //-- Create yAxisIndex dropdown
-            let yAxisIndexVals = yAxisRefs.map(yAxisRef => { return yAxisRef.index });
-            let yAxisIndexNames = yAxisRefs.map(yAxisRef => { return yAxisRef.name });
+            const yAxisIndexVals = yAxisRefs.map(yAxisRef => { return yAxisRef.index });
+            const yAxisIndexNames = yAxisRefs.map(yAxisRef => { return yAxisRef.name });
 
-            let yAxisIndexDDWrapper = GM.HF.createNewDiv('', '', ['yaxis-index-dropdown-wrapper', 'series-card-element'], [], [], '');
-            let yAxisIndexLabel = GM.HF.createNewSpan('', '', ['yaxis-index-label'], [], 'Y Axis:');
-            let yAxisIndexDropdown = GM.HF.createNewSelect('', '', ['yaxis-index-dropdown'], [], yAxisIndexVals, yAxisIndexNames)
+            const yAxisIndexDDWrapper = GM.HF.createNewDiv('', '', ['yaxis-index-dropdown-wrapper', 'series-card-element'], [], [], '');
+            const yAxisIndexLabel = GM.HF.createNewSpan('', '', ['yaxis-index-label'], [], 'Y Axis:');
+            const yAxisIndexDropdown = GM.HF.createNewSelect('', '', ['yaxis-index-dropdown'], [], yAxisIndexVals, yAxisIndexNames)
             yAxisIndexDDWrapper.appendChild(yAxisIndexLabel);
             yAxisIndexDDWrapper.appendChild(yAxisIndexDropdown);
             seriesBody.appendChild(yAxisIndexDDWrapper);
@@ -288,10 +288,10 @@ export class SeriesCard {
             seriesBody.appendChild(errorDDWrapper);*/
 
             //-- Create data point Symbol shape dropdown
-            let symbolShapeDDWrapper = GM.HF.createNewDiv('', '', ['symbol-shape-dropdown-wrapper', 'series-card-element'], [], [], '');
-            let symbolShapeOptions = ['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'pin', 'arrow'];
-            let symbolShapeLabel = GM.HF.createNewSpan('', '', ['symbol-shape-label'], [], 'Shape: ');
-            let symbolShapeDropdown = GM.HF.createNewSelect('', '', ['symbol-shape-dropdown'], [], symbolShapeOptions, symbolShapeOptions);
+            const symbolShapeDDWrapper = GM.HF.createNewDiv('', '', ['symbol-shape-dropdown-wrapper', 'series-card-element'], [], [], '');
+            const symbolShapeOptions = ['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow'];
+            const symbolShapeLabel = GM.HF.createNewSpan('', '', ['symbol-shape-label'], [], 'Shape: ');
+            const symbolShapeDropdown = GM.HF.createNewSelect('', '', ['symbol-shape-dropdown'], [], symbolShapeOptions, symbolShapeOptions);
             // select circle as default
             symbolShapeDropdown.selectedIndex = 0;
             symbolShapeDDWrapper.appendChild(symbolShapeLabel);
@@ -299,14 +299,14 @@ export class SeriesCard {
             seriesBody.appendChild(symbolShapeDDWrapper);
 
             //-- Create data point Symbol color dropdown
-            let symbolColorDDWrapper = GM.HF.createNewDiv('', '', ['symbol-color-dropdown-wrapper', 'series-card-element'], [], [], '');
-            let symbolColorOptions = { red: '#e65e5e', blue: '#187fc4', yellow: '#e6c45e', purple: '#9e66ed' };
-            let symbolColorLabel = GM.HF.createNewSpan('', '', ['symbol-color-label'], [], 'Color: ');
-            let symbolColorDropdown = GM.HF.createNewSelect('', '', ['symbol-color-dropdown'], [], Object.values(symbolColorOptions), Object.keys(symbolColorOptions));
+            const symbolColorDDWrapper = GM.HF.createNewDiv('', '', ['symbol-color-dropdown-wrapper', 'series-card-element'], [], [], '');
+            const symbolColorOptions = { red: '#e65e5e', blue: '#187fc4', yellow: '#e6c45e', purple: '#9e66ed' };
+            const symbolColorLabel = GM.HF.createNewSpan('', '', ['symbol-color-label'], [], 'Color: ');
+            const symbolColorDropdown = GM.HF.createNewSelect('', '', ['symbol-color-dropdown'], [], Object.values(symbolColorOptions), Object.keys(symbolColorOptions));
             // get index of the seriesCard
-            let index = Array.from(seriesArea.children).indexOf(seriesCard);
-            let symbolColorOptionsCount = Object.keys(symbolColorOptions).length;
-            let symbolColorIndex = index % symbolColorOptionsCount;
+            const index = Array.from(seriesArea.children).indexOf(seriesCard);
+            const symbolColorOptionsCount = Object.keys(symbolColorOptions).length;
+            const symbolColorIndex = index % symbolColorOptionsCount;
 
             // select red as default
             symbolColorDropdown.selectedIndex = symbolColorIndex;
@@ -316,7 +316,7 @@ export class SeriesCard {
 
 
             //-- Create data point Size range input (0 - 50)
-            let datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'series-card-element'], [], 'Symbol Size: ', 0, 50, 1, 3);
+            const datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'series-card-element'], [], 'Symbol Size: ', 0, 50, 1, 3);
             seriesBody.appendChild(datapointSizeRange);
 
 
@@ -337,8 +337,8 @@ export class SeriesCard {
     //-- Removes a seriesCard
     #removeSeriesCardFunction(button) {
         button.addEventListener('click', e => {
-            let seriesArea = e.target.closest('.series-card-area');
-            let seriesCard = e.target.closest('.series-card-wrapper');
+            const seriesArea = e.target.closest('.series-card-area');
+            const seriesCard = e.target.closest('.series-card-wrapper');
 
             seriesArea.removeChild(seriesCard);
         });

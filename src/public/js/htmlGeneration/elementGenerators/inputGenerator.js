@@ -52,6 +52,7 @@ export class InputGenerator {
         e.setAttribute('type', 'range');
         e.setAttribute('min', min);
         e.setAttribute('max', max);
+        e.setAttribute('value', value);
         e.setAttribute('step', step);
         classlist.forEach(c => {
             e.classList.add(c);

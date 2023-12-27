@@ -89,7 +89,7 @@ export class AxisCard {
             this.#axisArea = GM.HF.createNewDiv('', '', ['axis-area'], [], [], '');
 
             // add default traceCard
-            var axis = axes[0];
+            let axis = axes[0];
             if (defaultAxis) {
                 axis = axes.filter(a => a.name === defaultAxis.name)[0];
             }
@@ -111,9 +111,9 @@ export class AxisCard {
         const button = this.#addAxisButton;
         button.addEventListener('click', e => {
             //-- Get the selected axis option
-            let dropdown = e.target.previousElementSibling;
-            let selected = dropdown.options[dropdown.selectedIndex];
-            let selectedAxis = axes.filter(a => a.name === selected.value)[0];
+            const dropdown = e.target.previousElementSibling;
+            const selected = dropdown.options[dropdown.selectedIndex];
+            const selectedAxis = axes.filter(a => a.name === selected.value)[0];
             //-- Create new Axis Card
             if (selected.value !== 'none') {
                 const axisCard = this.#createAxisCard(axisType, selectedAxis);
@@ -133,21 +133,22 @@ export class AxisCard {
     #createAxisCard(axisType, axis) {
         //console.log(axis);
         var axisArea = this.#axisArea;
+        console.log(axisArea);
 
         //-- Check number of axis cards loaded already and if the target axis card exists already
-        let numAxis = axisArea.children.length;
-        let axisExists = axisArea.querySelector(`#${axis.name}`);
+        const numAxis = axisArea.children.length;
+        const axisExists = axisArea.querySelector(`#${axis.name}`);
 
         if ((numAxis < 4) && (axisExists === null)) {
 
             //-- Create traceCard content
-            let axisCard = GM.HF.createNewDiv(axis.name, '', ['axis-card-wrapper'], [], [], '');
+            const axisCard = GM.HF.createNewDiv(axis.name, '', ['axis-card-wrapper'], [], [], '');
 
             //-- Create traceCard header
-            let header = GM.HF.createNewDiv('', '', ['axis-card-header'], [], [], '');
-            let axisTitle = GM.HF.createNewSpan('', 'axis-title', ['axis-title'], [], axis.name);
-            let axisDataType = GM.HF.createNewTextInput('', '', ['data-type'], [], 'hidden', axis.dataType);
-            let removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete-icon.png', ['remove-button', 'button'], [], '');
+            const header = GM.HF.createNewDiv('', '', ['axis-card-header'], [], [], '');
+            const axisTitle = GM.HF.createNewSpan('', 'axis-title', ['axis-title'], [], axis.name);
+            const axisDataType = GM.HF.createNewTextInput('', '', ['data-type'], [], 'hidden', axis.dataType);
+            const removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete-icon.png', ['remove-button', 'button'], [], '');
             header.appendChild(axisTitle);
             header.appendChild(axisDataType);
             //header.appendChild(removeBtn);
@@ -179,13 +180,12 @@ export class AxisCard {
             //-- Create removeFunction for this card
             this.#removeAxisFunction(axisType, removeBtn);
 
-            let axisBody = GM.HF.createNewDiv('', '', ['axis-card-body'], [], [], '');
-
+            const axisBody = GM.HF.createNewDiv('', '', ['axis-card-body'], [], [], '');
 
             //-- Create axis label input
-            let labelWrapper = GM.HF.createNewDiv('', '', ['label-wrapper', 'axis-card-element'], [], [], '');
-            let labelText = GM.HF.createNewSpan('', '', ['label-text'], [], `Label Name: `);
-            let label = GM.HF.createNewTextInput('', '', ['label-input'], [], 'text', false);
+            const labelWrapper = GM.HF.createNewDiv('', '', ['label-wrapper', 'axis-card-element'], [], [], '');
+            const labelText = GM.HF.createNewSpan('', '', ['label-text'], [], `Label Name: `);
+            const label = GM.HF.createNewTextInput('', '', ['label-input'], [], 'text', false);
             label.value = axis.name;
             labelWrapper.appendChild(labelText);
             labelWrapper.appendChild(label);
@@ -215,41 +215,52 @@ export class AxisCard {
 
 
             //-- Create positions options
-            let positionOptionsWrapper = GM.HF.createNewDiv('', '', ['position-options-wrapper', 'axis-card-element'], [], [], '');
+            const axisPosWrapper = GM.HF.createNewDiv('', '', ['axis-position-wrapper', 'axis-card-element'], [], [], '');
             // position option
-            let positionOptions = this.#createPositionOptions(axisType);
-            let positionOptionsLabel = GM.HF.createNewSpan('', '', ['position-options-label'], [], `Axis Position: `);
-            let positionOptionsDropdown = GM.HF.createNewSelect('', '', ['position-options-dropdown'], [], positionOptions, positionOptions);
-            let positionOptionIndex = positionOptions.length % numAxis;
-            positionOptionsDropdown.selectedIndex = positionOptionIndex;
-            positionOptionsWrapper.appendChild(positionOptionsLabel);
-            positionOptionsWrapper.appendChild(positionOptionsDropdown);
-            axisBody.appendChild(positionOptionsWrapper);
+            const axisPosOptions = this.#createPositionOptions(axisType);
+            const axisPosLabel = GM.HF.createNewSpan('', '', ['axis-position-label'], [], `Axis Position: `);
+            const axisPosDD = GM.HF.createNewSelect('', '', ['axis-position-dropdown'], [], axisPosOptions, axisPosOptions);
+            const axisIndex = Array.from(axisArea.children).indexOf(axisCard);
+            const axisPosIndex = axisIndex % axisPosOptions.length; // alternate axis position selection
+            axisPosDD.selectedIndex = axisPosIndex;
+            axisPosWrapper.appendChild(axisPosLabel);
+            axisPosWrapper.appendChild(axisPosDD);
+            axisBody.appendChild(axisPosWrapper);
+
+            //-- Create tick position options
+            const tickPosWrapper = GM.HF.createNewDiv('', '', ['tick-position-wrapper', 'axis-card-element'], [], [], '');
+            // position option
+            const tickPosOptions = ['outside', 'inside'];
+            const tickPosLabel = GM.HF.createNewSpan('', '', ['tick-position-label'], [], `Tick Position: `);
+            const tickPosDD = GM.HF.createNewSelect('', '', ['tick-position-dropdown'], [], tickPosOptions, tickPosOptions);
+            tickPosWrapper.appendChild(tickPosLabel);
+            tickPosWrapper.appendChild(tickPosDD);
+            axisBody.appendChild(tickPosWrapper);
 
             // offset option
             //let offsetOptionWrapper = GM.HF.createNewDiv('', '', ['offset-option-wrapper', 'trace-card-element'], [], [], '');
             // create range input here
-            let offsetOptionRange = GM.HF.createNewRangeInputComponent('', '', ['offset-option-wrapper', 'axis-card-element'], [], 'Offset: ', 0, 50, 1, 0);
+            const offsetOptionRange = GM.HF.createNewRangeInputComponent('', '', ['offset-option-wrapper', 'axis-card-element'], [], 'Offset: ', -50, 50, 1, 0);
             axisBody.appendChild(offsetOptionRange);
 
             //-- Create options
-            let axisOptionsWrapper = GM.HF.createNewDiv('', '', ['axis-options-wrapper', 'axis-card-element'], [], [], '');
+            const axisOptionsWrapper = GM.HF.createNewDiv('', '', ['axis-options-wrapper', 'axis-card-element'], [], [], '');
             //let optionsWrapper = GM.HF.createNewDiv('', '', ['options-wrapper'], [], [], '');
 
             // major gridlines option
-            let gridLinesOption = GM.HF.createNewCheckbox('', '', ['major-gridlines', 'checkbox'], [], '', 'Major Grid Lines', true);
+            const gridLinesOption = GM.HF.createNewCheckbox('', '', ['major-gridlines', 'checkbox'], [], '', 'Major Grid Lines', true);
             axisOptionsWrapper.appendChild(gridLinesOption.wrapper);
 
-            // minor gridlines option
-            let minorTicksOption = GM.HF.createNewCheckbox('', '', ['minor-ticks', 'checkbox'], [{ style: 'margin-left', value: '22%' }], '', 'Ticks', false);
-            axisOptionsWrapper.appendChild(minorTicksOption.wrapper);
+            // ticks option
+            const ticksOption = GM.HF.createNewCheckbox('', '', ['label-ticks', 'checkbox'], [{ style: 'margin-left', value: '22%' }], '', 'Ticks', true);
+            axisOptionsWrapper.appendChild(ticksOption.wrapper);
 
             // minor gridlines option
-            let minorGridLinesOption = GM.HF.createNewCheckbox('', '', ['minor-gridlines', 'checkbox'], [], '', 'Minor Grid Lines', false);
+            const minorGridLinesOption = GM.HF.createNewCheckbox('', '', ['minor-gridlines', 'checkbox'], [], '', 'Minor Grid Lines', false);
             axisOptionsWrapper.appendChild(minorGridLinesOption.wrapper);
 
             // inverse option
-            var inverseChecked = false;
+            let inverseChecked = false;
             if (axis.name.includes('mag') && axis.dataType === 'value') {
                 inverseChecked = true;
             }
@@ -271,7 +282,7 @@ export class AxisCard {
 
     //-- Creates options array for axis position configuration
     #createPositionOptions(axisTypeName) {
-        var positionOptions = [];
+        let positionOptions = [];
         if (axisTypeName === 'xAxis') {
             positionOptions = ['bottom', 'top'];
         }
@@ -288,9 +299,9 @@ export class AxisCard {
      * */
     #removeAxisFunction(axisType, button) {
         button.addEventListener('click', e => {
-            let axisArea = e.target.closest('.axis-area');
-            let axisCard = e.target.closest('.axis-card-wrapper');
-            let numAxisCards = axisArea.querySelectorAll('.axis-card-wrapper');
+            const axisArea = e.target.closest('.axis-area');
+            const axisCard = e.target.closest('.axis-card-wrapper');
+            const numAxisCards = axisArea.querySelectorAll('.axis-card-wrapper');
 
             // Don't remove axisCard if there is only one left in axisArea
             if (numAxisCards.length > 1) {
@@ -324,7 +335,8 @@ export class AxisCard {
         console.log(action);
         console.log(axisCard);
         const axisName = axisCard.getAttribute('id'); // xaxis or yaxis
-        const inspectorWrapper = axisCard.closest('.chart-inspector-wrapper');
+        const inspectorWrapper = axisCard.closest('.chart-tabs-wrapper');
+        console.log(inspectorWrapper);
         //-- Select corresponding seriesCards and add/remove from axis reference dropdown
         const seriesCards = inspectorWrapper.querySelectorAll('.series-tab-content .series-card-area .series-card-wrapper');
         if (seriesCards.length > 0) {

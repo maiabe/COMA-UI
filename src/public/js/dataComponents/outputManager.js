@@ -360,7 +360,7 @@ export class OutputManager {
             }).filter(data => (data) && (data.y < 99));
         });
 
-        // Store data for xAxis (for building xAxis scale)
+        // Store data for xAxis (for building xAxis scale) ...................TODO: need to reflect values that exist in series
         chartData['xAxis'].forEach(xAxis => {
             xAxis['data'] = sourceData.map((sd, i) => {
                 let xAxisVal = sd[xAxis.axisName];
@@ -373,7 +373,7 @@ export class OutputManager {
             });
         });
 
-        // Store data for yAxis (for building yAxis scale)
+        // Store data for yAxis (for building yAxis scale) ...................TODO: need to reflect values that exist in series
         chartData['yAxis'].forEach(yAxis => {
             yAxis['data'] = sourceData.map((sd, i) => {
                 return sd[yAxis.axisName];

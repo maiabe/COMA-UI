@@ -65,7 +65,7 @@ export class ChartGenerator {
 
 
         // top margin space should depend on the length of x-axis label and chart title
-        const margin = { top: 150, right: 60, bottom: 45, left: 65 };
+        const margin = { top: chartData.marginTop, left: chartData.marginLeft, bottom: chartData.marginBottom, right: chartData.marginRight };
 
         const svg = d3.select(pdiv)
             .append("svg")
@@ -75,7 +75,6 @@ export class ChartGenerator {
             .attr("preserveAsoectRatio", 'none');
             /*.attr("preserveAsoectRatio", 'xMidYMid meet');*/
 
-
         // Add Chart Title
         const titleWrapper = svg.append('g')
             .attr('class', 'title-group-' + chartData.chartTitle);
@@ -83,9 +82,8 @@ export class ChartGenerator {
             .attr('class', 'chart-title')
             .attr('text-anchor', 'middle')
             .attr('x', width / 2)
-            .attr('y', margin.top / 4)
+            .attr('y', 30)
             .text(chartData.chartTitle);
-
 
         /**************** x-axis ****************/
         const primaryXAxis = chartData['xAxis'].filter(xa => xa.primary)[0];
@@ -99,12 +97,16 @@ export class ChartGenerator {
         const xAxisWrapper = svg.append("g")
             .attr("class", "xaxis-group-" + primaryXAxis.axisName);
 
-        const xAxisPos = (primaryXAxis.position == 'bottom') ? height - margin.bottom : margin.top;
+        //-- X-Axis Offset
+        const xAxisOffset = primaryXAxis.offset;
+        const xAxisYPos = (primaryXAxis.axisPosition == 'bottom') ? Number(height - Number(margin.bottom)) + xAxisOffset : Number(margin.top) + xAxisOffset;
+        let xTickPos = (primaryXAxis.tickPosition == 'inside') ? -6 : 6;
 
         //-- Create x-axis element
-        const xAxis = d3.axisBottom(xScale);
+        const xAxis = (primaryXAxis.axisPosition == 'bottom') ? d3.axisBottom(xScale) : d3.axisTop(xScale);
+        xAxis.tickSize(xTickPos);
         const xAxisElement = xAxisWrapper.append("g")
-            .attr("transform", `translate(0, ${xAxisPos})`)
+            .attr("transform", `translate(0, ${xAxisYPos})`)
             .call(xAxis);
 
         const xAxisBox = xAxisElement.node().getBBox();
@@ -112,24 +114,36 @@ export class ChartGenerator {
         const xAxisWidth = xAxisBox.width;
 
         //-- Create x-axis label
-        xAxisWrapper.append("text")
+        const xAxisLabel = xAxisWrapper.append("text")
             .attr("class", "x-axis-label")
             .attr("text-anchor", "middle")
-            .attr("x", (xAxisWidth / 2) + margin.left)
-            .attr("y", (xAxisPos) + xAxisHeight + 20) // 20 is height of this text
+            .style("font-size", "12px")
+            .attr("x", (width / 2))
+            /*.attr("y", xLabelYPos)*/
             .text(primaryXAxis.labelName);
+
+        const xAxisLabelHeight = xAxisLabel.node().getBBox().height;
+
+        if (primaryXAxis.axisPosition == 'bottom') {
+            xAxisLabel.attr('y', xAxisYPos + xAxisHeight + xAxisLabelHeight);
+        } else {
+            xAxisLabel.attr('y', xAxisYPos - xAxisHeight - xAxisLabelHeight);
+        }
 
 
         /************* custom label (custom ticks) *************/
-        const xAxisLabels = chartData['xAxis'].filter(xa => !xa.primary);
-        if (xAxisLabels.length > 0) {
-            xAxisLabels.forEach((xAxisLabel, i) => {
-                console.log(xAxisLabel);
+        const customLabels = chartData['xAxis'].filter(xa => !xa.primary);
+        if (customLabels.length > 0) {
+            customLabels.forEach((customLabel, i) => {
+                console.log(customLabel);
 
-                const customLabelData = xAxisLabel.data;
+                const customLabelData = customLabel.data;
                 const tickInterval = Math.ceil(customLabelData.length / (width / 200));
-                const axisPosition = xAxisLabel.position;
-                const yPos = (axisPosition == 'top') ? margin.top : (height - margin.bottom);
+                const axisPosition = customLabel.axisPosition;
+                const customAxisOffset = customLabel.offset;
+                const customAxisYPos = (axisPosition == 'top') ? Number(margin.top) + customAxisOffset : Number(height - Number(margin.bottom)) + customAxisOffset;
+
+                const tickPosition = customLabel.tickPosition; // inside or outside
 
                 const customLabelGroupWrapper = svg.append("g")
                     .attr("class", "custom-label-group");
@@ -151,18 +165,24 @@ export class ChartGenerator {
                     const textWidth = this.getBBox().width;
                     const textHeight = this.getBBox().height;
 
-                    const adjustedYPos = yPos - (textWidth / 2) - 3; // 1 for some spacing between the axis line
+                    let labelSpacing = (tickPosition == 'inside') ? 3 : 9; // for some spacing between the axis label and tick
+                    if (axisPosition == 'bottom') {
+                        labelSpacing = (tickPosition == 'inside') ? 9 : 3;
+                    }
                     const adjustedXPos = x + (textHeight / 3);
+                    const adjustedYPos = customAxisYPos - (textWidth / 2) - labelSpacing; 
                     textElement
                         .attr('transform', `rotate(-90, ${adjustedXPos}, ${adjustedYPos})`)
                         .attr('x', adjustedXPos)
                         .attr('y', adjustedYPos);
 
                     // Add custom ticks
-                    const tickLength = 6; // Length of the tick lines
-                    const tickOffset = 0; // Spacing between tick and label
-                    const tickY1 = yPos + tickOffset;
-                    const tickY2 = yPos + tickOffset + tickLength;
+                    const tickLength = 6;
+                    const tickY1 = customAxisYPos;
+                    let tickY2 = (tickPosition == 'inside') ? Number(customAxisYPos) + tickLength : Number(customAxisYPos) - tickLength;
+                    if (axisPosition == 'bottom') {
+                        tickY2 = (tickPosition == 'inside') ? Number(customAxisYPos) - tickLength : Number(customAxisYPos) + tickLength;
+                    }
 
                     // Append tick line
                     customLabelGroupWrapper.append("line")
@@ -172,7 +192,7 @@ export class ChartGenerator {
                         .attr("x2", x)
                         .attr("y2", tickY2)
                         .style("stroke", "black")
-                        .style("stroke-width", "0.5px");
+                        .style("stroke-width", "0.5px"); //-- TODO: rotate custom labels opposite way
                 });
 
 
@@ -184,9 +204,9 @@ export class ChartGenerator {
 
                 // Position the line based on the axis position
                 axisLine.attr('x1', margin.left)
-                    .attr('y1', yPos)
+                    .attr('y1', customAxisYPos)
                     .attr('x2', width - margin.right)
-                    .attr('y2', yPos);
+                    .attr('y2', customAxisYPos);
 
 
 
@@ -205,21 +225,36 @@ export class ChartGenerator {
             const yAxisWrapper = svg.append("g")
                 .attr("class", "yaxis-group-" + ya.axisName);
 
+            const yAxisPos = ya.axisPosition;
+            const yAxisOffset = ya.offset;
+            const yAxisXPos = (yAxisPos == 'left') ? Number(margin.left) + yAxisOffset : Number(width - Number(margin.right)) + yAxisOffset;
+            let yTickPos = (ya.tickPosition == 'inside') ? -6 : 6;
+
             //-- Create y-axis element
-            const yAxis = d3.axisLeft(yScale);
+            const yAxis = (yAxisPos == 'left') ? d3.axisLeft(yScale) : d3.axisRight(yScale);
+            yAxis.tickSize(yTickPos);
+            
             const yAxisElement = yAxisWrapper.append("g")
-                .attr("transform", `translate(${margin.left}, 0)`)
+                .attr("transform", `translate(${yAxisXPos}, 0)`)
                 .call(yAxis);
 
             const yAxisHeight = yAxisElement.node().getBBox().height;
+            const yAxisWidth = yAxisElement.node().getBBox().width;
+
+            // Calculate the position based on the axis position
+            const yLabelX = (yAxisPos == 'left') ? - Number(yAxisHeight / 2) - Number(margin.top) : (Number(yAxisHeight / 2) + Number(margin.top)); // This centers the label across the length of the axis
+            const yLabelY = (yAxisPos == 'left') ? margin.left / 2 + yAxisOffset : (- width + (margin.right / 2)) - yAxisOffset; // Adjust based on side
+
+            // Constructing the transform attribute
+            const rotateAngle = yAxisPos == 'left' ? -90 : 90;
+            const yLabelTransform = `rotate(${rotateAngle}) translate(${yLabelX}, ${yLabelY})`;
 
             // Add y-axis label
             yAxisWrapper.append("text")
                 .attr("class", "y-axis-label")
                 .attr("text-anchor", "middle")
-                .attr("transform", "rotate(-90) translate(-" + margin.top + ")")
-                .attr("x", -(yAxisHeight / 2))
-                .attr("y", margin.left / 2)
+                .style("font-size", "12px")
+                .attr("transform", yLabelTransform)
                 .text(ya.labelName);
         });
 
@@ -250,8 +285,6 @@ export class ChartGenerator {
         });
 
 
-
-            
 
             // Draw x-axis labels on the other side
             /*svg.selectAll(".x-label")
@@ -293,6 +326,8 @@ export class ChartGenerator {
         }
     }
 
+    #getLabelPosition(axisType, axisPosition, label, width, height, margin) {
+    }
 
     resizeChart(moduleKey, width, height) {
         /*const chartToResize = document.getElementById(`plot_${moduleKey}`).querySelector('svg');

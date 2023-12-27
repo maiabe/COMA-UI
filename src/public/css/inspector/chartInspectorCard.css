@@ -43,6 +43,59 @@
 }
 
 
+.chart-margin-wrapper {
+    width: 100%;
+    margin-bottom: 3%;
+    box-shadow: 1px 1px 5px rgba(21, 21, 21, 0.5);
+    padding: 2%;
+    border-radius: 3px;
+}
+
+.chart-margin-wrapper .chart-margin-title {
+    width: 100%;
+    font-size: 14px;
+    white-space: nowrap;
+    margin-bottom: 5px;
+    display: block;
+}
+.chart-margin-wrapper .chart-margin-input-wrapper {
+    display: flex;
+    justify-content: space-around;
+    /*display: grid;
+    column-gap: 3%;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-areas:
+        'marginTop marginLeft marginBottom marginRight'*/
+}
+.chart-margin-wrapper .margin-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.chart-margin-wrapper .margin-wrapper label {
+    font-size: 12px;
+    margin-right: 2%;
+}
+.chart-margin-wrapper .margin-wrapper input {
+    height: fit-content;
+    width: 2rem;
+    padding: 0 2%;
+}
+
+.chart-margin-wrapper .chart-margin-top-wrapper {
+    grid-area: marginTop;
+}
+.chart-margin-wrapper .chart-margin-left-wrapper {
+    grid-area: marginLeft;
+}
+.chart-margin-wrapper .chart-margin-bottom-wrapper {
+    grid-area: marginBottom;
+}
+.chart-margin-wrapper .chart-margin-right-wrapper {
+    grid-area: marginRight;
+}
+
+
 /*****************************************************************************/
 /*--------------------------- Chart Tabs styles -----------------------------*/
 /*****************************************************************************/

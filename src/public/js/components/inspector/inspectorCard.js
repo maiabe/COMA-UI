@@ -128,8 +128,8 @@ export class InspectorCard {
 
     #addResizeEventListeners() {
         this.#dragElement.addEventListener('mousedown', this.startResize.bind(this));
-        document.addEventListener('mouseup', this.endResize);
-        document.addEventListener('mousemove', e => {
+        this.#dragElement.addEventListener('mouseup', this.endResize);
+        this.#dragElement.addEventListener('mousemove', e => {
             this.resize(e);
             e.preventDefault();
         });

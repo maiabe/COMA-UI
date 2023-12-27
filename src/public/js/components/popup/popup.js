@@ -127,21 +127,21 @@ export class Popup {
             this.moveToFront()
         });
 
-        document.addEventListener('mouseup', this.endDrag);
-        document.addEventListener('mousemove', e => {
+        this.header.addEventListener('mouseup', this.endDrag);
+        this.header.addEventListener('mousemove', e => {
             this.drag(e);
             e.preventDefault();
         });
         // Expand and Shrink Listeners
         this.resizeDiv.addEventListener('mousedown', this.startResize);
-        document.addEventListener('mouseup', this.endResize);
-        document.addEventListener('mousemove', e => {
+        this.resizeDiv.addEventListener('mouseup', this.endResize);
+        this.resizeDiv.addEventListener('mousemove', e => {
             this.resize(e);
             e.preventDefault();
         });
 
         // Move To Front Event Listeners
-        this.body.addEventListener('mousedown', this.moveToFront);
+        this.element.addEventListener('mousedown', this.moveToFront);
         this.element.addEventListener('mousedown', this.moveToFront);
     };
 

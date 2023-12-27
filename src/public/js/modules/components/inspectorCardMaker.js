@@ -641,13 +641,48 @@ export class InspectorCardMaker {
 
         //-- Add Chart Title
         const chartTitle = moduleData.objectName ? moduleData.objectName : datasetType;
-        let chartTitleWrapper = this.HF.createNewDiv('', '', ['chart-title-wrapper'], [{ style: "width", value: "100%" }]);
+        let chartTitleWrapper = this.HF.createNewDiv('', '', ['chart-title-wrapper'], []);
         const chartTitleLabel = this.HF.createNewLabel('', '', `chart-title-${moduleKey}`, ['chart-title-label'], [], 'Chart Title: ');
         const chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', chartTitle);
         chartTitleWrapper.appendChild(chartTitleLabel);
         chartTitleWrapper.appendChild(chartTitleInput);
         contentWrapper.appendChild(chartTitleWrapper);
 
+        //-- Add Chart margin options
+        const chartMarginWrapper = this.HF.createNewDiv('', '', ['chart-margin-wrapper'], [], []);
+        const chartMarginTitle = this.HF.createNewLabel('', '', 'chart-margin-title', ['chart-margin-title'], [], 'Chart Margins');
+        const chartMarginInputWrapper = this.HF.createNewDiv('', '', ['chart-margin-input-wrapper'], [], []);
+
+        const topWrapper = this.HF.createNewDiv('', '', ['chart-margin-top-wrapper', 'margin-wrapper'], [], []);
+        const leftWrapper = this.HF.createNewDiv('', '', ['chart-margin-left-wrapper', 'margin-wrapper'], [], []);
+        const bottomWrapper = this.HF.createNewDiv('', '', ['chart-margin-bottom-wrapper', 'margin-wrapper'], [], []);
+        const rightWrapper = this.HF.createNewDiv('', '', ['chart-margin-right-wrapper', 'margin-wrapper'], [], []);
+        const topLabel = this.HF.createNewLabel('', '', 'chart-margin-top', ['margin-label'], [], 'Top: ');
+        const leftLabel = this.HF.createNewLabel('', '', 'chart-margin-left', ['margin-label'], [], 'Left: ');
+        const bottomLabel = this.HF.createNewLabel('', '', 'chart-margin-bottom', ['margin-label'], [], 'Bottom: ');
+        const rightLabel = this.HF.createNewLabel('', '', 'chart-margin-right', ['margin-label'], [], 'Right: ');
+        const topInput = this.HF.createNewTextInput('chart-margin-top', '', ['chart-margin'], [], 'text', 130);
+        const leftInput = this.HF.createNewTextInput('chart-margin-left', '', ['chart-margin'], [], 'text', 60);
+        const bottomInput = this.HF.createNewTextInput('chart-margin-bottom', '', ['chart-margin'], [], 'text', 45);
+        const rightInput = this.HF.createNewTextInput('chart-margin-right', '', ['chart-margin'], [], 'text', 65);
+        topWrapper.appendChild(topLabel);
+        topWrapper.appendChild(topInput);
+        leftWrapper.appendChild(leftLabel);
+        leftWrapper.appendChild(leftInput);
+        bottomWrapper.appendChild(bottomLabel);
+        bottomWrapper.appendChild(bottomInput);
+        rightWrapper.appendChild(rightLabel);
+        rightWrapper.appendChild(rightInput);
+        chartMarginInputWrapper.appendChild(topWrapper);
+        chartMarginInputWrapper.appendChild(leftWrapper);
+        chartMarginInputWrapper.appendChild(bottomWrapper);
+        chartMarginInputWrapper.appendChild(rightWrapper);
+
+        chartMarginWrapper.appendChild(chartMarginTitle);
+        chartMarginWrapper.appendChild(chartMarginInputWrapper);
+        contentWrapper.appendChild(chartMarginWrapper);
+
+        //-- Chart Tab wrapper
         let chartInspectorWrapper = this.HF.createNewDiv('', '', ['chart-tabs-wrapper'], [{ style: "width", value: "100%" }]);
         contentWrapper.appendChild(chartInspectorWrapper);
 
@@ -699,6 +734,12 @@ export class InspectorCardMaker {
             //-- Get current axis card information
             const inspectorCard = e.target.closest('.inspector-card-body');
             const chartTitle = inspectorCard.querySelector('.chart-title');
+            const marginTop = inspectorCard.querySelector('#chart-margin-top');
+            const marginLeft = inspectorCard.querySelector('#chart-margin-left');
+            const marginBottom = inspectorCard.querySelector('#chart-margin-bottom');
+            const marginRight = inspectorCard.querySelector('#chart-margin-right');
+
+            console.log(marginTop);
 
             //-- Get axisData
             const axisTabContents = inspectorCard.querySelectorAll('.axis-tab-content'); // xAxis and yAxis contents
@@ -710,12 +751,13 @@ export class InspectorCardMaker {
                 const axisCards = axisArea.querySelectorAll('.axis-card-wrapper');
                 chartData[axisContentName] = [];
                 axisCards.forEach(axisCard => {
+                    console.log(axisCard);
                     const primary = axisCard.classList.contains('primary');
-                    console.log(primary);
                     const axisName = axisCard.getAttribute('id');
                     const dataType = axisCard.querySelector('.data-type');
                     const labelName = axisCard.querySelector('.label-input');
-                    const position = axisCard.querySelector('.position-options-dropdown');
+                    const axisPos = axisCard.querySelector('.axis-position-dropdown');
+                    const tickPos = axisCard.querySelector('.tick-position-dropdown');
                     const offset = axisCard.querySelector('.offset-option-wrapper .text-input');
                     const majorGridLines = axisCard.querySelector('.major-gridlines');
                     const minorGridLines = axisCard.querySelector('.minor-gridlines');
@@ -726,7 +768,8 @@ export class InspectorCardMaker {
                         axisName: axisName,
                         dataType: dataType.value,
                         labelName: labelName ? labelName.value : axisName,
-                        position: position[position.selectedIndex].value,
+                        axisPosition: axisPos[axisPos.selectedIndex].value,
+                        tickPosition: tickPos[tickPos.selectedIndex].value,
                         offset: Number(offset.value),
                         majorGridLines: majorGridLines ? majorGridLines.checked : false,
                         minorGridLines: minorGridLines ? minorGridLines.checked : false,
@@ -792,6 +835,11 @@ export class InspectorCardMaker {
 
             moduleData['datasetType'] = datasetType;
             moduleData['chartTitle'] = chartTitle ? chartTitle.value : datasetType;
+            chartData['marginTop'] = marginTop.value;
+            chartData['marginLeft'] = marginLeft.value;
+            chartData['marginBottom'] = marginBottom.value;
+            chartData['marginRight'] = marginRight.value;
+
             moduleData['chartData'] = chartData;
 
             console.log(moduleData);

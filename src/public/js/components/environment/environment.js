@@ -27,7 +27,7 @@ export class Environment {
         this.#nodeKey = 1;                          // Initialize the next node key to 1.
         this.#nextGroupKey = -10000;
         this.#contextMenu = this.#createContextMenu();
-        this.#setPrintEventListener();
+        /*this.#setPrintEventListener();*/
     }
 
     #sendMessage = msg => {
