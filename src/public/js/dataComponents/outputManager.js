@@ -340,8 +340,6 @@ export class OutputManager {
             { series: "B", data: [{ x: 1, y: 5 }, { x: 2, y: 10 }, { x: 3, y: 8 }] },
         ];*/
 
-        // for each sourceData, build data array for each series
-        const dataset = [];
         // Store x-axis and y-axis data
         chartData['series'].forEach(series => {
             const fieldName = series.fieldName;
@@ -359,18 +357,35 @@ export class OutputManager {
                 }
             }).filter(data => (data) && (data.y < 99));
         });
+        
 
         // Store data for xAxis (for building xAxis scale) ...................TODO: need to reflect values that exist in series
         chartData['xAxis'].forEach(xAxis => {
-            xAxis['data'] = sourceData.map((sd, i) => {
-                let xAxisVal = sd[xAxis.axisName];
-                if (getDataType(xAxisVal) == 'time') {
-                    // Split the string into date and time parts
-                    const splitDate = xAxisVal.split(" ");
-                    xAxisVal = splitDate[0];
-                }
-                return xAxisVal;
-            });
+            if (xAxis.primary) {
+                xAxis['data'] = sourceData.map((sd, i) => {
+                    let xAxisVal = sd[xAxis.axisName];
+                    if (xAxis.axisName == 'iso_date_mid') {
+                        // Split the string into date and time parts
+                        const splitDate = xAxisVal.split(" ");
+                        xAxisVal = splitDate[0];
+                    }
+                    return xAxisVal;
+                });
+            }
+            else {
+                const primaryXAxis = chartData['xAxis'].filter(xAxis => xAxis.primary)[0];
+                const primaryXAxisName = primaryXAxis.axisName;
+                xAxis['data'] = sourceData.map((sd, i) => {
+                    let primaryVal = sd[primaryXAxisName];
+                    let xAxisVal = sd[xAxis.axisName];
+                    if (xAxis.axisName == 'iso_date_mid') {
+                        // Split the string into date and time parts
+                        const splitDate = xAxisVal.split(" ");
+                        xAxisVal = splitDate[0];
+                    }
+                    return { x: primaryVal, label: xAxisVal };
+                });
+            }
         });
 
         // Store data for yAxis (for building yAxis scale) ...................TODO: need to reflect values that exist in series

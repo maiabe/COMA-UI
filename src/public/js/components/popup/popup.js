@@ -129,15 +129,15 @@ export class Popup {
 
         this.header.addEventListener('mouseup', this.endDrag);
         this.header.addEventListener('mousemove', e => {
-            this.drag(e);
             e.preventDefault();
+            this.drag(e);
         });
         // Expand and Shrink Listeners
         this.resizeDiv.addEventListener('mousedown', this.startResize);
         this.resizeDiv.addEventListener('mouseup', this.endResize);
         this.resizeDiv.addEventListener('mousemove', e => {
-            this.resize(e);
             e.preventDefault();
+            this.resize(e);
         });
 
         // Move To Front Event Listeners

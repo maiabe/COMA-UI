@@ -739,8 +739,6 @@ export class InspectorCardMaker {
             const marginBottom = inspectorCard.querySelector('#chart-margin-bottom');
             const marginRight = inspectorCard.querySelector('#chart-margin-right');
 
-            console.log(marginTop);
-
             //-- Get axisData
             const axisTabContents = inspectorCard.querySelectorAll('.axis-tab-content'); // xAxis and yAxis contents
             // foreach axisCards
