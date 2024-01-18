@@ -17,17 +17,17 @@ export class SeriesCard {
      *                                   series: [{ name: "c-2019-u5", displayName: "C/2019 U5 (PanSTARRS)", dataType: 'category' },..]
      *                                 },..])
      * */
-    constructor(moduleKey, seriesFields) {
+    constructor(moduleKey, seriesFields, errorFields) {
         //this.#addSeriesAxisOptions = addSeriesAxisOptions.bind(this);
         this.#seriesDropdowns = [];
-        this.#createElements(moduleKey, seriesFields);
+        this.#createElements(moduleKey, seriesFields, errorFields);
         this.#buildCard();
     }
 
-    #createElements(moduleKey, seriesFields) {
+    #createElements(moduleKey, seriesFields, errorFields) {
         this.#createWrapper(moduleKey);
         //this.#createHeader();
-        this.#createContent(moduleKey, seriesFields);
+        this.#createContent(moduleKey, seriesFields, errorFields);
     }
 
     #buildCard() {
@@ -49,9 +49,7 @@ export class SeriesCard {
     }*/
 
     //-- Create Content
-    #createContent(moduleKey, seriesFields) {
-        console.log(seriesFields);
-
+    #createContent(moduleKey, seriesFields, errorFields) {
         try {
             let contentWrapper = GM.HF.createNewDiv('', '', ['series-content-wrapper'], [], [], '');
 
@@ -87,7 +85,7 @@ export class SeriesCard {
                 seriesDropdownWrapper.appendChild(buttonWrapper);
                 seriesDropdownArea.appendChild(seriesDropdownWrapper);
 
-                this.#createAddSeriesCardFunction(moduleKey, fieldName, series, button);
+                this.#createAddSeriesCardFunction(moduleKey, fieldName, series, errorFields, button);
             });
 
             //-- Create dropdown options of all possible series
@@ -135,9 +133,10 @@ export class SeriesCard {
      *                              (e.g. "ui_name" (current temporary name for the object name from the dataset))
      *  @param { series } Array of objects that contains the series information
      *                          (e.g. [{ name: "c-2019-u5", displayName: "C/2019 U5 (PanSTARRS)", dataType: 'category' },..])
+     *  @param { errorFields } Array of objects that contains the error field and its dataType information
      *  @param { button } HTMLObject of the button that was clicked
      * */
-    #createAddSeriesCardFunction(moduleKey, fieldName, series, button) {
+    #createAddSeriesCardFunction(moduleKey, fieldName, series, errorFields, button) {
         button.addEventListener('click', e => {
             //-- Get selected option of a series dropdown
             let dropdown = e.target.closest('.series-dropdown-wrapper').querySelector('select');
@@ -165,7 +164,9 @@ export class SeriesCard {
             yAxisCards.forEach((card, i) => {
                 const yAxisName = card.getAttribute('id');
                 const yDataType = card.querySelector('.data-type').value;
-                yAxisRefs.push({ index: i, name: yAxisName, displayName: yAxisName, dataType: yDataType });
+                // find error name for this yAxisRef
+                const errorName = this.#getErrorField(yAxisName, errorFields);
+                yAxisRefs.push({ index: i, name: yAxisName, displayName: yAxisName, dataType: yDataType, error: errorName });
             });
 
             if (selected.value === 'all') {
@@ -182,6 +183,17 @@ export class SeriesCard {
                 //this.#updateAxisReferenceOptions(seriesCard);
             
         });
+    }
+
+    #getErrorField(yAxisName, errorFields) {
+        let errorField = undefined;
+        errorFields.forEach(error => {
+            const errorName = error.fieldName;
+            if (errorName.includes(yAxisName) && (errorName.includes('_err') || errorName.includes('_error'))) {
+                errorField = errorName;
+            }
+        });
+        return errorField;
     }
 
     #createClearSeriesCardFunction(moduleKey, button) {
@@ -207,6 +219,7 @@ export class SeriesCard {
      *                          (e.g. { index: 0, name: "mag", displayName: "magnitude", dataType: 'category' })
      * */
     #createSeriesCard(moduleKey, fieldName, selectedSeries, xAxisRef, yAxisRefs) {
+
         //-- Load this seriesCard to seriesArea if it doesn't exist in the series area already
         const seriesArea = this.#seriesArea;
         const seriesName = selectedSeries.name;
@@ -269,27 +282,27 @@ export class SeriesCard {
             //-- Create yAxisIndex dropdown
             const yAxisIndexVals = yAxisRefs.map(yAxisRef => { return yAxisRef.index });
             const yAxisIndexNames = yAxisRefs.map(yAxisRef => { return yAxisRef.name });
-
             const yAxisIndexDDWrapper = GM.HF.createNewDiv('', '', ['yaxis-index-dropdown-wrapper', 'series-card-element'], [], [], '');
             const yAxisIndexLabel = GM.HF.createNewSpan('', '', ['yaxis-index-label'], [], 'Y Axis:');
-            const yAxisIndexDropdown = GM.HF.createNewSelect('', '', ['yaxis-index-dropdown'], [], yAxisIndexVals, yAxisIndexNames)
+            const yAxisIndexDropdown = GM.HF.createNewSelect('', '', ['yaxis-index-dropdown'], [], yAxisIndexVals, yAxisIndexNames);
             yAxisIndexDDWrapper.appendChild(yAxisIndexLabel);
             yAxisIndexDDWrapper.appendChild(yAxisIndexDropdown);
             seriesBody.appendChild(yAxisIndexDDWrapper);
 
             //-- Create error dropdown (if any)
-            /*var errorVals = ['none', yAxisRefs[0].errorName];
-            var errorNames = ['-- None --', yAxisRefs[0].errorName];
+            let errorVals = ['none'];
+            let errorFields = yAxisRefs.map(yAxisRef => { return yAxisRef.error });
+            errorVals = errorVals.concat(errorFields);
             let errorDDWrapper = GM.HF.createNewDiv('', '', ['error-dropdown-wrapper', 'series-card-element'], [], [], '');
-            let errorLabel = GM.HF.createNewSpan('', '', ['error-label'], [], 'Error: ')
-            let errorDropdown = GM.HF.createNewSelect('', '', ['error-dropdown'], [], errorVals, errorNames);
+            let errorLabel = GM.HF.createNewSpan('', '', ['error-label'], [], 'Error: ');
+            let errorDropdown = GM.HF.createNewSelect('', '', ['error-dropdown'], [], errorVals, errorVals);
             errorDDWrapper.appendChild(errorLabel);
             errorDDWrapper.appendChild(errorDropdown);
-            seriesBody.appendChild(errorDDWrapper);*/
+            seriesBody.appendChild(errorDDWrapper);
 
             //-- Create data point Symbol shape dropdown
             const symbolShapeDDWrapper = GM.HF.createNewDiv('', '', ['symbol-shape-dropdown-wrapper', 'series-card-element'], [], [], '');
-            const symbolShapeOptions = ['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow'];
+            const symbolShapeOptions = ['circle', 'square', 'triangle', 'diamond', 'cross', 'star', 'wye'];
             const symbolShapeLabel = GM.HF.createNewSpan('', '', ['symbol-shape-label'], [], 'Shape: ');
             const symbolShapeDropdown = GM.HF.createNewSelect('', '', ['symbol-shape-dropdown'], [], symbolShapeOptions, symbolShapeOptions);
             // select circle as default
@@ -300,7 +313,7 @@ export class SeriesCard {
 
             //-- Create data point Symbol color dropdown
             const symbolColorDDWrapper = GM.HF.createNewDiv('', '', ['symbol-color-dropdown-wrapper', 'series-card-element'], [], [], '');
-            const symbolColorOptions = { red: 'rgb(230,94,94, 0.5)', blue: 'rgb(24,127,196, 0.8)', yellow: 'rgb(230,196,94, 0.8)', purple: 'rgb(159,102,238, 0.8)' };
+            const symbolColorOptions = { red: 'rgb(230,94,94)', blue: 'rgb(24,127,196)', yellow: 'rgb(230,196,94)', purple: 'rgb(159,102,238)' };
             const symbolColorLabel = GM.HF.createNewSpan('', '', ['symbol-color-label'], [], 'Color: ');
             const symbolColorDropdown = GM.HF.createNewSelect('', '', ['symbol-color-dropdown'], [], Object.values(symbolColorOptions), Object.keys(symbolColorOptions));
             // get index of the seriesCard
@@ -315,7 +328,7 @@ export class SeriesCard {
             seriesBody.appendChild(symbolColorDDWrapper);
 
             //-- Create data point Size range input (0 - 50)
-            const datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'series-card-element'], [], 'Symbol Size: ', 0, 50, 1, 3);
+            const datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'series-card-element'], [], 'Size: ', 0, 5000, 50, 50);
             seriesBody.appendChild(datapointSizeRange);
 
 

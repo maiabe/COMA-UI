@@ -198,7 +198,7 @@ export class InputManager {
         let chartData = [];
         let xAxisData = { name: 'xaxis', axes: [] };
         let yAxisData = { name: 'yaxis', axes: [] };
-        let errorData = { name: 'error', axes: [] };
+        let errorData = { name: 'error', fields: [] };
         let seriesData = { name: 'series', fields: [] };
 
         columnHeaders.forEach(columnHeader => {
@@ -226,8 +226,8 @@ export class InputManager {
             else {*/
 
             // change this to configuration data set in moduleData for chart data preparation
-            if (columnHeader.fieldName.includes('error') || columnHeader.fieldName.includes('err')) {
-                errorData['axes'].push(columnHeader);
+            if (columnHeader.fieldName.includes('error') || columnHeader.fieldName.includes('_err')) {
+                errorData['fields'].push(columnHeader);
             }
             else {
                 let words = columnHeader.fieldName.split('_');
@@ -259,7 +259,7 @@ export class InputManager {
         chartData.push(errorData);
         chartData.push(seriesData);
 
-        //console.log(chartData);
+        console.log(chartData);
 
         return chartData;
     }

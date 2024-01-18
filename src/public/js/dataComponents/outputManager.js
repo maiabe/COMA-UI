@@ -332,13 +332,15 @@ export class OutputManager {
      * */
     // stores source data of the field and source data type of the field to chartData
     prepChartData(moduleKey, datasetType, chartTitle, chartData, sourceData) {
-        if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(sourceData, 'sourceData', 'object')], 'OutputManager', 'prepEchartData')) return;
+        if (invalidVariables([varTest(moduleKey, 'moduleKey', 'number'), varTest(sourceData, 'sourceData', 'object')], 'OutputManager', 'prepChartData')) return;
 
         //-- Dataset example format
         /* chartData['dataset'] = [
             { series: "A", data: [{ x: 1, y: 10 }, { x: 2, y: 20 }, { x: 3, y: 15 }] },
             { series: "B", data: [{ x: 1, y: 5 }, { x: 2, y: 10 }, { x: 3, y: 8 }] },
         ];*/
+
+        console.log(chartData);
 
         // Store x-axis and y-axis data
         chartData['series'].forEach(series => {
@@ -349,11 +351,12 @@ export class OutputManager {
                 if (sd[fieldName] == seriesName) {
                     let xAxisVal = sd[series.xAxisName];
                     let yAxisVal = sd[series.yAxisName];
+                    let errorVal = sd[series.errorName];
 
                     xAxisVal = getDataType(xAxisVal) == 'time' ? new Date(xAxisVal) : xAxisVal;
                     yAxisVal = getDataType(yAxisVal) == 'time' ? new Date(yAxisVal) : yAxisVal;
 
-                    return { x: xAxisVal, y: yAxisVal };
+                    return { x: xAxisVal, y: yAxisVal, error: errorVal };
                 }
             }).filter(data => (data) && (data.y < 99));
         });

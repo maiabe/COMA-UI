@@ -55,11 +55,6 @@ export class ChartGenerator {
      * @returns echart object
      */
     #drawChart = (chartData, type, pdiv, width, height) => {
-        /*const myChart = echarts.init(pdiv, theme);
-        const option = this.#optionGenerationMap.get(coordinateSystem)(data, type, coordinateSystem);
-        option && myChart.setOption(option);
-        this.resizeEchart(myChart, width, height);
-        return myChart;*/
 
         console.log(chartData);
 
@@ -88,6 +83,12 @@ export class ChartGenerator {
             .attr('y', 30)
             .text(chartData.chartTitle);
 
+        // Add Chart Legend
+        const legendWrapper = svg.append('g')
+            .attr('class', 'legend-group');
+        const seriesChartData = chartData['series'];
+        this.#drawLegend(legendWrapper, seriesChartData, width, height, margin);
+
         /**************** x-axis ****************/
         const xChartData = chartData['xAxis'].filter(xa => xa.primary)[0];
 
@@ -97,7 +98,7 @@ export class ChartGenerator {
 
         /************* custom label (as additional x-axis) *************/
         const customChartData = chartData['xAxis'].filter(xa => !xa.primary);
-        if (customChartData.length > 0) {
+        if ((customChartData.length > 0) && (chartData['series'].length > 0)) {
             customChartData.forEach((chartData, i) => {
                 this.#drawCustomLabel(xScale, svg, chartData, height, width, margin);
             });
@@ -112,6 +113,7 @@ export class ChartGenerator {
 
         /**************** series ****************/
         chartData['series'].forEach(series => {
+            console.log(series);
 
             // Get corresponding yAxis data for this series
             const yAxis = chartData['yAxis'][series.yAxisIndex];
@@ -119,32 +121,44 @@ export class ChartGenerator {
 
             const seriesGroupWrapper = svg.append("g")
                                           .attr("class", "series-group-" + series.seriesName);
+
             // Draw scatter plot points
-            seriesGroupWrapper.selectAll(".dot-" + series.seriesName)
+            /*seriesGroupWrapper.selectAll(".scatter-" + series.seriesName)
                 .data(series.data)
                 .join("circle")
-                .attr("class", "dot dot-" + series.seriesName)
+                .attr("class", "scatter-series scatter-" + series.seriesName)
                 .attr("cx", d => xScale(d.x))
                 .attr("cy", d => yScale(d.y))
                 .attr("r", series.symbolSize) // Adjust the radius as needed
-                .attr("fill", series.symbolColor);
-            //--TODO: create function for drawing different symbols
+                .attr("fill", series.symbolColor)
+                .attr('opacity', 0.5);*/
+            this.#drawSeries(seriesGroupWrapper, series, 'scatter', xScale, yScale);
+
+
+
+            // Draw error bars
+            if (series.errorName !== 'none') {
+                this.#drawErrorBars(xScale, yScale, seriesGroupWrapper, series);
+            }
+
+            
+
         });
 
 
+        // Draw x-axis labels on the other side
+        /*svg.selectAll(".x-label")
+            .data(data)
+            .enter().append("text")
+            .attr("class", "x-label")
+            .attr("x", d => xScale(d.x) + 10) // Adjust the offset as needed
+            .attr("y", height) // Adjust the y position as needed
+            .attr("dy", "1em") // Adjust the vertical alignment
+            .attr("text-anchor", "middle") // Center the text on the x-axis point
+            .text(d => d.label)
+            .attr("transform", "rotate(-90)")
+            .attr("translate", "5px"); */
 
-            // Draw x-axis labels on the other side
-            /*svg.selectAll(".x-label")
-                .data(data)
-                .enter().append("text")
-                .attr("class", "x-label")
-                .attr("x", d => xScale(d.x) + 10) // Adjust the offset as needed
-                .attr("y", height) // Adjust the y position as needed
-                .attr("dy", "1em") // Adjust the vertical alignment
-                .attr("text-anchor", "middle") // Center the text on the x-axis point
-                .text(d => d.label)
-                .attr("transform", "rotate(-90)")
-                .attr("translate", "5px"); */
     };
 
 
@@ -248,7 +262,6 @@ export class ChartGenerator {
 
         //-- Adjust position & rotation and create tick marks
         customLabels.each(function (customLabel) {
-            console.log(customLabel);
 
             // Adjust label positions
             const textElement = d3.select(this);
@@ -262,11 +275,6 @@ export class ChartGenerator {
                 labelSpacing = (tickPos == 'inside') ? 9 : 3;
             }
             const adjustedXPos = xPos + (textHeight / 3);
-
-            /*console.log(xScale(d));
-            console.log(textHeight);
-            console.log(adjustedXPos);*/
-
             const adjustedYPos = yPos - (textWidth / 2) - labelSpacing;
             textElement
                 .attr('transform', `rotate(-90, ${adjustedXPos}, ${adjustedYPos})`)
@@ -351,6 +359,129 @@ export class ChartGenerator {
             .text(yChartData.labelName);
 
         return yScale;
+    }
+
+    #drawSeries(wrapper, series, type, xScale, yScale) {
+        switch (type) {
+            case 'scatter':
+                wrapper.selectAll(".scatter-" + series.seriesName)
+                    .data(series.data)
+                    .join("path")
+                    .attr("class", "scatter-series scatter-" + series.seriesName)
+                    .attr("d", d => this.#symbolPath(series.symbolShape, series.symbolSize))
+                    .attr("transform", d => `translate(${xScale(d.x)}, ${yScale(d.y)})`)
+                    .attr("fill", series.symbolColor)
+                    .attr('opacity', 0.5);
+        }
+    }
+
+    #symbolPath(symbolShape, size) {
+        const symbols = {
+            circle: d3.symbol().type(d3.symbolCircle).size(size),
+            square: d3.symbol().type(d3.symbolSquare).size(size),
+            triangle: d3.symbol().type(d3.symbolTriangle).size(size),
+            diamond: d3.symbol().type(d3.symbolDiamond).size(size),
+            cross: d3.symbol().type(d3.symbolCross).size(size),
+            star: d3.symbol().type(d3.symbolStar).size(size),
+            wye: d3.symbol().type(d3.symbolWye).size(size),
+        };
+        return d3.create("svg").append("path").attr("d", symbols[symbolShape]()).node().getAttribute("d");
+    }
+
+    //-- draw error bars for a series
+    #drawErrorBars(xScale, yScale, wrapper, series) {
+
+        // Draw vertical lines from top to bottom
+        wrapper.selectAll(".error-bar-" + series.seriesName)
+            .data(series.data)
+            .join("line")
+            .attr("class", "error-bar error-bar-" + series.seriesName)
+            .attr("x1", d => xScale(d.x))
+            .attr("y1", d => yScale(d.y - d.error))
+            .attr("x2", d => xScale(d.x))
+            .attr("y2", d => yScale(d.y + d.error))
+            .attr("stroke", "rgba(5, 117, 255, 1)") // Set the color of the error bars
+            .attr("stroke-width", 0.8); // Set the width of the error bars
+
+        const tickLength = 5;
+
+        // Append horizontal lines at the top of the error bars
+        wrapper.selectAll(".error-bar-top-tick-" + series.seriesName)
+            .data(series.data)
+            .join("line")
+            .attr("class", "error-bar-tick error-bar-top-tick-" + series.seriesName)
+            .attr("x1", d => xScale(d.x) - tickLength / 2)
+            .attr("y1", d => yScale(d.y + d.error))
+            .attr("x2", d => xScale(d.x) + tickLength / 2)
+            .attr("y2", d => yScale(d.y + d.error))
+            .attr("stroke", "rgba(5, 117, 255, 1)")
+            .attr("stroke-width", 0.8);
+
+        // Append horizontal lines at the bottom of the error bars
+        wrapper.selectAll(".error-bar-bottom-tick-" + series.seriesName)
+            .data(series.data)
+            .join("line")
+            .attr("class", "error-bar-tick error-bar-bottom-tick-" + series.seriesName)
+            .attr("x1", d => xScale(d.x) - tickLength / 2)
+            .attr("y1", d => yScale(d.y - d.error))
+            .attr("x2", d => xScale(d.x) + tickLength / 2)
+            .attr("y2", d => yScale(d.y - d.error))
+            .attr("stroke", "rgba(5, 117, 255, 1)")
+            .attr("stroke-width",0.8);
+    }
+
+    #drawLegend(wrapper, seriesChartData, width, height, margin) {
+
+        const radius = 5; // Radius of the circle
+        const gap = 5; // Gap between the symbol and the label
+        const spacing = 10; // Spacing between other series legends
+        let legendWidths = [];
+        
+        //-- Calculate total legend width
+        seriesChartData.forEach((series, index) => {
+            let textElement = wrapper.append('text')
+                .attr('class', 'legend-label' + series.seriesName)
+                .attr("text-anchor", "start")
+                .style("font-size", "12px")
+                .text(series.seriesName)
+                .attr("opacity", 0);  // temporarily hidwe the text
+
+            let bbox = textElement.node().getBBox();
+            let textWidth = bbox.width;
+
+            legendWidths[index] = radius * 2 + gap + textWidth + spacing;
+
+            textElement.remove(); // Remove the temporary text element
+        });
+
+        const totalLegendWidth = legendWidths.reduce((a, b) => a + b, 0);
+        let currentX = (width / 2) - (totalLegendWidth / 2); // Starting X position
+
+
+        seriesChartData.forEach((series, index) => {
+
+            //-- Add series symbol
+            wrapper.append('path')
+                .attr('class', 'legend-' + series.seriesName)
+                .attr('d', d => this.#symbolPath(series.symbolShape, 50)) // Generates the path data for the shape
+                .attr('transform', `translate(${currentX}, ${50 + radius})`) // Positions the shape
+                .attr('fill', series.symbolColor)
+                .attr('opacity', 1);
+
+            //-- Add series label
+            wrapper.append("text")
+                .attr("class", "legend-label-" + series.seriesName)
+                .attr("text-anchor", "start")
+                .style("font-size", "12px")
+                .attr('x', currentX + radius + gap)
+                .attr('y', (50) + radius + 4)
+                .text(series.seriesName);
+
+            currentX += legendWidths[index];
+        });
+
+
+
     }
 
     resizeChart(moduleKey, width, height) {

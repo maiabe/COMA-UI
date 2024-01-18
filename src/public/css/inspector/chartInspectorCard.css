@@ -416,11 +416,11 @@
     display: grid;
     column-gap: 3%;
     grid-template-columns: 1fr 1fr;
-    grid-template-areas: 
+    grid-template-areas:
         'label label'
-        'xaxis yaxis'
-        'shape color'
-        'size size';
+        'xaxis color'
+        'yaxis shape'
+        'error size';
 }
 
 .series-content-wrapper .series-card-wrapper .series-card-element {
@@ -497,6 +497,7 @@
     .series-card-body .symbols-size-range-wrapper label {
         width: 25%;
         white-space: nowrap;
+        text-align: right;
     }
     .series-card-body .symbols-size-range-wrapper .range-input {
         width: 60%;

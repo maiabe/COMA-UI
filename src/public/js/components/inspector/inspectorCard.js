@@ -297,8 +297,8 @@ export class InspectorCard {
         return card;
     }
 
-    addSeriesCard(moduleKey, seriesData) {
-        const card = new SeriesCard(moduleKey, seriesData);
+    addSeriesCard(moduleKey, seriesData, errorData) {
+        const card = new SeriesCard(moduleKey, seriesData, errorData);
         return card;
     }
 

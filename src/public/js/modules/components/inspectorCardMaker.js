@@ -634,7 +634,7 @@ export class InspectorCardMaker {
     updateChartModuleInspectorCard(moduleKey, moduleData) {
         const chartData = moduleData.chartData; // change variable name to chartData?
         const datasetType = moduleData.datasetType;
-        console.log(moduleData);
+        console.log(chartData);
 
         let contentWrapper = this.HF.createNewDiv(`chart-inspector-${moduleKey}`, '', ['chart-inspector-wrapper'], []);
         this.inspectorCard.appendToBody(contentWrapper);
@@ -661,10 +661,10 @@ export class InspectorCardMaker {
         const leftLabel = this.HF.createNewLabel('', '', 'chart-margin-left', ['margin-label'], [], 'Left: ');
         const bottomLabel = this.HF.createNewLabel('', '', 'chart-margin-bottom', ['margin-label'], [], 'Bottom: ');
         const rightLabel = this.HF.createNewLabel('', '', 'chart-margin-right', ['margin-label'], [], 'Right: ');
-        const topInput = this.HF.createNewTextInput('chart-margin-top', '', ['chart-margin'], [], 'text', 130);
+        const topInput = this.HF.createNewTextInput('chart-margin-top', '', ['chart-margin'], [], 'text', 100);
         const leftInput = this.HF.createNewTextInput('chart-margin-left', '', ['chart-margin'], [], 'text', 60);
-        const bottomInput = this.HF.createNewTextInput('chart-margin-bottom', '', ['chart-margin'], [], 'text', 45);
-        const rightInput = this.HF.createNewTextInput('chart-margin-right', '', ['chart-margin'], [], 'text', 65);
+        const bottomInput = this.HF.createNewTextInput('chart-margin-bottom', '', ['chart-margin'], [], 'text', 50);
+        const rightInput = this.HF.createNewTextInput('chart-margin-right', '', ['chart-margin'], [], 'text', 60);
         topWrapper.appendChild(topLabel);
         topWrapper.appendChild(topInput);
         leftWrapper.appendChild(leftLabel);
@@ -717,9 +717,10 @@ export class InspectorCardMaker {
 
         //-- Prepare series fields here
         const seriesData = chartData.filter(cd => cd.name === 'series')[0];
+        const errorData = chartData.filter(cd => cd.name === 'error')[0];
 
         //-- Create series card
-        const seriesCard = this.inspectorCard.addSeriesCard(moduleKey, seriesData.fields);
+        const seriesCard = this.inspectorCard.addSeriesCard(moduleKey, seriesData.fields, errorData.fields);
         chartInspectorWrapper.appendChild(seriesCard.getCard().wrapper);
 
         //-- Add tab button event listener
@@ -804,6 +805,8 @@ export class InspectorCardMaker {
                 const yAxisIndexDD = seriesCard.querySelector('.yaxis-index-dropdown');
                 const yAxisIndex = yAxisIndexDD.selectedIndex;
                 const yAxisName = yAxisIndexDD[yAxisIndexDD.selectedIndex].textContent;
+                const errorDD = seriesCard.querySelector('.error-dropdown');
+                const errorName = errorDD[errorDD.selectedIndex].textContent;
                 const symbolShapeDD = seriesCard.querySelector('.symbol-shape-dropdown');
                 const symbolShape = symbolShapeDD[symbolShapeDD.selectedIndex];
                 const symbolColorDD = seriesCard.querySelector('.symbol-color-dropdown');
@@ -820,6 +823,7 @@ export class InspectorCardMaker {
                     xAxisName: xAxisName,
                     yAxisIndex: yAxisIndex,
                     yAxisName: yAxisName,
+                    errorName: errorName,
                     symbolShape: symbolShape.value,
                     symbolColor: symbolColor.value,
                     symbolSize: Number(datapointSize.value),
