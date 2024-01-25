@@ -21,20 +21,26 @@ export class Chart_2D extends Output {
     constructor(category, color, shape, command, name, image, outports, key) {
         super(category, color, shape, command, name, image,
             [{ name: 'IN', leftSide: true, type: LT_SOURCE }, { name: 'OUT', leftSide: true, type: LT_OUTPUT }], outports, key)
-        this.setPopupContent();
+        this.setPopupContent(key);
         this.addData('inportType', [LT_SOURCE, LT_PROCESSOR]);
         this.addData('outportType', [-1]);
     };
 
     /** --- PUBLIC ---
      * Creates the HTML content to be inserted into the Popup in the DOM. */
-    setPopupContent = () => {
+    setPopupContent = (key) => {
         this.addData('popupContent', this.popupContentMaker.getPopupContentWrapper());
         //this.addData('themeDD', this.popupContentMaker.addEChartThemeDropdown(this.getData('key')), false, '', false);
 
         this.addData('plotDiv', this.popupContentMaker.addPlotDiv(this.getData('key')), false, '', false);
         var popupContent = this.getData('popupContent');
         popupContent.classList.add('plot-popup');
+
+        // Add chart toolbox
+        const toolboxWrapper = this.HF.createNewDiv('chart-toolbox-' + key, '', ['chart-toolbox-wrapper'], [], [], '');
+        this.popupContentMaker.addDownloadBtn(key, toolboxWrapper);
+        console.log(this.popupContentMaker.getPopupContentWrapper());
+        this.popupContentMaker.getPopupContentWrapper().appendChild(toolboxWrapper);
     }
 
     /** --- PUBLIC ---
@@ -232,7 +238,7 @@ export class OrbitalPlot extends Output {
 export class ToCSV extends Output {
     constructor(category, color, shape, key) {
         super(category, color, shape, 'output', 'To CSV', 'images/icons/csv-file-format-extension-white.png', [{ name: 'IN', leftSide: true, type: LT_OUTPUT }], [], key);
-        this.setPopupContent();
+        this.setPopupContent(key);
         this.createInspectorCardData();
         this.chartData = new ChartDataStorage('table');
         this.addData('inportType', LT_PROCESSOR);

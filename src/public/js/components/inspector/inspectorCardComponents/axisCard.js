@@ -248,11 +248,11 @@ export class AxisCard {
             //let optionsWrapper = GM.HF.createNewDiv('', '', ['options-wrapper'], [], [], '');
 
             // major gridlines option
-            const gridLinesOption = GM.HF.createNewCheckbox('', '', ['major-gridlines', 'checkbox'], [], '', 'Major Grid Lines', true);
+            const gridLinesOption = GM.HF.createNewCheckbox('', '', ['major-gridlines', 'checkbox'], [], '', 'Major Grid Lines', false);
             axisOptionsWrapper.appendChild(gridLinesOption.wrapper);
 
             // ticks option
-            const ticksOption = GM.HF.createNewCheckbox('', '', ['label-ticks', 'checkbox'], [{ style: 'margin-left', value: '22%' }], '', 'Ticks', true);
+            const ticksOption = GM.HF.createNewCheckbox('', '', ['axis-ticks', 'checkbox'], [{ style: 'margin-left', value: '22%' }], '', 'Ticks', true);
             axisOptionsWrapper.appendChild(ticksOption.wrapper);
 
             // minor gridlines option

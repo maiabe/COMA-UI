@@ -69,12 +69,13 @@ export class ChartGenerator {
             .attr("width", '100%')
             .attr("height", '100%')
             .attr("viewBox", `0 0 ${width} ${height}`)
-            .attr("preserveAsoectRatio", 'none');
-            /*.attr("preserveAsoectRatio", 'xMidYMid meet');*/
+            .attr("preserveAsoectRatio", 'none')
+            .style('background-color', 'white')
+            .style('font-family', 'Sora, sans-serif');
 
         // Add Chart Title
         const titleWrapper = svg.append('g')
-            .attr('class', 'title-group-' + chartData.chartTitle);
+            .attr('class', 'title-group');
 
         titleWrapper.append('text')
             .attr('class', 'chart-title')
@@ -199,15 +200,26 @@ export class ChartGenerator {
         //-- Axis & Tick Positions
         const offset = Number(xChartData.offset);
         const yPos = (xChartData.axisPosition == 'bottom') ? height - margin.bottom + offset : margin.top + offset;
-        let tickPos = (xChartData.tickPosition == 'inside') ? -6 : 6;
+        const tickPos = xChartData.tickPosition;
+        let tickSize = (tickPos == 'inside') ? -6 : 6;
+        if (!xChartData.ticks) {
+            tickSize = 0;
+        }
 
         //-- Create x-axis
         const xAxis = (xChartData.axisPosition == 'bottom') ? d3.axisBottom(xScale) : d3.axisTop(xScale);
-        xAxis.tickSize(tickPos);
+        xAxis.tickSize(tickSize);
 
         const xAxisElement = wrapper.append("g")
-                                    .attr("transform", `translate(0, ${yPos})`)
-                                    .call(xAxis);
+            .attr("transform", `translate(0, ${yPos})`)
+            .call(xAxis)
+            .selectAll('.tick text')
+            .attr('dy', function () {
+                if (xChartData.axisPosition == 'bottom') {
+                    return (tickPos == 'inside') ? '-1.25em' : '1em';
+                }
+                return (tickPos == 'inside') ? '2em' : '0';
+            });
 
         //-- Create x-axis label
         const axisBBox = xAxisElement.node().getBBox();
@@ -220,13 +232,23 @@ export class ChartGenerator {
                              .attr('x', (width / 2))
                              .text(xChartData.labelName);
 
-        // adjust label y position
+        // Adjust label y position
         const labelHeight = label.node().getBBox().height;
 
         if (xChartData.axisPosition == 'bottom') {
-            label.attr('y', yPos + axisHeight + labelHeight);
+            if (tickPos == 'outside') {
+                label.attr('y', yPos + axisHeight + labelHeight + 6); // 6 for some spacing 
+            }
+            else {
+                label.attr('y', yPos - axisHeight - labelHeight);
+            }
         } else {
-            label.attr('y', yPos - axisHeight - labelHeight);
+            if (tickPos == 'outside') {
+                label.attr('y', yPos - axisHeight - labelHeight);
+            }
+            else {
+                label.attr('y', yPos + axisHeight + labelHeight + 6);
+            }
         }
 
         return xScale;
@@ -242,7 +264,7 @@ export class ChartGenerator {
         const yPos = (axisPos == 'top') ? margin.top + offset : height - margin.bottom + offset;
 
         const tickPos = customChartData.tickPosition; // inside or outside
-        const tickInterval = Math.ceil(data.length / (width / 200));
+        const tickInterval = Math.ceil(data.length / (width / 200)); // every 200 pixels
 
         //-- Custom group wrapper
         const wrapper = svg.append('g')
@@ -259,7 +281,6 @@ export class ChartGenerator {
                 return data[Math.floor(i * tickInterval)].label;
             });
 
-
         //-- Adjust position & rotation and create tick marks
         customLabels.each(function (customLabel) {
 
@@ -270,37 +291,36 @@ export class ChartGenerator {
             const textHeight = this.getBBox().height;
 
             // Define spacing between label and tick
-            let labelSpacing = (tickPos == 'inside') ? 3 : 9;
-            if (axisPos == 'bottom') {
+            let labelSpacing = 9;
+            /*if (axisPos == 'bottom') {
                 labelSpacing = (tickPos == 'inside') ? 9 : 3;
-            }
+            }*/
             const adjustedXPos = xPos + (textHeight / 3);
-            const adjustedYPos = yPos - (textWidth / 2) - labelSpacing;
-            textElement
-                .attr('transform', `rotate(-90, ${adjustedXPos}, ${adjustedYPos})`)
-                .attr('x', adjustedXPos)
-                .attr('y', adjustedYPos);
+            const adjustedYPos = (axisPos == 'top') ? ((tickPos == 'outside') ? (yPos - (textWidth / 2) - labelSpacing) : (yPos + (textWidth / 2) + labelSpacing))
+                                                    : ((tickPos == 'outside') ? (yPos + (textWidth / 2) + labelSpacing) : (yPos - (textWidth / 2) - labelSpacing));
+            textElement.attr('transform', `translate(${adjustedXPos}, ${adjustedYPos}) rotate(-90)`);
 
             // Add custom ticks
-            const tickLength = 6;
-            const tickY1 = yPos;
-            let tickY2 = (tickPos == 'inside') ? yPos + tickLength : yPos - tickLength;
-            if (axisPos == 'bottom') {
-                tickY2 = (tickPos == 'inside') ? yPos - tickLength : yPos + tickLength;
+            if (customChartData.ticks) {
+                const tickSize = 6;
+                const tickY1 = yPos;
+                let tickY2 = (tickPos == 'inside') ? yPos + tickSize : yPos - tickSize;
+                if (axisPos == 'bottom') {
+                    tickY2 = (tickPos == 'inside') ? yPos - tickSize : yPos + tickSize;
+                }
+
+                // Append tick line
+                wrapper.append("line")
+                    .attr("class", "custom-tick-line")
+                    .attr("x1", xPos)
+                    .attr("y1", tickY1)
+                    .attr("x2", xPos)
+                    .attr("y2", tickY2)
+                    .style("stroke", "black")
+                    .style("stroke-width", "0.5px"); //-- TODO: rotate custom labels opposite way
             }
 
-            // Append tick line
-            wrapper.append("line")
-                .attr("class", "custom-tick-line")
-                .attr("x1", xPos)
-                .attr("y1", tickY1)
-                .attr("x2", xPos)
-                .attr("y2", tickY2)
-                .style("stroke", "black")
-                .style("stroke-width", "0.5px"); //-- TODO: rotate custom labels opposite way
-
         });
-
 
         //-- Add a line to represent the x-axis
         const axisLine = wrapper.append("line")
@@ -313,11 +333,11 @@ export class ChartGenerator {
             .attr('y1', yPos)
             .attr('x2', width - margin.right)
             .attr('y2', yPos);
-
     }
 
     //-- draw each y axis
     #drawYAxis(svg, yChartData, height, width, margin) {
+
         //-- Create y-axis scale
         const yScale = d3.scaleLinear()
             .domain([d3.min(yChartData.data), d3.max(yChartData.data)])
@@ -329,46 +349,65 @@ export class ChartGenerator {
         const axisPos = yChartData.axisPosition;
         const offset = yChartData.offset;
         const xPos = (axisPos == 'left') ? margin.left + offset : width - margin.right + offset;
-        let tickPos = (yChartData.tickPosition == 'inside') ? -6 : 6;
+        const tickPos = yChartData.tickPosition;
+        let tickSize = (tickPos == 'inside') ? -6 : 6;
+        if (!yChartData.ticks) {
+            console.log('yChartData tickSize ' + tickSize);
+            tickSize = 0;
+        }
 
         //-- Create y-axis element
         const yAxis = (axisPos == 'left') ? d3.axisLeft(yScale) : d3.axisRight(yScale);
-        yAxis.tickSize(tickPos);
+        yAxis.tickSize(tickSize);
 
         const axisElement = wrapper.append("g")
             .attr("transform", `translate(${xPos}, 0)`)
             .call(yAxis);
 
-        const axisHeight = axisElement.node().getBBox().height;
-        const axisWidth = axisElement.node().getBBox().width;
+        //-- Position tick labels inside or outside
+        axisElement.selectAll('.tick text')
+            .attr('dx', function () {
+                if (axisPos == 'left') {
+                    return (tickPos == 'inside') ? '2em' : '0'; 
+                }
+                return (tickPos == 'inside') ? '-2.25em' : '0';
+            });
 
-        // Calculate the position based on the axis position
-        const labelX = (axisPos == 'left') ? - (axisHeight / 2) - margin.top : (axisHeight / 2) + margin.top; // This centers the label across the length of the axis
-        const labelY = (axisPos == 'left') ? (margin.left / 2) + offset : (- width + (margin.right / 2)) - offset; // Adjust based on side
-
-        // Constructing the transform attribute
-        const rotateAngle = axisPos == 'left' ? -90 : 90;
-        const labelTransform = `rotate(${rotateAngle}) translate(${labelX}, ${labelY})`;
-
-        // Add y-axis label
-        wrapper.append("text")
+        //-- Create y-axis label
+        const labelElement = wrapper.append("text")
             .attr("class", "y-axis-label")
             .attr("text-anchor", "middle")
             .style("font-size", "12px")
-            .attr("transform", labelTransform)
+            /*.attr("transform", labelTransform)*/
             .text(yChartData.labelName);
+
+        // Transform label position
+        const axisHeight = axisElement.node().getBBox().height;
+        const axisWidth = axisElement.node().getBBox().width;
+        const labelHeight = labelElement.node().getBBox().height;
+
+        // This finds the x position of the label depending on axisPosition and tickPosition
+        const labelX = (axisPos == 'left') ? ((tickPos == 'outside') ? ((margin.left / 2) + offset) : (margin.left + axisWidth + offset + labelHeight))
+                                           : ((tickPos == 'outside') ? (width - (margin.right / 2) - offset) : (width - margin.right - axisWidth - offset - labelHeight));
+        const labelY = (axisHeight / 2) + margin.top; // This centers the label across the length of the axis
+
+        const rotateAngle = (axisPos == 'left') ?  ((tickPos == 'outside') ? -90 : 90) : ((tickPos == 'outside') ? 90 : -90);
+        const labelTransform = `translate(${labelX}, ${labelY}) rotate(${rotateAngle})`;
+
+        labelElement.attr("transform", labelTransform);
 
         return yScale;
     }
 
     #drawSeries(wrapper, series, type, xScale, yScale) {
+        const symbolSize = Number(series.symbolSize) * 10;
         switch (type) {
             case 'scatter':
                 wrapper.selectAll(".scatter-" + series.seriesName)
                     .data(series.data)
                     .join("path")
                     .attr("class", "scatter-series scatter-" + series.seriesName)
-                    .attr("d", d => this.#symbolPath(series.symbolShape, series.symbolSize))
+                    .attr("d", d => this.#symbolPath(series.symbolShape, symbolSize))
                     .attr("transform", d => `translate(${xScale(d.x)}, ${yScale(d.y)})`)
                     .attr("fill", series.symbolColor)
                     .attr('opacity', 0.5);

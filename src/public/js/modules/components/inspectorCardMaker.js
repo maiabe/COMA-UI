@@ -760,7 +760,7 @@ export class InspectorCardMaker {
                     const offset = axisCard.querySelector('.offset-option-wrapper .text-input');
                     const majorGridLines = axisCard.querySelector('.major-gridlines');
                     const minorGridLines = axisCard.querySelector('.minor-gridlines');
-                    const ticks = axisCard.querySelector('.minor-ticks');
+                    const ticks = axisCard.querySelector('.axis-ticks');
                     const inverse = axisCard.querySelector('.inverse');
                     const axisCardContent = {
                         primary: primary,

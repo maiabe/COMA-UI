@@ -231,9 +231,6 @@ export class SeriesCard {
             const seriesCard = GM.HF.createNewDiv(fieldName + '-' + seriesName, '', ['series-card-wrapper'], [], [], '');
             seriesArea.appendChild(seriesCard);
 
-            console.log(seriesArea);
-            
-
             //-- Create seriesCard header
             const header = GM.HF.createNewDiv('', '', ['series-card-header'], [], [], '');
             const headerText = GM.HF.createNewSpan('', seriesName, ['series-name'], [], selectedSeries.displayName);
@@ -328,7 +325,7 @@ export class SeriesCard {
             seriesBody.appendChild(symbolColorDDWrapper);
 
             //-- Create data point Size range input (0 - 50)
-            const datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'series-card-element'], [], 'Size: ', 0, 5000, 50, 50);
+            const datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'series-card-element'], [], 'Size: ', 0, 100, 1, 3);
             seriesBody.appendChild(datapointSizeRange);
 
 

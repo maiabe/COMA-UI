@@ -339,10 +339,12 @@ export class PopupContentMaker {
         
     }
 
+    /*********************************************** Chart Module Content ****************************************************/
+
     /** --- PUBLIC ---
-     * 
-     * @param {*} key 
-     * @returns 
+     * Adds HTML Div element for charts (plots)
+     * @param {Number} key of the module
+     * @returns {Object} HTML div element of for the chart modules
      */
     addPlotDiv(key) {
         this.dataTable.set('plotDiv', this.HF.createNewDiv(`plot_${key}`, `plot_${key}`, ['plot-wrapper'], ['chartDiv']));
@@ -350,6 +352,9 @@ export class PopupContentMaker {
         return this.getField('plotDiv');
     }
 
+    /**
+     * deprecated - not using ECharts any more
+     * */
     addEChartThemeDropdown(key) {
         var themeDDWrapper = this.HF.createNewDiv('', '', ['chart-theme-wrapper'], []);
         this.dataTable.set('themeDD', this.HF.createNewSelect(`chart-theme-dd-${key}`, '', ['chart-theme-dd'], [], chartThemes, chartThemes));
@@ -372,7 +377,132 @@ export class PopupContentMaker {
     }
 
 
-    /*********************************************** Render Object Image ****************************************************/
+    /** --- PUBLIC ---
+     * Adds a download icon for chart modules
+     * @param {Number} key of the module
+     * @param {Object} HTML div wrapper element of the chart toolbox 
+     * */
+    addDownloadBtn(key, wrapper) {
+        const downloadBtn = this.HF.createNewIMG('chart-download-' + key, '', './images/icons/download.png', ['chart-download-btn', 'download-btn', 'button'], [], '');
+
+        const downloadOptions = this.HF.createNewDiv('', '', ['download-options-wrapper'], [], [], '');
+        const svgOption = this.HF.createNewAnchor('#', 'downloadSVG-' + key, '', ['download-option'], [], 'Download as SVG');
+        const jpegOption = this.HF.createNewAnchor('#', 'downloadJPEG-' + key, '', ['download-option'], [], 'Download as JPEG');
+        const pngOption = this.HF.createNewAnchor('#', 'downloadPNG-' + key, '', ['download-option'], [], 'Download as PNG');
+        downloadOptions.appendChild(svgOption);
+        downloadOptions.appendChild(jpegOption);
+        downloadOptions.appendChild(pngOption);
+
+        wrapper.appendChild(downloadBtn);
+        wrapper.appendChild(downloadOptions);
+
+        //-- Add eventListener to download the chart if there is any
+        downloadBtn.addEventListener('click', (e) => {
+            const downloadOptionsWrapper = e.target.parentNode.querySelector('.download-options-wrapper');
+            downloadOptionsWrapper.classList.toggle('show');
+        });
+
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function (event) {
+            if (!event.target.matches('.download-btn')) {
+                const dropdowns = document.getElementsByClassName("download-options-wrapper");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    let openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        };
+
+        // Add eventListener to each download option
+        svgOption.addEventListener('click', (e) => {
+            const plotWrapper = e.target.closest('.plot-popup').querySelector('.plot-wrapper');
+            const chartSVG = plotWrapper.querySelector('svg');
+            if (chartSVG) {
+                const chartTitle = chartSVG.querySelector('.chart-title').textContent;
+                this.#downloadSVG(chartSVG, chartTitle);
+            }
+        });
+
+        jpegOption.addEventListener('click', (e) => {
+            const plotWrapper = e.target.closest('.plot-popup').querySelector('.plot-wrapper');
+            const chartSVG = plotWrapper.querySelector('svg');
+            if (chartSVG) {
+                const chartTitle = chartSVG.querySelector('.chart-title').textContent;
+                this.#downloadIMG('jpeg', chartSVG, chartTitle);
+            }
+        });
+
+        pngOption.addEventListener('click', (e) => {
+            const plotWrapper = e.target.closest('.plot-popup').querySelector('.plot-wrapper');
+            const chartSVG = plotWrapper.querySelector('svg');
+            if (chartSVG) {
+                const chartTitle = chartSVG.querySelector('.chart-title').textContent;
+                this.#downloadIMG('png', chartSVG, chartTitle);
+            }
+        });
+    }
+
+    /** Add download svg function
+     * @param {Object} HTML svg object of the chart
+     * @param {string} Title of the chart to be used for the file name .............TODO
+     * */
+    #downloadSVG(svg, title) {
+        // Serialize the SVG to a string
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svg);
+        console.log(svgString);
+
+        // Convert the SVG string to a data URL
+        const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+        const svgUrl = URL.createObjectURL(svgBlob);
+
+        // Create a temporary anchor to trigger download
+        const downloadLink = this.HF.createNewAnchor(svgUrl, '', '', ['download-link'], [], '');
+        downloadLink.download = title + ".svg";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+
+    /** Downloads an image (png or jpeg)
+     * @param {string} Type of the image to download
+     * @param {Object} HTML svg object of the chart
+     * @param {string} Title of the chart to be used for the file name
+     * */
+    #downloadIMG(type, svg, title) {
+        // Serialize the SVG to a string
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svg);
+
+        const width = svg.clientWidth;
+        const height = svg.clientHeight;
+
+        // Create a canvas element
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+
+        const img = new Image();
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0, width, height);
+            // Create an image and set its source to the SVG data URL 
+            const pngUrl = canvas.toDataURL('image/' + type);
+
+            // Create a temporary link to trigger download
+            const downloadLink = this.HF.createNewAnchor(pngUrl, '', '', ['download-link'], [], '');
+            downloadLink.download = title + '.' + type;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        };
+        img.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString)));
+
+    }
+
+    /*********************************************** Render Object Image (temporary) ****************************************************/
     createObjectImagesPopup(moduleKey, objectName, imageDates, imagesToRender) {
         // Create Dropdown of observed dates
         //--------- TEST

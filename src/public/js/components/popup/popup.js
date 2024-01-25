@@ -77,7 +77,7 @@ export class Popup {
      * Creates the HTML element that goes in the corner of the popup. User places cursor in this area to begin resize.
      */
     #createResizeDiv = () => {
-        this.resizeDiv = this.HF.createNewDiv(`popup-resize-${this.id}`, `popup-resize-${this.id}`, ['popupResize'], [], [], '');
+        this.resizeDiv = this.HF.createNewDiv(`popup-resize-${this.key}`, `popup-resize-${this.key}`, ['popupResize'], [], [], '');
         this.element.appendChild(this.resizeDiv);
     }
 
@@ -128,16 +128,21 @@ export class Popup {
         });
 
         this.header.addEventListener('mouseup', this.endDrag);
-        this.header.addEventListener('mousemove', e => {
-            e.preventDefault();
+        /*this.header.addEventListener('mousemove', e => {
+            *//*e.preventDefault();*//*
             this.drag(e);
-        });
+        });*/
+
         // Expand and Shrink Listeners
         this.resizeDiv.addEventListener('mousedown', this.startResize);
-        this.resizeDiv.addEventListener('mouseup', this.endResize);
-        this.resizeDiv.addEventListener('mousemove', e => {
-            e.preventDefault();
+        document.addEventListener('mouseup', this.endResize);
+        document.addEventListener('mousemove', e => {
+            if (e.target.type !== 'range') {
+                e.preventDefault();
+            }
+            /*e.stopPropagation();*/
             this.resize(e);
+            this.drag(e);
         });
 
         // Move To Front Event Listeners
