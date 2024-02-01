@@ -32,8 +32,8 @@ export class ChartGenerator {
      * @param {boolean} yAxisTick true if include tick marks
      * @param {string} coordinateSystem polar or cartesian2d
      * @returns chart object  */
-    plotData = (chartData, type, pdiv, width, height, theme, coordinateSystem) => {
-        return this.#drawChart(chartData, type, pdiv, width, height);
+    plotData = (chartData, type, pdiv, theme, coordinateSystem) => {
+        return this.#drawChart(chartData, type, pdiv);
     }
 
     /** --- PRIVATE ---
@@ -54,7 +54,13 @@ export class ChartGenerator {
      * @param {string} coordinateSystem polar or cartesian2d
      * @returns echart object
      */
-    #drawChart = (chartData, type, pdiv, width, height) => {
+    #drawChart = (chartData, type, pdiv) => {
+
+        const width = pdiv.clientWidth;
+        const height = pdiv.clientHeight;
+
+        console.log(width);
+
 
         console.log(chartData);
 
@@ -69,7 +75,7 @@ export class ChartGenerator {
             .attr("width", '100%')
             .attr("height", '100%')
             .attr("viewBox", `0 0 ${width} ${height}`)
-            .attr("preserveAsoectRatio", 'none')
+            /*.attr("preserveAspectRatio", 'none')*/
             .style('background-color', 'white')
             .style('font-family', 'Sora, sans-serif');
 
@@ -94,7 +100,13 @@ export class ChartGenerator {
         const xChartData = chartData['xAxis'].filter(xa => xa.primary)[0];
 
         //-- Draw x-axis
-        const xScale = this.#drawXAxis(svg, xChartData, height, width, margin);
+
+        //-- Create x-axis scale
+        const leftPos = xChartData.inverse ? (width - margin.right) : (margin.left);
+        const rightPos = xChartData.inverse ? (margin.left) : (width - margin.right);
+
+        const xScale = this.#getXScale(xChartData.dataType, xChartData.data, leftPos, rightPos);
+        this.#drawXAxis(svg, xChartData, xScale, height, width, margin);
 
 
         /************* custom label (as additional x-axis) *************/
@@ -109,8 +121,25 @@ export class ChartGenerator {
         chartData['yAxis'].forEach(yChartData => {
             const yScale = this.#drawYAxis(svg, yChartData, height, width, margin);
             yChartData['yScale'] = yScale;
+
+            // draw yaxis major gridline
+            const ymajor = yChartData.majorGridLines;
+            const yminor = yChartData.minorGridLines;
+            if (ymajor || yminor) {
+                const axisName = yChartData.axisName;
+                const axisPos = yChartData.axisPosition;
+                this.#drawGridlines('yaxis', ymajor, yminor, axisName, axisPos, yScale, svg);
+            }
         });
 
+        //-- draw xaxis major gridlines (draw here since it needs to be drawn after the y axis is rendered)
+        const xmajor = xChartData.majorGridLines;
+        const xminor = xChartData.minorGridLines;
+        if (xmajor || xminor) {
+            const axisName = xChartData.axisName;
+            const axisPos = xChartData.axisPosition;
+            this.#drawGridlines('xaxis', xmajor, xminor, axisName, axisPos, xScale, svg);
+        }
 
         /**************** series ****************/
         chartData['series'].forEach(series => {
@@ -135,30 +164,15 @@ export class ChartGenerator {
                 .attr('opacity', 0.5);*/
             this.#drawSeries(seriesGroupWrapper, series, 'scatter', xScale, yScale);
 
-
-
             // Draw error bars
             if (series.errorName !== 'none') {
                 this.#drawErrorBars(xScale, yScale, seriesGroupWrapper, series);
             }
-
-            
-
         });
 
 
-        // Draw x-axis labels on the other side
-        /*svg.selectAll(".x-label")
-            .data(data)
-            .enter().append("text")
-            .attr("class", "x-label")
-            .attr("x", d => xScale(d.x) + 10) // Adjust the offset as needed
-            .attr("y", height) // Adjust the y position as needed
-            .attr("dy", "1em") // Adjust the vertical alignment
-            .attr("text-anchor", "middle") // Center the text on the x-axis point
-            .text(d => d.label)
-            .attr("transform", "rotate(-90)")
-            .attr("translate", "5px"); */
+        /**************** Data zoom ****************/
+        const xAxisSlider = this.#drawDataZoom(pdiv, svg, 'xaxis', chartData, xScale);
 
     };
 
@@ -183,19 +197,12 @@ export class ChartGenerator {
     }
 
     //-- draw primary x axis and returns xScale
-    #drawXAxis(svg, xChartData, height, width, margin) {
-
-        //-- Create x-axis scale
-        const data = xChartData.data;
-        const leftPos = xChartData.inverse ? (width - margin.right) : (margin.left);
-        const rightPos = xChartData.inverse ? (margin.left) : (width - margin.right);
-
-        const xScale = this.#getXScale(xChartData.dataType, data, leftPos, rightPos);
-
+    #drawXAxis(svg, xChartData, xScale, height, width, margin) {
 
         //-- Create x-axis wrapper group
         const wrapper = svg.append("g")
-                           .attr("class", "xaxis-group-" + xChartData.axisName);
+                            .attr('id', 'xaxis-' + xChartData.axisName)
+                            .attr("class", "xaxis-group");
 
         //-- Axis & Tick Positions
         const offset = Number(xChartData.offset);
@@ -211,6 +218,7 @@ export class ChartGenerator {
         xAxis.tickSize(tickSize);
 
         const xAxisElement = wrapper.append("g")
+            .attr('class', 'xaxis')
             .attr("transform", `translate(0, ${yPos})`)
             .call(xAxis)
             .selectAll('.tick text')
@@ -251,7 +259,7 @@ export class ChartGenerator {
             }
         }
 
-        return xScale;
+        return wrapper;
     }
 
     //-- draw custom label as additional x-axis
@@ -344,15 +352,16 @@ export class ChartGenerator {
             .range(yChartData.inverse ? [margin.top, height - margin.bottom] : [height - margin.bottom, margin.top]);
 
         const wrapper = svg.append("g")
-            .attr("class", "yaxis-group-" + yChartData.axisName);
+            .attr("id", "yaxis-" + yChartData.axisName)
+            .attr("class", "yaxis-group");
 
         const axisPos = yChartData.axisPosition;
         const offset = yChartData.offset;
         const xPos = (axisPos == 'left') ? margin.left + offset : width - margin.right + offset;
         const tickPos = yChartData.tickPosition;
         let tickSize = (tickPos == 'inside') ? -6 : 6;
+        // tick option
         if (!yChartData.ticks) {
-            console.log('yChartData tickSize ' + tickSize);
             tickSize = 0;
         }
 
@@ -361,6 +370,7 @@ export class ChartGenerator {
         yAxis.tickSize(tickSize);
 
         const axisElement = wrapper.append("g")
+            .attr('class', 'yaxis')
             .attr("transform", `translate(${xPos}, 0)`)
             .call(yAxis);
 
@@ -399,24 +409,167 @@ export class ChartGenerator {
         return yScale;
     }
 
+    /** Draws major gridlines
+     *  @param {string} axisType of an axistype (xaxis, yaxis, or custom label axis)
+     *  @param {boolean} major gridline option to draw
+     *  @param {boolean} minor gridline option to draw
+     *  @param {string} axisName name of the axis (mag, mjd, etc)
+     *  @param {string} axisPos position of the axis (top, bottom, left, right)
+     *  @param {object} scale of the axis (xScale, yScale)
+     *  @param {object} svg element of the chart
+     * */
+    #drawGridlines(axisType, major, minor, axisName, axisPos, scale, svg) {
+        if (axisType == 'xaxis') {
+            const wrapper = svg.select('#xaxis-' + axisName);
+
+            // get x-axis y1 position
+            const xAxisElement = svg.select('.xaxis-group .xaxis');
+            let yPos;
+            const transformVal = xAxisElement.attr('transform');
+            const translateRegex = /translate\(([^)]+)\)/;
+            let translate = translateRegex.exec(transformVal);
+            if (translate) {
+                const [x, y] = translate[1].split(',').map(Number);
+                yPos = y;
+            }
+
+            // get y-axis length
+            const yAxisElement = svg.select('.yaxis-group .yaxis');
+            const yAxisHeight = yAxisElement.node().getBBox().height;
+
+            // find all tick's x positions
+            let tickVals = scale.ticks();
+
+            // add grid lines
+            if (major) {
+                let tickPositions = tickVals.map(val => scale(val));
+                tickPositions.forEach(xPos => {
+                    wrapper.append('line')
+                        .attr('class', 'major-gridline')
+                        .attr('x1', xPos)
+                        .attr('y1', yPos)
+                        .attr('x2', xPos)
+                        .attr('y2', (axisPos == 'bottom') ? yPos - yAxisHeight : yPos + yAxisHeight)
+                        .attr('stroke', 'lightgray')
+                        .attr('stroke-width', 1);
+                });
+            }
+            if (minor) {
+                let xAxisXPos = xAxisElement.node().getBBox().x;
+                let tickPositions = tickVals.map(val => scale(val));
+                let intervalSpacing = scale(tickVals[1]) - scale(tickVals[0]);
+                let numLines = 6; // including major gridline
+                let minorSpace = intervalSpacing / numLines;
+
+                tickPositions.forEach(xPos => {
+                    let currentXPos = xPos;
+                    for (let i = 0; i < numLines; i++) {
+                        currentXPos = currentXPos - minorSpace;
+                        if (currentXPos > xAxisXPos) { // only draw within the width of the axis
+                            wrapper.append('line')
+                                .attr('class', 'minor-gridline')
+                                .attr('x1', currentXPos)
+                                .attr('y1', yPos)
+                                .attr('x2', currentXPos)
+                                .attr('y2', (axisPos == 'bottom') ? yPos - yAxisHeight : yPos + yAxisHeight)
+                                .attr('stroke', 'lightgray')
+                                .attr('stroke-width', 0.5);
+                        }
+                    }
+                });
+            }
+        }
+        else if (axisType == 'yaxis') {
+            const wrapper = svg.select('#yaxis-' + axisName);
+
+            // get yaxis x1 position
+            const yAxisElement = svg.select('.yaxis-group .yaxis');
+            let xPos;
+            const transformVal = yAxisElement.attr('transform');
+            const translateRegex = /translate\(([^)]+)\)/;
+            let translate = translateRegex.exec(transformVal);
+            if (translate) {
+                const [x, y] = translate[1].split(',').map(Number);
+                xPos = x;
+            }
+
+            // get xaxis length
+            const xAxisElement = svg.select('.xaxis-group .xaxis');
+            const xAxisWidth = xAxisElement.node().getBBox().width;
+
+            // find all tick's y positions
+            let tickVals = scale.ticks();
+
+            // add grid lines
+            if (major) {
+                let tickPositions = tickVals.map(val => scale(val));
+                tickPositions.forEach(yPos => {
+                    wrapper.append('line')
+                        .attr('x1', xPos)
+                        .attr('y1', yPos)
+                        .attr('x2', (axisPos == 'left') ? xPos + xAxisWidth : xPos - xAxisWidth)
+                        .attr('y2', yPos)
+                        .attr('stroke', 'lightgray')
+                        .attr('stroke-width', 1);
+                });
+            }
+            if (minor) {
+                let yAxisYPos = yAxisElement.node().getBBox().y;
+                let tickPositions = tickVals.map(val => scale(val));
+                let intervalSpacing = scale(tickVals[1]) - scale(tickVals[0]);
+                let numLines = 6; // including major gridline
+                let minorSpace = intervalSpacing / numLines;
+
+                tickPositions.forEach(yPos => {
+                    let currentYPos = yPos;
+                    for (let i = 0; i < numLines; i++) {
+                        currentYPos = currentYPos - minorSpace;
+                        if (currentYPos > yAxisYPos) { // only draw within the height of the axis
+                            wrapper.append('line')
+                                .attr('x1', xPos)
+                                .attr('y1', currentYPos)
+                                .attr('x2', (axisPos == 'left' ? xPos + xAxisWidth : xPos - xAxisWidth))
+                                .attr('y2', currentYPos)
+                                .attr('stroke', 'lightgray')
+                                .attr('stroke-width', 0.5);
+                        }
+
+                    }
+                });
+            }
+        }
+        else { // custom label axis?
+            
+        }
+    }
+
     #drawSeries(wrapper, series, type, xScale, yScale) {
         const symbolSize = Number(series.symbolSize) * 10;
         switch (type) {
             case 'scatter':
-                wrapper.selectAll(".scatter-" + series.seriesName)
+                const seriesElements = wrapper.selectAll(".scatter-" + series.seriesName)
                     .data(series.data)
                     .join("path")
                     .attr("class", "scatter-series scatter-" + series.seriesName)
                     .attr("d", d => this.#symbolPath(series.symbolShape, symbolSize))
                     .attr("transform", d => `translate(${xScale(d.x)}, ${yScale(d.y)})`)
                     .attr("fill", series.symbolColor)
-                    .attr('opacity', 0.5);
+                    .attr('opacity', 1)
+                    .attr('stroke', 'white')
+                    .attr('stroke-width', 0.5);
+
+                if (series.symbolShape == 'hollow') {
+                    seriesElements.attr('fill', 'none')
+                        .attr('stroke', series.symbolColor)
+                        .attr('stroke-width', 1);
+                }
         }
     }
 
     #symbolPath(symbolShape, size) {
         const symbols = {
             circle: d3.symbol().type(d3.symbolCircle).size(size),
+            hollow: d3.symbol().type(d3.symbolCircle).size(size),
             square: d3.symbol().type(d3.symbolSquare).size(size),
             triangle: d3.symbol().type(d3.symbolTriangle).size(size),
             diamond: d3.symbol().type(d3.symbolDiamond).size(size),
@@ -518,10 +671,152 @@ export class ChartGenerator {
 
             currentX += legendWidths[index];
         });
+    }
+
+    #drawDataZoom(plotdiv, svg, axisType, chartData, scale) {
+        const domain = scale.domain();
+
+        if (axisType == 'xaxis') {
+            const xChartData = chartData['xAxis'];
+            const axisName = xChartData.axisName;
+            const min = domain[0];
+            const max = domain[1];
+            const minMaxWrapper = this.#HF.createNewDiv('', '', ['axis-datazoom-wrapper'], [], [], '');
+            const minMaxSlider = this.#HF.createNewMinMaxSlider('xaxis-datazoom-' + axisName, '', ['axis-datazoom-slider'],
+                [{ style: 'height', value: '100%' }], '', min, max, min, max, 1, 30);
+            minMaxWrapper.appendChild(minMaxSlider);
+            plotdiv.appendChild(minMaxWrapper);
+
+
+            // Adjust chart height so dataZoom fits to the popup
+            svg.attr('height', '95%');
+
+            // Set the width of the minmaxSlider the same as the axisWidth
+            const xAxisElement = svg.select('.xaxis-group .xaxis');
+            const xAxisBBox = xAxisElement.node().getBBox();
+            const xAxisWidth = xAxisBBox.width * 0.95;
+            minMaxSlider.setAttribute('style', `width: ${xAxisWidth}px`);
+
+            // Set event listeners to the minmaxSlider
+            
+
+            const minInput = minMaxSlider.querySelector('.minmax-range-wrapper .min-range-input');
+            const maxInput = minMaxSlider.querySelector('.minmax-range-wrapper .max-range-input');
+
+            console.log(minInput.value);
+            console.log(maxInput.value);
+            minInput.addEventListener('input', () =>  {
+                const minVal = minInput.value;
+                const maxVal = maxInput.value;
+
+                const newXScale = scale.domain([minVal, maxVal]);
+
+                // update xAxis using the new scale
+                this.#updateXAxis(svg, chartData, newXScale);
+
+            });
+
+            return minMaxWrapper;
+
+        }
+    }
+
+
+    #updateXAxis(svg, chartData, newXScale) {
+        const xChartData = chartData['xAxis'];
+        const xAxisGroup = svg.select('.xaxis-group');
+        const xAxisElement = xAxisGroup.select('.xaxis');
+        const xAxis = (xChartData.axisPosition == 'bottom') ? d3.axisBottom(newXScale) : d3.axisTop(newXScale);
+
+        // Transform ticks
+        let tickSize = (xChartData.tickPosition == 'inside') ? -6 : 6;
+        if (!xChartData.ticks) {
+            tickSize = 0;
+        }
+        xAxis.tickSize(tickSize);
+
+        // Adjust tick label positions
+        xAxisElement.selectAll('.tick text')
+            .attr('dy', function () {
+                if (xChartData.axisPosition == 'bottom') {
+                    return (xChartData.tickPosition == 'inside') ? '-1.25em' : '1em';
+                }
+                return (xChartData.tickPosition == 'inside') ? '2em' : '0';
+            });
+
+        // Transform major gridlines
+        if (xChartData.majorGridLines) {
+            const tickVals = newXScale.ticks();
+            const tickPositions = tickVals.map(val => newXScale(val));
+            const majorGridlines = xAxisGroup.selectAll('.major-gridline').data(tickPositions);
+            majorGridlines.attr('x1', d => d).attr('x2', d => d);
+
+            let yPos;
+            const transformVal = xAxisElement.attr('transform');
+            const translateRegex = /translate\(([^)]+)\)/;
+            let translate = translateRegex.exec(transformVal);
+            if (translate) {
+                const [x, y] = translate[1].split(',').map(Number);
+                yPos = y;
+            }
+            const yAxisElement = svg.select('.yaxis-group .yaxis');
+            const yAxisHeight = yAxisElement.node().getBBox().height;
+
+            majorGridlines.enter().append('line')
+                .attr('class', 'major-gridline')
+                .attr('x1', d => d)
+                .attr('x2', d => d)
+                .attr('y1', yPos)
+                .attr('y2', (xChartData.axisPosition == 'bottom') ? yPos - yAxisHeight : yPos + yAxisHeight)
+                .attr('stroke', 'lightgray')
+                .attr('stroke-width', 1);
+
+            majorGridlines.exit().remove();
+        }
+        
+        // Transform minor gridlines
+        if (xChartData.minorGridLines) {
+
+        }
+
+        xAxisElement.call(xAxis);
+
+
+        // Transform series data points
+        chartData['series'].forEach(series => {
+            const yAxis = chartData['yAxis'][series.yAxisIndex];
+            const yScale = yAxis.yScale;
+
+            // filter out data according to the new scale domain
+            const domain = newXScale.domain();
+            const seriesData = series.data.filter(d => {
+                const xValue = d.x;
+                // Check if xValue is within the scale's domain
+                return xValue >= domain[0] && xValue <= domain[1];
+            });
+
+            // transfrom data points according to the new scale
+            const seriesGroup = svg.select('.series-group-' + series.seriesName);
+            const seriesElements = seriesGroup.selectAll('.scatter-series').data(seriesData)
+                .attr("transform", d => `translate(${newXScale(d.x)}, ${yScale(d.y)})`);
+
+            // add data within the new domain
+            seriesElements.enter().append('path')
+                .merge(seriesElements)
+                .attr('transform', d => `translate(${newXScale(d.x)}, ${yScale(d.y)})`);
+
+            // remove data outside of the new domain
+            seriesElements.exit().remove();
+
+        });
+        
+
+
 
 
 
     }
+
 
     resizeChart(moduleKey, width, height) {
         /*const chartToResize = document.getElementById(`plot_${moduleKey}`).querySelector('svg');

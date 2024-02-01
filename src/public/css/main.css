@@ -44,6 +44,7 @@ button {
 
 .button {
     transition: transform 0.05s;
+    cursor: pointer;
 }
 .button:active {
     transform: translateY(1.5px);

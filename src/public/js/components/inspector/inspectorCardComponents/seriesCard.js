@@ -299,7 +299,7 @@ export class SeriesCard {
 
             //-- Create data point Symbol shape dropdown
             const symbolShapeDDWrapper = GM.HF.createNewDiv('', '', ['symbol-shape-dropdown-wrapper', 'series-card-element'], [], [], '');
-            const symbolShapeOptions = ['circle', 'square', 'triangle', 'diamond', 'cross', 'star', 'wye'];
+            const symbolShapeOptions = ['circle', 'square', 'triangle', 'diamond', 'hollow', 'cross', 'star', 'wye'];
             const symbolShapeLabel = GM.HF.createNewSpan('', '', ['symbol-shape-label'], [], 'Shape: ');
             const symbolShapeDropdown = GM.HF.createNewSelect('', '', ['symbol-shape-dropdown'], [], symbolShapeOptions, symbolShapeOptions);
             // select circle as default

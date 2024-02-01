@@ -68,7 +68,10 @@ export class OutputManager {
             const activeChartMap = this.#activeChartMap.get(key);
             if (this.popupHasActiveChart(key)) {
                 // get the div of chartObject
-                div.firstChild.remove();
+                while(div.firstChild) {
+                    div.removeChild(div.firstChild);
+                };
+
                 /*let activeChartDiv = activeChart.chartObject.getDom();*/
                 
                 // set activeChartMap with updated chartObject
@@ -78,7 +81,7 @@ export class OutputManager {
             
             /*this.#activeChartMap.set(key, { chartObject: this.#chartBuilder.plotData(cd.data, cd.type, div, width, height, cd.framework, cd.theme, cd.coordinateSystem) });*/
             /*console.log('initial active map set up');*/
-            this.#activeChartMap.set(key, { chartObject: this.#chartGenerator.plotData(cd.data, cd.type, div, width, height, cd.theme, cd.coordinateSystem) });
+            this.#activeChartMap.set(key, { chartObject: this.#chartGenerator.plotData(cd.data, cd.type, div, cd.theme, cd.coordinateSystem) });
             
         }
         else printErrorMessage(`Missing Data.`, `key: ${key} - OutputManager -> drawChart`);

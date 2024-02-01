@@ -1,5 +1,5 @@
 
-import { FormGenerator, TextAreaGenerator, H3Generator, H1Generator, DivGenerator, ParagraphGenerator, SpanGenerator, LabelGenerator, ImgGenerator, InputGenerator, TableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider, AnchorGenerator, ListGenerator, RangeInput } from "./index.js";
+import { FormGenerator, TextAreaGenerator, H3Generator, H1Generator, DivGenerator, ParagraphGenerator, SpanGenerator, LabelGenerator, ImgGenerator, InputGenerator, TableGenerator, CheckboxGenerator, SelectGenerator, RangeSlider, AnchorGenerator, ListGenerator, RangeInput, MinMaxSlider } from "./index.js";
 /* This Class has shortcuts for creating and modifying HTML elements in more readable code */
 export class HTMLFactory {
 
@@ -218,6 +218,11 @@ export class HTMLFactory {
     createNewRangeInputComponent(id, name, classlist, customStyles, labelName, min, max, step, value) {
         const rangeInput = new RangeInput(id, name, classlist, customStyles, labelName, min, max, step, value);
         return rangeInput.get().wrapper;
+    }
+
+    createNewMinMaxSlider(id, name, classlist, customStyles, labelName, min, max, minVal, maxVal, step, gap) {
+        const minMaxSlider = new MinMaxSlider(id, name, classlist, customStyles, labelName, min, max, minVal, maxVal, step, gap);
+        return minMaxSlider.get().wrapper;
     }
 
     /** Creates a new HTML text input element

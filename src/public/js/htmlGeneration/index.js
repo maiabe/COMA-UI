@@ -17,3 +17,4 @@ export { AnchorGenerator } from './elementGenerators/anchorGenerator.js';
 export { ListGenerator } from './elementGenerators/listGenerator.js';
 export { RangeSlider } from './componentGenerator/rangeSlider.js';
 export { RangeInput } from './componentGenerator/rangeInput.js';
+export { MinMaxSlider } from './componentGenerator/minMaxSlider.js';
