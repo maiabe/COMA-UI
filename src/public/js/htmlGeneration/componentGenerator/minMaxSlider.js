@@ -58,37 +58,55 @@ export class MinMaxSlider {
         // Adding event listeners to slider range
         for (let i = 0; i < rangeInputs.length; i++) {
             rangeInputs[i].addEventListener('input', e => {
-                let minInput = rangeInputs[0];
-                let maxInput = rangeInputs[1];
+                const minInput = rangeInputs[0];
+                const maxInput = rangeInputs[1];
 
-                let currentMin = parseInt(minInput.value);
-                let currentMax = parseInt(maxInput.value);
-                let diff = currentMax - currentMin;
+                const currentMin = Number(minInput.value);
+                const currentMax = Number(maxInput.value);
+                const diff = currentMax - currentMin;
+                /*console.log('currentMin: ', currentMin);
+                console.log('currentMax: ', currentMax);
+                console.log(diff);
+                console.log(gap);
+                console.log(diff > gap);*/
 
-                if (diff < gap) {
+
+                if (diff > gap) {
                     if (e.target === minInput) {
-                        minInput.value = currentMax - gap;
+                        minInput.value = currentMin;
+                        minInput.setAttribute('value', currentMin);
                     }
                     else {
-                        maxInput.value = currentMin + gap;
+                        maxInput.value = currentMax;
+                        maxInput.setAttribute('value', currentMax);
                     }
 
                     // Update range progress
-                    minmaxSlider.style.left = `${(currentMin / (maxInput.value - gap)) * 100}%`;
-                    minmaxSlider.style.right = `${100 - (currentMax / (minInput.value + gap)) * 100}%`;
+                    /*minmaxSlider.style.left = `${(currentMin / (currentMax - gap)) * 100}%`;
+                    minmaxSlider.style.right = `${100 - (currentMax / (currentMin + gap)) * 100}%`;*/
                 }
+                else {
+                    if (e.target === minInput) {
+                        minInput.value = currentMax - gap;
+                        minInput.setAttribute('value', currentMax - gap);
+                    }
+                    else {
+                        maxInput.value = currentMin + gap;
+                        maxInput.setAttribute('value', currentMin + gap);
+                    }
+                };
             });
 
             // -- cursor does not appear correctly since the input ranges are overlapping with each other ?
             rangeInputs[i].addEventListener('mousedown', (e) => {
-                /*e.target.style.zIndex = 1;*/
+                e.target.style.zIndex = 1;
                 e.target.style.cursor = 'grabbing';
-                console.log(e.target.style.cursor);
+                /*console.log(e.target.style.cursor);*/
             });
             rangeInputs[i].addEventListener('mouseup', (e) => {
-                /*e.target.style.zIndex = 'auto';*/
+                e.target.style.zIndex = 'auto';
                 e.target.style.cursor = 'grab';
-                console.log(e.target.style.cursor);
+                /*console.log(e.target.style.cursor);*/
             });
         }
 

@@ -644,7 +644,7 @@ export default class Hub {
         let processed = false;
         // get objectname here (from WM)
 
-        const objectFetchURL = 'http://coma.ifa.hawaii.edu:8000/api/v1/objects/' + data.queryEntries.objects;
+        const objectFetchURL = 'http://coma.ifa.hawaii.edu:8000/api/v2/objects/' + data.queryEntries.objects;
 
         const response = await fetch(objectFetchURL);
         const rjson = await response.json();

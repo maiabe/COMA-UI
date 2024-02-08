@@ -662,9 +662,9 @@ export class InspectorCardMaker {
         const bottomLabel = this.HF.createNewLabel('', '', 'chart-margin-bottom', ['margin-label'], [], 'Bottom: ');
         const rightLabel = this.HF.createNewLabel('', '', 'chart-margin-right', ['margin-label'], [], 'Right: ');
         const topInput = this.HF.createNewTextInput('chart-margin-top', '', ['chart-margin'], [], 'text', 100);
-        const leftInput = this.HF.createNewTextInput('chart-margin-left', '', ['chart-margin'], [], 'text', 60);
-        const bottomInput = this.HF.createNewTextInput('chart-margin-bottom', '', ['chart-margin'], [], 'text', 50);
-        const rightInput = this.HF.createNewTextInput('chart-margin-right', '', ['chart-margin'], [], 'text', 60);
+        const leftInput = this.HF.createNewTextInput('chart-margin-left', '', ['chart-margin'], [], 'text', 80);
+        const bottomInput = this.HF.createNewTextInput('chart-margin-bottom', '', ['chart-margin'], [], 'text', 80);
+        const rightInput = this.HF.createNewTextInput('chart-margin-right', '', ['chart-margin'], [], 'text', 80);
         topWrapper.appendChild(topLabel);
         topWrapper.appendChild(topInput);
         leftWrapper.appendChild(leftLabel);

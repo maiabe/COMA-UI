@@ -70,6 +70,7 @@ export class ChartGenerator {
             bottom: Number(chartData.marginBottom), right: Number(chartData.marginRight),
         };
 
+        
         const svg = d3.select(pdiv)
             .append("svg")
             .attr("width", '100%')
@@ -118,7 +119,7 @@ export class ChartGenerator {
         }
 
         /**************** y-axis ****************/
-        chartData['yAxis'].forEach(yChartData => {
+        chartData['yAxis'].forEach((yChartData, yAxisIndex) => {
             const yScale = this.#drawYAxis(svg, yChartData, height, width, margin);
             yChartData['yScale'] = yScale;
 
@@ -130,6 +131,8 @@ export class ChartGenerator {
                 const axisPos = yChartData.axisPosition;
                 this.#drawGridlines('yaxis', ymajor, yminor, axisName, axisPos, yScale, svg);
             }
+
+            this.#drawDataZoom(pdiv, svg, 'yaxis', yAxisIndex, chartData, yScale);
         });
 
         //-- draw xaxis major gridlines (draw here since it needs to be drawn after the y axis is rendered)
@@ -172,7 +175,7 @@ export class ChartGenerator {
 
 
         /**************** Data zoom ****************/
-        const xAxisSlider = this.#drawDataZoom(pdiv, svg, 'xaxis', chartData, xScale);
+        const xAxisSlider = this.#drawDataZoom(pdiv, svg, 'xaxis', 0, chartData, xScale);
 
     };
 
@@ -673,41 +676,56 @@ export class ChartGenerator {
         });
     }
 
-    #drawDataZoom(plotdiv, svg, axisType, chartData, scale) {
-        const domain = scale.domain();
+    #drawDataZoom(plotdiv, svg, axisType, axisIndex, chartData, scale) {
+        /*const domain = scale.domain();
+        console.log(domain);*/
 
         if (axisType == 'xaxis') {
-            const xChartData = chartData['xAxis'];
+            const xChartData = chartData['xAxis'].filter(xAxis => xAxis.primary)[0];
+            const domain = scale.domain();
             const axisName = xChartData.axisName;
             const min = domain[0];
             const max = domain[1];
-            const minMaxWrapper = this.#HF.createNewDiv('', '', ['axis-datazoom-wrapper'], [], [], '');
-            const minMaxSlider = this.#HF.createNewMinMaxSlider('xaxis-datazoom-' + axisName, '', ['axis-datazoom-slider'],
-                [{ style: 'height', value: '100%' }], '', min, max, min, max, 1, 30);
-            minMaxWrapper.appendChild(minMaxSlider);
-            plotdiv.appendChild(minMaxWrapper);
 
+            console.log(min);
+            console.log(max);
 
-            // Adjust chart height so dataZoom fits to the popup
-            svg.attr('height', '95%');
+            const datazoomWrapper = this.#HF.createNewDiv('', '', ['xaxis-datazoom-wrapper', 'datazoom-wrapper'], [], [], '');
+            const datazoomSlider = this.#HF.createNewMinMaxSlider(`xaxis-datazoom-${axisName}`, '', ['xaxis-datazoom-slider', 'datazoom-slider'], [], '', min, max, min, max, 1, 10);
+            datazoomWrapper.appendChild(datazoomSlider);
+            plotdiv.appendChild(datazoomWrapper);
 
             // Set the width of the minmaxSlider the same as the axisWidth
             const xAxisElement = svg.select('.xaxis-group .xaxis');
             const xAxisBBox = xAxisElement.node().getBBox();
-            const xAxisWidth = xAxisBBox.width * 0.95;
-            minMaxSlider.setAttribute('style', `width: ${xAxisWidth}px`);
+            const xAxisWidth = xAxisBBox.width;
+            const xAxisLeft = xAxisBBox.x;
+            const minInput = datazoomSlider.querySelector('.minmax-range-wrapper .min-range-input');
+            const maxInput = datazoomSlider.querySelector('.minmax-range-wrapper .max-range-input');
+            minInput.setAttribute('style', `width: ${xAxisWidth}px; left: ${xAxisLeft}px`);
+            maxInput.setAttribute('style', `width: ${xAxisWidth}px; left: ${xAxisLeft}px`);
+
+
+            // Flip the positions of min and max input if xChartData.inverse
+            if (xChartData.inverse) {
+                minInput.style.transform = 'scaleX(-1)';
+                maxInput.style.transform = 'scaleX(-1)';
+            }
 
             // Set event listeners to the minmaxSlider
-            
+            minInput.addEventListener('input', () => {
+                const minVal = Number(minInput.value);
+                const maxVal = Number(maxInput.value);
 
-            const minInput = minMaxSlider.querySelector('.minmax-range-wrapper .min-range-input');
-            const maxInput = minMaxSlider.querySelector('.minmax-range-wrapper .max-range-input');
+                const newXScale = scale.domain([minVal, maxVal]);
 
-            console.log(minInput.value);
-            console.log(maxInput.value);
-            minInput.addEventListener('input', () =>  {
-                const minVal = minInput.value;
-                const maxVal = maxInput.value;
+                // update xAxis using the new scale
+                this.#updateXAxis(svg, chartData, newXScale);
+
+            });
+            maxInput.addEventListener('input', () => {
+                const minVal = Number(minInput.value);
+                const maxVal = Number(maxInput.value);
 
                 const newXScale = scale.domain([minVal, maxVal]);
 
@@ -716,24 +734,100 @@ export class ChartGenerator {
 
             });
 
-            return minMaxWrapper;
+            return datazoomWrapper;
+        }
+
+        else if (axisType == 'yaxis') {
+            console.log(axisIndex);
+            const yChartData = chartData['yAxis'][axisIndex];
+            console.log(yChartData);
+
+            const domain = scale.domain();
+            const axisName = yChartData.axisName;
+            const min = domain[0];
+            const max = domain[1];
+
+            // Compute appropriate step & gap for the slider
+
+
+            const datazoomWrapperWidth = plotdiv.clientHeight; // Named 'width' because yaxis-datazoom-wrapper is rotated 90deg and the height of the popup becomes the width of the datazoom
+            const chartWidth = plotdiv.clientWidth; // Named 'width' because yaxis-datazoom-wrapper is rotated 90deg and the height of the popup becomes the width of the datazoom
+            const datazoomWrapper = this.#HF.createNewDiv('', '', ['yaxis-datazoom-wrapper', 'datazoom-wrapper'], [{ style: 'width', value: `${datazoomWrapperWidth}px` }, { style: 'right', value: `${chartWidth}px` }], [], '');
+            const datazoomSlider = this.#HF.createNewMinMaxSlider(`yaxis-datazoom-${axisName}`, '', ['yaxis-datazoom-slider', 'datazoom-slider'], [], '', min, max, min, max, 0.1, 1);
+            datazoomWrapper.appendChild(datazoomSlider);
+            plotdiv.appendChild(datazoomWrapper);
+
+
+            // Set the height of the minMaxSlider the same as the axisHeight
+            const yAxisGroups = svg.selectAll('.yaxis-group').nodes();
+            const yAxisGroup = yAxisGroups[axisIndex];
+            console.log(yAxisGroup);
+
+            const yAxisElement = d3.select(yAxisGroup).select('.yaxis');
+
+            console.log(yAxisElement);
+
+            const yAxisBBox = yAxisElement.node().getBBox();
+            const yAxisWidth = yAxisBBox.height; // Named 'width' because the yaxis-datazoom is rotated 90deg and the height of the yAxis becomes the width of the datazoom
+            const yAxisRight = yAxisBBox.y; // Named 'right' because the yaxis-datazoom is rotated 90deg and the top y position of the yAxis becomes the right position of the datazoom
+
+            const minInput = datazoomSlider.querySelector('.minmax-range-wrapper .min-range-input');
+            const maxInput = datazoomSlider.querySelector('.minmax-range-wrapper .max-range-input');
+            minInput.setAttribute('style', `width: ${yAxisWidth}px; right: ${yAxisRight}px; bottom: 0`);
+            maxInput.setAttribute('style', `width: ${yAxisWidth}px; right: ${yAxisRight}px; bottom: 0`);
+
+
+            // Flip the positions of min and max input if yChartData.inverse
+            if (yChartData.inverse) {
+                minInput.style.transform = 'scaleX(-1)';
+                maxInput.style.transform = 'scaleX(-1)';
+            }
+
+
+            // Set event listeners to the minmaxSlider
+            minInput.addEventListener('input', () => {
+                const minVal = Number(minInput.value);
+                const maxVal = Number(maxInput.value);
+
+                const newYScale = scale.domain([minVal, maxVal]);
+
+                // update xAxis using the new scale
+                this.#updateYAxis(svg, axisIndex, chartData, newYScale);
+
+            });
+            maxInput.addEventListener('input', () => {
+                const minVal = Number(minInput.value);
+                const maxVal = Number(maxInput.value);
+
+                const newYScale = scale.domain([minVal, maxVal]);
+
+                // update xAxis using the new scale
+                this.#updateYAxis(svg, axisIndex, chartData, newYScale);
+
+            });
+
+
+            return datazoomWrapper;
 
         }
     }
 
 
     #updateXAxis(svg, chartData, newXScale) {
-        const xChartData = chartData['xAxis'];
+        const xChartData = chartData['xAxis'].filter(xAxis => xAxis.primary)[0]; // Get primary xAxis
         const xAxisGroup = svg.select('.xaxis-group');
         const xAxisElement = xAxisGroup.select('.xaxis');
         const xAxis = (xChartData.axisPosition == 'bottom') ? d3.axisBottom(newXScale) : d3.axisTop(newXScale);
+        xAxisElement.call(xAxis);
 
         // Transform ticks
         let tickSize = (xChartData.tickPosition == 'inside') ? -6 : 6;
         if (!xChartData.ticks) {
+            console.log(xChartData.ticks);
             tickSize = 0;
         }
         xAxis.tickSize(tickSize);
+
 
         // Adjust tick label positions
         xAxisElement.selectAll('.tick text')
@@ -751,6 +845,7 @@ export class ChartGenerator {
             const majorGridlines = xAxisGroup.selectAll('.major-gridline').data(tickPositions);
             majorGridlines.attr('x1', d => d).attr('x2', d => d);
 
+            // Get y1 position of gridlines
             let yPos;
             const transformVal = xAxisElement.attr('transform');
             const translateRegex = /translate\(([^)]+)\)/;
@@ -764,8 +859,6 @@ export class ChartGenerator {
 
             majorGridlines.enter().append('line')
                 .attr('class', 'major-gridline')
-                .attr('x1', d => d)
-                .attr('x2', d => d)
                 .attr('y1', yPos)
                 .attr('y2', (xChartData.axisPosition == 'bottom') ? yPos - yAxisHeight : yPos + yAxisHeight)
                 .attr('stroke', 'lightgray')
@@ -776,10 +869,69 @@ export class ChartGenerator {
         
         // Transform minor gridlines
         if (xChartData.minorGridLines) {
+            const tickVals = newXScale.ticks();
+            const intervalSpacing = newXScale(tickVals[1]) - newXScale(tickVals[0]);
+            const numLines = 6; // Including major gridline
+            const minorSpace = intervalSpacing / numLines;
 
+            const xAxisBBox = xAxisElement.node().getBBox();
+            const xAxisLeft = xAxisBBox.x;
+            const xAxisRight = xAxisLeft + xAxisBBox.width;
+
+            // Construct an array of all the minor gridline positions
+            let tickPositions = [];
+            for (let i = 0; i < tickVals.length; i++) {
+                let currentPos = newXScale(tickVals[i]);
+                for (let j = 0; j < numLines; j++) {
+                    if (currentPos < xAxisLeft || currentPos > xAxisRight) { // if the position is within the width of the chart
+                        // Exit the loop once the position goes outside of the chart
+                        break;
+                    }
+                    tickPositions.push(currentPos);
+                    currentPos = currentPos - minorSpace;
+                };
+
+                if (i == tickVals.length - 1) {
+                    currentPos = newXScale(tickVals[i]);
+                    for (let j = 0; j < numLines; j++) {
+                        currentPos = currentPos + minorSpace;
+                        if (currentPos < xAxisLeft || currentPos > xAxisRight) { // if the position is within the width of the chart
+                            // Exit the loop once the position goes outside of the chart
+                            break;
+                        }
+                        tickPositions.push(currentPos);
+                    }
+                }
+            };
+
+            // Get y1 position of gridlines
+            let yPos;
+            const transformVal = xAxisElement.attr('transform');
+            const translateRegex = /translate\(([^)]+)\)/;
+            let translate = translateRegex.exec(transformVal);
+            if (translate) {
+                const [x, y] = translate[1].split(',').map(Number);
+                yPos = y;
+            }
+            const yAxisElement = svg.select('.yaxis-group .yaxis');
+            const yAxisHeight = yAxisElement.node().getBBox().height;
+
+
+            // translate minor gridlines based on newXScale
+            const minorGridLines = xAxisGroup.selectAll('.minor-gridline').data(tickPositions);
+            minorGridLines.attr('x1', d => d).attr('x2', d => d);
+
+            minorGridLines.enter().append('line')
+                .attr('class', 'minor-gridline')
+                .attr('x1', d => d)
+                .attr('x2', d => d)
+                .attr('y1', yPos)
+                .attr('y2', (xChartData.axisPosition == 'bottom') ? yPos - yAxisHeight : yPos + yAxisHeight)
+                .attr('stroke', 'lightgray')
+                .attr('stroke-width', 0.5);
+
+            minorGridLines.exit().remove();
         }
-
-        xAxisElement.call(xAxis);
 
 
         // Transform series data points
@@ -789,11 +941,16 @@ export class ChartGenerator {
 
             // filter out data according to the new scale domain
             const domain = newXScale.domain();
+            const minVal = domain[0];
+            const maxVal = domain[1];
+            
             const seriesData = series.data.filter(d => {
                 const xValue = d.x;
                 // Check if xValue is within the scale's domain
-                return xValue >= domain[0] && xValue <= domain[1];
+                return xValue >= minVal && xValue <= maxVal;
             });
+
+            /*console.log(seriesData);*/
 
             // transfrom data points according to the new scale
             const seriesGroup = svg.select('.series-group-' + series.seriesName);
@@ -803,18 +960,209 @@ export class ChartGenerator {
             // add data within the new domain
             seriesElements.enter().append('path')
                 .merge(seriesElements)
-                .attr('transform', d => `translate(${newXScale(d.x)}, ${yScale(d.y)})`);
+                .attr('class', 'scatter-series scatter-' + series.seriesName)
+                .attr('d', d => this.#symbolPath(series.symbolShape, series.symbolSize * 10))
+                .attr('fill', series.symbolColor)
+                .attr('opacity', 1)
+                .attr('stroke', 'white')
+                .attr('stroke-width', 0.5);
+
+            if (series.symbolShape == 'hollow') {
+                seriesElements.attr('fill', 'none')
+                    .attr('stroke', series.symbolColor)
+                    .attr('stroke-width', 1);
+            }
 
             // remove data outside of the new domain
             seriesElements.exit().remove();
 
         });
-        
+
+    }
+
+    #updateYAxis(svg, axisIndex, chartData, newYScale) {
+
+        const yChartData = chartData['yAxis'][axisIndex]; // Get y axis of interest
+        const yAxisGroups = svg.selectAll('.yaxis-group').nodes();
+        const yAxisGroup = yAxisGroups[axisIndex];
+        const yAxisElement = d3.select(yAxisGroup).select('.yaxis');
+        const yAxis = (yChartData.axisPosition == 'left') ? d3.axisLeft(newYScale) : d3.axisRight(newYScale);
+        yAxisElement.call(yAxis);
+
+        // Transform ticks
+        let tickSize = (yChartData.tickPosition == 'inside') ? -6 : 6;
+        if (!yChartData.ticks) {
+            tickSize = 0;
+        }
+        yAxis.tickSize(tickSize);
 
 
+        // Adjust tick label positions
+        yAxisElement.selectAll('.tick text')
+            .attr('dx', function () {
+                if (yChartData.axisPosition == 'left') {
+                    return (yChartData.tickPosition == 'inside') ? '2em' : '0';
+                }
+                return (yChartData.tickPosition == 'inside') ? '-2.25em' : '0';
+            });
 
 
+        // Transform major gridlines
+        if (yChartData.majorGridLines) {
+            const tickVals = newYScale.ticks();
+            const tickPositions = tickVals.map(val => newYScale(val));
+            const majorGridlines = d3.select(yAxisGroup).selectAll('.major-gridline').data(tickPositions);
+            majorGridlines.attr('y1', d => d).attr('y2', d => d);
 
+            // Get x1 position of gridlines
+            let xPos;
+            const transformVal = yAxisElement.attr('transform');
+            const translateRegex = /translate\(([^)]+)\)/;
+            let translate = translateRegex.exec(transformVal);
+            if (translate) {
+                const [x, y] = translate[1].split(',').map(Number);
+                xPos = x;
+            }
+            const xAxisElement = svg.select('.xaxis-group .xaxis');
+            const xAxisWidth = xAxisElement.node().getBBox().width;
+
+            majorGridlines.enter().append('line')
+                .attr('class', 'major-gridline')
+                .attr('x1', xPos)
+                .attr('x2', (yChartData.axisPosition == 'left') ? xPos + xAxisWidth : xPos - xAxisWidth)
+                .attr('stroke', 'lightgray')
+                .attr('stroke-width', 1);
+
+            majorGridlines.exit().remove();
+        }
+
+        // Transform minor gridlines
+        if (yChartData.minorGridLines) {
+            const tickVals = newYScale.ticks();
+            const intervalSpacing = newYScale(tickVals[1]) - newYScale(tickVals[0]);
+            const numLines = 6; // Including major gridline
+            const minorSpace = intervalSpacing / numLines;
+
+            const yAxisBBox = yAxisElement.node().getBBox();
+            const yAxisBottom = yAxisBBox.x;
+            const yAxisTop = yAxisBottom + yAxisBBox.height;
+
+            // Construct an array of all the minor gridline positions
+            let tickPositions = [];
+            for (let i = 0; i < tickVals.length; i++) {
+                let currentPos = newYScale(tickVals[i]);
+                for (let j = 0; j < numLines; j++) {
+                    if (currentPos < yAxisBottom || currentPos > yAxisTop) { // if the position is within the width of the chart
+                        // Exit the loop once the position goes outside of the chart
+                        break;
+                    }
+                    tickPositions.push(currentPos);
+                    currentPos = currentPos - minorSpace;
+                };
+
+                if (i == tickVals.length - 1) {
+                    currentPos = newYScale(tickVals[i]);
+                    for (let j = 0; j < numLines; j++) {
+                        currentPos = currentPos + minorSpace;
+                        if (currentPos < yAxisBottom || currentPos > yAxisTop) { // if the position is within the height of the chart
+                            // Exit the loop once the position goes outside of the chart
+                            break;
+                        }
+                        tickPositions.push(currentPos);
+                    }
+                }
+            };
+
+            // Get x1 position of gridlines
+            let xPos;
+            const transformVal = yAxisElement.attr('transform');
+            const translateRegex = /translate\(([^)]+)\)/;
+            let translate = translateRegex.exec(transformVal);
+            if (translate) {
+                const [x, y] = translate[1].split(',').map(Number);
+                xPos = x;
+            }
+            const xAxisElement = svg.select('.xaxis-group .xaxis');
+            const xAxisWidth = xAxisElement.node().getBBox().width;
+
+            minorGridLines.exit().remove();
+
+
+            // translate minor gridlines based on newXScale
+            const minorGridLines = d3.select(yAxisGroup).selectAll('.minor-gridline').data(tickPositions);
+            minorGridLines.attr('y1', d => d).attr('y2', d => d);
+
+            minorGridLines.enter().append('line')
+                .attr('class', 'minor-gridline')
+                .attr('y1', d => d)
+                .attr('y2', d => d)
+                .attr('x1', xPos)
+                .attr('x2', (yChartData.axisPosition == 'left') ? xPos + xAxisWidth : xPos - xAxisWidth)
+                .attr('stroke', 'lightgray')
+                .attr('stroke-width', 0.5);
+
+        }
+
+
+        // Transform series data points
+        chartData['series'].forEach(series => {
+
+            if (axisIndex == series.yAxisIndex) { // Only transform series position if the current yAxis corresponds to the target yAxis of this series
+
+                // filter out data according to the new scale domain
+                const domain = newYScale.domain();
+                const minVal = domain[0];
+                const maxVal = domain[1];
+
+                const seriesData = series.data.filter(d => {
+                    const yValue = d.y;
+                    // Check if xValue is within the scale's domain
+                    return yValue >= minVal && yValue <= maxVal;
+                });
+
+                // transfrom data points according to the new scale
+                const seriesGroup = svg.select('.series-group-' + series.seriesName);
+                const seriesElements = seriesGroup.selectAll('.scatter-series').data(seriesData);
+
+                // Get the current x position of each element and apply them to the transform only changing the y posiitons
+                seriesElements.attr('transform', function (d) {
+                    const transform = d3.select(this).attr('transform');
+                    if (transform) {
+                        const translate = transform.substring(10, transform.length - 1).split(/,| /).map(Number);
+                        const currentX = translate[0];
+                        const newY = newYScale(d.y);
+
+                        console.log(translate);
+
+                        return `translate(${currentX}, ${newY})`;
+                    }
+                });
+
+
+                // add data within the new domain                                       >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> TODO bug fix series data points dont appear once disappeared
+                seriesElements.enter().append('path')
+                    .merge(seriesElements)
+                    .attr('class', 'scatter-series scatter-' + series.seriesName)
+                    .attr('d', d => this.#symbolPath(series.symbolShape, series.symbolSize * 10))
+                    .attr('fill', series.symbolColor)
+                    .attr('opacity', 1)
+                    .attr('stroke', 'white')
+                    .attr('stroke-width', 0.5);
+
+                if (series.symbolShape == 'hollow') {
+                    seriesElements.attr('fill', 'none')
+                        .attr('stroke', series.symbolColor)
+                        .attr('stroke-width', 1);
+                }
+
+                // remove data outside of the new domain
+                seriesElements.exit().remove();
+
+
+            }
+
+
+        });
     }
 
 

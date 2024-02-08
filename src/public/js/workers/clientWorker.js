@@ -2,7 +2,8 @@ let id = -1;
 let messageDataObject = {};
 const baseUrl = 'http://localhost:8080/';
 //const baseUrl = 'http://localhost:1366/ ';
-const coma_api = 'http://coma.ifa.hawaii.edu:8000/api/v1/';
+/*const coma_api = 'http://coma.ifa.hawaii.edu:8000/api/v1/';*/
+const coma_api = 'http://coma.ifa.hawaii.edu:8001/api/v2/';
 //const coma_api = 'http://localhost:8000/api/v1/';
 
 const onMessageTable = new Map();
@@ -124,7 +125,8 @@ function handleFetchError(queryType, query, reason) {
 
 function handleDatabaseQueryReturn(data, response) {
     console.log(response);
-    var sourceData = response[data.responseKey];
+    let sourceData = response.result;
+    console.log(sourceData);
     // sort data if needed
     if (data.sortBy) {
         switch (data.sortBy) {
@@ -289,7 +291,7 @@ async function getRemoteDropdownOptions(msg) {
 
 async function getRemoteObjectsSuggestions(msg) {
     console.log(msg.data.data);
-    const url_searchfield = coma_api + msg.data.data.dirName + '/autocomplete?term=' + msg.data.data.term;
+    const url_searchfield = coma_api + 'ui/autocomplete?term=' + msg.data.data.term;
     try {
         //var response = undefined;
         await getCOMAData(url_searchfield, msg.data.data.delay)
@@ -336,8 +338,8 @@ async function getRemoteObjectsSuggestions(msg) {
  * */
 async function queryDatabase(e) {
     const url_searchfield = coma_api + e.data.queryType + '/' + formatQuery(e.data.queryEntries);
-    //console.log(e.data.queryEntries);
-
+    console.log(e.data.queryEntries);
+    console.log(url_searchfield);
     try {
         //var response = undefined;
         await getCOMAData(url_searchfield, e.data.delay)
