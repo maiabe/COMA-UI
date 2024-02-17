@@ -59,16 +59,13 @@ export class ChartGenerator {
         const width = pdiv.clientWidth;
         const height = pdiv.clientHeight;
 
-        console.log(width);
-
-
-        console.log(chartData);
-
         // top margin space should depend on the length of x-axis label and chart title
-        const margin = {
+        const margins = chartData.margins;
+        console.log(margins);
+        /*const margin = {
             top: Number(chartData.marginTop), left: Number(chartData.marginLeft),
             bottom: Number(chartData.marginBottom), right: Number(chartData.marginRight),
-        };
+        };*/
 
         
         const svg = d3.select(pdiv)
@@ -95,7 +92,7 @@ export class ChartGenerator {
         const legendWrapper = svg.append('g')
             .attr('class', 'legend-group');
         const seriesChartData = chartData['series'];
-        this.#drawLegend(legendWrapper, seriesChartData, width, height, margin);
+        this.#drawLegend(legendWrapper, seriesChartData, width, height, margins);
 
         /**************** x-axis ****************/
         const xChartData = chartData['xAxis'].filter(xa => xa.primary)[0];
@@ -103,24 +100,24 @@ export class ChartGenerator {
         //-- Draw x-axis
 
         //-- Create x-axis scale
-        const leftPos = xChartData.inverse ? (width - margin.right) : (margin.left);
-        const rightPos = xChartData.inverse ? (margin.left) : (width - margin.right);
+        const leftPos = xChartData.inverse ? (width - margins.right) : (margins.left);
+        const rightPos = xChartData.inverse ? (margins.left) : (width - margins.right);
 
         const xScale = this.#getXScale(xChartData.dataType, xChartData.data, leftPos, rightPos);
-        this.#drawXAxis(svg, xChartData, xScale, height, width, margin);
+        this.#drawXAxis(svg, xChartData, xScale, height, width, margins);
 
 
         /************* custom label (as additional x-axis) *************/
         const customChartData = chartData['xAxis'].filter(xa => !xa.primary);
         if ((customChartData.length > 0) && (chartData['series'].length > 0)) {
             customChartData.forEach((chartData, i) => {
-                this.#drawCustomLabel(xScale, svg, chartData, height, width, margin);
+                this.#drawCustomLabel(xScale, svg, chartData, height, width, margins);
             });
         }
 
         /**************** y-axis ****************/
         chartData['yAxis'].forEach((yChartData, yAxisIndex) => {
-            const yScale = this.#drawYAxis(svg, yChartData, height, width, margin);
+            const yScale = this.#drawYAxis(svg, yChartData, yAxisIndex, height, width, margins);
             yChartData['yScale'] = yScale;
 
             // draw yaxis major gridline
@@ -146,7 +143,7 @@ export class ChartGenerator {
 
         /**************** series ****************/
         chartData['series'].forEach(series => {
-            console.log(series);
+            /*console.log(series);*/
 
             // Get corresponding yAxis data for this series
             const yAxis = chartData['yAxis'][series.yAxisIndex];
@@ -200,7 +197,7 @@ export class ChartGenerator {
     }
 
     //-- draw primary x axis and returns xScale
-    #drawXAxis(svg, xChartData, xScale, height, width, margin) {
+    #drawXAxis(svg, xChartData, xScale, height, width, margins) {
 
         //-- Create x-axis wrapper group
         const wrapper = svg.append("g")
@@ -209,7 +206,7 @@ export class ChartGenerator {
 
         //-- Axis & Tick Positions
         const offset = Number(xChartData.offset);
-        const yPos = (xChartData.axisPosition == 'bottom') ? height - margin.bottom + offset : margin.top + offset;
+        const yPos = (xChartData.axisPosition == 'bottom') ? height - margins.bottom + offset : margins.top + offset;
         const tickPos = xChartData.tickPosition;
         let tickSize = (tickPos == 'inside') ? -6 : 6;
         if (!xChartData.ticks) {
@@ -266,13 +263,13 @@ export class ChartGenerator {
     }
 
     //-- draw custom label as additional x-axis
-    #drawCustomLabel(xScale, svg, customChartData, height, width, margin) {
+    #drawCustomLabel(xScale, svg, customChartData, height, width, margins) {
         console.log(customChartData);
 
         const data = customChartData.data;
         const axisPos = customChartData.axisPosition;
         const offset = customChartData.offset;
-        const yPos = (axisPos == 'top') ? margin.top + offset : height - margin.bottom + offset;
+        const yPos = (axisPos == 'top') ? margins.top + offset : height - margins.bottom + offset;
 
         const tickPos = customChartData.tickPosition; // inside or outside
         const tickInterval = Math.ceil(data.length / (width / 200)); // every 200 pixels
@@ -340,27 +337,29 @@ export class ChartGenerator {
             .style("stroke-width", "0.5px");
 
         // Position the axis line based on the axis position
-        axisLine.attr('x1', margin.left)
+        axisLine.attr('x1', margins.left)
             .attr('y1', yPos)
-            .attr('x2', width - margin.right)
+            .attr('x2', width - margins.right)
             .attr('y2', yPos);
     }
 
     //-- draw each y axis
-    #drawYAxis(svg, yChartData, height, width, margin) {
+    #drawYAxis(svg, yChartData, yAxisIndex, height, width, margins) {
+
+        console.log(yChartData);
 
         //-- Create y-axis scale
         const yScale = d3.scaleLinear()
             .domain([d3.min(yChartData.data), d3.max(yChartData.data)])
-            .range(yChartData.inverse ? [margin.top, height - margin.bottom] : [height - margin.bottom, margin.top]);
+            .range(yChartData.inverse ? [margins.top, height - margins.bottom] : [height - margins.bottom, margins.top]);
 
         const wrapper = svg.append("g")
-            .attr("id", "yaxis-" + yChartData.axisName)
+            .attr("id", "yaxis-group-" + yAxisIndex)
             .attr("class", "yaxis-group");
 
         const axisPos = yChartData.axisPosition;
         const offset = yChartData.offset;
-        const xPos = (axisPos == 'left') ? margin.left + offset : width - margin.right + offset;
+        const xPos = (axisPos == 'left') ? margins.left + offset : width - margins.right + offset;
         const tickPos = yChartData.tickPosition;
         let tickSize = (tickPos == 'inside') ? -6 : 6;
         // tick option
@@ -400,9 +399,9 @@ export class ChartGenerator {
         const labelHeight = labelElement.node().getBBox().height;
 
         // This finds the x position of the label depending on axisPosition and tickPosition
-        const labelX = (axisPos == 'left') ? ((tickPos == 'outside') ? ((margin.left / 2) + offset) : (margin.left + axisWidth + offset + labelHeight))
-                                           : ((tickPos == 'outside') ? (width - (margin.right / 2) - offset) : (width - margin.right - axisWidth - offset - labelHeight));
-        const labelY = (axisHeight / 2) + margin.top; // This centers the label across the length of the axis
+        const labelX = (axisPos == 'left') ? ((tickPos == 'outside') ? ((margins.left / 2) + offset) : (margins.left + axisWidth + offset + labelHeight))
+                                           : ((tickPos == 'outside') ? (width - (margins.right / 2) - offset) : (width - margins.right - axisWidth - offset - labelHeight));
+        const labelY = (axisHeight / 2) + margins.top; // This centers the label across the length of the axis
 
         const rotateAngle = (axisPos == 'left') ?  ((tickPos == 'outside') ? -90 : 90) : ((tickPos == 'outside') ? 90 : -90);
         const labelTransform = `translate(${labelX}, ${labelY}) rotate(${rotateAngle})`;
@@ -650,7 +649,7 @@ export class ChartGenerator {
             .attr("stroke-width",0.8);
     }
 
-    #drawLegend(wrapper, seriesChartData, width, height, margin) {
+    #drawLegend(wrapper, seriesChartData, width, height, margins) {
 
         const radius = 5; // Radius of the circle
         const gap = 5; // Gap between the symbol and the label
@@ -703,60 +702,56 @@ export class ChartGenerator {
 
 
     #drawXDataZoom(plotdiv, svg, chartData, xScale) {
-            const xChartData = chartData['xAxis'].filter(xAxis => xAxis.primary)[0];
-            const domain = xScale.domain();
-            const axisName = xChartData.axisName;
-            const min = domain[0];
-            const max = domain[1];
+        const xChartData = chartData['xAxis'].filter(xAxis => xAxis.primary)[0];
+        const domain = xScale.domain();
+        const axisName = xChartData.axisName;
+        const min = domain[0];
+        const max = domain[1];
 
-            console.log(min);
-            console.log(max);
+        // Set the width of the minmaxSlider the same as the axisWidth
+        const xAxisElement = svg.select('.xaxis-group .xaxis');
+        const xAxisBBox = xAxisElement.node().getBBox();
+        const xAxisWidth = xAxisBBox.width;
+        const xAxisLeft = xAxisBBox.x;
 
-            const datazoomWrapper = this.#HF.createNewDiv('', '', ['xaxis-datazoom-wrapper', 'datazoom-wrapper'], [], [], '');
-            const datazoomSlider = this.#HF.createNewMinMaxSlider(`xaxis-datazoom-${axisName}`, '', ['xaxis-datazoom-slider', 'datazoom-slider'], [], '', min, max, min, max, 1, 10);
-            datazoomWrapper.appendChild(datazoomSlider);
-            plotdiv.appendChild(datazoomWrapper);
+        const datazoomWrapper = this.#HF.createNewDiv('', '', ['xaxis-datazoom-wrapper', 'datazoom-wrapper'], 
+            [{ style: 'width', value: `${xAxisWidth}px` }, { style: 'left', value: `${xAxisLeft}px` }], [], '');
+        const datazoomSlider = this.#HF.createNewMinMaxSlider(`xaxis-datazoom-${axisName}`, '', ['xaxis-datazoom-slider', 'datazoom-slider'], [], '', min, max, min, max, 1, 10);
+        datazoomWrapper.appendChild(datazoomSlider);
+        plotdiv.appendChild(datazoomWrapper);
 
-            // Set the width of the minmaxSlider the same as the axisWidth
-            const xAxisElement = svg.select('.xaxis-group .xaxis');
-            const xAxisBBox = xAxisElement.node().getBBox();
-            const xAxisWidth = xAxisBBox.width;
-            const xAxisLeft = xAxisBBox.x;
-            const minInput = datazoomSlider.querySelector('.minmax-range-wrapper .min-range-input');
-            const maxInput = datazoomSlider.querySelector('.minmax-range-wrapper .max-range-input');
-            minInput.setAttribute('style', `width: ${xAxisWidth}px; left: ${xAxisLeft}px`);
-            maxInput.setAttribute('style', `width: ${xAxisWidth}px; left: ${xAxisLeft}px`);
+        const minInput = datazoomSlider.querySelector('.minmax-range-wrapper .min-range-input');
+        const maxInput = datazoomSlider.querySelector('.minmax-range-wrapper .max-range-input');
 
+        // Flip the positions of min and max input if xChartData.inverse
+        if (xChartData.inverse) {
+            minInput.style.transform = 'scaleX(-1)';
+            maxInput.style.transform = 'scaleX(-1)';
+        }
 
-            // Flip the positions of min and max input if xChartData.inverse
-            if (xChartData.inverse) {
-                minInput.style.transform = 'scaleX(-1)';
-                maxInput.style.transform = 'scaleX(-1)';
-            }
+        // Set event listeners to the minmaxSlider
+        minInput.addEventListener('input', () => {
+            const minVal = Number(minInput.value);
+            const maxVal = Number(maxInput.value);
 
-            // Set event listeners to the minmaxSlider
-            minInput.addEventListener('input', () => {
-                const minVal = Number(minInput.value);
-                const maxVal = Number(maxInput.value);
+            const newXScale = xScale.domain([minVal, maxVal]);
 
-                const newXScale = xScale.domain([minVal, maxVal]);
+            // update xAxis using the new scale
+            this.#updateXAxis(svg, chartData, newXScale);
 
-                // update xAxis using the new scale
-                this.#updateXAxis(svg, chartData, newXScale);
+        });
+        maxInput.addEventListener('input', () => {
+            const minVal = Number(minInput.value);
+            const maxVal = Number(maxInput.value);
 
-            });
-            maxInput.addEventListener('input', () => {
-                const minVal = Number(minInput.value);
-                const maxVal = Number(maxInput.value);
+            const newXScale = xScale.domain([minVal, maxVal]);
 
-                const newXScale = xScale.domain([minVal, maxVal]);
+            // update xAxis using the new scale
+            this.#updateXAxis(svg, chartData, newXScale);
 
-                // update xAxis using the new scale
-                this.#updateXAxis(svg, chartData, newXScale);
+        });
 
-            });
-
-            return datazoomWrapper;
+        return datazoomWrapper;
     }
 
 
@@ -771,39 +766,85 @@ export class ChartGenerator {
 
         // Compute appropriate step & gap for the slider
 
-
-        const datazoomWrapperWidth = plotdiv.clientHeight; // Named 'width' because yaxis-datazoom-wrapper is rotated 90deg and the height of the popup becomes the width of the datazoom
-        const chartWidth = plotdiv.clientWidth; // Named 'width' because yaxis-datazoom-wrapper is rotated 90deg and the height of the popup becomes the width of the datazoom
-        const datazoomWrapper = this.#HF.createNewDiv('', '', ['yaxis-datazoom-wrapper', 'datazoom-wrapper'], [{ style: 'width', value: `${datazoomWrapperWidth}px` }, { style: 'right', value: `${chartWidth}px` }], [], '');
+        const datazoomWrapper = this.#HF.createNewDiv(`yaxis-datazoom-${axisIndex}`, '', ['yaxis-datazoom-wrapper', 'datazoom-wrapper', `axispos-${yChartData.axisPosition}`, `tickpos-${yChartData.tickPosition}`], [], [], '');
         const datazoomSlider = this.#HF.createNewMinMaxSlider(`yaxis-datazoom-${axisName}`, '', ['yaxis-datazoom-slider', 'datazoom-slider'], [], '', min, max, min, max, 0.1, 1);
         datazoomWrapper.appendChild(datazoomSlider);
         plotdiv.appendChild(datazoomWrapper);
 
-
-        // Set the height of the minMaxSlider the same as the axisHeight
         const yAxisGroups = svg.selectAll('.yaxis-group').nodes();
-        const yAxisGroup = yAxisGroups[axisIndex];
+        const yAxisGroup = yAxisGroups.filter(yAxisGroup => yAxisGroup.getAttribute('id') === `yaxis-group-${axisIndex}`)[0];
+
+        console.log(yAxisGroups);
         console.log(yAxisGroup);
 
-        const yAxisElement = d3.select(yAxisGroup).select('.yaxis');
+        const yAxisBBox = yAxisGroup.getBBox();
+        const yAxisHeight = yAxisBBox.height; // Named 'width' because the yaxis-datazoom is rotated 90deg and the height of the yAxis becomes the width of the datazoom
+        const yAxisWidth = yAxisBBox.width; // Named 'height' because the yaxis-datazoom is rotated 90deg and the width of the yAxis becomes the height of the datazoom
+        const yAxisLeft = yAxisBBox.x; // Named 'right' because the yaxis-datazoom is rotated 90deg / -90deg and the top x position of the yAxis becomes the right position of the datazoom
+        const yAxisTop = yAxisBBox.y; // Named 'right' because the yaxis-datazoom is rotated 90deg / -90deg and the top x position of the yAxis becomes the right position of the datazoom
 
-        console.log(yAxisElement);
+        console.log(yAxisHeight);
+        console.log(yAxisWidth);
 
-        const yAxisBBox = yAxisElement.node().getBBox();
-        const yAxisWidth = yAxisBBox.height; // Named 'width' because the yaxis-datazoom is rotated 90deg and the height of the yAxis becomes the width of the datazoom
-        const yAxisRight = yAxisBBox.y; // Named 'right' because the yaxis-datazoom is rotated 90deg and the top y position of the yAxis becomes the right position of the datazoom
+        datazoomWrapper.style.width = `${yAxisHeight}px`;
 
+
+        /*const datazoomXPos = yAxisBBox.x - datazoomWrapper.clientHeight;*/
+        if (yChartData.axisPosition == 'left') {
+            const datazoomHeight = datazoomWrapper.clientHeight;
+            let translateX = yAxisLeft - datazoomHeight;
+            let translateY = plotdiv.clientHeight - yAxisHeight - yAxisTop + 6;
+
+            /*if (yChartData.tickPosition == 'inside') { // if datazoom has an inside tick position, place the datazoom element next to the axis label next to the other datazoom element
+                const firstDz = plotdiv.querySelector('#yaxis-0.datazoom-wrapper');
+                const firstDzRect = firstDz.getBoundingClientRect();
+                const firstDzPos = firstDzRect.left - plotdiv.getBoundingClientRect().left - datazoomHeight;
+
+                firstDz.style.transform = `translate(${firstDzPos}px, -${translateY}px) rotate(-90deg)`;
+                translateX = firstDzPos + datazoomHeight;
+            }*/
+
+            if (yChartData.tickPosition == 'inside') {
+                // get position from the current yaxis position
+                translateX = yAxisLeft - yAxisWidth - datazoomHeight;
+            }
+            datazoomWrapper.style.transform = `translate(${translateX}px, -${translateY}px) rotate(-90deg)`;
+            datazoomWrapper.style.transformOrigin = `0px 0px`;
+
+        }
+        else {
+            const datazoomHeight = datazoomWrapper.clientHeight;
+            let translateX = yAxisLeft + yAxisWidth + datazoomHeight;
+            let translateY = plotdiv.clientHeight - yAxisTop + 6; // 6 for the tick size
+
+            /*if (yChartData.tickPosition == 'inside') { // if datazoom has an inside tick position, place the datazoom element next to the axis label next to the other datazoom element
+                const firstDz= plotdiv.querySelector('#yaxis-1.datazoom-wrapper');
+                const firstDzRect = firstDz.getBoundingClientRect();
+                const firstDzPos = firstDzRect.left - plotdiv.getBoundingClientRect().left + (datazoomHeight * 2);
+
+                firstDz.style.transform = `translate(${firstDzPos}px, -${translateY}px) rotate(90deg)`;
+                translateX = firstDzPos - datazoomHeight;
+            }*/
+            if (yChartData.tickPosition == 'inside') { // if datazoom has an inside tick position, place the datazoom element next to the axis label next to the other datazoom element
+                translateX = yAxisLeft + yAxisWidth + yAxisWidth + datazoomHeight;
+            }
+
+            datazoomWrapper.style.transform = `translate(${translateX}px, -${translateY}px) rotate(90deg)`;
+            datazoomWrapper.style.transformOrigin = `0px 0px`;
+        }
+
+
+        // Set the height of the minMaxSlider the same as the axisHeight
         const minInput = datazoomSlider.querySelector('.minmax-range-wrapper .min-range-input');
         const maxInput = datazoomSlider.querySelector('.minmax-range-wrapper .max-range-input');
-        minInput.setAttribute('style', `width: ${yAxisWidth}px; right: ${yAxisRight}px; bottom: 0`);
-        maxInput.setAttribute('style', `width: ${yAxisWidth}px; right: ${yAxisRight}px; bottom: 0`);
-
 
         // Flip the positions of min and max input if yChartData.inverse
-        if (yChartData.inverse) {
+        if ((yChartData.inverse && (yChartData.axisPosition === 'left')) ||
+            (!yChartData.inverse && (yChartData.axisPosition === 'right'))) {
             minInput.style.transform = 'scaleX(-1)';
             maxInput.style.transform = 'scaleX(-1)';
         }
+
 
         // Set event listeners to the minmaxSlider
         minInput.addEventListener('input', () => {
@@ -1016,7 +1057,6 @@ export class ChartGenerator {
         const yAxisGroup = yAxisGroups[axisIndex];
         const yAxisElement = d3.select(yAxisGroup).select('.yaxis');
         const yAxis = (yChartData.axisPosition == 'left') ? d3.axisLeft(newYScale) : d3.axisRight(newYScale);
-        yAxisElement.call(yAxis);
 
         //--------- Update chart elements with selected options ---------
 
@@ -1033,19 +1073,25 @@ export class ChartGenerator {
 
 
         // Transform ticks
-        let tickSize = (yChartData.tickPosition == 'inside') ? -6 : 6;
+        let tickSize = (yChartData.tickPosition === 'inside') ? 6 : 6;
         if (!yChartData.ticks) {
             tickSize = 0;
         }
-        yAxis.tickSize(tickSize);
+        else {
+
+            yAxis.tickSizeOuter(tickSize);
+        }
+
+        yAxisElement.call(yAxis);
+
 
         // Adjust tick label positions
         yAxisElement.selectAll('.tick text')
             .attr('dx', function () {
                 if (yChartData.axisPosition == 'left') {
-                    return (yChartData.tickPosition == 'inside') ? '2em' : '0';
+                    return (yChartData.tickPosition == 'inside') ? '2em' : '0'; // change size to the label width and some space
                 }
-                return (yChartData.tickPosition == 'inside') ? '-2.25em' : '0';
+                return (yChartData.tickPosition == 'inside') ? '-2.25em' : '0';  // change size to the label width and some space
             });
 
         // Transform major gridlines
@@ -1189,12 +1235,76 @@ export class ChartGenerator {
 
 
         });
+
     }
 
 
-    resizeChart(moduleKey, width, height) {
-        /*const chartToResize = document.getElementById(`plot_${moduleKey}`).querySelector('svg');
-        chartToResize.setAttribute('viewBox', `0 0 ${width} ${height}`);*/
+    resizeChart(div) {
+        const divRect = div.getBoundingClientRect();
+
+        // Adjust datazoomWrapper position and length
+        const datazoomRangeBars = div.querySelectorAll('.datazoom-wrapper');
+        datazoomRangeBars.forEach(datazoom => {
+            const datazoomBBox = datazoom.getBoundingClientRect();
+            const datazoomWidth = datazoomBBox.width;
+            const datazoomHeight = datazoomBBox.height;
+
+            const classList = datazoom.classList;
+
+            if (classList.contains('xaxis-datazoom-wrapper')) {
+                const xAxisGroup = div.querySelector('.xaxis-group');
+
+                let xAxisRect = xAxisGroup.getBoundingClientRect(); // Get the resized bounding rect of the xAxis element
+                let xAxisWidth = xAxisRect.width;
+                let xAxisLeft = xAxisRect.left - divRect.left;
+
+                datazoom.style.width = `${xAxisWidth}px`;
+                datazoom.style.left = `${xAxisLeft}px`;
+            }
+            else if (classList.contains('yaxis-datazoom-wrapper')) {
+
+                const yAxisId = datazoom.getAttribute('id');
+                const yAxisIndex = yAxisId.replace('yaxis-datazoom-', '');
+                const yAxisGroup = div.querySelector(`#yaxis-group-${yAxisIndex}`);
+                console.log(yAxisGroup);
+                
+                // Adjust the yaxis input range bar height and its x positions according to the current yAxis position
+
+                const yAxisRect = yAxisGroup.getBoundingClientRect(); // Get the resized bounding rect of the yAxis element
+                const yAxisWidth = yAxisRect.width;
+                const yAxisHeight = yAxisRect.height;
+                const yAxisLeft = yAxisRect.x - divRect.x;
+                const yAxisTop = yAxisRect.y - divRect.y;
+
+                if (datazoom.classList.contains('axispos-left')) {
+                    let translateX = yAxisLeft - datazoomWidth;
+                    let translateY = divRect.height - yAxisHeight - yAxisTop + 6; // 6 for the tick size
+
+                    if (datazoom.classList.contains('tickpos-inside')) {
+                        translateX = yAxisLeft - yAxisWidth - datazoomWidth;
+                    }
+
+                    // Get the datazoom element and resize it to the same length as the yAxisHeight
+                    datazoom.style.width = `${yAxisHeight}px`;
+                    datazoom.style.transform = `translate(${translateX}px, -${translateY}px) rotate(-90deg)`;
+                }
+                else {
+                    let translateX = yAxisLeft + yAxisWidth + datazoomWidth;
+                    let translateY = divRect.height - yAxisTop + 6; // 6 for the tick size
+
+                    if (datazoom.classList.contains('tickpos-inside')) {
+                        translateX = yAxisLeft + yAxisWidth + yAxisWidth + datazoomWidth;
+                    }
+
+                    // Get the datazoom element and resize it to the same length as the yAxisHeight
+                    datazoom.style.width = `${yAxisHeight}px`;
+                    datazoom.style.transform = `translate(${translateX}px, -${translateY}px) rotate(90deg)`;
+                }
+
+            }
+
+        });
+
     }
 
 }

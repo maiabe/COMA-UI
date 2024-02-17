@@ -152,17 +152,26 @@ export class OutputManager {
 
     resizeChart = (key, width, height) => {
         if (invalidVariables([varTest(key, 'key', 'number'), varTest(width, 'width', 'number'), varTest(height, 'height', 'number')], 'Output Mangaer', 'resizeChart')) return false;
-        /*if (this.popupHasActiveChart(key)) {
+        if (this.popupHasActiveChart(key)) {
             const chart = this.#outputMap.get(key);
-            chart.div.querySelector('.plot-wrapper').remove(); // remove content of chart wrapper
-            this.#chartGenerator.plotData(chart.data, chart.type, chart.div, width, height);
+            /*const plotWrapper = chart.div; // remove content of chart wrapper
+
+            while (plotWrapper.firstChild) {
+                 plotWrapper.firstChild.remove();
+            }*/
+
+            console.log(chart);
+            this.#chartGenerator.resizeChart(chart.div);
+            //this.#chartGenerator.plotData(chart.data, chart.type, chart.div, width, height);
+
+
             return true;
         }
         else if (this.#outputMap.has(key)) {
             const outputObject = this.#outputMap.get(key);
             this.drawChart(key, outputObject.div, width, height);
             return true;
-        }*/
+        }
         return false;
     }
 

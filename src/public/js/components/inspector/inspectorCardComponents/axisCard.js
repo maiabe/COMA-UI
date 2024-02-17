@@ -338,7 +338,7 @@ export class AxisCard {
         const inspectorWrapper = axisCard.closest('.chart-tabs-wrapper');
         console.log(inspectorWrapper);
         //-- Select corresponding seriesCards and add/remove from axis reference dropdown
-        const seriesCards = inspectorWrapper.querySelectorAll('.series-tab-content .series-card-area .series-card-wrapper');
+        const seriesCards = inspectorWrapper ? inspectorWrapper.querySelectorAll('.series-tab-content .series-card-area .series-card-wrapper') : [];
         if (seriesCards.length > 0) {
             seriesCards.forEach(seriesCard => {
                 const dropdown = seriesCard.querySelector(`.yaxis-index-dropdown`);

@@ -225,18 +225,21 @@ button.tabulator-page {
 .xaxis-datazoom-wrapper {
     bottom: 0;
 }
-.yaxis-datazoom-wrapper {
+/*.yaxis-datazoom-wrapper {
     top: 0;
     transform: rotate(-90deg);
-    transform-origin: right top;
-}
+    transform-origin: left top;
+}*/
 .datazoom-slider {
     /*height: 100%;
     position: relative;*/
 }
 
 .datazoom-slider input[type='range'] {
-    /*width: 100%;*/
+    width: 100%;
+    top: 0;
+    left: 0;
+
     margin: 0;
     padding: 0;
     position: absolute;
@@ -248,7 +251,7 @@ button.tabulator-page {
 
 .datazoom-slider input[type='range']::-webkit-slider-thumb {
     width: 10px;
-    height: 1.2em;
+    height: 1em;
     
     border-radius: 3px;
     background: #0575ff;

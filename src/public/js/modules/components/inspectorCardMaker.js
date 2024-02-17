@@ -662,9 +662,9 @@ export class InspectorCardMaker {
         const bottomLabel = this.HF.createNewLabel('', '', 'chart-margin-bottom', ['margin-label'], [], 'Bottom: ');
         const rightLabel = this.HF.createNewLabel('', '', 'chart-margin-right', ['margin-label'], [], 'Right: ');
         const topInput = this.HF.createNewTextInput('chart-margin-top', '', ['chart-margin'], [], 'text', 100);
-        const leftInput = this.HF.createNewTextInput('chart-margin-left', '', ['chart-margin'], [], 'text', 80);
-        const bottomInput = this.HF.createNewTextInput('chart-margin-bottom', '', ['chart-margin'], [], 'text', 80);
-        const rightInput = this.HF.createNewTextInput('chart-margin-right', '', ['chart-margin'], [], 'text', 80);
+        const leftInput = this.HF.createNewTextInput('chart-margin-left', '', ['chart-margin'], [], 'text',150);
+        const bottomInput = this.HF.createNewTextInput('chart-margin-bottom', '', ['chart-margin'], [], 'text', 100);
+        const rightInput = this.HF.createNewTextInput('chart-margin-right', '', ['chart-margin'], [], 'text', 150);
         topWrapper.appendChild(topLabel);
         topWrapper.appendChild(topInput);
         leftWrapper.appendChild(leftLabel);
@@ -837,11 +837,16 @@ export class InspectorCardMaker {
 
             moduleData['datasetType'] = datasetType;
             moduleData['chartTitle'] = chartTitle ? chartTitle.value : datasetType;
-            chartData['marginTop'] = marginTop.value;
+            chartData['margins'] = {
+                top: Number(marginTop.value),
+                left: Number(marginLeft.value),
+                bottom: Number(marginBottom.value),
+                right: Number(marginRight.value)
+            };
+            /*chartData['marginTop'] = marginTop.value;
             chartData['marginLeft'] = marginLeft.value;
             chartData['marginBottom'] = marginBottom.value;
-            chartData['marginRight'] = marginRight.value;
-
+            chartData['marginRight'] = marginRight.value;*/
             moduleData['chartData'] = chartData;
 
             console.log(moduleData);
