@@ -921,11 +921,28 @@ export default class Hub {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     #prepFilterDataEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.fromModuleData, 'fromModuleData', 'object')], 'HUB', '#messageForInputManager (Prep Filter Data Event)')) return;
+        let processed = false;
         // get module
         const module = GM.MM.getModule(data.moduleKey);
 
+        const fromSourceData = data.fromModuleData ? data.fromModuleData.sourceData : undefined;
+        const fromDatasetType = data.fromModuleData ? data.fromModuleData.datasetType : 'value';
 
-        console.log(data.fromModuleData);
+        if (fromSourceData) {
+            const filterData = GM.IM.getFilterData(fromSourceData);
+            console.log(filterData);
+            let filterModuleData = {
+                moduleKey: data.moduleKey,
+                moduleData: {
+                    datasetType: fromDatasetType,
+                    sourceData: fromSourceData,
+                    filterData: filterData,
+                },
+                toggleModuleColor: true,
+            }
+            processed = this.#setModuleDataEvent(filterModuleData);
+        }
+
     };
 
 
@@ -1315,18 +1332,18 @@ export default class Hub {
      * */
     #prepChartDataEvent(data) {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceModuleData, 'sourceModuleData', 'object')], 'HUB', '#messageForOutputManager (Prep Chart Data Event)')) return;
-        var processed = false;
-        var remoteData = data.sourceModuleData.remoteData;
-        var fromDatasetType = data.sourceModuleData.datasetType;
-        var fromSourceData = data.sourceModuleData.sourceData;
-        var fromObjectName = data.sourceModuleData.objectName;
+        let processed = false;
+        const remoteData = data.sourceModuleData.remoteData;
+        const fromDatasetType = data.sourceModuleData.datasetType;
+        const fromSourceData = data.sourceModuleData.sourceData;
+        const fromObjectName = data.sourceModuleData.objectName;
         
         if (fromSourceData) {
             // get columnHeaders
-            var chartData = GM.IM.getChartData(remoteData, fromSourceData);
+            const chartData = GM.IM.getChartData(remoteData, fromSourceData);
             
             // set moduleData for this table module
-            var data = {
+            const chartModuleData = {
                 moduleKey: data.moduleKey,
                 moduleData: {
                     datasetType: fromDatasetType,
@@ -1336,7 +1353,7 @@ export default class Hub {
                 },
                 toggleModuleColor: true,
             };
-            processed = this.#setModuleDataEvent(data);
+            processed = this.#setModuleDataEvent(chartModuleData);
         }
         // else show error
 

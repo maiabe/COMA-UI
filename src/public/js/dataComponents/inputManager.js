@@ -179,7 +179,7 @@ export class InputManager {
      */
     excludeFieldMatched(fieldName) {
         var match = false;
-        var excludeFields = [/_id$/i, /^id$/i]
+        var excludeFields = [/_id$/i, /^id$/i, /^sunvect/i]
         for (let i = 0; i < excludeFields.length; i++) {
             var field = excludeFields[i];
             match = field.test(fieldName);
@@ -190,7 +190,10 @@ export class InputManager {
         return match;
     }
 
-    // ----------------------------------------- Chart Inspector Data Organization -----------------------------------------
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //************************************* Chart MODULE Data Preparation ************************************//
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // build Chart axis information from columnHeaders (to build Chart Module Inspector Card)
     // seriesData = {  name: 'series', fields: [{ fieldName: 'telescope', series: [{ name: '', displayName: '', dataType: '' }, ..] }, ..]}
     getChartData(remoteData, sourceData) {
@@ -264,6 +267,11 @@ export class InputManager {
         return chartData;
     }
 
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //************************************* Orbit MODULE Data Preparation ************************************//
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Prepare Orbit Module Data to get object and planet names to render and set its moduleData
@@ -347,6 +355,48 @@ export class InputManager {
 
         const msg = new Message(MODULE_MANAGER, INPUT_MANAGER, 'Set Module Data Event', data);
         this.publisher.publishMessage(msg);
+    }
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //************************************* Filter MODULE Data Preparation ***********************************//
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    getFilterData(sourceData) {
+        const columnHeaders = this.getColumnHeaders(sourceData);
+        let filterData = [];
+
+        columnHeaders.forEach(columnHeader => {
+            // Get display field names
+            let words = columnHeader.fieldName.split('_');
+            const displayName = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
+
+            // Get source data specific to the columnHeader
+
+            // filter data example: [{ fieldName: 'field_name', displayName: 'Display Name', dataType: 'value', domain: [0,300], data: [23, 52, 8, 15, ...] },
+            //                       { fieldName: 'field_name', displayName: 'Display Name', dataType: 'category', data: ['atlas', 'assasn', ...] },
+            //                       { fieldName: 'field_name', displayName: 'Display Name', dataType: 'date', domain: ['2019-01-01', '2020-01-01'], data: [2012-04-01, 2012-04-03, ...] }]
+
+            if (columnHeader.dataType === 'value') {
+                const data = sourceData.map(sd => { return sd[columnHeader.fieldName] });
+                data.sort();
+                const domain = [data[0], data[data.length - 1]];
+                filterData.push({ fieldName: columnHeader.fieldName, displayName: displayName.join(' '), dataType: columnHeader.dataType, data: data, domain: domain });
+            }
+            else if (columnHeader.dataType === 'category') {
+                const data = sourceData.map(sd => { return sd[columnHeader.fieldName] });
+                filterData.push({ fieldName: columnHeader.fieldName, displayName: displayName.join(' '), dataType: columnHeader.dataType, data: data });
+            }
+            else if (columnHeader.dataType === 'date') {
+                const data = sourceData.map(sd => { return sd[columnHeader.fieldName] });
+                data.sort();
+                const domain = [data[0], data[data.length - 1]];
+                filterData.push({ fieldName: columnHeader.fieldName, displayName: displayName.join(' '), dataType: columnHeader.dataType, data: data, domain: domain });
+            }
+
+        });
+
+        return filterData;
     }
 
 

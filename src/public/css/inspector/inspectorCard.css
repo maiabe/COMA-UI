@@ -311,7 +311,7 @@
     border-radius: 2px;
 }
 
-/***************************** Orbit Inspector Card ******************************/
+/***************************** Object Images Inspector Card ******************************/
 .object-images-inspector-wrapper {
     width: 100%;
     padding: 4%;
@@ -331,3 +331,10 @@
     border: 1px solid darkgray;
     border-radius: 2px;
 }
+
+
+/***************************** Filter Inspector Card ******************************/
+.filter-inspector-wrapper {
+    flex-flow: column;
+}
+

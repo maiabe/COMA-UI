@@ -23,7 +23,6 @@ export class Filter extends Processor {
         //this.addData('description', 'Use this module to filter table data.');
         this.addData('popupWidth', 300);
         this.addData('popupHeight', 300);
-        this.#createInspectorCardData();
     }
 
     /** When the module is connected from the source or another processor module, 
@@ -40,12 +39,7 @@ export class Filter extends Processor {
 
         console.log(moduleData);
         // call inspectorCardMaker to create inspector card content
-    }
-
-    /** --- PRIVATE ---
-     * Creates Inspector Card Data */
-    #createInspectorCardData() {
-        this.inspectorCardMaker.addInspectorCardDescription(this.getData('description'));
+        this.inspectorCardMaker.updateFilterModuleInspectorCard(moduleKey, moduleData);
     }
 
     /** --- PRIVATE ---

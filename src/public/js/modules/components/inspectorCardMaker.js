@@ -980,6 +980,42 @@ export class InspectorCardMaker {
     }
 
 
+    updateFilterModuleInspectorCard(moduleKey, moduleData) {
+        console.log(moduleData);
+
+        const filterData = moduleData.filterData;
+
+        let contentWrapper = this.HF.createNewDiv(`filter-inspector-${moduleKey}`, '', ['filter-inspector-wrapper'], []);
+        this.inspectorCard.appendToBody(contentWrapper);
+
+        filterData.forEach(field => {
+
+            // Create field wrapper
+            const fieldWrapper = this.HF.createNewDiv('', '', ['filter-field-wrapper'], [], [], '');
+            contentWrapper.appendChild(fieldWrapper);
+
+            // Create field header
+            const fieldHeader = this.HF.createNewDiv('', '', ['filter-field-header'], [], [], '');
+            const fieldName = this.HF.createNewSpan('', '', ['filter-field-name'], [], field.displayName);
+            fieldHeader.appendChild(fieldName);
+            fieldWrapper.appendChild(fieldHeader);
+
+            if (field.dataType === 'value') {
+
+
+            }
+            else if (field.dataType === 'category') {
+
+            }
+            else if (field.dataType === 'date') {
+
+            }
+
+
+        });
+
+    }
+
     getField = key => this.dataTable.get(key);
 
 
