@@ -225,15 +225,6 @@ button.tabulator-page {
 .xaxis-datazoom-wrapper {
     bottom: 0;
 }
-/*.yaxis-datazoom-wrapper {
-    top: 0;
-    transform: rotate(-90deg);
-    transform-origin: left top;
-}*/
-.datazoom-slider {
-    /*height: 100%;
-    position: relative;*/
-}
 
 .datazoom-slider input[type='range'] {
     width: 100%;

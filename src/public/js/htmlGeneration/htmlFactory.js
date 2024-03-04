@@ -220,8 +220,8 @@ export class HTMLFactory {
         return rangeInput.get().wrapper;
     }
 
-    createNewMinMaxSlider(id, name, classlist, customStyles, labelName, min, max, minVal, maxVal, step, gap) {
-        const minMaxSlider = new MinMaxSlider(id, name, classlist, customStyles, labelName, min, max, minVal, maxVal, step, gap);
+    createNewMinMaxSlider(id, name, classlist, customStyles, labelName, min, max, minVal, maxVal, step, gap, textInput) {
+        const minMaxSlider = new MinMaxSlider(id, name, classlist, customStyles, labelName, min, max, minVal, maxVal, step, gap, textInput);
         return minMaxSlider.get().wrapper;
     }
 

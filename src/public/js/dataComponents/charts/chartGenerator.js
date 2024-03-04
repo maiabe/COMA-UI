@@ -124,9 +124,8 @@ export class ChartGenerator {
             const ymajor = yChartData.majorGridLines;
             const yminor = yChartData.minorGridLines;
             if (ymajor || yminor) {
-                const axisName = yChartData.axisName;
                 const axisPos = yChartData.axisPosition;
-                this.#drawGridlines('yaxis', ymajor, yminor, axisName, axisPos, yScale, svg);
+                this.#drawGridlines('yaxis', ymajor, yminor, yAxisIndex, axisPos, yScale, svg);
             }
 
             this.#drawYDataZoom(pdiv, svg, chartData, yAxisIndex, yScale, xScale);
@@ -136,9 +135,8 @@ export class ChartGenerator {
         const xmajor = xChartData.majorGridLines;
         const xminor = xChartData.minorGridLines;
         if (xmajor || xminor) {
-            const axisName = xChartData.axisName;
             const axisPos = xChartData.axisPosition;
-            this.#drawGridlines('xaxis', xmajor, xminor, axisName, axisPos, xScale, svg);
+            this.#drawGridlines('xaxis', xmajor, xminor, 0, axisPos, xScale, svg);
         }
 
         /**************** series ****************/
@@ -201,7 +199,7 @@ export class ChartGenerator {
 
         //-- Create x-axis wrapper group
         const wrapper = svg.append("g")
-                            .attr('id', 'xaxis-' + xChartData.axisName)
+                            .attr('id', 'xaxis-group-0')
                             .attr("class", "xaxis-group");
 
         //-- Axis & Tick Positions
@@ -345,9 +343,6 @@ export class ChartGenerator {
 
     //-- draw each y axis
     #drawYAxis(svg, yChartData, yAxisIndex, height, width, margins) {
-
-        console.log(yChartData);
-
         //-- Create y-axis scale
         const yScale = d3.scaleLinear()
             .domain([d3.min(yChartData.data), d3.max(yChartData.data)])
@@ -420,9 +415,9 @@ export class ChartGenerator {
      *  @param {object} scale of the axis (xScale, yScale)
      *  @param {object} svg element of the chart
      * */
-    #drawGridlines(axisType, major, minor, axisName, axisPos, scale, svg) {
+    #drawGridlines(axisType, major, minor, axisIndex, axisPos, scale, svg) {
         if (axisType == 'xaxis') {
-            const wrapper = svg.select('#xaxis-' + axisName);
+            const wrapper = svg.select('#xaxis-group-' + axisIndex);
 
             // get x-axis y1 position
             const xAxisElement = svg.select('.xaxis-group .xaxis');
@@ -505,7 +500,8 @@ export class ChartGenerator {
             }
         }
         else if (axisType == 'yaxis') {
-            const wrapper = svg.select('#yaxis-' + axisName);
+            console.log(axisIndex);
+            const wrapper = svg.select('#yaxis-group-' + axisIndex);
 
             // get yaxis x1 position
             const yAxisElement = svg.select('.yaxis-group .yaxis');
@@ -528,6 +524,7 @@ export class ChartGenerator {
             // add grid lines
             if (major) {
                 let tickPositions = tickVals.map(val => scale(val));
+                console.log(tickPositions);
                 tickPositions.forEach(yPos => {
                     wrapper.append('line')
                         .attr('class', 'major-gridline')
@@ -581,7 +578,7 @@ export class ChartGenerator {
                     .attr("d", d => this.#symbolPath(series.symbolShape, symbolSize))
                     .attr("transform", d => `translate(${xScale(d.x)}, ${yScale(d.y)})`)
                     .attr("fill", series.symbolColor)
-                    .attr('opacity', 1)
+                    .attr('opacity', series.symbolOpacity)
                     .attr('stroke', 'white')
                     .attr('stroke-width', 0.5);
 
@@ -716,7 +713,7 @@ export class ChartGenerator {
 
         const datazoomWrapper = this.#HF.createNewDiv('', '', ['xaxis-datazoom-wrapper', 'datazoom-wrapper'], 
             [{ style: 'width', value: `${xAxisWidth}px` }, { style: 'left', value: `${xAxisLeft}px` }], [], '');
-        const datazoomSlider = this.#HF.createNewMinMaxSlider(`xaxis-datazoom-${axisName}`, '', ['xaxis-datazoom-slider', 'datazoom-slider'], [], '', min, max, min, max, 1, 10);
+        const datazoomSlider = this.#HF.createNewMinMaxSlider(`xaxis-datazoom-${axisName}`, '', ['xaxis-datazoom-slider', 'datazoom-slider'], [], '', min, max, min, max, 1, 10, false);
         datazoomWrapper.appendChild(datazoomSlider);
         plotdiv.appendChild(datazoomWrapper);
 
@@ -767,7 +764,7 @@ export class ChartGenerator {
         // Compute appropriate step & gap for the slider
 
         const datazoomWrapper = this.#HF.createNewDiv(`yaxis-datazoom-${axisIndex}`, '', ['yaxis-datazoom-wrapper', 'datazoom-wrapper', `axispos-${yChartData.axisPosition}`, `tickpos-${yChartData.tickPosition}`], [], [], '');
-        const datazoomSlider = this.#HF.createNewMinMaxSlider(`yaxis-datazoom-${axisName}`, '', ['yaxis-datazoom-slider', 'datazoom-slider'], [], '', min, max, min, max, 0.1, 1);
+        const datazoomSlider = this.#HF.createNewMinMaxSlider(`yaxis-datazoom-${axisName}`, '', ['yaxis-datazoom-slider', 'datazoom-slider'], [], '', min, max, min, max, 0.1, 1, false);
         datazoomWrapper.appendChild(datazoomSlider);
         plotdiv.appendChild(datazoomWrapper);
 
@@ -1051,7 +1048,6 @@ export class ChartGenerator {
     }
 
     #updateYAxis(svg, axisIndex, chartData, newYScale, xScale) {
-
         const yChartData = chartData['yAxis'][axisIndex]; // Get y axis of interest
         const yAxisGroups = svg.selectAll('.yaxis-group').nodes();
         const yAxisGroup = yAxisGroups[axisIndex];

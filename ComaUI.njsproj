@@ -135,6 +135,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\public\js\dataComponents\charts\OrbitControls.js" />
+    <Content Include="src\public\js\dataComponents\processorManager.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\public\js\htmlGeneration\componentGenerator\minMaxSlider.js" />
     <Content Include="src\public\js\htmlGeneration\componentGenerator\rangeInput.js">
       <SubType>Code</SubType>
@@ -1374,7 +1377,7 @@
     <Content Include="src\public\js\communication\message.js" />
     <Content Include="src\public\js\communication\publisher.js" />
     <Content Include="src\public\js\communication\subscriber.js" />
-    <Content Include="src\public\js\dataComponents\dataManager.js" />
+    <Content Include="src\public\js\dataComponents\dataManagerDeprecated.js" />
     <Content Include="src\public\js\dataComponents\index.js" />
     <Content Include="src\public\js\dataComponents\inputManager.js" />
     <Content Include="src\public\js\dataComponents\outputManager.js" />

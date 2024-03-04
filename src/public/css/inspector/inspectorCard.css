@@ -336,5 +336,108 @@
 /***************************** Filter Inspector Card ******************************/
 .filter-inspector-wrapper {
     flex-flow: column;
+    width: 100%;
+    height: 100%;
 }
+
+.filter-field-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5%;
+}
+
+.filter-field-wrapper .field-card {
+    width: 90%;
+    box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+    .filter-field-wrapper .field-card .field-header {
+        font-size: 0.8rem;
+        border: 1px solid #464655;
+        border-radius: 3px;
+        background-color: #454571;
+        color: white;
+        padding: 0.5% 2%;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .filter-field-wrapper .field-card .field-header .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+    }
+    
+    .filter-field-wrapper .field-card .field-header .checkbox-wrapper input
+    {
+        cursor: pointer;
+    }
+
+    .filter-field-wrapper .field-card .field-header .checkbox-wrapper label
+    {
+        cursor: pointer;
+        white-space: nowrap;
+        margin-left: 5%;
+    }
+
+    .filter-field-wrapper .field-card .field-header .field-expand {
+        align-self: center;
+        font-weight: bold;
+        color: white;
+    }
+
+    .filter-field-wrapper .field-card .field-body {
+        background-color: white;
+        max-height: 100px;
+        padding: 2%;
+
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+
+    .filter-field-wrapper .field-card .field-body.collapsed {
+        max-height: 0;
+        padding: 0;
+        transition: max-height 0.3s ease-in;
+    }
+
+
+/*********** field card styles ************/
+.field-body .filter-label {
+    font-size: 12px;
+}
+
+
+.field-body .filter-options-wrapper {
+    margin: 2%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.field-body .filter-options-dropdown {
+    margin: 0 2%;
+    width: 50%;
+}
+
+.field-body .filter-content-wrapper {
+    padding: 2%;
+}
+
+/*********** filter button ************/
+.filter-inspector-wrapper .filter-button-wrapper {
+    width: 100%;
+}
+    .filter-inspector-wrapper .filter-button-wrapper .filter-button {
+        width: -webkit-fill-available;
+        margin: 2%;
+        height: 1.5rem;
+        font-size: 12px;
+        border: 1px solid darkgray;
+        border-radius: 5px;
+        background-color: rgba(5, 117, 255, 1);
+        color: white;
+        box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    }
+
+
 

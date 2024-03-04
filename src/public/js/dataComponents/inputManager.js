@@ -5,7 +5,7 @@ import { DATA_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, MODULE_MANAGER, getNumDigi
 
 export class InputManager {
 
-    publisher;                      // Publishes messages to the hub
+    publisher;  // Publishes messages to the hub
     #csvReader;
     #dataTable;
 
@@ -379,9 +379,12 @@ export class InputManager {
 
             if (columnHeader.dataType === 'value') {
                 const data = sourceData.map(sd => { return sd[columnHeader.fieldName] });
-                data.sort();
-                const domain = [data[0], data[data.length - 1]];
-                filterData.push({ fieldName: columnHeader.fieldName, displayName: displayName.join(' '), dataType: columnHeader.dataType, data: data, domain: domain });
+                const domain = [Math.min(...data), Math.max(...data)];
+
+                // calculate steps for the min max range bars
+                const step = this.#getMinMaxSliderStep(data);
+
+                filterData.push({ fieldName: columnHeader.fieldName, displayName: displayName.join(' '), dataType: columnHeader.dataType, data: data, domain: domain, step: step });
             }
             else if (columnHeader.dataType === 'category') {
                 const data = sourceData.map(sd => { return sd[columnHeader.fieldName] });
@@ -397,6 +400,20 @@ export class InputManager {
         });
 
         return filterData;
+    }
+
+    #getMinMaxSliderStep(numArray) {
+        let decimalLen = 0;
+        numArray.forEach(num => {
+            const decimalParts = num.toString().split('.');
+            if (decimalParts.length > 1) {
+                const currentLen = decimalParts[1].length;
+                if (currentLen > decimalLen) {
+                    decimalLen = currentLen;
+                }
+            }
+        });
+        return 1/Math.pow(10, decimalLen); // return power of 10 as step (e.g. 1, 0.1, 0.001, ...)
     }
 
 

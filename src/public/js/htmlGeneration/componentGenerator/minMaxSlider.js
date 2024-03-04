@@ -7,10 +7,10 @@ export class MinMaxSlider {
     #rangeInput;
     #textInput;
 
-    constructor(id, name, classlist, customStyles, labelName, min, max, minVal, maxVal, step, gap) {
+    constructor(id, name, classlist, customStyles, labelName, min, max, minVal, maxVal, step, gap, textInput) {
         this.#HF = new HTMLFactory();
         this.#wrapper = this.#createWrapper(id, name, classlist, customStyles);
-        this.#createElements(labelName, min, max, minVal, maxVal, step, gap);
+        this.#createElements(labelName, min, max, minVal, maxVal, step, gap, textInput);
     }
 
     // Create wrapper
@@ -18,7 +18,7 @@ export class MinMaxSlider {
         return this.#HF.createNewDiv(id, name, classlist, customStyles, [], '');
     }
 
-    #createElements(labelName, min, max, minVal, maxVal, step, gap) {
+    #createElements(labelName, min, max, minVal, maxVal, step, gap, textInput) {
         const wrapper = this.#wrapper;
         const label = this.#HF.createNewLabel('', '', '', ['label'], [], labelName);
         if (labelName) {
@@ -33,19 +33,38 @@ export class MinMaxSlider {
         sliderContainer.appendChild(minmaxSlider);
         wrapper.appendChild(sliderContainer);
 
-        // invisible sliders
-        const inputWrapper = this.#HF.createNewDiv('', '', ['minmax-range-wrapper'], [], [], '');
-        const minInput = this.#HF.createNewRangeInput('', '', ['min-range-input'], [], min, max, step, minVal);
-        const maxInput = this.#HF.createNewRangeInput('', '', ['max-range-input'], [], min, max, step, maxVal);
+        // create range input for min and max
+        const minmaxRangeWrapper = this.#HF.createNewDiv('', '', ['minmax-range-wrapper'], [], [], '');
 
-        inputWrapper.appendChild(minInput);
-        inputWrapper.appendChild(maxInput);
-        wrapper.appendChild(inputWrapper);
-        /*wrapper.appendChild(rangeInput);
-        wrapper.appendChild(textInput);*/
+        if (textInput) {
+            const minInput = this.#HF.createNewRangeInput('', '', ['min-range-input', 'range-input'], [], min, max, step, minVal);
+            const maxInput = this.#HF.createNewRangeInput('', '', ['max-range-input', 'range-input'], [], min, max, step, maxVal);
+            const minTextInput = this.#HF.createNewTextInput('', '', ['min-text-input', 'text-input'], [], 'text', min);
+            const maxTextInput = this.#HF.createNewTextInput('', '', ['max-text-input', 'text-input'], [], 'text', max);
+
+            minmaxRangeWrapper.appendChild(minTextInput);
+            minmaxRangeWrapper.appendChild(minInput);
+            minmaxRangeWrapper.appendChild(maxInput);
+            minmaxRangeWrapper.appendChild(maxTextInput);
+
+            // Add event listener?
+
+        }
+        else {
+            const minInput = this.#HF.createNewRangeInput('', '', ['min-range-input', 'range-input'], [], min, max, step, minVal);
+            const maxInput = this.#HF.createNewRangeInput('', '', ['max-range-input', 'range-input'], [], min, max, step, maxVal);
+
+            minmaxRangeWrapper.appendChild(minInput);
+            minmaxRangeWrapper.appendChild(maxInput);
+
+            //-- TODO: Add tooltip for the min and max values
+
+        }
+
+
+        wrapper.appendChild(minmaxRangeWrapper);
 
         this.#addSliderEventListener(gap);
-        
 
     }
 
@@ -53,7 +72,8 @@ export class MinMaxSlider {
         const wrapper = this.#wrapper;
         const minmaxSlider = wrapper.querySelector('.minmax-slider-wrapper .minmax-slider');
 
-        const rangeInputs = wrapper.querySelectorAll('.minmax-range-wrapper input');
+        const rangeInputs = wrapper.querySelectorAll('.minmax-range-wrapper .range-input');
+        const textInputs = wrapper.querySelectorAll('.minmax-range-wrapper .text-input');
 
         // Adding event listeners to slider range
         for (let i = 0; i < rangeInputs.length; i++) {
@@ -64,35 +84,57 @@ export class MinMaxSlider {
                 const currentMin = Number(minInput.value);
                 const currentMax = Number(maxInput.value);
                 const diff = currentMax - currentMin;
-                /*console.log('currentMin: ', currentMin);
-                console.log('currentMax: ', currentMax);
-                console.log(diff);
-                console.log(gap);
-                console.log(diff > gap);*/
 
-
+                // don't let the input values cross over the gap
                 if (diff > gap) {
                     if (e.target === minInput) {
                         minInput.value = currentMin;
                         minInput.setAttribute('value', currentMin);
+
+                        // update the textInput if there are any
+                        if (textInputs) {
+                            const minTextInput = textInputs[0];
+                            minTextInput.value = currentMin;
+                            minTextInput.setAttribute('value', currentMin);
+                        }
                     }
                     else {
                         maxInput.value = currentMax;
                         maxInput.setAttribute('value', currentMax);
+
+                        // update the textInput if there are any
+                        if (textInputs) {
+                            const maxTextInput = textInputs[1];
+                            maxTextInput.value = currentMax;
+                            maxTextInput.setAttribute('value', currentMax);
+                        }
                     }
 
                     // Update range progress
-                    /*minmaxSlider.style.left = `${(currentMin / (currentMax - gap)) * 100}%`;
-                    minmaxSlider.style.right = `${100 - (currentMax / (currentMin + gap)) * 100}%`;*/
+                    minmaxSlider.style.left = `${(currentMin / (currentMax - gap)) * 100}%`;
+                    minmaxSlider.style.right = `${100 - (currentMax / (currentMin + gap)) * 100}%`;
+
                 }
                 else {
                     if (e.target === minInput) {
                         minInput.value = currentMax - gap;
                         minInput.setAttribute('value', currentMax - gap);
+
+                        if (textInputs) {
+                            const minTextInput = textInputs[0];
+                            minTextInput.value = currentMax - gap;
+                            minTextInput.setAttribute('value', currentMax - gap);
+                        }
                     }
                     else {
                         maxInput.value = currentMin + gap;
                         maxInput.setAttribute('value', currentMin + gap);
+
+                        if (textInputs) {
+                            const maxTextInput = textInputs[1];
+                            maxTextInput.value = currentMin + gap;
+                            maxTextInput.setAttribute('value', currentMin + gap);
+                        }
                     }
                 };
             });
@@ -110,10 +152,62 @@ export class MinMaxSlider {
             });
         }
 
+        if (textInputs) {
+            for (let i = 0; i < textInputs.length; i++) {
+                textInputs[i].addEventListener('blur', (e) => {
+                    const minTextInput = textInputs[0];
+                    const maxTextInput = textInputs[1];
 
-        
+                    const minRangeInput = rangeInputs[0];
+                    const maxRangeInput = rangeInputs[1];
 
+                    const currentMin = Number(minTextInput.value);
+                    const currentMax = Number(maxTextInput.value);
+                    const diff = currentMax - currentMin;
+
+                    if (diff > gap) {
+                        if (e.target === minTextInput) {
+                            minRangeInput.value = currentMin;
+                            minRangeInput.setAttribute('value', currentMin);
+                        }
+                        else {
+                            maxRangeInput.value = currentMax;
+                            maxRangeInput.setAttribute('value', currentMax);
+                        }
+                    }
+                    else {
+                        if (e.target === minTextInput) {
+                            minRangeInput.value = currentMax - gap;
+                            minRangeInput.setAttribute('value', currentMax - gap);
+                            minTextInput.value = currentMax - gap;
+                            minTextInput.setAttribute('value', currentMax - gap);
+                        }
+                        else {
+                            maxRangeInput.value = currentMin + gap;
+                            maxRangeInput.setAttribute('value', currentMin + gap);
+                            maxTextInput.value = currentMin + gap;
+                            maxTextInput.setAttribute('value', currentMin + gap);
+                        }
+                    }
+
+
+                });
+            }
+        }
     }
+
+    /**
+     * Adds a delay for user input event to occur
+     * */
+    /*#debounce(func, delay) {
+        let debounceTimer;
+        return function () {
+            const context = this;
+            const args = arguments;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => func.apply(context, args), delay);
+        };
+    }*/
 
 
     get() {

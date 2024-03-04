@@ -324,6 +324,10 @@ export class SeriesCard {
             symbolColorDDWrapper.appendChild(symbolColorDropdown);
             seriesBody.appendChild(symbolColorDDWrapper);
 
+            //-- Create data point Symbol transparency level
+            const opacityLevel = GM.HF.createNewRangeInputComponent('', '', ['symbols-opacity-wrapper', 'series-card-element'], [], 'Opacity: ', 0, 1, 0.01, 1.00);
+            seriesBody.appendChild(opacityLevel);
+
             //-- Create data point Size range input (0 - 50)
             const datapointSizeRange = GM.HF.createNewRangeInputComponent('', '', ['symbols-size-range-wrapper', 'series-card-element'], [], 'Size: ', 0, 100, 1, 3);
             seriesBody.appendChild(datapointSizeRange);

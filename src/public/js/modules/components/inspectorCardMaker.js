@@ -11,7 +11,7 @@ import { HTMLFactory } from '../../htmlGeneration/htmlFactory.js';
 /*import { INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, WORKER_MANAGER } from '../../sharedVariables/constants.js';
 import { DatasetTypes, DatasetFields, SearchFields, DefaultAxis } from '../../sharedVariables/moduleData.js';*/
 import {
-    INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, WORKER_MANAGER,
+    INSPECTOR_CARD, INSPECTOR_CARD_MAKER, MODULE_MANAGER, INPUT_MANAGER, OUTPUT_MANAGER, PROCESSOR_MANAGER, WORKER_MANAGER,
     DatasetTypes, DatasetFields, SearchFields, DefaultAxes,
 } from '../../sharedVariables/index.js'
 import g from '../../dataComponents/charts/lil-gui.module.min.js';
@@ -430,7 +430,7 @@ export class InspectorCardMaker {
         this.dataTable.set(`SearchFormCard_${key}`, this.inspectorCard.addSearchFormCard(key, formName, defaultFields));
 
         //---------- Create Query Type Options
-        var options = DatasetTypes.map(dt => { return dt.type });
+        const options = DatasetTypes.map(dt => { return dt.type });
         this.dataTable.set(`QueryTypeSelectCard_${key}`, this.inspectorCard.addQueryTypeSelect(searchCardWrapper, { key: 'query-type-' + key, value: 'Query Type ' }, options, SearchFields.queryTypeTooltip));
         
         // Create Form Field Append
@@ -438,7 +438,7 @@ export class InspectorCardMaker {
         this.dataTable.set('FormFieldAppendSelectCard', this.inspectorCard.addFormFieldAppend(searchCardWrapper, { key: 'add-search-field', value: 'Add Field: ' }, formFieldOptions));*/
 
         //---------- Append Form Card to this inspector card
-        var searchFormCard = this.getField('SearchFormCard_' + key);
+        const searchFormCard = this.getField('SearchFormCard_' + key);
         searchCardWrapper.appendChild(searchFormCard.getCard().wrapper);
         this.inspectorCard.appendToBody(searchCardWrapper);
 
@@ -448,12 +448,12 @@ export class InspectorCardMaker {
 
         //this.inspectorCard.addFormFieldFunctions(key, searchFormCard, defaultFields, SearchFields.fieldTooltip);
         
-        /********************************** js events ***********************************/
-        var queryTypeSelectCard = this.getField(`QueryTypeSelectCard_${key}`).getCard();
+        /********************************** eventListeners ***********************************/
+        const queryTypeSelectCard = this.getField(`QueryTypeSelectCard_${key}`).getCard();
         /**
          * Search Form Submit Event
          **/
-        var submitButton = searchFormCard.getCard().submitButton;
+        const submitButton = searchFormCard.getCard().submitButton;
         this.dataTable.set('SubmitFormButton_' + key, submitButton.querySelector('.btn'));
         this.getField(`SubmitFormButton_${key}`).addEventListener('click', (e) => {
             e.preventDefault();
@@ -811,6 +811,7 @@ export class InspectorCardMaker {
                 const symbolShape = symbolShapeDD[symbolShapeDD.selectedIndex];
                 const symbolColorDD = seriesCard.querySelector('.symbol-color-dropdown');
                 const symbolColor = symbolColorDD[symbolColorDD.selectedIndex];
+                const symbolOpacity = seriesCard.querySelector('.symbols-opacity-wrapper .text-input');
                 const datapointSize = seriesCard.querySelector('.symbols-size-range-wrapper .text-input');
 
                 const seriesContent = {
@@ -826,6 +827,7 @@ export class InspectorCardMaker {
                     errorName: errorName,
                     symbolShape: symbolShape.value,
                     symbolColor: symbolColor.value,
+                    symbolOpacity: Number(symbolOpacity.value),
                     symbolSize: Number(datapointSize.value),
                     visible: true,
                 };
@@ -917,17 +919,16 @@ export class InspectorCardMaker {
 
     // --------------------------- Orbit Module ---------------------------
     updateOrbitModuleInspectorCard(moduleKey, moduleData) {
-        var contentWrapper = this.HF.createNewDiv('', '', ['orbit-inspector-wrapper'], []);
+        const contentWrapper = this.HF.createNewDiv('', '', ['orbit-inspector-wrapper'], []);
         this.inspectorCard.appendToBody(contentWrapper);
-
-        console.log(moduleData);
+        //console.log(moduleData);
 
         // objectNames
-        var objectList = this.inspectorCard.addRenderedObjectsList(moduleData.objectNames);
+        const objectList = this.inspectorCard.addRenderedObjectsList(moduleData.objectNames);
         contentWrapper.appendChild(objectList);
 
         // add generate orbit button
-        var generateOrbitButton = this.HF.createNewButton(`generate-orbit-button-${moduleKey}`, '', ['generate-orbit-button', 'button'], [], 'button', 'Generate Orbit', false);
+        const generateOrbitButton = this.HF.createNewButton(`generate-orbit-button-${moduleKey}`, '', ['generate-orbit-button', 'button'], [], 'button', 'Generate Orbit', false);
         contentWrapper.appendChild(generateOrbitButton);
 
         // add generate orbit button onclick event listener
@@ -994,27 +995,283 @@ export class InspectorCardMaker {
             const fieldWrapper = this.HF.createNewDiv('', '', ['filter-field-wrapper'], [], [], '');
             contentWrapper.appendChild(fieldWrapper);
 
+            // Create field card
+            const fieldCard = this.HF.createNewDiv(`filter-${field.fieldName}`, '', ['field-card'], [], [], '');
+            fieldWrapper.appendChild(fieldCard);
+
             // Create field header
-            const fieldHeader = this.HF.createNewDiv('', '', ['filter-field-header'], [], [], '');
-            const fieldName = this.HF.createNewSpan('', '', ['filter-field-name'], [], field.displayName);
-            fieldHeader.appendChild(fieldName);
-            fieldWrapper.appendChild(fieldHeader);
+            const fieldHeader = this.HF.createNewDiv('', '', ['field-header'], [], [], '');
+            const fieldCheckbox = this.HF.createNewCheckbox(field.fieldName, '', ['field-check'], [], field.fieldName, field.displayName, true);
+            const fieldExpand = this.HF.createNewSpan('', '', ['field-expand'], [], '+');
+            fieldHeader.appendChild(fieldCheckbox.wrapper);
+            fieldHeader.appendChild(fieldExpand);
+            fieldCard.appendChild(fieldHeader);
+
+            // Create field body
+            const fieldBody = this.HF.createNewDiv('', '', ['field-body', 'collapsed'], [], [], '');
+            fieldCard.appendChild(fieldBody);
+
+            const filterOptionsWrapper = this.HF.createNewDiv('', '', ['filter-options-wrapper'], [], [], '');
+            const filterOptionsLabel = this.HF.createNewSpan('', '', ['filter-options-label', 'filter-label'], [], 'Filtering Option:');
+            filterOptionsWrapper.appendChild(filterOptionsLabel);
+            fieldBody.appendChild(filterOptionsWrapper);
 
             if (field.dataType === 'value') {
+                // Set datatype to the fieldWrapper
+                fieldWrapper.setAttribute('data-type', field.dataType);
 
+                // Create filter option dropdown
+                const filterOptions = ['Range', 'Threshold', 'Value'];
+                const filterOptionsDD = this.HF.createNewSelect('', '', ['filter-options-dropdown'], [], [0, 1, 2], filterOptions);
+                filterOptionsWrapper.appendChild(filterOptionsDD);
+
+                filterOptionsDD.addEventListener('change', (e) => {
+                    const selectedVal = e.target.value;
+                    console.log(e.target);
+                    console.log(selectedVal);
+
+                    // delete filter content
+                    const currentFilterContent = fieldBody.querySelector('.filter-content-wrapper');
+                    if (currentFilterContent) { currentFilterContent.remove() }
+
+                    const filterContent = this.#createNumericalFilterContent(selectedVal, filterOptions, field);
+                    fieldBody.appendChild(filterContent);
+                });
+
+                // Create minmaxRangeInput
+                let min = field.domain[0];
+                let max = field.domain[1];
+
+                const minmaxWrapper = this.HF.createNewDiv('', '', ['filter-minmax-wrapper', 'filter-content-wrapper'], [], [], '');
+                const minmaxLabel = this.HF.createNewSpan('', '', ['filter-minmax-label', 'filter-label'], [], 'Min Max Range Slider:');
+                const minmaxSlider = this.HF.createNewMinMaxSlider('', '', ['filter-minmax-slider'], [{ style: 'position', value: 'relative' }], '', min, max, min, max, field.step, field.step, true);
+
+                minmaxWrapper.appendChild(minmaxLabel);
+                minmaxWrapper.appendChild(minmaxSlider);
+                fieldBody.appendChild(minmaxWrapper);
 
             }
             else if (field.dataType === 'category') {
+                // Set datatype to the fieldWrapper
+                fieldWrapper.setAttribute('data-type', field.dataType);
+
+                const filterOptions = ['Keyword', 'Category Selection'];
+                const filterOptionsDD = this.HF.createNewSelect('', '', ['filter-options-dropdown'], [], [0, 1], filterOptions);
+                filterOptionsWrapper.appendChild(filterOptionsDD);
+                // Create textInput for keyword filter
+
 
             }
             else if (field.dataType === 'date') {
+                // Set datatype to the fieldWrapper
+                fieldWrapper.setAttribute('data-type', field.dataType);
+
+                const filterOptions = ['Range', 'Before/After', 'Relative Date', 'Date Selection'];
+                const filterOptionsDD = this.HF.createNewSelect('', '', ['filter-options-dropdown'], [], [0, 1, 2, 3], filterOptions);
+                filterOptionsWrapper.appendChild(filterOptionsDD);
+
+                // Create minmaxRangeInput
+
+                // Create date picker for specific data filter
 
             }
 
 
+            // Add eventListener for field-header to toggle collapsing
+            fieldHeader.addEventListener('click', (e) => {
+                const fieldHeader = e.target;
+                const fieldBody = fieldHeader ? fieldHeader.nextElementSibling : undefined;
+                if (fieldBody) {
+                    fieldBody.classList.toggle('collapsed');
+                }
+            });
+            fieldExpand.addEventListener('click', (e) => {
+                const fieldHeader = e.target.closest('.field-header');
+                const fieldBody = fieldHeader ? fieldHeader.nextElementSibling : undefined;
+                if (fieldBody) {
+                    fieldBody.classList.toggle('collapsed');
+                }
+            });
         });
 
+
+        // Add a Filter button to process the module
+        const filterButtonWrapper = this.HF.createNewDiv('', '', ['filter-button-wrapper', 'button-wrapper'], [], [], '');
+        const filterButton = this.HF.createNewButton(`filter-button-${moduleKey}`, '', ['filter-button', 'button'], [], 'button', 'Process Filter', false);
+        filterButtonWrapper.appendChild(filterButton);
+        contentWrapper.appendChild(filterButtonWrapper);
+
+        filterButton.addEventListener('click', (e) => {
+            console.log(filterData);
+
+            const filterInspectorWrapper = e.target.closest('.filter-inspector-wrapper');
+            const filterFields = filterInspectorWrapper.querySelectorAll('.filter-field-wrapper');
+
+            let filterOptions = [];
+            filterFields.forEach((field) => {
+                console.log(field);
+                const fieldCard = field.querySelector('.field-card');
+                const fieldCardId = fieldCard.getAttribute('id');
+                const fieldName = fieldCardId.split('filter-')[1];
+                const dataType = field.getAttribute('data-type');
+
+                let filterOption = { fieldName: fieldName, dataType: dataType };  // dataType, option, values (obj)
+
+                const fieldHeader = field.querySelector('.field-card .field-header');
+                const fieldBody = field.querySelector('.field-card .field-body');
+
+                //-- fields to include (field checkboxes)
+                const fieldCheck = fieldHeader.querySelector('.field-check');
+                const includeField = (fieldCheck) ? fieldCheck.checked : false;
+
+                if (includeField) {
+
+                    // Get filter options
+                    const filterOptionsDD = fieldBody.querySelector('.filter-options-wrapper select');
+                    if (filterOptionsDD) {
+                        const selectedFilterOption = filterOptionsDD.options[filterOptionsDD.selectedIndex];
+                        filterOption['option'] = selectedFilterOption.text;
+                    }
+
+                    //--- Get filter option values
+                    const filterContent = field.querySelector('.filter-content-wrapper');
+                    const optionValues = this.#getFilterOptionValues(dataType, filterOption.option, filterContent);
+                    filterOption['optionValues'] = optionValues;
+
+                    filterOptions.push(filterOption);
+                }
+
+                //-- for numerical data types => choose selected filter option and choose the
+
+
+            });
+
+
+
+            const message = new Message(PROCESSOR_MANAGER, INSPECTOR_CARD_MAKER, 'Process Filter Event',
+            {
+                moduleKey: moduleKey,
+                sourceData: moduleData.sourceData,
+                filterOptions: filterOptions,
+            });
+            this.sendMessage(message);
+
+        });
+
+
     }
+
+    /**
+     * Creates the filtering option content on filtering option selection change
+     * */
+    #createNumericalFilterContent(selectedVal, filterOptions, field) {
+        const selectedOption = filterOptions[selectedVal];
+
+        let wrapper;
+        switch (selectedOption) {
+            case 'Threshold':
+                const thresholdWrapper = this.HF.createNewDiv('', '', ['filter-threshold-wrapper', 'filter-content-wrapper'], [], [], 'Threshold Content');
+                wrapper = thresholdWrapper;
+
+                break;
+            case 'Value':
+                const valueWrapper = this.HF.createNewDiv('', '', ['filter-value-wrapper', 'filter-content-wrapper'], [], [], 'Value Content');
+                wrapper = valueWrapper;
+
+                break;
+            default: // Range content
+                // Create minmaxRangeInput
+                let min = field.domain[0];
+                let max = field.domain[1];
+
+                const minmaxWrapper = this.HF.createNewDiv('', '', ['filter-minmax-wrapper', 'filter-content-wrapper'], [], [], '');
+                const minmaxLabel = this.HF.createNewSpan('', '', ['filter-minmax-label', 'filter-label'], [], 'Min Max Range Slider:');
+                const minmaxSlider = this.HF.createNewMinMaxSlider('', '', ['filter-minmax-slider'], [{ style: 'position', value: 'relative' }], '', min, max, min, max, field.step, field.step, true);
+
+                minmaxWrapper.appendChild(minmaxLabel);
+                minmaxWrapper.appendChild(minmaxSlider);
+                wrapper = minmaxWrapper;
+        }
+
+        return wrapper;
+    }
+
+    /**
+     * Gets the filtering option content values
+     * */
+    #getFilterOptionValues(dataType, filterOption, filterContent) {
+        let filterOptionValues = {};
+
+        switch (dataType) {
+            case 'value':
+                filterOptionValues = this.#getNumericalFilterOptionValues(filterOption, filterContent);
+                break;
+            case 'category':
+                filterOptionValues = this.#getCategoryFilterOptionValues(filterOption, filterContent);
+                break;
+            case 'date':
+                filterOptionValues = this.#getDateFilterOptionValues(filterOption, filterContent);
+                break;
+        }
+
+        return filterOptionValues;
+    }
+
+    #getNumericalFilterOptionValues(filterOption, filterContent) {
+        let filterOptionValues = {};
+        switch (filterOption) {
+            case 'Range':
+                console.log('filterOption: ', filterOption);
+                const rangeInputs = filterContent.querySelectorAll('.range-input');
+                const minRange = rangeInputs[0];
+                const maxRange = rangeInputs[1];
+                const minVal = minRange.value;
+                const maxVal = maxRange.value;
+
+                filterOptionValues['min'] = Number(minVal);
+                filterOptionValues['max'] = Number(maxVal);
+
+                break;
+            case 'Threshold':
+                console.log(filterOption);
+                break;
+            case 'Value':
+                console.log(filterOption);
+                break;
+        }
+        return filterOptionValues;
+    }
+
+    #getCategoryFilterOptionValues(filterOption, filterContent) {
+        switch (filterOption) {
+            case 'Keyword':
+                console.log('filterOption: ', filterOption);
+
+                break;
+            case 'Category Selection':
+                console.log(filterOption);
+                break;
+        }
+    }
+
+    #getDateFilterOptionValues(filterOption, filterContent) {
+        switch (filterOption) {
+            case 'Range':
+                console.log('filterOption: ', filterOption);
+
+                break;
+            case 'Before/After':
+                console.log(filterOption);
+                break;
+            case 'Relative Date':
+                console.log(filterOption);
+                break;
+            case 'Date Selection':
+                console.log(filterOption);
+                break;
+        }
+    }
+
 
     getField = key => this.dataTable.get(key);
 

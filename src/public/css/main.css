@@ -376,3 +376,55 @@ div *::-webkit-scrollbar-thumb {
         width: auto !important;
     }
 }
+
+
+/****************** Min Max Slider ******************/
+
+.minmax-range-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+}
+
+.minmax-range-wrapper input[type='range'] {
+    width: 65%;
+    top: 25%;
+    left: 17.5%;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    background: none;
+    pointer-events: none;
+    cursor: grab;
+    -webkit-appearance: none;
+}
+
+    .minmax-range-wrapper input[type='range']::-webkit-slider-thumb {
+        width: 12px;
+        height: 12px;
+        border-radius: 12px;
+        background: #0575ff;
+        pointer-events: auto;
+        -webkit-appearance: none;
+    }
+
+    .minmax-range-wrapper input[type='range']::-webkit-slider-runnable-track {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 100%;
+        background: rgb(0,117,255, 0.1);
+        border-radius: 4px;
+        border: 0.5px solid rgb(0,117,255, 0.1);
+        z-index: 0;
+        position: relative;
+    }
+
+
+.minmax-range-wrapper input[type='text'] {
+    width: 8.5ch;
+    height: 10px;
+    font-size: 12px;
+    font-family: monospace;
+    border-radius: 5px;
+}

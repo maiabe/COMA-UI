@@ -1,6 +1,6 @@
 import { Publisher, Subscriber } from "../communication/index.js";
 import { GM } from '../main.js';
-import { ENVIRONMENT, MODULE_MANAGER, INSPECTOR, POPUP_MANAGER, INPUT_MANAGER, DATA_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER, DOM_MANAGER, INSPECTOR_CARD } from '../sharedVariables/constants.js';
+import { ENVIRONMENT, MODULE_MANAGER, INSPECTOR, POPUP_MANAGER, INPUT_MANAGER, PROCESSOR_MANAGER, WORKER_MANAGER, OUTPUT_MANAGER, DOM_MANAGER, INSPECTOR_CARD } from '../sharedVariables/constants.js';
 import { invalidVariables, printErrorMessage, varTest } from "../errorHandling/errorHandlers.js";
 import { format_mapping, decimalAlignFormatter, getNumDigits } from '../sharedVariables/formatValues.js';
 import { SearchFields } from '../sharedVariables/moduleData.js';
@@ -18,6 +18,7 @@ export default class Hub {
     #messageForDataManager;
     #messageForWorkerManager;
     #messageForInputManager;
+    #messageForProcessorManager;
     #messageForPopupManager;
     #messageForInspector;
     #messageForModuleManager;
@@ -39,6 +40,8 @@ export default class Hub {
         this.#buildMessageForWorkerManagerMap();
         this.#messageForInputManager = new Map();
         this.#buildMessageForInputManager();
+        this.#messageForProcessorManager = new Map();
+        this.#buildMessageForProcessorManager();
         this.#messageForPopupManager = new Map();
         this.#buildMessageForPopupManager();
         this.#messageForInspector = new Map();
@@ -52,7 +55,7 @@ export default class Hub {
         this.#messageHandlerMap.set(INSPECTOR, this.#messageForInspector);
         this.#messageHandlerMap.set(POPUP_MANAGER, this.#messageForPopupManager);
         this.#messageHandlerMap.set(INPUT_MANAGER, this.#messageForInputManager);
-        this.#messageHandlerMap.set(DATA_MANAGER, this.#messageForDataManager);
+        this.#messageHandlerMap.set(PROCESSOR_MANAGER, this.#messageForProcessorManager);
         this.#messageHandlerMap.set(WORKER_MANAGER, this.#messageForWorkerManager);
         this.#messageHandlerMap.set(OUTPUT_MANAGER, this.#messageForOutputManager);
     }
@@ -72,14 +75,14 @@ export default class Hub {
     /** Hub subscribes */
     subscribe = () => {
         GM.ENV.publisher.subscribe(this.subscriber);
-        GM.DM.publisher.subscribe(this.subscriber);
         GM.MM.publisher.subscribe(this.subscriber);
         GM.INS.publisher.subscribe(this.subscriber);
         GM.IM.publisher.subscribe(this.subscriber);
         GM.PLM.publisher.subscribe(this.subscriber);
         GM.OM.publisher.subscribe(this.subscriber);
+        GM.PSM.publisher.subscribe(this.subscriber);
         GM.WM.publisher.subscribe(this.subscriber);
-        GM.PM.publisher.subscribe(this.subscriber);
+        GM.PM.publisher.subscribe(this.subscriber);                                                                                                                                                          
         GM.DOM.publisher.subscribe(this.subscriber);
     };
 
@@ -176,6 +179,11 @@ export default class Hub {
         this.#messageForOutputManager.set('Set New Chart Event', this.#setNewChartEvent.bind(this));
         this.#messageForOutputManager.set('Set New Orbit Event', this.#setNewOrbitEvent.bind(this));
         this.#messageForOutputManager.set('Set New Images Event', this.#setNewImagesEvent.bind(this));
+
+    }
+
+    #buildMessageForProcessorManager() {
+        this.#messageForProcessorManager.set('Process Filter Event', this.#processFilterEvent.bind(this));
     }
 
     /** --- PRIVATE --- MESSAGE FOR ENVIRONMENT
@@ -1653,4 +1661,26 @@ export default class Hub {
         let m = GM.ENV.getModel();
         GM.PLM.validatePipeline(GM.MM.getModulesForPipeline(m));
     }
+
+
+
+
+    //******************************************************************************************************/
+    //******************************************** Filter MODULE *******************************************/
+    //******************************************************************************************************/
+    #processFilterEvent(data) {
+        if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.sourceData, 'sourceData', 'object'), varTest(data.filterOptions, 'filterOptions', 'object')], 'HUB', '#messageForOutputManager (Process Filter Event)')) return;
+
+        // Filter data according to the selected options
+        const sourceData = data.sourceData;
+        console.log(sourceData);
+        const filterOptions = data.filterOptions;
+        console.log(filterOptions);
+
+        const filteredSourceData = this.PSM.getFilteredData(filterOptions, sourceData);
+        console.log(filteredSourceData);
+
+    }
+
+
 }

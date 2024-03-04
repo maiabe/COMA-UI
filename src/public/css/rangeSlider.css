@@ -38,31 +38,47 @@
 }
 
 /****************** Min Max Slider ******************/
-.axis-datazoom-slider {
-    position: relative;
-
-}
-
-.axis-datazoom-slider input[type='range'] {
-    -webkit-appearance: none;
+/*.minmax-range-input {
+    position: absolute;
     width: 100%;
-    margin: 5px 0;
-}
+    height: 5%;
+}*/
 
-.axis-datazoom-slider input[type='range']::-webkit-slider-thumb {
+/*
+.minmax-range-wrapper input[type='range'] {
+    width: 100%;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    background: none;
+    pointer-events: none;
+    cursor: grab;
     -webkit-appearance: none;
 }
 
-.axis-datazoom-slider input[type='range']::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 8px;
-    background: #ddd;
-    border-radius: 4px;
-    border: 0.5px solid #ccc;
-}
+    .minmax-range-wrapper input[type='range']::-webkit-slider-thumb {
+        width: 10px;
+        height: 1em;
+        border-radius: 3px;
+        background: #0575ff;
+        pointer-events: auto;
+        -webkit-appearance: none;
+    }
+
+    .minmax-range-wrapper input[type='range']::-webkit-slider-runnable-track {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 100%;
+        background: rgb(0,117,255, 0.1);
+        border-radius: 4px;
+        border: 0.5px solid rgb(0,117,255, 0.1);
+        z-index: 0;
+        position: relative;
+    }*/
 
 
-.axis-datazoom-slider input[type='range']:focus::-webkit-slider-runnable-track {
-    background: #ccc;
-}
+
 
