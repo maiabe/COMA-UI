@@ -39,8 +39,8 @@ export class MinMaxSlider {
         if (textInput) {
             const minInput = this.#HF.createNewRangeInput('', '', ['min-range-input', 'range-input'], [], min, max, step, minVal);
             const maxInput = this.#HF.createNewRangeInput('', '', ['max-range-input', 'range-input'], [], min, max, step, maxVal);
-            const minTextInput = this.#HF.createNewTextInput('', '', ['min-text-input', 'text-input'], [], 'text', min);
-            const maxTextInput = this.#HF.createNewTextInput('', '', ['max-text-input', 'text-input'], [], 'text', max);
+            const minTextInput = this.#HF.createNewTextInput('', '', ['min-text-input', 'text-input'], [], 'number', min);
+            const maxTextInput = this.#HF.createNewTextInput('', '', ['max-text-input', 'text-input'], [], 'number', max);
 
             minmaxRangeWrapper.appendChild(minTextInput);
             minmaxRangeWrapper.appendChild(minInput);

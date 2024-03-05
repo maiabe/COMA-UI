@@ -405,6 +405,8 @@
 /*********** field card styles ************/
 .field-body .filter-label {
     font-size: 12px;
+    white-space: nowrap;
+    align-self: center;
 }
 
 
@@ -421,7 +423,48 @@
 
 .field-body .filter-content-wrapper {
     padding: 2%;
+    visibility: visible;
+    height: unset;
 }
+.field-body .filter-content-wrapper.hidden {
+    visibility: hidden;
+    height: 0;
+    padding: 0;
+}
+
+.field-body .filter-content-wrapper input {
+    height: 0.5rem;
+}
+
+.filter-content-wrapper.filter-threshold-wrapper {
+    display: flex;
+    justify-content: space-between;
+}
+.filter-content-wrapper.filter-threshold-wrapper input {
+    width: 5.5rem;
+}
+
+.filter-threshold-wrapper .greater-wrapper,
+.filter-threshold-wrapper .less-wrapper
+{
+    display: flex;
+    width: 50%;
+}
+
+
+.filter-content-wrapper.filter-value-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.filter-content-wrapper .filter-value-input-wrapper {
+    margin: 0 2%;
+}
+
+
+
+
 
 /*********** filter button ************/
 .filter-inspector-wrapper .filter-button-wrapper {
@@ -438,6 +481,5 @@
         color: white;
         box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
     }
-
 
 

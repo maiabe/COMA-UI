@@ -981,6 +981,10 @@ export class InspectorCardMaker {
     }
 
 
+    /**
+     * Updates filter mnodule inspector card
+     * 
+     * */
     updateFilterModuleInspectorCard(moduleKey, moduleData) {
         console.log(moduleData);
 
@@ -1027,19 +1031,47 @@ export class InspectorCardMaker {
 
                 filterOptionsDD.addEventListener('change', (e) => {
                     const selectedVal = e.target.value;
-                    console.log(e.target);
-                    console.log(selectedVal);
+                    const selectedOption = filterOptions[selectedVal];
 
                     // delete filter content
-                    const currentFilterContent = fieldBody.querySelector('.filter-content-wrapper');
-                    if (currentFilterContent) { currentFilterContent.remove() }
+                    //const currentFilterContent = fieldBody.querySelector('.filter-content-wrapper');
 
-                    const filterContent = this.#createNumericalFilterContent(selectedVal, filterOptions, field);
-                    fieldBody.appendChild(filterContent);
+                    console.log(selectedOption);
+                    // set all filter content hidden
+                    const filterContents = fieldBody.querySelectorAll('.filter-content-wrapper');
+                    filterContents.forEach(fc => { if (!fc.classList.contains('hidden')) { fc.classList.add('hidden') } });
+
+                    // Toggle the hidden class of the selected filter option
+                    switch (selectedOption) {
+                        case 'Range':
+                            const rangeContent = fieldBody.querySelector('.filter-minmax-wrapper');
+                            rangeContent.classList.toggle('hidden');
+                            break;
+                        case 'Threshold':
+                            const thresholdContent = fieldBody.querySelector('.filter-threshold-wrapper');
+                            thresholdContent.classList.toggle('hidden');
+                            break;
+                        case 'Value':
+                            const valueContent = fieldBody.querySelector('.filter-value-wrapper');
+                            valueContent.classList.toggle('hidden');
+                            break;
+                    }
+
+
+
+                    //if (currentFilterContent) { currentFilterContent.remove() }
+
+                    /*const filterContent = this.#createNumericalFilterContent(selectedVal, filterOptions, field);
+                    fieldBody.appendChild(filterContent);*/
+
                 });
 
+                // Create Numerical Filter Content
+                this.#createNumericalFilterContent(fieldBody, field);
+
+
                 // Create minmaxRangeInput
-                let min = field.domain[0];
+                /*let min = field.domain[0];
                 let max = field.domain[1];
 
                 const minmaxWrapper = this.HF.createNewDiv('', '', ['filter-minmax-wrapper', 'filter-content-wrapper'], [], [], '');
@@ -1048,7 +1080,8 @@ export class InspectorCardMaker {
 
                 minmaxWrapper.appendChild(minmaxLabel);
                 minmaxWrapper.appendChild(minmaxSlider);
-                fieldBody.appendChild(minmaxWrapper);
+                fieldBody.appendChild(minmaxWrapper);*/
+
 
             }
             else if (field.dataType === 'category') {
@@ -1164,22 +1197,64 @@ export class InspectorCardMaker {
     /**
      * Creates the filtering option content on filtering option selection change
      * */
-    #createNumericalFilterContent(selectedVal, filterOptions, field) {
+    #createNumericalFilterContent(wrapper, field) {
+        console.log(field);
+
+        // Create range content
+        let min = field.domain[0];
+        let max = field.domain[1];
+
+        const minmaxWrapper = this.HF.createNewDiv('', '', ['filter-minmax-wrapper', 'filter-content-wrapper'], [], [], '');
+        const minmaxLabel = this.HF.createNewSpan('', '', ['filter-minmax-label', 'filter-label'], [], 'Min Max Range Slider:');
+        const minmaxSlider = this.HF.createNewMinMaxSlider('', '', ['filter-minmax-slider'], [{ style: 'position', value: 'relative' }], '', min, max, min, max, field.step, field.step, true);
+
+        minmaxWrapper.appendChild(minmaxLabel);
+        minmaxWrapper.appendChild(minmaxSlider);
+        wrapper.appendChild(minmaxWrapper);
+
+
+        // Create threshold content
+        const thresholdWrapper = this.HF.createNewDiv('', '', ['filter-threshold-wrapper', 'filter-content-wrapper', 'hidden'], [], [], '');
+
+        const lessWrapper = this.HF.createNewDiv('', '', ['filter-less-wrapper'], [], [], '');
+        const lessLabel = this.HF.createNewSpan('', '', ['filter-less-label', 'filter-label'], [], 'Less than: ');
+        lessLabel.innerHTML = lessLabel.innerHTML + '&nbsp;';
+        const lessInput = this.HF.createNewTextInput('', '', ['filter-less-input'], [], 'number', '');
+
+        const greaterWrapper = this.HF.createNewDiv('', '', ['filter-greater-wrapper'], [], [], '');
+        const greaterLabel = this.HF.createNewSpan('', '', ['filter-greater-label', 'filter-label'], [], 'Greater than: ');
+        greaterLabel.innerHTML = greaterLabel.innerHTML + '&nbsp;';
+        const greaterInput = this.HF.createNewTextInput('', '', ['filter-greater-input'], [], 'number', '');
+
+        lessWrapper.appendChild(lessLabel);
+        lessWrapper.appendChild(lessInput);
+        greaterWrapper.appendChild(greaterLabel);
+        greaterWrapper.appendChild(greaterInput);
+        thresholdWrapper.appendChild(lessWrapper);
+        thresholdWrapper.appendChild(greaterWrapper);
+        wrapper.appendChild(thresholdWrapper);
+
+
+        // Create value content
+        const valueWrapper = this.HF.createNewDiv('', '', ['filter-value-wrapper', 'filter-content-wrapper', 'hidden'], [], [], '');
+        const valueDD = this.HF.createNewSelect('', '', ['filter-value-dropdown'], [], ['equal', 'notequal'], ['Equal', 'Not Equal']);
+        const valueInputWrapper = this.HF.createNewDiv('', '', ['filter-value-input-wrapper'], [], [], '');
+        const valueLabel = this.HF.createNewSpan('', '', ['filter-value-label', 'filter-label'], [], 'Value: ');
+        valueLabel.innerHTML = valueLabel.innerHTML + '&nbsp;';
+        const valueInput = this.HF.createNewTextInput('', '', ['filter-value-input'], [], 'number', '');
+
+        valueWrapper.appendChild(valueDD);
+        valueInputWrapper.appendChild(valueLabel);
+        valueInputWrapper.appendChild(valueInput);
+        valueWrapper.appendChild(valueInputWrapper);
+        wrapper.appendChild(valueWrapper);
+
+/*
         const selectedOption = filterOptions[selectedVal];
 
         let wrapper;
         switch (selectedOption) {
-            case 'Threshold':
-                const thresholdWrapper = this.HF.createNewDiv('', '', ['filter-threshold-wrapper', 'filter-content-wrapper'], [], [], 'Threshold Content');
-                wrapper = thresholdWrapper;
-
-                break;
-            case 'Value':
-                const valueWrapper = this.HF.createNewDiv('', '', ['filter-value-wrapper', 'filter-content-wrapper'], [], [], 'Value Content');
-                wrapper = valueWrapper;
-
-                break;
-            default: // Range content
+            case 'Range':
                 // Create minmaxRangeInput
                 let min = field.domain[0];
                 let max = field.domain[1];
@@ -1191,9 +1266,48 @@ export class InspectorCardMaker {
                 minmaxWrapper.appendChild(minmaxLabel);
                 minmaxWrapper.appendChild(minmaxSlider);
                 wrapper = minmaxWrapper;
+
+                break;
+            case 'Threshold':
+                const thresholdWrapper = this.HF.createNewDiv('', '', ['filter-threshold-wrapper', 'filter-content-wrapper'], [], [], '');
+
+                const lessWrapper = this.HF.createNewDiv('', '', ['filter-less-wrapper'], [], [], '');
+                const lessLabel = this.HF.createNewSpan('', '', ['filter-less-label', 'filter-label'], [], 'Less than: ');
+                lessLabel.innerHTML = lessLabel.innerHTML + '&nbsp;';
+                const lessInput = this.HF.createNewTextInput('', '', ['filter-less-input'], [], 'number', '');
+
+                const greaterWrapper = this.HF.createNewDiv('', '', ['filter-greater-wrapper'], [], [], '');
+                const greaterLabel = this.HF.createNewSpan('', '', ['filter-greater-label', 'filter-label'], [], 'Greater than: ');
+                greaterLabel.innerHTML = greaterLabel.innerHTML + '&nbsp;';
+                const greaterInput = this.HF.createNewTextInput('', '', ['filter-greater-input'], [], 'number', '');
+
+                lessWrapper.appendChild(lessLabel);
+                lessWrapper.appendChild(lessInput);
+                greaterWrapper.appendChild(greaterLabel);
+                greaterWrapper.appendChild(greaterInput);
+                thresholdWrapper.appendChild(lessWrapper);
+                thresholdWrapper.appendChild(greaterWrapper);
+                wrapper = thresholdWrapper;
+
+                break;
+            case 'Value':
+                const valueWrapper = this.HF.createNewDiv('', '', ['filter-value-wrapper', 'filter-content-wrapper'], [], [], '');
+                const valueDD = this.HF.createNewSelect('', '', ['filter-value-dropdown'], [], ['equal', 'notequal'], ['Equal', 'Not Equal']);
+                const valueInputWrapper = this.HF.createNewDiv('', '', ['filter-value-input-wrapper'], [], [], '');
+                const valueLabel = this.HF.createNewSpan('', '', ['filter-value-label', 'filter-label'], [], 'Value: ');
+                valueLabel.innerHTML = valueLabel.innerHTML + '&nbsp;';
+                const valueInput = this.HF.createNewTextInput('', '', ['filter-value-input'], [], 'number', '');
+
+                valueWrapper.appendChild(valueDD);
+                valueInputWrapper.appendChild(valueLabel);
+                valueInputWrapper.appendChild(valueInput);
+                valueWrapper.appendChild(valueInputWrapper);
+                wrapper = valueWrapper;
+
+                break;
         }
 
-        return wrapper;
+        return wrapper;*/
     }
 
     /**
@@ -1234,9 +1348,26 @@ export class InspectorCardMaker {
                 break;
             case 'Threshold':
                 console.log(filterOption);
+                const filterInputs = filterContent.querySelectorAll('input');
+                const lessInput = filterInputs[0];
+                const greaterInput = filterInputs[0];
+                const lessVal = lessInput.value;
+                const greaterVal = greaterInput.value;
+
+                filterOptionValues['lessThan'] = Number(lessVal);
+                filterOptionValues['greaterThan'] = Number(greaterVal);
+
                 break;
             case 'Value':
                 console.log(filterOption);
+                const equality = filterContent.querySelector('select');
+                const valueInput = filterContent.querySelector('input');
+                const val = valueInput.value;
+
+                console.log(equality);
+
+                filterOptionValues['value'] = Number(val);
+
                 break;
         }
         return filterOptionValues;

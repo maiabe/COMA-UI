@@ -386,18 +386,20 @@ div *::-webkit-scrollbar-thumb {
     justify-content: space-between;
 }
 
-.minmax-range-wrapper input[type='range'] {
-    width: 65%;
-    top: 25%;
-    left: 17.5%;
-    margin: 0;
-    padding: 0;
-    position: absolute;
-    background: none;
-    pointer-events: none;
-    cursor: grab;
-    -webkit-appearance: none;
-}
+    .minmax-range-wrapper input[type='range'] {
+        width: 60%;
+        top: 25%;
+        left: 20%;
+        margin: 0;
+        padding: 0;
+        position: absolute;
+        background: none;
+        pointer-events: none;
+        cursor: grab;
+        -webkit-appearance: none;
+        display: flex;
+        align-items: center;
+    }
 
     .minmax-range-wrapper input[type='range']::-webkit-slider-thumb {
         width: 12px;
@@ -421,7 +423,7 @@ div *::-webkit-scrollbar-thumb {
     }
 
 
-.minmax-range-wrapper input[type='text'] {
+.minmax-range-wrapper input[type='number'] {
     width: 8.5ch;
     height: 10px;
     font-size: 12px;
