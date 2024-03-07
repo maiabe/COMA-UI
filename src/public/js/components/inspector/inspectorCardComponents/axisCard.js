@@ -22,7 +22,7 @@ export class AxisCard {
      * @param { axisTypeInfo } Object consists of name, displayName, and activeTab information of this axisCard
      *                            (e.g. { name: 'xAxis', displayName: 'X Axis', activeTab: true })
      * @param { axes } Array of objects with name, displayName and dataType information
-     *                      (e.g. [{ name: 'iso_date_mjd', displayName: 'ISO Date', dataType: 'time' }, ..])
+     *                      (e.g. [{ name: 'iso_date_mjd', displayName: 'ISO Date', dataType: 'date' }, ..])
      * @param { defaultAxis } Object that consists of name, displayName and dataType information of a specified default axis.
      *                               defaultAxis will be an undefined object if it is not set for the current datasetType
      *                               (e.g. { name: 'mag', displayName: 'magnitude', dataType: 'value' })

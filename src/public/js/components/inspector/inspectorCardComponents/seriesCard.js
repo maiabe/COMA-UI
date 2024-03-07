@@ -214,7 +214,7 @@ export class SeriesCard {
      *  @param { series } Object that contains the series information
      *                          (e.g. { name: "c-2019-u5", displayName: "C/2019 U5 (PanSTARRS)", dataType: 'category' })
      *  @param { xAxisRef } Object that contains the current primary xAxis information
-     *                          (e.g. { index: 0, name: "iso_date_mid", displayName: 'date' dataType: 'time' })
+     *                          (e.g. { index: 0, name: "iso_date_mid", displayName: 'date' dataType: 'date' })
      *  @param { yAxisRefs } Array of objects that contains the series information
      *                          (e.g. { index: 0, name: "mag", displayName: "magnitude", dataType: 'category' })
      * */

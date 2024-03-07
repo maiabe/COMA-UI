@@ -409,7 +409,6 @@
     align-self: center;
 }
 
-
 .field-body .filter-options-wrapper {
     margin: 2%;
     display: flex;
@@ -436,22 +435,15 @@
     height: 0.5rem;
 }
 
-.filter-content-wrapper.filter-threshold-wrapper {
-    display: flex;
-    justify-content: space-between;
-}
-.filter-content-wrapper.filter-threshold-wrapper input {
-    width: 5.5rem;
-}
-
-.filter-threshold-wrapper .greater-wrapper,
-.filter-threshold-wrapper .less-wrapper
+/*.filter-content-wrapper.filter-lessthan-wrapper input,
+.filter-content-wrapper.greaterthan-wrapper input
 {
-    display: flex;
-    width: 50%;
-}
+    width: 5.5em;
+}*/
 
 
+.filter-content-wrapper.filter-lessthan-wrapper,
+.filter-content-wrapper.filter-greaterthan-wrapper,
 .filter-content-wrapper.filter-value-wrapper {
     display: flex;
     justify-content: center;

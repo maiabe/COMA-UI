@@ -361,16 +361,20 @@ export class OutputManager {
 
             series['data'] = sourceData.map((sd, i) => {
                 if (sd[fieldName] == seriesName) {
+                    /*if (i == 0) {
+
+                    }*/
                     let xAxisVal = sd[series.xAxisName];
                     let yAxisVal = sd[series.yAxisName];
                     let errorVal = sd[series.errorName];
 
-                    xAxisVal = getDataType(xAxisVal) == 'time' ? new Date(xAxisVal) : xAxisVal;
-                    yAxisVal = getDataType(yAxisVal) == 'time' ? new Date(yAxisVal) : yAxisVal;
+                    xAxisVal = getDataType(xAxisVal) == 'date' ? new Date(xAxisVal) : xAxisVal;
+                    yAxisVal = getDataType(yAxisVal) == 'date' ? new Date(yAxisVal) : yAxisVal;
 
                     return { x: xAxisVal, y: yAxisVal, error: errorVal };
                 }
-            }).filter(data => (data) && (data.y < 99));
+            }).filter(data => (data));
+            console.log(series.data);
         });
         
 
@@ -407,7 +411,7 @@ export class OutputManager {
         chartData['yAxis'].forEach(yAxis => {
             yAxis['data'] = sourceData.map((sd, i) => {
                 return sd[yAxis.axisName];
-            }).filter(data => (data) && (data < 99));
+            }).filter(data => (data));
         });
 
         // Get selected labels from chartData['xAxis'] directly (non primary x-axis are all labels)

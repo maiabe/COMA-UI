@@ -46,7 +46,7 @@ function getDataType(inputVal) {
     }
     // Check if it's a date or time
     else if (Date.parse(inputVal)) {
-        dataType = "time";
+        dataType = "date";
     }
     return dataType;
 }

@@ -168,7 +168,7 @@ export class CsvReader {
                             //-- Determine data type of each value here and store it in rowObj accordingly
                             const dataType = getDataType(val); // returns time, value, or category dataTypes
                             switch (dataType) {
-                                /*case 'time':
+                                /*case 'date':
                                     val = Date(val); // convert to iso date
                                     break;*/
                                 case 'value':

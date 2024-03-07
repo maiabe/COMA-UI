@@ -15,20 +15,34 @@ export class ProcessorManager {
      * Filter source data according to filter options
      * */
     getFilteredData(filterOptions, sourceData) {
-        let filteredSourceData = [];
-        sourceData.forEach((sd) => {
-            let fsd = {};
-            filterOptions.forEach((option) => {
-                fsd[option.fieldName] = sd[option.fieldName];
+        console.log(filterOptions);
+        return sourceData.filter((sd, i) => {
+            return filterOptions.every((option) => {
+                if (!option.optionName || !option.fieldName) {
+                    return true; // Skip empty or incomplete filters
+                }
 
+                const fieldValue = sd[option.fieldName];
 
-
-                // only record data that matches the 
-                filteredSourceData.push(fsd);
+                switch (option.optionName) {
+                    case 'Range':
+                        const { min, max } = option.optionValues;
+                        return fieldValue >= min && fieldValue <= max;
+                    case 'Less Than':
+                        const { lessThanVal } = option.optionValues;
+                        return fieldValue < lessThanVal;
+                    case 'Greater Than':
+                        const { greaterThanVal } = option.optionValues;
+                        return fieldValue > greaterThanVal;
+                    case 'Value':
+                        const { equality, value } = option.optionValues;
+                        if (!value) { return true; }
+                        return (equality === 'Equal') ? fieldValue === value : fieldValue !== value;
+                    default:
+                        return true;
+                }
             });
         });
-
-        return filteredSourceData;
     }
 
 }

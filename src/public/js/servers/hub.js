@@ -335,7 +335,7 @@ export default class Hub {
         const fromModule = GM.MM.getModule(fromKey);
         const fromModuleType = fromModule.getData('type').toLowerCase();
         const toModule = GM.MM.getModule(toKey);
-        if (fromModuleType === 'source') {
+        //if (fromModuleType === 'source') {
             var fromModuleData = fromModule.getData('moduleData');
 
             console.log(fromModuleData);
@@ -363,7 +363,7 @@ export default class Hub {
 
             // select the output node
             this.#nodeSelectedEvent({ moduleKey: toKey });
-        }
+        //}
     }
 
     /** --- PRIVATE ---
@@ -942,16 +942,20 @@ export default class Hub {
             let filterModuleData = {
                 moduleKey: data.moduleKey,
                 moduleData: {
+                    remoteData: data.remoteData,
                     datasetType: fromDatasetType,
                     sourceData: fromSourceData,
+                    objectName: data.objectName,
                     filterData: filterData,
                 },
-                toggleModuleColor: true,
+                toggleModuleColor: false,
             }
             processed = this.#setModuleDataEvent(filterModuleData);
         }
 
     };
+
+
 
 
     /** --- PRIVATE --- MESSAGE FOR WORKER MANAGER
@@ -1530,7 +1534,6 @@ export default class Hub {
                 },
                 toggleModuleColor: true,
             }
-
             this.#setModuleDataEvent(imageModuleData);
 
 
@@ -1673,13 +1676,23 @@ export default class Hub {
 
         // Filter data according to the selected options
         const sourceData = data.sourceData;
-        console.log(sourceData);
         const filterOptions = data.filterOptions;
-        console.log(filterOptions);
-
-        const filteredSourceData = this.PSM.getFilteredData(filterOptions, sourceData);
+        
+        const filteredSourceData = GM.PSM.getFilteredData(filterOptions, sourceData);
         console.log(filteredSourceData);
 
+        const filterModuleData = {
+            moduleKey: data.moduleKey,
+            moduleData: {
+                // remoteData
+                remoteData: false,
+                datasetType: data.datasetType,
+                sourceData: filteredSourceData,
+                // objectName
+            },
+            toggleModuleColor: true,
+        }
+        this.#setModuleDataEvent(filterModuleData);
     }
 
 

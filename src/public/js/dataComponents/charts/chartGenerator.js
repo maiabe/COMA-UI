@@ -182,7 +182,7 @@ export class ChartGenerator {
                          .domain(xAxisData)
                          .range([leftPos, rightPos]);
                 break;
-            case 'time':
+            case 'date':
                 return d3.scaleTime()
                          .domain([d3.min(xAxisData, d => new Date(d)), d3.max(xAxisData, d => new Date(d))])
                          .range([leftPos, rightPos]);
