@@ -21,7 +21,7 @@ export class SaveCompositeModulePopupContent {
     }
 
     createNameInput() {
-        return this.HF.createNewTextInput('', '', [], [], 'text');
+        return this.HF.createNewInput('', '', [], [], 'text');
     }
 
     createDescriptionInput() {

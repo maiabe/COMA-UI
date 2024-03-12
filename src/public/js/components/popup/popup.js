@@ -128,19 +128,18 @@ export class Popup {
         });
 
         this.header.addEventListener('mouseup', this.endDrag);
-        /*this.header.addEventListener('mousemove', e => {
-            *//*e.preventDefault();*//*
+        
+        this.header.addEventListener('mousemove', e => {
+            e.preventDefault();
             this.drag(e);
-        });*/
+        });
 
         // Expand and Shrink Listeners
         this.resizeDiv.addEventListener('mousedown', this.startResize);
-        document.addEventListener('mouseup', this.endResize);
-        document.addEventListener('mousemove', e => {
-            if (e.target.type !== 'range') {
-                e.preventDefault();
-            }
-            /*e.stopPropagation();*/
+        this.resizeDiv.addEventListener('mouseup', this.endResize);
+        this.resizeDiv.addEventListener('mousemove', e => {
+            e.stopPropagation();
+
             this.resize(e);
             this.drag(e);
         });
@@ -178,7 +177,7 @@ export class Popup {
      */
     drag = e => {
         if (this.getState() === Popup.dragging) {
-            const pos = { x: e.screenX, y: e.screenY };
+            const pos = { x: e.clientX, y: e.clientY};
             this.mousePositions.push(pos);
             if (this.mousePositions.length > 1) {
                 const distance = this.#calculateDistanceTraveled(this.mousePositions[0], this.mousePositions[this.mousePositions.length - 1]);
@@ -232,7 +231,7 @@ export class Popup {
      */
     resize = e => {
         if (this.getState() === Popup.resizing) {
-            const pos = { x: e.screenX, y: e.screenY };
+            const pos = { x: e.clientX, y: e.clientY };
             this.mousePositions.push(pos);
             if (this.mousePositions.length > 1) {
                 const distance = this.#calculateDistanceTraveled(this.mousePositions[0], this.mousePositions[this.mousePositions.length - 1]);

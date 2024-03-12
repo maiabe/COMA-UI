@@ -180,12 +180,12 @@ const SearchFields = {
                 {
                     index: 0, remote: false,
                     labelName: "Begin", fieldName: "begin",
-                    type: 'date', value: '2015-01-01'
+                    type: 'date', value: '2023-01-01'
                 },
                 {
                     index: 0, remote: false,
                     labelName: "End", fieldName: "end",
-                    type: 'date', value: '2023-10-08'
+                    type: 'date', value: '2024-01-01'
                 },
                 {
                     index: 0, remote: false,

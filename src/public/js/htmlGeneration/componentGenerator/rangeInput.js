@@ -22,7 +22,7 @@ export class RangeInput {
         var wrapper = this.#wrapper;
         var label = this.#HF.createNewLabel('', '', '', ['label'], [], labelName);
         var rangeInput = this.#HF.createNewRangeInput('', '', ['range-input'], [], min, max, step, value);
-        var textInput = this.#HF.createNewTextInput('', '', ['text-input'], [{ style: 'width', value: '20%' }], 'text', value);
+        var textInput = this.#HF.createNewInput('', '', ['text-input'], [{ style: 'width', value: '20%' }], 'text', value);
 
         // Append eventListeners
         rangeInput.addEventListener('input', (e) => {

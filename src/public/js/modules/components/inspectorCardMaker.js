@@ -113,7 +113,7 @@ export class InspectorCardMaker {
     addInspectorCardChartXAxisCard(headers, key, addTraceFunction) {
         const title = 'test'; // Change this is this element ever needs to be found by id
         const dropDown = this.HF.createNewSelect(`${title}-${key}`, `${title}-${key}`, [], [], headers, headers);
-        const labelInput = this.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
+        const labelInput = this.HF.createNewInput('', '', ['axis-card-label-input'], [], 'text');
         const gridCheckbox = this.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');
         const tickCheckbox = this.HF.createNewCheckbox('', '', [], [], 'Ticks', 'Ticks');
         const addTraceButton = this.HF.createNewButton('', '', ['axis-card-button'], [], 'button', 'Add Trace');
@@ -149,7 +149,7 @@ export class InspectorCardMaker {
         const title = 'test';
         const dropDown = this.HF.createNewSelect(`${title}-${key}`, `${title}-${key}`, [], [], headers, headers);
         const errorDropDown = this.HF.createNewSelect(`${title}-${key}`, `${title}-${key}`, [], [], errorHeaders, errorHeaders);
-        const labelInput = this.HF.createNewTextInput('', '', ['axis-card-label-input'], [], 'text');
+        const labelInput = this.HF.createNewInput('', '', ['axis-card-label-input'], [], 'text');
         const gridCheckbox = this.HF.createNewCheckbox('', '', [], [], 'Grid Lines', 'Grid Lines');
         const tickCheckbox = this.HF.createNewCheckbox('', '', [], [], 'Ticks', 'Ticks');
         const addTraceButton = this.HF.createNewButton('', '', ['axis-card-button'], [], 'button', 'Add Trace');
@@ -343,7 +343,7 @@ export class InspectorCardMaker {
         objectsDropdownWrapper.appendChild(objectLabelDiv);
 
         const objectInputDiv = this.HF.createNewDiv('', '', ['object-input-wrapper'], []);
-        let textInput = this.HF.createNewTextInput(`csv-objects-input-${moduleKey}`, 'objects', ['typeahead-input', 'objects-input'], [{ style: 'border', value: 'inset' }], 'text', '');
+        let textInput = this.HF.createNewInput(`csv-objects-input-${moduleKey}`, 'objects', ['typeahead-input', 'objects-input'], [{ style: 'border', value: 'inset' }], 'text', '');
         textInput.setAttribute('remote', true);
         const resultContainer = this.HF.createNewDiv('', '', ['typeahead-result-container'], [{ style: 'display', value: "none" }]);
         objectInputDiv.appendChild(textInput);
@@ -643,7 +643,7 @@ export class InspectorCardMaker {
         const chartTitle = moduleData.objectName ? moduleData.objectName : datasetType;
         let chartTitleWrapper = this.HF.createNewDiv('', '', ['chart-title-wrapper'], []);
         const chartTitleLabel = this.HF.createNewLabel('', '', `chart-title-${moduleKey}`, ['chart-title-label'], [], 'Chart Title: ');
-        const chartTitleInput = this.HF.createNewTextInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', chartTitle);
+        const chartTitleInput = this.HF.createNewInput(`chart-title-${moduleKey}`, '', ['chart-title'], [], 'text', chartTitle);
         chartTitleWrapper.appendChild(chartTitleLabel);
         chartTitleWrapper.appendChild(chartTitleInput);
         contentWrapper.appendChild(chartTitleWrapper);
@@ -661,10 +661,10 @@ export class InspectorCardMaker {
         const leftLabel = this.HF.createNewLabel('', '', 'chart-margin-left', ['margin-label'], [], 'Left: ');
         const bottomLabel = this.HF.createNewLabel('', '', 'chart-margin-bottom', ['margin-label'], [], 'Bottom: ');
         const rightLabel = this.HF.createNewLabel('', '', 'chart-margin-right', ['margin-label'], [], 'Right: ');
-        const topInput = this.HF.createNewTextInput('chart-margin-top', '', ['chart-margin'], [], 'text', 100);
-        const leftInput = this.HF.createNewTextInput('chart-margin-left', '', ['chart-margin'], [], 'text',150);
-        const bottomInput = this.HF.createNewTextInput('chart-margin-bottom', '', ['chart-margin'], [], 'text', 100);
-        const rightInput = this.HF.createNewTextInput('chart-margin-right', '', ['chart-margin'], [], 'text', 150);
+        const topInput = this.HF.createNewInput('chart-margin-top', '', ['chart-margin'], [], 'text', 100);
+        const leftInput = this.HF.createNewInput('chart-margin-left', '', ['chart-margin'], [], 'text',150);
+        const bottomInput = this.HF.createNewInput('chart-margin-bottom', '', ['chart-margin'], [], 'text', 100);
+        const rightInput = this.HF.createNewInput('chart-margin-right', '', ['chart-margin'], [], 'text', 150);
         topWrapper.appendChild(topLabel);
         topWrapper.appendChild(topInput);
         leftWrapper.appendChild(leftLabel);
@@ -1033,9 +1033,6 @@ export class InspectorCardMaker {
                     const selectedVal = e.target.value;
                     const selectedOption = filterOptions[selectedVal];
 
-                    // delete filter content
-                    //const currentFilterContent = fieldBody.querySelector('.filter-content-wrapper');
-
                     console.log(selectedOption);
                     // set all filter content hidden
                     const filterContents = fieldBody.querySelectorAll('.filter-content-wrapper');
@@ -1060,56 +1057,84 @@ export class InspectorCardMaker {
                             valueContent.classList.toggle('hidden');
                             break;
                     }
-
-
-
-                    //if (currentFilterContent) { currentFilterContent.remove() }
-
-                    /*const filterContent = this.#createNumericalFilterContent(selectedVal, filterOptions, field);
-                    fieldBody.appendChild(filterContent);*/
-
                 });
 
                 // Create Numerical Filter Content
                 this.#createNumericalFilterContent(fieldBody, field);
-
-
-                // Create minmaxRangeInput
-                /*let min = field.domain[0];
-                let max = field.domain[1];
-
-                const minmaxWrapper = this.HF.createNewDiv('', '', ['filter-minmax-wrapper', 'filter-content-wrapper'], [], [], '');
-                const minmaxLabel = this.HF.createNewSpan('', '', ['filter-minmax-label', 'filter-label'], [], 'Min Max Range Slider:');
-                const minmaxSlider = this.HF.createNewMinMaxSlider('', '', ['filter-minmax-slider'], [{ style: 'position', value: 'relative' }], '', min, max, min, max, field.step, field.step, true);
-
-                minmaxWrapper.appendChild(minmaxLabel);
-                minmaxWrapper.appendChild(minmaxSlider);
-                fieldBody.appendChild(minmaxWrapper);*/
-
-
             }
             else if (field.dataType === 'category') {
                 // Set datatype to the fieldWrapper
                 fieldWrapper.setAttribute('data-type', field.dataType);
 
-                const filterOptions = ['Keyword', 'Category Selection'];
+                const filterOptions = ['Category Selection', 'Keyword'];
                 const filterOptionsDD = this.HF.createNewSelect('', '', ['filter-options-dropdown'], [], [0, 1], filterOptions);
                 filterOptionsWrapper.appendChild(filterOptionsDD);
-                // Create textInput for keyword filter
 
+                filterOptionsDD.addEventListener('change', (e) => {
+                    const selectedVal = e.target.value;
+                    const selectedOption = filterOptions[selectedVal];
+
+                    console.log(selectedOption);
+                    // set all filter content hidden
+                    const filterContents = fieldBody.querySelectorAll('.filter-content-wrapper');
+                    filterContents.forEach(fc => { if (!fc.classList.contains('hidden')) { fc.classList.add('hidden') } });
+
+                    // Toggle the hidden class of the selected filter option
+                    switch (selectedOption) {
+                        case 'Category Selection':
+                            const categoryContent = fieldBody.querySelector('.filter-category-wrapper');
+                            categoryContent.classList.toggle('hidden');
+                            break;
+                        case 'Keyword':
+                            const keywordContent = fieldBody.querySelector('.filter-keyword-wrapper');
+                            keywordContent.classList.toggle('hidden');
+                            break;
+                    }
+                });
+
+                this.#createCategoricalFilterContent(fieldBody, field);
 
             }
             else if (field.dataType === 'date') {
                 // Set datatype to the fieldWrapper
                 fieldWrapper.setAttribute('data-type', field.dataType);
 
-                const filterOptions = ['Range', 'Before/After', 'Relative Date', 'Date Selection'];
+                const filterOptions = ['Date Range', 'After', 'Before', 'Date Selection'];
                 const filterOptionsDD = this.HF.createNewSelect('', '', ['filter-options-dropdown'], [], [0, 1, 2, 3], filterOptions);
                 filterOptionsWrapper.appendChild(filterOptionsDD);
 
-                // Create minmaxRangeInput
 
-                // Create date picker for specific data filter
+                filterOptionsDD.addEventListener('change', (e) => {
+                    const selectedVal = e.target.value;
+                    const selectedOption = filterOptions[selectedVal];
+
+                    console.log(selectedOption);
+                    // set all filter content hidden
+                    const filterContents = fieldBody.querySelectorAll('.filter-content-wrapper');
+                    filterContents.forEach(fc => { if (!fc.classList.contains('hidden')) { fc.classList.add('hidden') } });
+
+                    // Toggle the hidden class of the selected filter option
+                    switch (selectedOption) {
+                        case 'Date Range':
+                            const daterangeContent = fieldBody.querySelector('.filter-daterange-wrapper');
+                            daterangeContent.classList.toggle('hidden');
+                            break;
+                        case 'After':
+                            const afterContent = fieldBody.querySelector('.filter-after-wrapper');
+                            afterContent.classList.toggle('hidden');
+                            break;
+                        case 'Before':
+                            const beforeContent = fieldBody.querySelector('.filter-before-wrapper');
+                            beforeContent.classList.toggle('hidden');
+                            break;
+                        case 'Date Selection':
+                            const dateContent = fieldBody.querySelector('.filter-date-wrapper');
+                            dateContent.classList.toggle('hidden');
+                            break;
+                    }
+                });
+
+                this.#createDateFilterContent(fieldBody, field);
 
             }
 
@@ -1178,8 +1203,6 @@ export class InspectorCardMaker {
                     filterOptions.push(filterOption);
                 }
 
-                //-- for numerical data types => choose selected filter option and choose the
-
 
             });
 
@@ -1203,7 +1226,7 @@ export class InspectorCardMaker {
      * Creates the filtering option content on filtering option selection change
      * */
     #createNumericalFilterContent(wrapper, field) {
-        console.log(field);
+        /*console.log(field);*/
 
         // Create range content
         let min = field.domain[0];
@@ -1222,7 +1245,7 @@ export class InspectorCardMaker {
         const lessthanWrapper = this.HF.createNewDiv('', '', ['filter-lessthan-wrapper', 'filter-content-wrapper', 'hidden'], [], [], '');
         const lessthanLabel = this.HF.createNewSpan('', '', ['filter-lessthan-label', 'filter-label'], [], 'Less Than: ');
         lessthanLabel.innerHTML = lessthanLabel.innerHTML + '&nbsp;';
-        const lessthanInput = this.HF.createNewTextInput('', '', ['filter-lessthan-input'], [], 'number', max);
+        const lessthanInput = this.HF.createNewInput('', '', ['filter-lessthan-input'], [], 'number', max);
 
         lessthanWrapper.appendChild(lessthanLabel);
         lessthanWrapper.appendChild(lessthanInput);
@@ -1232,12 +1255,11 @@ export class InspectorCardMaker {
         const greaterthanWrapper = this.HF.createNewDiv('', '', ['filter-greaterthan-wrapper', 'filter-content-wrapper', 'hidden'], [], [], '');
         const greaterthanLabel = this.HF.createNewSpan('', '', ['filter-greaterthan-label', 'filter-label'], [], 'Greater Than: ');
         greaterthanLabel.innerHTML = greaterthanLabel.innerHTML + '&nbsp;';
-        const greaterthanInput = this.HF.createNewTextInput('', '', ['filter-greaterthan-input'], [], 'number', min);
+        const greaterthanInput = this.HF.createNewInput('', '', ['filter-greaterthan-input'], [], 'number', min);
 
         greaterthanWrapper.appendChild(greaterthanLabel);
         greaterthanWrapper.appendChild(greaterthanInput);
         wrapper.appendChild(greaterthanWrapper);
-
 
         // Create value content
         const valueWrapper = this.HF.createNewDiv('', '', ['filter-value-wrapper', 'filter-content-wrapper', 'hidden'], [], [], '');
@@ -1245,73 +1267,139 @@ export class InspectorCardMaker {
         const valueInputWrapper = this.HF.createNewDiv('', '', ['filter-value-input-wrapper'], [], [], '');
         const valueLabel = this.HF.createNewSpan('', '', ['filter-value-label', 'filter-label'], [], 'Value: ');
         valueLabel.innerHTML = valueLabel.innerHTML + '&nbsp;';
-        const valueInput = this.HF.createNewTextInput('', '', ['filter-value-input'], [], 'number', '');
+        const valueInput = this.HF.createNewInput('', '', ['filter-value-input'], [], 'number', '');
 
         valueWrapper.appendChild(valueDD);
         valueInputWrapper.appendChild(valueLabel);
         valueInputWrapper.appendChild(valueInput);
         valueWrapper.appendChild(valueInputWrapper);
         wrapper.appendChild(valueWrapper);
+    }
 
-/*
-        const selectedOption = filterOptions[selectedVal];
+    /**
+     * Creates the filtering option content on filtering option selection change
+     * */
+    #createCategoricalFilterContent(wrapper, field) {
+        /*console.log("------------ createCategoricalFilterContent ------------");
+        console.log(field);*/
 
-        let wrapper;
-        switch (selectedOption) {
-            case 'Range':
-                // Create minmaxRangeInput
-                let min = field.domain[0];
-                let max = field.domain[1];
+        // Create category name checkbox content
+        const categoryNames = [...new Set(field.data)];
+        const categoryWrapper = this.HF.createNewDiv('', '', ['filter-category-wrapper', 'filter-content-wrapper'], [], [], '');
+        categoryNames.forEach(categoryName => {
+            const categoryCheckboxes = this.HF.createNewCheckbox('filter-' + categoryName, '', ['checkbox-wrapper'], [], categoryName, categoryName, true);
+            categoryWrapper.appendChild(categoryCheckboxes.wrapper);
+        });
+        wrapper.appendChild(categoryWrapper);
 
-                const minmaxWrapper = this.HF.createNewDiv('', '', ['filter-minmax-wrapper', 'filter-content-wrapper'], [], [], '');
-                const minmaxLabel = this.HF.createNewSpan('', '', ['filter-minmax-label', 'filter-label'], [], 'Min Max Range Slider:');
-                const minmaxSlider = this.HF.createNewMinMaxSlider('', '', ['filter-minmax-slider'], [{ style: 'position', value: 'relative' }], '', min, max, min, max, field.step, field.step, true);
+        // Create keyword content
+        const keywordWrapper = this.HF.createNewDiv('', '', ['filter-keyword-wrapper', 'filter-content-wrapper', 'hidden'], [], [], '');
+        const keywordDD = this.HF.createNewSelect('', '', ['filter-keyword-dropdown'], [], ['equal', 'notequal'], ['Equal', 'Not Equal']);
+        const keywordInputWrapper = this.HF.createNewDiv('', '', ['filter-keyword-input-wrapper'], [], [], '');
+        const keywordLabel = this.HF.createNewSpan('', '', ['filter-keyword-label', 'filter-label'], [], 'Keyword: ');
+        keywordLabel.innerHTML = keywordLabel.innerHTML + '&nbsp;';
+        const keywordInput = this.HF.createNewInput('', '', ['filter-keyword-input'], [], 'text', '');
 
-                minmaxWrapper.appendChild(minmaxLabel);
-                minmaxWrapper.appendChild(minmaxSlider);
-                wrapper = minmaxWrapper;
+        keywordWrapper.appendChild(keywordDD);
+        keywordInputWrapper.appendChild(keywordLabel);
+        keywordInputWrapper.appendChild(keywordInput);
+        keywordWrapper.appendChild(keywordInputWrapper);
+        wrapper.appendChild(keywordWrapper);
+    }
 
-                break;
-            case 'Threshold':
-                const thresholdWrapper = this.HF.createNewDiv('', '', ['filter-threshold-wrapper', 'filter-content-wrapper'], [], [], '');
+    #createDateFilterContent(wrapper, field) {
+        console.log('--- create date filter content ---');
+        console.log(field);
 
-                const lessWrapper = this.HF.createNewDiv('', '', ['filter-less-wrapper'], [], [], '');
-                const lessLabel = this.HF.createNewSpan('', '', ['filter-less-label', 'filter-label'], [], 'Less than: ');
-                lessLabel.innerHTML = lessLabel.innerHTML + '&nbsp;';
-                const lessInput = this.HF.createNewTextInput('', '', ['filter-less-input'], [], 'number', '');
+        // Create range content
+        let min = field.domain[0];
+        let max = field.domain[1];
 
-                const greaterWrapper = this.HF.createNewDiv('', '', ['filter-greater-wrapper'], [], [], '');
-                const greaterLabel = this.HF.createNewSpan('', '', ['filter-greater-label', 'filter-label'], [], 'Greater than: ');
-                greaterLabel.innerHTML = greaterLabel.innerHTML + '&nbsp;';
-                const greaterInput = this.HF.createNewTextInput('', '', ['filter-greater-input'], [], 'number', '');
+        //console.log('min: ', min, ' max: ', max);
 
-                lessWrapper.appendChild(lessLabel);
-                lessWrapper.appendChild(lessInput);
-                greaterWrapper.appendChild(greaterLabel);
-                greaterWrapper.appendChild(greaterInput);
-                thresholdWrapper.appendChild(lessWrapper);
-                thresholdWrapper.appendChild(greaterWrapper);
-                wrapper = thresholdWrapper;
+        /*const daterangeWrapper = this.HF.createNewDiv('', '', ['filter-daterange-wrapper', 'filter-content-wrapper'], [], [], '');
+        const daterangeLabel = this.HF.createNewSpan('', '', ['filter-daterange-label', 'filter-label'], [], 'Date Range: ');
+        daterangeLabel.innerHTML = daterangeLabel.innerHTML + '&nbsp;';
+        const daterangeInput = this.HF.createNewDiv('', '', ['filter-daterange-input'],
+            [{ style: 'border', value: '0.5px solid #ccc' }, { style: 'cursor', value: 'pointer' }], [], '');
 
-                break;
-            case 'Value':
-                const valueWrapper = this.HF.createNewDiv('', '', ['filter-value-wrapper', 'filter-content-wrapper'], [], [], '');
-                const valueDD = this.HF.createNewSelect('', '', ['filter-value-dropdown'], [], ['equal', 'notequal'], ['Equal', 'Not Equal']);
-                const valueInputWrapper = this.HF.createNewDiv('', '', ['filter-value-input-wrapper'], [], [], '');
-                const valueLabel = this.HF.createNewSpan('', '', ['filter-value-label', 'filter-label'], [], 'Value: ');
-                valueLabel.innerHTML = valueLabel.innerHTML + '&nbsp;';
-                const valueInput = this.HF.createNewTextInput('', '', ['filter-value-input'], [], 'number', '');
+        daterangeWrapper.appendChild(daterangeLabel);
+        daterangeWrapper.appendChild(daterangeInput);
+        wrapper.appendChild(daterangeWrapper);*/
 
-                valueWrapper.appendChild(valueDD);
-                valueInputWrapper.appendChild(valueLabel);
-                valueInputWrapper.appendChild(valueInput);
-                valueWrapper.appendChild(valueInputWrapper);
-                wrapper = valueWrapper;
 
-                break;
+
+        const daterangeWrapper = this.HF.createNewDiv('', '', ['filter-daterange-wrapper', 'filter-content-wrapper'], [], [], '');
+        const daterangeLabel = this.HF.createNewSpan('', '', ['filter-daterange-label', 'filter-label'], [], 'Date Range: ');
+        daterangeLabel.innerHTML = daterangeLabel.innerHTML + '&nbsp;';
+        const daterangeInput = this.HF.createNewInput('', '', ['filter-daterange-input'], [], 'text', `${min} - ${max}`);
+
+        daterangeWrapper.appendChild(daterangeLabel);
+        daterangeWrapper.appendChild(daterangeInput);
+        wrapper.appendChild(daterangeWrapper);
+
+        const dateFormat = 'YYYY-MM-DD';
+        function cb(start, end) {
+            if (start.format(dateFormat) === end.format(dateFormat)) {
+                console.log('Today or Yesterday');
+                daterangeInput.innerHTML = start.format(dateFormat);
+            }
+            else {
+                daterangeInput.innerHTML = start.format(dateFormat) + ' - ' + end.format(dateFormat);
+            }
         }
 
-        return wrapper;*/
+        $(daterangeInput).daterangepicker({
+            startDate: moment(min),
+            endDate: moment(max),
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            }
+        }, cb);
+        cb(moment(min), moment(max));
+
+        // Create after content
+        const afterWrapper = this.HF.createNewDiv('', '', ['filter-after-wrapper', 'filter-content-wrapper', 'hidden'], [], [], '');
+        const afterLabel = this.HF.createNewSpan('', '', ['filter-after-label', 'filter-label'], [], 'After: ');
+        afterLabel.innerHTML = afterLabel.innerHTML + '&nbsp;';
+        const isomin = new Date(min).toISOString().split('T')[0];
+        const afterInput = this.HF.createNewInput('', '', ['filter-after-input'], [], 'date', `${isomin}`);
+
+        afterWrapper.appendChild(afterLabel);
+        afterWrapper.appendChild(afterInput);
+        wrapper.appendChild(afterWrapper);
+
+        // Create before content
+        const beforeWrapper = this.HF.createNewDiv('', '', ['filter-before-wrapper', 'filter-content-wrapper', 'hidden'], [], [], '');
+        const beforeLabel = this.HF.createNewSpan('', '', ['filter-before-label', 'filter-label'], [], 'Before: ');
+        beforeLabel.innerHTML = beforeLabel.innerHTML + '&nbsp;';
+        const isomax = new Date(max).toISOString().split('T')[0];
+        const beforeInput = this.HF.createNewInput('', '', ['filter-before-input'], [], 'date', `${isomax}`);
+
+        beforeWrapper.appendChild(beforeLabel);
+        beforeWrapper.appendChild(beforeInput);
+        wrapper.appendChild(beforeWrapper);
+
+        // Create date content
+        /*const dates = [...new Set(field.data)];
+        console.log(dates);*/
+        const dateWrapper = this.HF.createNewDiv('', '', ['filter-date-wrapper', 'filter-content-wrapper', 'hidden'], [], [], '');
+        const dateDD = this.HF.createNewSelect('', '', ['filter-date-dropdown'], [], ['equal', 'notequal'], ['Equal', 'Not Equal']);
+        const dateInputWrapper = this.HF.createNewDiv('', '', ['filter-date-input-wrapper'], [], [], '');
+        const dateLabel = this.HF.createNewSpan('', '', ['filter-date-label', 'filter-label'], [], 'Date: ');
+        dateLabel.innerHTML = dateLabel.innerHTML + '&nbsp;';
+        const dateInput = this.HF.createNewInput('', '', ['filter-date-input'], [], 'date', '');
+
+        dateWrapper.appendChild(dateDD);
+        dateInputWrapper.appendChild(dateLabel);
+        dateInputWrapper.appendChild(dateInput);
+        dateWrapper.appendChild(dateInputWrapper);
+        wrapper.appendChild(dateWrapper);
     }
 
     /**

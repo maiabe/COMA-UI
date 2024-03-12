@@ -25,6 +25,11 @@ body {
   font-family: "Sora", Fallback, sans-serif;
   background-color: rgb(37, 35, 35);
   color: var(--color-dark-gray);
+
+  
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
 }
 
 .wrapper {

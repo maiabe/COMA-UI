@@ -32,7 +32,7 @@ export class ObjectSearchCard {
     }
 
     #createSearchBar() {
-        this.#searchBar = GM.HF.createNewTextInput('', '', ['inspector-card-objects-search-bar'], []);
+        this.#searchBar = GM.HF.createNewInput('', '', ['inspector-card-objects-search-bar'], []);
     }
 
     #createDropdown(objects) {

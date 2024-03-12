@@ -147,7 +147,7 @@ export class AxisCard {
             //-- Create traceCard header
             const header = GM.HF.createNewDiv('', '', ['axis-card-header'], [], [], '');
             const axisTitle = GM.HF.createNewSpan('', 'axis-title', ['axis-title'], [], axis.name);
-            const axisDataType = GM.HF.createNewTextInput('', '', ['data-type'], [], 'hidden', axis.dataType);
+            const axisDataType = GM.HF.createNewInput('', '', ['data-type'], [], 'hidden', axis.dataType);
             const removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete-icon.png', ['remove-button', 'button'], [], '');
             header.appendChild(axisTitle);
             header.appendChild(axisDataType);
@@ -185,7 +185,7 @@ export class AxisCard {
             //-- Create axis label input
             const labelWrapper = GM.HF.createNewDiv('', '', ['label-wrapper', 'axis-card-element'], [], [], '');
             const labelText = GM.HF.createNewSpan('', '', ['label-text'], [], `Label Name: `);
-            const label = GM.HF.createNewTextInput('', '', ['label-input'], [], 'text', false);
+            const label = GM.HF.createNewInput('', '', ['label-input'], [], 'text', false);
             label.value = axis.name;
             labelWrapper.appendChild(labelText);
             labelWrapper.appendChild(label);

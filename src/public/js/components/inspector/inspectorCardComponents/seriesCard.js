@@ -235,7 +235,7 @@ export class SeriesCard {
             const header = GM.HF.createNewDiv('', '', ['series-card-header'], [], [], '');
             const headerText = GM.HF.createNewSpan('', seriesName, ['series-name'], [], selectedSeries.displayName);
 
-            const seriesDataType = GM.HF.createNewTextInput('', '', ['data-type'], [], 'hidden', selectedSeries.dataType);
+            const seriesDataType = GM.HF.createNewInput('', '', ['data-type'], [], 'hidden', selectedSeries.dataType);
             const removeBtn = GM.HF.createNewIMG('', '', './images/icons/delete-icon.png', ['remove-button', 'button'], [], '');
             header.appendChild(headerText);
             header.appendChild(seriesDataType);
@@ -250,7 +250,7 @@ export class SeriesCard {
             //-- Create series label input
             const labelWrapper = GM.HF.createNewDiv('', '', ['label-wrapper', 'series-card-element'], [], [], '');
             const labelText = GM.HF.createNewSpan('', '', ['label-text'], [], 'Label Name: ');
-            const label = GM.HF.createNewTextInput('', '', ['label-input'], [], 'text', false);
+            const label = GM.HF.createNewInput('', '', ['label-input'], [], 'text', false);
             label.value = selectedSeries.displayName;
             labelWrapper.appendChild(labelText);
             labelWrapper.appendChild(label);
@@ -269,7 +269,7 @@ export class SeriesCard {
             const xAxisIndexRefWrapper = GM.HF.createNewDiv('', '', ['xaxis-index-ref-wrapper', 'series-card-element'], [], [], '');
             const xAxisIndexLabel = GM.HF.createNewSpan('', '', ['xaxis-index-label'], [], 'X Axis:');
             const xAxisIndexRef = GM.HF.createNewSpan('', '', ['xaxis-index-ref'], [], xAxisRef.name);
-            const xAxisIndexInput = GM.HF.createNewTextInput('', '', ['xaxis-index-input'], [], 'hidden', xAxisRef.index)
+            const xAxisIndexInput = GM.HF.createNewInput('', '', ['xaxis-index-input'], [], 'hidden', xAxisRef.index)
             xAxisIndexRefWrapper.appendChild(xAxisIndexLabel);
             xAxisIndexRefWrapper.appendChild(xAxisIndexRef);
             xAxisIndexRefWrapper.appendChild(xAxisIndexInput);

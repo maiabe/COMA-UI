@@ -125,7 +125,7 @@ function handleFetchError(queryType, query, reason) {
 
 function handleDatabaseQueryReturn(data, response) {
     console.log(response);
-    let sourceData = response.result;
+    let sourceData = response[data.responseKey];
     console.log(sourceData);
     // sort data if needed
     if (data.sortBy) {

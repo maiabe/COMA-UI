@@ -391,10 +391,16 @@ export class InputManager {
                 filterData.push({ fieldName: columnHeader.fieldName, displayName: displayName.join(' '), dataType: columnHeader.dataType, data: data });
             }
             else if (columnHeader.dataType === 'date') {
-                const data = sourceData.map(sd => { return sd[columnHeader.fieldName] });
-                data.sort();
-                const domain = [data[0], data[data.length - 1]];
-                filterData.push({ fieldName: columnHeader.fieldName, displayName: displayName.join(' '), dataType: columnHeader.dataType, data: data, domain: domain });
+                const data = sourceData.map(sd => {
+                    return sd[columnHeader.fieldName];
+                }).sort();
+                // format date
+                const dates = data.map(d => {
+                    const dateObj = new Date(d);
+                    return dateObj.toISOString().split('T')[0];
+                });
+                const domain = [dates[0], dates[dates.length - 1]];
+                filterData.push({ fieldName: columnHeader.fieldName, displayName: displayName.join(' '), dataType: columnHeader.dataType, data: dates, domain: domain });
             }
 
         });

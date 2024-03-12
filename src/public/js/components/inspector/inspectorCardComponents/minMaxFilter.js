@@ -67,10 +67,10 @@ export class MinMaxFilter {
         const rightInputWrapper = GM.HF.createNewDiv('', '', ['min-max-input-wrapper'], [], [], '');
         const dotMenuInputWrapper = GM.HF.createNewDiv('', '', ['min-max-input-wrapper', 'min-max-button'], [], [], '');
         const leftInputLabel = GM.HF.createNewParagraph('', '', [], [], 'Min');
-        const leftInput = GM.HF.createNewTextInput('', '', [], [], 'text');
+        const leftInput = GM.HF.createNewInput('', '', [], [], 'text');
         leftInput.value = min;  // Set initial Min value in the input
         const rightInputLabel = GM.HF.createNewParagraph('', '', [], [], 'Max');
-        const rightInput = GM.HF.createNewTextInput('', '', [], [], 'text');
+        const rightInput = GM.HF.createNewInput('', '', [], [], 'text');
         rightInput.value = max; // Set initial max value in the input
         this.dataTable.get('wrapper').appendChild(wrapper);
 

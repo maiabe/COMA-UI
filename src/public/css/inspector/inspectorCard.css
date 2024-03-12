@@ -404,7 +404,7 @@
 
 /*********** field card styles ************/
 .field-body .filter-label {
-    font-size: 12px;
+    font-size: 14px;
     white-space: nowrap;
     align-self: center;
 }
@@ -424,6 +424,10 @@
     padding: 2%;
     visibility: visible;
     height: unset;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .field-body .filter-content-wrapper.hidden {
     visibility: hidden;
@@ -435,23 +439,26 @@
     height: 0.5rem;
 }
 
-/*.filter-content-wrapper.filter-lessthan-wrapper input,
-.filter-content-wrapper.greaterthan-wrapper input
-{
-    width: 5.5em;
-}*/
-
-
-.filter-content-wrapper.filter-lessthan-wrapper,
-.filter-content-wrapper.filter-greaterthan-wrapper,
-.filter-content-wrapper.filter-value-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.field-body .filter-content-wrapper.filter-minmax-wrapper {
+    display: block;
 }
 
-.filter-content-wrapper .filter-value-input-wrapper {
+.filter-content-wrapper .filter-value-input-wrapper,
+.filter-content-wrapper .filter-keyword-input-wrapper,
+.filter-content-wrapper .filter-date-input-wrapper {
     margin: 0 2%;
+}
+
+
+.filter-content-wrapper.filter-category-wrapper .checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    white-space: nowrap;
+    margin: 0.5% 1%;
+}
+.filter-content-wrapper.filter-category-wrapper .checkbox-wrapper input {
+    height: 1rem !important;
 }
 
 

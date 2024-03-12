@@ -651,9 +651,9 @@ export default class Hub {
         if (invalidVariables([varTest(data.moduleKey, 'moduleKey', 'number'), varTest(data.status, 'status', 'string'), varTest(data.queryType, 'queryType', 'string'), varTest(data.queryEntries, 'queryEntries', 'object'), varTest(data.sourceData, 'sourceData', 'object')], 'HUB', '#messageForInputManager (Set Search Result Content)')) return;
         let processed = false;
         // get objectname here (from WM)
-
-        const objectFetchURL = 'http://coma.ifa.hawaii.edu:8000/api/v2/objects/' + data.queryEntries.objects;
-
+        console.log(data);
+        const objectFetchURL = 'http://coma.ifa.hawaii.edu:8000/api/v2/' + data.queryType + '/' + data.queryEntries.objects;
+        console.log(objectFetchURL);
         const response = await fetch(objectFetchURL);
         const rjson = await response.json();
         console.log(rjson);

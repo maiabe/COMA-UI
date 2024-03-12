@@ -72,7 +72,7 @@ export class FormCard {
         switch (field.type) {
             case 'text':
                 formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [], [], '');
-                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
+                var textInput = GM.HF.createNewInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
                 //formField.setAttribute('remote', field.remote);
                 if (field.value) {
                     textInput.value = field.value;
@@ -81,7 +81,7 @@ export class FormCard {
                 break;
             case 'date':
                 formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [], [], '');
-                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
+                var textInput = GM.HF.createNewInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
                 //formField.setAttribute('remote', field.remote);
                 // set default value
                 if (field.value) {
@@ -150,7 +150,7 @@ export class FormCard {
             case 'typeahead':
                 formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [{ style: "position", value: "relative" }], [], '');
 
-                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['typeahead-input', 'field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
+                var textInput = GM.HF.createNewInput('', field.fieldName, ['typeahead-input', 'field-input'], [{ style: 'border', value: 'inset' }], 'text', '');
                 textInput.setAttribute('remote', field.remote);
                 if (field.value) {
                     textInput.value = field.value;
@@ -177,7 +177,7 @@ export class FormCard {
                 break;
             default:
                 formField = GM.HF.createNewDiv(fieldInputId, '', ['field-input-wrapper'], [], [], '');
-                var textInput = GM.HF.createNewTextInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
+                var textInput = GM.HF.createNewInput('', field.fieldName, ['field-input'], [{ style: 'border', value: 'inset' }], 'text', false);
                 //formField.setAttribute('remote', field.remote);
                 if (field.value) {
                     textInput.value = field.value;

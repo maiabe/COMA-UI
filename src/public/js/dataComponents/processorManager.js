@@ -24,23 +24,25 @@ export class ProcessorManager {
 
                 const fieldValue = sd[option.fieldName];
 
-                switch (option.optionName) {
-                    case 'Range':
-                        const { min, max } = option.optionValues;
-                        return fieldValue >= min && fieldValue <= max;
-                    case 'Less Than':
-                        const { lessThanVal } = option.optionValues;
-                        return fieldValue < lessThanVal;
-                    case 'Greater Than':
-                        const { greaterThanVal } = option.optionValues;
-                        return fieldValue > greaterThanVal;
-                    case 'Value':
-                        const { equality, value } = option.optionValues;
-                        if (!value) { return true; }
-                        return (equality === 'Equal') ? fieldValue === value : fieldValue !== value;
-                    default:
-                        return true;
-                }
+                    switch (option.optionName) {
+                        case 'Range':
+                            const { min, max } = option.optionValues;
+                            return fieldValue >= min && fieldValue <= max;
+                        case 'Less Than':
+                            const { lessThanVal } = option.optionValues;
+                            return fieldValue < lessThanVal;
+                        case 'Greater Than':
+                            const { greaterThanVal } = option.optionValues;
+                            return fieldValue > greaterThanVal;
+                        case 'Value':
+                            const { equality, value } = option.optionValues;
+                            if (!value) { return true; }
+                            return (equality === 'Equal') ? fieldValue === value : fieldValue !== value;
+                        default:
+                            return true;
+                    }
+
+                
             });
         });
     }
