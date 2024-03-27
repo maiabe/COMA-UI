@@ -342,10 +342,11 @@
 .series-content-wrapper .series-dropdown-wrapper
 {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .series-content-wrapper .series-dropdown-wrapper {
-    width: 50%;
+    width: 48%;
     display: flex;
     flex-wrap: wrap;
     margin: 0 1% 2% 1%;

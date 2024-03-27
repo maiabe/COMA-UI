@@ -918,19 +918,18 @@ export class OutputManager {
         });*/
         let orbitVectors = { name: objectName, color: "#C9C9C9" };
 
+        console.log(cometOrbits);
         if (cometOrbits) {
-            const objectOrbits = cometOrbits.comet_orbit.replace(/'/g, '"').replace('True', 'true').replace('False', 'false');
-            const objectOrbitsJson = JSON.parse(objectOrbits);
+            /*const objectOrbits = cometOrbits.comet_orbit.replace(/'/g, '"').replace('True', 'true').replace('False', 'false');
+            const objectOrbitsJson = JSON.parse(objectOrbits);*/
 
-            const xvec = objectOrbitsJson['X-VEC'];
-            const yvec = objectOrbitsJson['Y-VEC'];
-            const zvec = objectOrbitsJson['Z-VEC'];
-            console.log(objectOrbitsJson);
-            const vectors = objectOrbitsJson['MJD-VEC'].map((mjd, i) => {
+            const xvec = cometOrbits['X-VEC'];
+            const yvec = cometOrbits['Y-VEC'];
+            const zvec = cometOrbits['Z-VEC'];
+            const vectors = cometOrbits['MJD-VEC'].map((mjd, i) => {
                 return { x: xvec[i], y: yvec[i], z: zvec[i] };
             });
             orbitVectors['vectors'] = vectors;
-            console.log(orbitVectors);
         }
         else {
             orbitVectors['vectors'] = [];

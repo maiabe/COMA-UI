@@ -1287,7 +1287,7 @@ export class InspectorCardMaker {
         const categoryNames = [...new Set(field.data)];
         const categoryWrapper = this.HF.createNewDiv('', '', ['filter-category-wrapper', 'filter-content-wrapper'], [], [], '');
         categoryNames.forEach(categoryName => {
-            const categoryCheckboxes = this.HF.createNewCheckbox('filter-' + categoryName, '', ['checkbox-wrapper'], [], categoryName, categoryName, true);
+            const categoryCheckboxes = this.HF.createNewCheckbox('filter-' + categoryName, '', ['category-checkbox'], [], categoryName, categoryName, true);
             categoryWrapper.appendChild(categoryCheckboxes.wrapper);
         });
         wrapper.appendChild(categoryWrapper);
@@ -1327,8 +1327,6 @@ export class InspectorCardMaker {
         daterangeWrapper.appendChild(daterangeInput);
         wrapper.appendChild(daterangeWrapper);*/
 
-
-
         const daterangeWrapper = this.HF.createNewDiv('', '', ['filter-daterange-wrapper', 'filter-content-wrapper'], [], [], '');
         const daterangeLabel = this.HF.createNewSpan('', '', ['filter-daterange-label', 'filter-label'], [], 'Date Range: ');
         daterangeLabel.innerHTML = daterangeLabel.innerHTML + '&nbsp;';
@@ -1338,30 +1336,36 @@ export class InspectorCardMaker {
         daterangeWrapper.appendChild(daterangeInput);
         wrapper.appendChild(daterangeWrapper);
 
-        const dateFormat = 'YYYY-MM-DD';
-        function cb(start, end) {
-            if (start.format(dateFormat) === end.format(dateFormat)) {
-                console.log('Today or Yesterday');
-                daterangeInput.innerHTML = start.format(dateFormat);
-            }
-            else {
-                daterangeInput.innerHTML = start.format(dateFormat) + ' - ' + end.format(dateFormat);
-            }
-        }
-
+        const isoFormat = 'YYYY-MM-DD';
+        const isSingleDay = moment(min).format(isoFormat) === moment(max).format(isoFormat);
         $(daterangeInput).daterangepicker({
             startDate: moment(min),
             endDate: moment(max),
+            singleDatePicker: isSingleDay,
+            showDropdowns: true,
+            alwaysShowCalendars: true,
             ranges: {
-                'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                //'Today': [moment(), moment()],
+                //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
                 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
                 'This Month': [moment().startOf('month'), moment().endOf('month')],
                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
             }
-        }, cb);
-        cb(moment(min), moment(max));
+        });
+
+        // Display one date on selection of yesterday or today and display a range otherwise
+        /*$(daterangeInput).on('apply.daterangepicker', function (ev, picker) {
+            const displayFormat = 'MM/DD/YY';
+            const start = picker.startDate.format(isoFormat);
+            const end = picker.endDate.format(isoFormat);
+            if (start === end) {
+                $(this).val(picker.startDate.format(displayFormat));
+            }
+            else {
+                $(this).val(picker.startDate.format(displayFormat) + ' - ' + picker.endDate.format(displayFormat));
+            }
+        });*/
 
         // Create after content
         const afterWrapper = this.HF.createNewDiv('', '', ['filter-after-wrapper', 'filter-content-wrapper', 'hidden'], [], [], '');
@@ -1428,7 +1432,6 @@ export class InspectorCardMaker {
         switch (filterOption) {
             case 'Range':
                 const minmaxContent = fieldBody.querySelector('.filter-minmax-wrapper');
-                console.log('filterOption: ', filterOption);
                 const rangeInputs = minmaxContent.querySelectorAll('.range-input');
                 const minRange = rangeInputs[0];
                 const maxRange = rangeInputs[1];
@@ -1472,33 +1475,70 @@ export class InspectorCardMaker {
     }
 
     #getCategoryFilterOptionValues(filterOption, fieldBody) {
+        let filterOptionValues = {};
         switch (filterOption) {
-            case 'Keyword':
-                console.log('filterOption: ', filterOption);
+            case 'Category Selection':
+                const categoryContent = fieldBody.querySelector('.filter-category-wrapper');
+                const checkboxes = categoryContent.querySelectorAll('.category-checkbox');
+                const categoryNames = [];
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) { categoryNames.push(checkbox.value) }
+                });
+                filterOptionValues['categoryNames'] = categoryNames;       
 
                 break;
-            case 'Category Selection':
-                console.log(filterOption);
+            case 'Keyword':
+                const keywordContent = fieldBody.querySelector('.filter-keyword-wrapper');
+                const equalityDD = keywordContent.querySelector('select');
+                const equality = equalityDD.options[equalityDD.selectedIndex];
+                const keywordInput = keywordContent.querySelector('input');
+                const keyword = keywordInput.value;
+
+                filterOptionValues['equality'] = equality.text;
+                filterOptionValues['keyword'] = keyword;
+
                 break;
         }
+        //console.log(filterOptionValues);
+        return filterOptionValues;
     }
 
     #getDateFilterOptionValues(filterOption, fieldBody) {
+        const filterOptionValues = {};
         switch (filterOption) {
-            case 'Range':
-                console.log('filterOption: ', filterOption);
+            case 'Date Range':
+                const daterangeContent = fieldBody.querySelector('.filter-daterange-wrapper');
+                const daterangeInput = daterangeContent.querySelector('input');
+                const picker = $(daterangeInput).data('daterangepicker');
+                const daterangeStart = picker.startDate.toISOString().split('T')[0];
+                const daterangeEnd = picker.endDate.toISOString().split('T')[0];
 
+                filterOptionValues['start'] = daterangeStart;
+                filterOptionValues['end'] = daterangeEnd;
                 break;
-            case 'Before/After':
-                console.log(filterOption);
+            case 'After':
+                const afterContent = fieldBody.querySelector('.filter-after-wrapper');
+                const afterInput = afterContent.querySelector('input');
+
+                filterOptionValues['afterDate'] = afterInput.value;
                 break;
-            case 'Relative Date':
-                console.log(filterOption);
+            case 'Before':
+                const beforeContent = fieldBody.querySelector('.filter-before-wrapper');
+                const beforeInput = beforeContent.querySelector('input');
+
+                filterOptionValues['beforeDate'] = beforeInput.value;
                 break;
             case 'Date Selection':
-                console.log(filterOption);
+                const dateContent = fieldBody.querySelector('.filter-date-wrapper');
+                const equalityDD = dateContent.querySelector('select');
+                const equality = equalityDD.options[equalityDD.selectedIndex];
+                const dateInput = dateContent.querySelector('input');
+
+                filterOptionValues['equality'] = equality.text;
+                filterOptionValues['date'] = dateInput.value;
                 break;
         }
+        return filterOptionValues;
     }
 
 

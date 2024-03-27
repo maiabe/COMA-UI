@@ -450,6 +450,10 @@
 }
 
 
+.filter-content-wrapper.filter-category-wrapper {
+    flex-wrap: wrap;
+}
+
 .filter-content-wrapper.filter-category-wrapper .checkbox-wrapper {
     display: flex;
     align-items: center;

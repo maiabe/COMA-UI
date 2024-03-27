@@ -652,12 +652,31 @@ export default class Hub {
         let processed = false;
         // get objectname here (from WM)
         console.log(data);
-        const objectFetchURL = 'http://coma.ifa.hawaii.edu:8000/api/v2/' + data.queryType + '/' + data.queryEntries.objects;
+        /*const objectFetchURL = 'http://coma.ifa.hawaii.edu:8001/api/v2/objects/' + data.queryEntries.objects;
         console.log(objectFetchURL);
         const response = await fetch(objectFetchURL);
         const rjson = await response.json();
         console.log(rjson);
-        const objectName = rjson.object.ui_name;
+        const objectName = rjson.object.ui_name;*/
+
+        if (data.status === 'success') {
+            const workerId = this.#getNewWorkerIndex();
+            this.#prepWorker(workerId, MODULE_MANAGER, 'Set Module Data Event', data.moduleKey)
+                .getObjectName(workerId, data);  // change objects property to objectId
+
+            // Update popup content of the search module
+            const moduleName = GM.MM.getModule(data.moduleKey).getData('name').toLowerCase();
+            // update module popup content
+            GM.MM.updatePopupContent(data.moduleKey, moduleName, data);
+        }
+        else {
+            // update module popup with error screen
+        }
+
+        
+        /*
+
+        console.log(objectName);
 
         if (data.status === 'success') {
             const moduleData = {
@@ -679,12 +698,12 @@ export default class Hub {
             GM.MM.updatePopupContent(data.moduleKey, moduleName, data);
 
             // toggle Module color
-            /*GM.ENV.toggleNodeColor(data.moduleKey, processed);
-            GM.MM.toggleHeaderColor(data.moduleKey, processed);*/
+            *//*GM.ENV.toggleNodeColor(data.moduleKey, processed);
+            GM.MM.toggleHeaderColor(data.moduleKey, processed);*//*
         }
         else {
             // update module popup with error screen
-        }
+        }*/
         
         //if (!GM.PM.isPopupOpen(data.moduleKey)) this.#openModulePopup(data.moduleKey, 0, 0);
     }

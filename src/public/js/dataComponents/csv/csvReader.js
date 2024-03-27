@@ -139,8 +139,8 @@ export class CsvReader {
         if (content) {
             var rows = content.split(/\r\n|\n/);
             // delete all empty rows
-            rows = rows.filter(str => !/^\s*(,|\s)*\s*$/.test(str));
-            var columns = rows[0].split(',');
+            rows = rows.filter(str => !/^\s*(\",|\s)*\s*$/.test(str));
+            var columns = rows[0].split('\",');
             // remove empty columns
             var emptyCols = [];
             columns.forEach((str, i) => {
@@ -153,7 +153,8 @@ export class CsvReader {
             rows.forEach((row, i) => {
                 if (i > 0) {
                     var rowObj = {};
-                    var values = row.split(',');
+                    var values = row.split('\",');
+
                     // remove empty column values
                     values.forEach((val, j) => {
                         if (emptyCols.includes(j)) {

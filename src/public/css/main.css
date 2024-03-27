@@ -169,7 +169,7 @@ Contains the main diagram, the plot view, the create module pipeline and sub env
   left: 50%;
   top: 92%;
   position: absolute;
-  z-index: 10000;
+  z-index: 3;
   width: 6em;
   height: 2em;
   font-size: 0.8em;

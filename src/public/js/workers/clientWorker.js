@@ -124,7 +124,7 @@ function handleFetchError(queryType, query, reason) {
 }
 
 function handleDatabaseQueryReturn(data, response) {
-    console.log(response);
+    /*console.log(response);*/
     let sourceData = response[data.responseKey];
     console.log(sourceData);
     // sort data if needed
@@ -159,6 +159,12 @@ function handleDatabaseQueryReturn(data, response) {
         taskResult: taskResult
     });
 }*/
+
+function handleObjectNameReturn(moduleData, result) {
+    /*console.log(data);*/
+    const objectName = result.object.ui_name;
+    postMessage({ type: 'Object Name Return', objectName: objectName, moduleData: moduleData });
+}
 
 function handleMetadataReturn(data) {
     postMessage({ type: 'Metadata Return', clientId: id, data: data.returnData });
@@ -462,8 +468,14 @@ async function getPlanetOrbits() {
         });
 }
 
-async function getObjectName(objectID) {
-    const url = coma_api + 'objects/' + objectID;
-    console.log(url);
+async function getObjectName(e) {
+    const url = coma_api + 'objects/' + e.data.objectId;
+    try {
+        const response = await fetch(url)
+        const result = await response.json();
+        handleObjectNameReturn(e.data.moduleData, result);
+    } catch (error) {
+        console.error(error);
+    }
     return url;
 }

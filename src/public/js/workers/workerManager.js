@@ -141,6 +141,26 @@ export class WorkerManager {
                         this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, moduleData));
                         workerObject.stopWorkerFunction(id);
                         break;
+                    case 'Object Name Return':
+                        // Sets search moduleData including the objectName
+                        console.log(event.data);
+                        const objectName = event.data.objectName;
+                        const setSearchModuleData = {
+                            moduleKey: event.data.moduleData.moduleKey,
+                            moduleData: {
+                                remoteData: event.data.moduleData.remoteData,
+                                status: event.data.moduleData.status,
+                                datasetType: event.data.moduleData.datasetType,
+                                sourceData: event.data.moduleData.sourceData,
+                                cometOrbit: event.data.moduleData.comet_orbit,
+                                objectName: objectName,
+                            },
+                            toggleModuleColor: true,
+                        }
+
+                        this.#sendMessage(new Message(workerObject.returnMessageRecipient, WORKER_MANAGER, workerObject.returnMessage.message, setSearchModuleData));
+                        workerObject.stopWorkerFunction(id);
+                        break;
                     case 'Handle Fetch Error':
                         const data = {
                             moduleKey: workerObject.returnMessage.moduleKey,
@@ -337,30 +357,27 @@ export class WorkerManager {
                 data.formdata.forEach((value, key) => { entries[key] = value });
             }*/
             this.#workers.get(workerId).worker.postMessage(
-                {
-                    type: 'Query COMA Engine',
-                    remoteData: data.remoteData,
-                    datasetType: data.datasetType,
-                    queryType: data.queryType,
-                    queryEntries: data.queryEntries,
-                    responseKey: data.responseKey,
-                    sortBy: data.sortBy,
-                    columnsToRender: data.columnsToRender,
-                });
+            {
+                type: 'Query COMA Engine',
+                remoteData: data.remoteData,
+                datasetType: data.datasetType,
+                queryType: data.queryType,
+                queryEntries: data.queryEntries,
+                responseKey: data.responseKey,
+                sortBy: data.sortBy,
+                columnsToRender: data.columnsToRender,
+            });
         }
     }
 
-    getObjectName(workerId, objectID) {
+    getObjectName(workerId, data) {
+        const objectId = data.queryEntries.objects;
         if (this.#workers.has(workerId)) {
-            /*const entries = {};
-            if (data.formdata) {
-                data.formdata.forEach((value, key) => { entries[key] = value });
-            }*/
-            this.#workers.get(workerId).worker.postMessage(
-                {
-                    type: 'Get Object Name',
-                    objectID: objectID
-                });
+            this.#workers.get(workerId).worker.postMessage({
+                type: 'Get Object Name',
+                objectId: objectId,
+                moduleData: data,
+            });
         }
     }
 

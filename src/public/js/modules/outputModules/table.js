@@ -44,6 +44,7 @@ export class Table extends Output {
     }
 
     prepInspectorCardData(toModuleKey, fromModuleData) {
+        console.log(fromModuleData);
         this.sendMessage(new Message(INPUT_MANAGER, MODULE, 'Prep Table Data Event', { moduleKey: toModuleKey, sourceModuleData: fromModuleData }));
     }
 
